@@ -1,7 +1,17 @@
 import Foundation
-import GTMSessionFetcherCore
-import SchemaProtos
 import SwiftProtobuf
+
+#if canImport(GTMSessionFetcherCore)
+import GTMSessionFetcherCore
+#elseif canImport(GTMSessionFetcher)
+import GTMSessionFetcher
+#else
+#error("Can't import GTMSessionFetcher")
+#endif
+
+#if canImport(SchemaProtosSwift)
+import SchemaProtosSwift
+#endif
 
 @objc(PAMetricsLogger)
 public class MetricsLogger: NSObject {

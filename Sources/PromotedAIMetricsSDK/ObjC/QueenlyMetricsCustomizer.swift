@@ -1,6 +1,10 @@
 import Foundation
 import Protobuf
-import SchemaObjC
+
+#if canImport(SchemaProtosObjC)
+import SchemaProtosObjC
+#endif
+
 
 @objc(PAQueenlyMetricsCustomizer)
 public class QueenlyMetricsCustomizer: NSObject, ObjCMetricsCustomizer {

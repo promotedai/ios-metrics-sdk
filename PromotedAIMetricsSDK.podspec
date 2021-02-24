@@ -24,18 +24,25 @@ Pod::Spec.new do |s|
   s.source_files = [
     'Sources/PromotedAIMetricsSDK/**/*.{h,m,swift}']
   
-  s.subspec 'SchemaProtos' do |p|
+  s.subspec 'SchemaProtosObjC' do |p|
     p.source_files = [
       'Sources/SchemaProtos/objc/**/*.{h,m}']
     p.public_header_files = [
       'Sources/SchemaProtos/objc/headers/*.h']
     p.pod_target_xcconfig = {
-      'GCC_PREPROCESSOR_DEFINITIONS' => 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 '}
+      'GCC_PREPROCESSOR_DEFINITIONS' => 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1'}
+    # TODO(yu-hong): __dir__ is a hack to get this working locally.
     p.xcconfig = {
-      'USER_HEADER_SEARCH_PATHS' => '"Sources/SchemaProtos/objc"'}
+      'USER_HEADER_SEARCH_PATHS' => '"' + __dir__ + '/Sources/SchemaProtos/objc"'}
+    p.requires_arc = false
+  end
+  
+  s.subspec 'SchemaProtosSwift' do |p|
+    p.source_files = [
+      'Sources/SchemaProtos/swift/*.swift']
   end
 
   s.dependency 'GTMSessionFetcher', '~> 1.5.0'
-  s.dependency 'Protobuf', '~> 3.9.2'
+  s.dependency 'Protobuf', '~> 3'
   s.dependency 'SwiftProtobuf', '~> 1.15.0'
 end

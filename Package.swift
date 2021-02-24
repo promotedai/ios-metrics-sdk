@@ -20,8 +20,8 @@ let package = Package(
       name: "PromotedAIMetricsSDK",
       dependencies: [
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
-        .product(name: "SwiftProtobuf", package: "SwiftProtobuf"),
-        "SchemaProtos",
+        "SwiftProtobuf",
+        "SchemaProtosSwift",
       ],
       exclude: [
         "ObjC"
@@ -32,10 +32,11 @@ let package = Package(
         "PromotedAIMetricsSDK"
       ]),
     .target(
-      name: "SchemaProtos",
+      name: "SchemaProtosSwift",
       dependencies: [
-        .product(name: "SwiftProtobuf", package: "SwiftProtobuf"),
+        "SwiftProtobuf",
       ],
+      path: "Sources/SchemaProtos/swift",
       exclude: [
         "objc"
       ])

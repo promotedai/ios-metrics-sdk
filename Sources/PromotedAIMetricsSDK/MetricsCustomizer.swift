@@ -1,6 +1,9 @@
 import Foundation
-import SchemaProtos
 import SwiftProtobuf
+
+#if canImport(SchemaProtosSwift)
+import SchemaProtosSwift
+#endif
 
 public protocol MetricsCustomizer {
   func sessionStartMessage(commonMessage: Event_Session, clientMessage: Message?) -> Message

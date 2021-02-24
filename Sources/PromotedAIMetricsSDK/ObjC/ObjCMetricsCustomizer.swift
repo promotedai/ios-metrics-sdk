@@ -1,6 +1,9 @@
 import Foundation
 import Protobuf
-import SchemaObjC
+
+#if canImport(SchemaProtosObjC)
+import SchemaProtosObjC
+#endif
 
 @objc(PAMetricsCustomizer)
 public protocol ObjCMetricsCustomizer {
