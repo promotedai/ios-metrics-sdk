@@ -7,25 +7,44 @@ let package = Package(
   products: [
     .library(
       name: "PromotedAIMetricsSDK",
-      targets: ["PromotedAIMetricsSDK"]),
+      targets: [
+        "PromotedAIMetricsSDK",
+      ]),
   ],
   dependencies: [
     .package(name: "GTMSessionFetcher", url: "https://github.com/google/gtm-session-fetcher", from: "1.5.0"),
     .package(name: "PromotedAICommonSchema", path: "../../common-schema"),
     .package(name: "PromotedAISchema", path: "../../schema"),
+    .package(name: "Protobuf", path: "../../protobuf"),
     .package(name: "SwiftProtobuf", url: "https://github.com/apple/swift-protobuf", from: "1.15.0"),
   ],
   targets: [
     .target(
       name: "PromotedAIMetricsSDK",
       dependencies: [
-        .product(name: "CommonSchema", package: "PromotedAICommonSchema"),
+        .product(name: "CommonSchemaObjC", package: "PromotedAICommonSchema"),
+        .product(name: "CommonSchemaSwift", package: "PromotedAICommonSchema"),
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
-        .product(name: "Schema", package: "PromotedAISchema"),
+        .product(name: "Protobuf", package: "Protobuf"),
+        .product(name: "SchemaObjC", package: "PromotedAISchema"),
+        .product(name: "SchemaSwift", package: "PromotedAISchema"),
         .product(name: "SwiftProtobuf", package: "SwiftProtobuf"),
+        .target(name: "PromotedAIMetricsObjectiveCSDK"),
+      ],
+      cSettings: [
+        .define("USE_SWIFT_PACKAGE_PROTOBUF_IMPORT"),
+      ]),
+    .target(
+      name: "PromotedAIMetricsObjectiveCSDK",
+      dependencies: [
       ]),
     .testTarget(
       name: "PromotedAIMetricsSDKTests",
-      dependencies: ["PromotedAIMetricsSDK"]),
+      dependencies: [
+        "PromotedAIMetricsSDK"
+      ],
+      cSettings: [
+        .define("USE_SWIFT_PACKAGE_PROTOBUF_IMPORT"),
+      ]),
   ]
 )
