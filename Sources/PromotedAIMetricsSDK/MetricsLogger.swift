@@ -10,28 +10,51 @@ public class MetricsLogger: NSObject {
   private var fetcherService: GTMSessionFetcherService
   private var events: [GPBMessage]
   
+  private var logUserID: String
+  private var sessionID: String
+  
   init(customizer: MetricsCustomizer,
        fetcherService: GTMSessionFetcherService = GTMSessionFetcherService()) {
     self.fetcherService = fetcherService
     self.customizer = customizer
     self.events = []
+    self.logUserID = "logUserID"
+    self.sessionID = "sessionID"
   }
   
-  func logSessionStart() {
-    var session = PSESession()
-    session.platformId = 0
-    session.logUserId = "logUserID"
-    session.clientLogTimestamp = MetricsTimestamp()
-    session.sessionId = "sessionID"
-    let customizedSession = customizer.sessionStartMessage(commonMessage: session)
-    events.append(customizedSession)
+  func logSessionStart(clientMessage: GPBMessage? = nil) {
+    var commonSession = PSESession()
+    ProtobufSilenceVarWarning(&commonSession)
+
+    commonSession.clientLogTimestamp = MetricsTimestamp()
+    commonSession.logUserId = logUserID
+    commonSession.platformId = 0
+    commonSession.sessionId = sessionID
+
+    let session = customizer.sessionStartMessage(commonMessage: commonSession, clientMessage: clientMessage)
+    events.append(session)
+  }
+
+  func logImpression(clientMessage: GPBMessage? = nil) {
+    var commonImpression = PSEImpression()
+    ProtobufSilenceVarWarning(&commonImpression)
+
+    commonImpression.clientLogTimestamp = MetricsTimestamp()
+    commonImpression.sessionId = sessionID
+
+    let impression = customizer.impressionMessage(commonMessage: commonImpression, clientMessage: clientMessage)
+    events.append(impression)
   }
   
-  func logImpression() {
-    var impression = PSEImpression()
-    impression.clientLogTimestamp = MetricsTimestamp()
-    let customizedImpression = customizer.impressionMessage(commonMessage: impression)
-    events.append(customizedImpression)
+  func logClick(clientMessage: GPBMessage? = nil) {
+    var commonClick = PSEClick()
+    ProtobufSilenceVarWarning(&commonClick)
+
+    commonClick.clientLogTimestamp = MetricsTimestamp()
+    commonClick.sessionId = sessionID
+
+    let click = customizer.clickMessage(commonMessage: commonClick, clientMessage: clientMessage)
+    events.append(click)
   }
 
   func flush() {

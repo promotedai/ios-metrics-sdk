@@ -29,14 +29,9 @@ let package = Package(
         .product(name: "SchemaObjC", package: "PromotedAISchema"),
         .product(name: "SchemaSwift", package: "PromotedAISchema"),
         .product(name: "SwiftProtobuf", package: "SwiftProtobuf"),
-        .target(name: "PromotedAIMetricsObjectiveCSDK"),
       ],
       cSettings: [
         .define("USE_SWIFT_PACKAGE_PROTOBUF_IMPORT"),
-      ]),
-    .target(
-      name: "PromotedAIMetricsObjectiveCSDK",
-      dependencies: [
       ]),
     .testTarget(
       name: "PromotedAIMetricsSDKTests",
