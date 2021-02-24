@@ -24,6 +24,9 @@ let package = Package(
         "SchemaProtosSwift",
       ],
       exclude: [
+        // Exclude the ObjC directory from SPM because we can't resolve the
+        // ObjC Protobuf dependency in this system. Only the Cocoapod can
+        // use ObjC Protobufs.
         "ObjC"
       ]),
     .testTarget(

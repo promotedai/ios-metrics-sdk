@@ -16,16 +16,19 @@ protoc --objc_out=$OBJC_OUT \
        -I ../schema \
        ../schema/proto/**/*.proto
 
-#perl -i -p0e \
-#     's! #import <Protobuf/GPBProtocolBuffers.*.h>! #import <Protobuf/GPBProtocolBuffers_RuntimeSupport.h>\n#elif USE_SWIFT_PACKAGE_PROTOBUF_IMPORT\n \@import Protobuf;!g' \
-#     $OBJC_OUT/**/*.m $OBJC_OUT/**/*.h
-
 OBJC_HEADER_ROOT=$OBJC_OUT/headers
 mkdir -p $OBJC_HEADER_ROOT
 OBJC_PROTO_ROOT=$OBJC_OUT/proto
-for file in $OBJC_PROTO_ROOT/**/*.h(.); do
+for file in $OBJC_PROTO_ROOT/**/*(.); do
   prefix=`echo $file | \
     sed -E 's!'"$OBJC_PROTO_ROOT"'/(([a-z]+/)*)[a-z]+/[^/]+!\1!g' | \
     awk 'BEGIN{FS="/"; OFS="";} {for (i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1'`
-  cp $file $OBJC_HEADER_ROOT/$prefix`basename $file`
+  case $file in
+  *.h) 
+    cp $file $OBJC_HEADER_ROOT/$prefix`basename $file`
+    ;;
+  *.m)
+    mv $file `dirname $file`/$prefix`basename $file`
+    ;;
+  esac
 done
