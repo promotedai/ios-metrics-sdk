@@ -2,8 +2,8 @@ import Foundation
 import Protobuf
 import SchemaObjC
 
-@objc(QueenlyMetricsCustomizer)
-public class QueenlyMetricsCustomizer: NSObject, MetricsCustomizer {
+@objc(PAQueenlyMetricsCustomizer)
+public class QueenlyMetricsCustomizer: NSObject, ObjCMetricsCustomizer {
   public func sessionStartMessage(commonMessage: PSESession, clientMessage: GPBMessage?) -> GPBMessage {
     var session = clientMessage as? PSQQueenlySession ?? PSQQueenlySession()
     ProtobufSilenceVarWarning(&session)

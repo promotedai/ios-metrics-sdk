@@ -1,14 +1,14 @@
 import Foundation
 import GTMSessionFetcherCore
-import Protobuf
-import SchemaObjC
+import SchemaProtos
+import SwiftProtobuf
 
 @objc(PAMetricsLogger)
 public class MetricsLogger: NSObject {
   public var customizer: MetricsCustomizer
   
   private var fetcherService: GTMSessionFetcherService
-  private var events: [GPBMessage]
+  private var events: [Message]
   
   private var logUserID: String
   private var sessionID: String
@@ -22,36 +22,33 @@ public class MetricsLogger: NSObject {
     self.sessionID = "sessionID"
   }
   
-  func logSessionStart(clientMessage: GPBMessage? = nil) {
-    var commonSession = PSESession()
-    ProtobufSilenceVarWarning(&commonSession)
+  func logSessionStart(clientMessage: Message? = nil) {
+    var commonSession = Event_Session()
 
     commonSession.clientLogTimestamp = MetricsTimestamp()
-    commonSession.logUserId = logUserID
-    commonSession.platformId = 0
-    commonSession.sessionId = sessionID
+    commonSession.logUserID = logUserID
+    commonSession.platformID = 0
+    commonSession.sessionID = sessionID
 
     let session = customizer.sessionStartMessage(commonMessage: commonSession, clientMessage: clientMessage)
     events.append(session)
   }
 
-  func logImpression(clientMessage: GPBMessage? = nil) {
-    var commonImpression = PSEImpression()
-    ProtobufSilenceVarWarning(&commonImpression)
+  func logImpression(clientMessage: Message? = nil) {
+    var commonImpression = Event_Impression()
 
     commonImpression.clientLogTimestamp = MetricsTimestamp()
-    commonImpression.sessionId = sessionID
+    commonImpression.sessionID = sessionID
 
     let impression = customizer.impressionMessage(commonMessage: commonImpression, clientMessage: clientMessage)
     events.append(impression)
   }
   
-  func logClick(clientMessage: GPBMessage? = nil) {
-    var commonClick = PSEClick()
-    ProtobufSilenceVarWarning(&commonClick)
+  func logClick(clientMessage: Message? = nil) {
+    var commonClick = Event_Click()
 
     commonClick.clientLogTimestamp = MetricsTimestamp()
-    commonClick.sessionId = sessionID
+    commonClick.sessionID = sessionID
 
     let click = customizer.clickMessage(commonMessage: commonClick, clientMessage: clientMessage)
     events.append(click)
@@ -62,15 +59,23 @@ public class MetricsLogger: NSObject {
     events.removeAll()
     let url = URL(string: "http://localhost:8080/hello")!
     var request = URLRequest(url: url)
-    let messageData = batchMessage.data()
-    request.httpBody = messageData
-    let fetcher = fetcherService.fetcher(with: request)
-    fetcher.beginFetch { (data, error) in
-      guard error == nil else {
-        print("ERROR: \(error.debugDescription)")
-        return
+    do {
+      let messageData = try batchMessage.serializedData()
+      request.httpBody = messageData
+      let fetcher = fetcherService.fetcher(with: request)
+      fetcher.beginFetch { (data, error) in
+        guard error == nil else {
+          print("ERROR: \(error.debugDescription)")
+          return
+        }
+        print("Fetch finished: \(String(describing: data))")
       }
-      print("Fetch finished: \(String(describing: data))")
+    } catch BinaryEncodingError.missingRequiredFields {
+      print("ERROR: Missing required fields.")
+    } catch BinaryEncodingError.anyTranscodeFailure {
+      print("ERROR: Any transcode failed.")
+    } catch {
+      print("ERROR: Unknown error serializing protobuf.")
     }
   }
 }

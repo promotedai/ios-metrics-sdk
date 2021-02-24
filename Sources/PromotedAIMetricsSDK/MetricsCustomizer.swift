@@ -1,19 +1,18 @@
 import Foundation
-import Protobuf
-import SchemaObjC
+import SchemaProtos
+import SwiftProtobuf
 
-@objc(PAMetricsCustomizer)
 public protocol MetricsCustomizer {
-  func sessionStartMessage(commonMessage: PSESession, clientMessage: GPBMessage?) -> GPBMessage
+  func sessionStartMessage(commonMessage: Event_Session, clientMessage: Message?) -> Message
 
-//  func userMessage(commonMessage: PSEUser) -> GPBMessage
-//  func sessionProfileMessage(commonMessage: PSESessionProfile) -> GPBMessage
-//  func sessionMessage(commonMessage: PSESession) -> GPBMessage
-//  func viewMessage(commonMessage: PSEView) -> GPBMessage
-//  func requestMessage(commonMessage: PSERequest) -> GPBMessage
-//  func insertionMessage(commonMessage: PSEInsertion) -> GPBMessage
-  func impressionMessage(commonMessage: PSEImpression, clientMessage: GPBMessage?) -> GPBMessage
-  func clickMessage(commonMessage: PSEClick, clientMessage: GPBMessage?) -> GPBMessage
+//  func userMessage(commonMessage: Event_User) -> GPBMessage
+//  func sessionProfileMessage(commonMessage: Event_SessionProfile) -> Message
+//  func sessionMessage(commonMessage: Event_Session) -> Message
+//  func viewMessage(commonMessage: Event_View) -> Message
+//  func requestMessage(commonMessage: Event_Request) -> Message
+//  func insertionMessage(commonMessage: Event_Insertion) -> Message
+  func impressionMessage(commonMessage: Event_Impression, clientMessage: Message?) -> Message
+  func clickMessage(commonMessage: Event_Click, clientMessage: Message?) -> Message
   
-  func batchLogMessage(contents: [GPBMessage]) -> GPBMessage
+  func batchLogMessage(contents: [Message]) -> Message
 }
