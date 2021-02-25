@@ -12,6 +12,7 @@ mkdir -p $OBJC_OUT $SWIFT_OUT
 protoc --objc_out=$OBJC_OUT \
        --swift_opt=Visibility=Public \
        --swift_opt=FileNaming=PathToUnderscores \
+       --swift_opt=ProtoPathModuleMappings=schema_proto_package_mapping.asciipb \
        --swift_out=$SWIFT_OUT \
        -I ../schema \
        ../schema/proto/**/*.proto

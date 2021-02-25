@@ -1,0 +1,16 @@
+mapping {
+  module_name: "SchemaProtosSwift"
+  proto_file_path: "proto/common/common.proto"
+  proto_file_path: "proto/event/event.proto"
+  proto_file_path: "proto/pacing/pacing.proto"
+  proto_file_path: "proto/promotion/promotion.proto"
+}
+mapping {
+  module_name: "PangeaSchemaProtosSwift"
+  proto_file_path: "proto/pangea/event/event.proto"
+}
+mapping {
+  module_name: "QueenlySchemaProtosSwift"
+  proto_file_path: "proto/queenly/content/content.proto"
+  proto_file_path: "proto/queenly/event/.proto"
+}

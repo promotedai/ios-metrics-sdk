@@ -1,5 +1,4 @@
 import Foundation
-import SwiftProtobuf
 
 #if canImport(GTMSessionFetcherCore)
 import GTMSessionFetcherCore
@@ -9,62 +8,65 @@ import GTMSessionFetcher
 #error("Can't import GTMSessionFetcher")
 #endif
 
-#if canImport(SchemaProtosSwift)
-import SchemaProtosSwift
+#if canImport(SwiftProtobuf)
+import SwiftProtobuf
 #endif
 
-public class MetricsLogger: NSObject {
-  public var customizer: MetricsCustomizer
+@objc(PAMetricsLogger)
+open class MetricsLogger: NSObject {
+  
+  public typealias ClientData = Dictionary<String, AnyObject>
   
   private var fetcherService: GTMSessionFetcherService
-  private var events: [Message]
+  private var events: [LogMessage]
   
   private var logUserID: String
   private var sessionID: String
   
-  public init(customizer: MetricsCustomizer,
-              fetcherService: GTMSessionFetcherService = GTMSessionFetcherService()) {
+  @objc public override convenience init() {
+    self.init(fetcherService: GTMSessionFetcherService())
+  }
+  
+  @objc public init(fetcherService: GTMSessionFetcherService) {
     self.fetcherService = fetcherService
-    self.customizer = customizer
     self.events = []
     self.logUserID = "logUserID"
     self.sessionID = "sessionID"
   }
   
-  public func logSessionStart(clientMessage: Message? = nil) {
-    var commonSession = Event_Session()
-
-    commonSession.clientLogTimestamp = MetricsTimestamp()
-    commonSession.logUserID = logUserID
-    commonSession.platformID = 0
-    commonSession.sessionID = sessionID
-
-    let session = customizer.sessionStartMessage(commonMessage: commonSession, clientMessage: clientMessage)
-    events.append(session)
+  public func commonSessionStartEvent() -> SessionEvent {
+    var session = SessionEvent()
+    session.clientLogTimestamp = MetricsTimestamp()
+    session.logUserID = logUserID
+    session.platformID = 0
+    session.sessionID = sessionID
+    return session
   }
 
-  public func logImpression(clientMessage: Message? = nil) {
-    var commonImpression = Event_Impression()
-
-    commonImpression.clientLogTimestamp = MetricsTimestamp()
-    commonImpression.sessionID = sessionID
-
-    let impression = customizer.impressionMessage(commonMessage: commonImpression, clientMessage: clientMessage)
-    events.append(impression)
+  public func commonImpressionEvent() -> ImpressionEvent {
+    var impression = ImpressionEvent()
+    impression.clientLogTimestamp = MetricsTimestamp()
+    impression.sessionID = sessionID
+    return impression
   }
   
-  public func logClick(clientMessage: Message? = nil) {
-    var commonClick = Event_Click()
-
-    commonClick.clientLogTimestamp = MetricsTimestamp()
-    commonClick.sessionID = sessionID
-
-    let click = customizer.clickMessage(commonMessage: commonClick, clientMessage: clientMessage)
-    events.append(click)
+  public func commonClickEvent() -> ClickEvent {
+    var click = ClickEvent()
+    click.clientLogTimestamp = MetricsTimestamp()
+    click.sessionID = sessionID
+    return click
+  }
+  
+  public func log(event: LogMessage) {
+    events.append(event)
   }
 
-  public func flush() {
-    let batchMessage = customizer.batchLogMessage(contents: events)
+  public func batchLogMessage(events: [LogMessage]) -> LogMessage? {
+    return nil
+  }
+
+  @objc public func flush() {
+    guard let batchMessage = batchLogMessage(events: events) else { return }
     events.removeAll()
     let url = URL(string: "http://localhost:8080/hello")!
     var request = URLRequest(url: url)
@@ -84,7 +86,7 @@ public class MetricsLogger: NSObject {
     } catch BinaryEncodingError.anyTranscodeFailure {
       print("ERROR: Any transcode failed.")
     } catch {
-      print("ERROR: Unknown error serializing protobuf.")
+      print("ERROR: Error serializing protobuf.")
     }
   }
 }
