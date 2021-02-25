@@ -8,7 +8,7 @@ import SchemaProtosObjC
 
 @objc(PAQueenlyMetricsCustomizer)
 public class QueenlyMetricsCustomizer: NSObject, ObjCMetricsCustomizer {
-  public func sessionStartMessage(commonMessage: PSESession, clientMessage: GPBMessage?) -> GPBMessage {
+  @objc public func sessionStartMessage(commonMessage: PSESession, clientMessage: GPBMessage?) -> GPBMessage {
     var session = clientMessage as? PSQQueenlySession ?? PSQQueenlySession()
     ProtobufSilenceVarWarning(&session)
     session.common = commonMessage
@@ -51,21 +51,21 @@ public class QueenlyMetricsCustomizer: NSObject, ObjCMetricsCustomizer {
 //    return insertion
 //  }
 
-  public func impressionMessage(commonMessage: PSEImpression, clientMessage: GPBMessage?) -> GPBMessage {
+  @objc public func impressionMessage(commonMessage: PSEImpression, clientMessage: GPBMessage?) -> GPBMessage {
     var impression = clientMessage as? PSQQueenlyImpression ?? PSQQueenlyImpression()
     ProtobufSilenceVarWarning(&impression)
     impression.common = commonMessage
     return commonMessage
   }
   
-  public func clickMessage(commonMessage: PSEClick, clientMessage: GPBMessage?) -> GPBMessage {
+  @objc public func clickMessage(commonMessage: PSEClick, clientMessage: GPBMessage?) -> GPBMessage {
     var click = clientMessage as? PSQQueenlyClick ?? PSQQueenlyClick()
     ProtobufSilenceVarWarning(&click)
     click.common = commonMessage
     return click
   }
   
-  public func batchLogMessage(contents: [GPBMessage]) -> GPBMessage {
+  @objc public func batchLogMessage(contents: [GPBMessage]) -> GPBMessage {
     var batchMessage = PSQQueenlyBatchLogRequest()
     ProtobufSilenceVarWarning(&batchMessage)
     for message in contents {

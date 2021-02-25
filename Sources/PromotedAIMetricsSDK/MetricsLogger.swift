@@ -13,7 +13,6 @@ import GTMSessionFetcher
 import SchemaProtosSwift
 #endif
 
-@objc(PAMetricsLogger)
 public class MetricsLogger: NSObject {
   public var customizer: MetricsCustomizer
   
@@ -23,8 +22,8 @@ public class MetricsLogger: NSObject {
   private var logUserID: String
   private var sessionID: String
   
-  init(customizer: MetricsCustomizer,
-       fetcherService: GTMSessionFetcherService = GTMSessionFetcherService()) {
+  public init(customizer: MetricsCustomizer,
+              fetcherService: GTMSessionFetcherService = GTMSessionFetcherService()) {
     self.fetcherService = fetcherService
     self.customizer = customizer
     self.events = []
@@ -32,7 +31,7 @@ public class MetricsLogger: NSObject {
     self.sessionID = "sessionID"
   }
   
-  func logSessionStart(clientMessage: Message? = nil) {
+  public func logSessionStart(clientMessage: Message? = nil) {
     var commonSession = Event_Session()
 
     commonSession.clientLogTimestamp = MetricsTimestamp()
@@ -44,7 +43,7 @@ public class MetricsLogger: NSObject {
     events.append(session)
   }
 
-  func logImpression(clientMessage: Message? = nil) {
+  public func logImpression(clientMessage: Message? = nil) {
     var commonImpression = Event_Impression()
 
     commonImpression.clientLogTimestamp = MetricsTimestamp()
@@ -54,7 +53,7 @@ public class MetricsLogger: NSObject {
     events.append(impression)
   }
   
-  func logClick(clientMessage: Message? = nil) {
+  public func logClick(clientMessage: Message? = nil) {
     var commonClick = Event_Click()
 
     commonClick.clientLogTimestamp = MetricsTimestamp()
@@ -64,7 +63,7 @@ public class MetricsLogger: NSObject {
     events.append(click)
   }
 
-  func flush() {
+  public func flush() {
     let batchMessage = customizer.batchLogMessage(contents: events)
     events.removeAll()
     let url = URL(string: "http://localhost:8080/hello")!
