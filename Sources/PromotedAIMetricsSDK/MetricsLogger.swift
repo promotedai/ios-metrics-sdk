@@ -36,6 +36,7 @@ open class MetricsLogger: NSObject {
   
   public func commonSessionStartEvent() -> SessionEvent {
     var session = SessionEvent()
+    ProtobufSilenceVarWarning(&session)
     session.clientLogTimestamp = MetricsTimestamp()
     session.logUserID = logUserID
     session.platformID = 0
@@ -45,6 +46,7 @@ open class MetricsLogger: NSObject {
 
   public func commonImpressionEvent() -> ImpressionEvent {
     var impression = ImpressionEvent()
+    ProtobufSilenceVarWarning(&impression)
     impression.clientLogTimestamp = MetricsTimestamp()
     impression.sessionID = sessionID
     return impression
@@ -52,6 +54,7 @@ open class MetricsLogger: NSObject {
   
   public func commonClickEvent() -> ClickEvent {
     var click = ClickEvent()
+    ProtobufSilenceVarWarning(&click)
     click.clientLogTimestamp = MetricsTimestamp()
     click.sessionID = sessionID
     return click
@@ -68,12 +71,13 @@ open class MetricsLogger: NSObject {
   @objc public func flush() {
     guard let batchMessage = batchLogMessage(events: events) else { return }
     events.removeAll()
-    let url = URL(string: "http://localhost:8080/hello")!
-    var request = URLRequest(url: url)
     do {
       let messageData = try batchMessage.serializedData()
-      request.httpBody = messageData
+      let url = URL(string: "http://localhost:8080/hello")!
+      let request = URLRequest(url: url)
       let fetcher = fetcherService.fetcher(with: request)
+      fetcher.allowLocalhostRequest = true
+      fetcher.bodyData = messageData
       fetcher.beginFetch { (data, error) in
         guard error == nil else {
           print("ERROR: \(error.debugDescription)")
@@ -82,9 +86,11 @@ open class MetricsLogger: NSObject {
         print("Fetch finished: \(String(describing: data))")
       }
     } catch BinaryEncodingError.missingRequiredFields {
-      print("ERROR: Missing required fields.")
+      print("ERROR: SwiftProtobuf: Missing required fields.")
     } catch BinaryEncodingError.anyTranscodeFailure {
-      print("ERROR: Any transcode failed.")
+      print("ERROR: SwiftProtobuf: Any transcode failed.")
+    } catch MessageSerializationError.unknownError {
+      print("ERROR: ObjCProtobuf: Error serializing protobuf.")
     } catch {
       print("ERROR: Error serializing protobuf.")
     }
