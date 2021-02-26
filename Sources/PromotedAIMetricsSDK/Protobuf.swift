@@ -12,7 +12,7 @@ enum MessageSerializationError: Error {
 
 import Protobuf
 
-public typealias LogMessage = GPBMessage
+public typealias Message = GPBMessage
 
 public typealias UserEvent = PROUser
 extension PROUser {
@@ -114,7 +114,7 @@ extension GPBMessage {
 import SwiftProtobuf
 import SchemaProtosSwift
 
-public typealias LogMessage = Message
+public typealias Message = SwiftProtobuf.Message
 public typealias UserEvent = Event_User
 public typealias ImpressionEvent = Event_Impression
 public typealias ClickEvent = Event_Click
