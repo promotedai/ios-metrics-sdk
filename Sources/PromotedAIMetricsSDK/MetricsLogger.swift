@@ -17,25 +17,18 @@ open class MetricsLogger: NSObject {
   
   private static let localMetricsLoggingURLString = "http://localhost:8080/metrics"
   
-  private let fetcherService: GTMSessionFetcherService
   private let metricsLoggingURL: URL
+  private let fetcherService: GTMSessionFetcherService
   private let clock: Clock
-  private var events: [LogMessage]
+  private var events: [Message]
 
   private var userID: String
   private var logUserID: String
   private var sessionID: String
-  
-  @objc public override convenience init() {
-    self.init(fetcherService: GTMSessionFetcherService())
-  }
-  
-  @objc public convenience init(fetcherService: GTMSessionFetcherService) {
-    let dummyURL = URL(string: MetricsLogger.localMetricsLoggingURLString)!
-    self.init(fetcherService: fetcherService, metricsLoggingURL: dummyURL, clock: SystemClock())
-  }
-  
-  public init(fetcherService: GTMSessionFetcherService, metricsLoggingURL: URL, clock: Clock) {
+
+  @objc public init(metricsLoggingURL: URL,
+                    fetcherService: GTMSessionFetcherService,
+                    clock: Clock) {
     self.fetcherService = fetcherService
     self.metricsLoggingURL = metricsLoggingURL
     self.clock = clock
@@ -95,12 +88,12 @@ open class MetricsLogger: NSObject {
     return click
   }
   
-  public func log(event: LogMessage) {
+  public func log(event: Message) {
     events.append(event)
   }
 
   /** Subclasses should override to provide batch protos. */
-  open func batchLogMessage(events: [LogMessage]) -> LogMessage? {
+  open func batchLogMessage(events: [Message]) -> Message? {
     return nil
   }
 
