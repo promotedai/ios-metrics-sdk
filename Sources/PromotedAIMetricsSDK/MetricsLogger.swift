@@ -14,28 +14,30 @@ import SwiftProtobuf
 
 @objc(PROMetricsLogger)
 open class MetricsLogger: NSObject {
-  
-  private static let localMetricsLoggingURLString = "http://localhost:8080/metrics"
-  
-  private let metricsLoggingURL: URL
+
+  private let config: ClientConfig
   private let fetcherService: GTMSessionFetcherService
   private let clock: Clock
   private var events: [Message]
+  
+  private let metricsLoggingURL: URL?
 
   private var userID: String
   private var logUserID: String
   private var sessionID: String
 
-  @objc public init(metricsLoggingURL: URL,
+  @objc public init(clientConfig: ClientConfig,
                     fetcherService: GTMSessionFetcherService,
                     clock: Clock) {
+    self.config = clientConfig
     self.fetcherService = fetcherService
-    self.metricsLoggingURL = metricsLoggingURL
     self.clock = clock
     self.events = []
     self.userID = "userID"
     self.logUserID = "logUserID"
     self.sessionID = "sessionID"
+    
+    self.metricsLoggingURL = URL(string: config.metricsLoggingURL)
   }
   
   public func commonUserEvent() -> UserEvent {
@@ -98,11 +100,13 @@ open class MetricsLogger: NSObject {
   }
 
   @objc public func flush() {
-    guard let batchMessage = batchLogMessage(events: events) else { return }
+    let eventsCopy = events
     events.removeAll()
+    guard let batchMessage = batchLogMessage(events: eventsCopy) else { return }
+    guard let url = metricsLoggingURL else { return }
     do {
       let messageData = try batchMessage.serializedData()
-      let request = URLRequest(url: metricsLoggingURL)
+      let request = URLRequest(url: url)
       let fetcher = fetcherService.fetcher(with: request)
       fetcher.allowLocalhostRequest = true
       fetcher.bodyData = messageData
