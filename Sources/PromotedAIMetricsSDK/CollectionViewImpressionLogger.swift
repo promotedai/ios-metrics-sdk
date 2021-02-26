@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-@objc(PAICollectionViewCellImpression)
+@objc(PROCollectionViewCellImpression)
 public class CollectionViewCellImpression: NSObject {
   @objc public var path: IndexPath
   @objc public var startTime: TimeInterval
@@ -40,7 +40,7 @@ public class CollectionViewCellImpression: NSObject {
   }
 }
 
-@objc(PAICollectionViewImpressionLoggerDelegate)
+@objc(PROCollectionViewImpressionLoggerDelegate)
 public protocol CollectionViewImpressionLoggerDelegate {
   func impressionLogger(
       _ impressionLogger: CollectionViewImpressionLogger,
@@ -50,7 +50,7 @@ public protocol CollectionViewImpressionLoggerDelegate {
       didEndImpressions impressions: [CollectionViewCellImpression])
 }
 
-@objc(PAICollectionViewImpressionLoggerDataSource)
+@objc(PROCollectionViewImpressionLoggerDataSource)
 public protocol CollectionViewImpressionLoggerDataSource {
   var indexPathsForVisibleItems: [IndexPath] { get }
 }
@@ -65,7 +65,7 @@ class UICollectionViewDataSource : CollectionViewImpressionLoggerDataSource {
   }
 }
 
-@objc(PAICollectionViewImpressionLogger)
+@objc(PROCollectionViewImpressionLogger)
 public class CollectionViewImpressionLogger: NSObject {
   private let dataSource: CollectionViewImpressionLoggerDataSource
   private let clock: Clock
