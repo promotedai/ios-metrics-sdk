@@ -15,11 +15,14 @@ import SwiftProtobuf
 @objc(PAMetricsLogger)
 open class MetricsLogger: NSObject {
   
-  public typealias ClientData = Dictionary<String, AnyObject>
+  private static let localMetricsLoggingURLString = "http://localhost:8080/metrics"
   
-  private var fetcherService: GTMSessionFetcherService
+  private let fetcherService: GTMSessionFetcherService
+  private let metricsLoggingURL: URL
+  private let clock: Clock
   private var events: [LogMessage]
-  
+
+  private var userID: String
   private var logUserID: String
   private var sessionID: String
   
@@ -27,36 +30,68 @@ open class MetricsLogger: NSObject {
     self.init(fetcherService: GTMSessionFetcherService())
   }
   
-  @objc public init(fetcherService: GTMSessionFetcherService) {
+  @objc public convenience init(fetcherService: GTMSessionFetcherService) {
+    let dummyURL = URL(string: MetricsLogger.localMetricsLoggingURLString)!
+    self.init(fetcherService: fetcherService, metricsLoggingURL: dummyURL, clock: SystemClock())
+  }
+  
+  public init(fetcherService: GTMSessionFetcherService, metricsLoggingURL: URL, clock: Clock) {
     self.fetcherService = fetcherService
+    self.metricsLoggingURL = metricsLoggingURL
+    self.clock = clock
     self.events = []
+    self.userID = "userID"
     self.logUserID = "logUserID"
     self.sessionID = "sessionID"
   }
   
-  public func commonSessionStartEvent() -> SessionEvent {
-    var session = SessionEvent()
-    ProtobufSilenceVarWarning(&session)
-    session.clientLogTimestamp = MetricsTimestamp()
-    session.logUserID = logUserID
-    session.platformID = 0
-    session.sessionID = sessionID
-    return session
+  public func commonUserEvent() -> UserEvent {
+    var user = UserEvent()
+    Protobuf.SilenceVarWarning(&user)
+    user.userID = userID
+    user.logUserID = logUserID
+    user.clientLogTimestamp = clock.nowMillis
+    return user
   }
 
-  public func commonImpressionEvent() -> ImpressionEvent {
+  public func commonImpressionEvent(
+      impressionID: String,
+      insertionID: String? = nil,
+      requestID: String? = nil,
+      viewID: String? = nil) -> ImpressionEvent {
     var impression = ImpressionEvent()
-    ProtobufSilenceVarWarning(&impression)
-    impression.clientLogTimestamp = MetricsTimestamp()
+    Protobuf.SilenceVarWarning(&impression)
+    impression.logUserID = logUserID
+    impression.clientLogTimestamp = clock.nowMillis
+    impression.impressionID = impressionID
+    if let id = insertionID { impression.insertionID = id }
+    if let id = requestID { impression.requestID = id}
     impression.sessionID = sessionID
+    if let id = viewID { impression.viewID = id }
     return impression
   }
   
-  public func commonClickEvent() -> ClickEvent {
+  public func commonClickEvent(
+      clickID: String,
+      impressionID: String? = nil,
+      insertionID: String? = nil,
+      requestID: String? = nil,
+      viewID: String? = nil,
+      name: String? = nil,
+      targetURL: String? = nil,
+      elementID: String? = nil) -> ClickEvent {
     var click = ClickEvent()
-    ProtobufSilenceVarWarning(&click)
-    click.clientLogTimestamp = MetricsTimestamp()
+    Protobuf.SilenceVarWarning(&click)
+    click.logUserID = logUserID
+    click.clientLogTimestamp = clock.nowMillis
+    click.clickID = clickID
+    if let id = impressionID { click.impressionID = id }
+    if let id = insertionID { click.insertionID = id }
     click.sessionID = sessionID
+    if let id = viewID { click.viewID = id }
+    if let s = name { click.name = s }
+    if let u = targetURL { click.targetURL = u }
+    if let id = elementID { click.elementID = id }
     return click
   }
   
@@ -64,7 +99,8 @@ open class MetricsLogger: NSObject {
     events.append(event)
   }
 
-  public func batchLogMessage(events: [LogMessage]) -> LogMessage? {
+  /** Subclasses should override to provide batch protos. */
+  open func batchLogMessage(events: [LogMessage]) -> LogMessage? {
     return nil
   }
 
@@ -73,8 +109,7 @@ open class MetricsLogger: NSObject {
     events.removeAll()
     do {
       let messageData = try batchMessage.serializedData()
-      let url = URL(string: "http://localhost:8080/hello")!
-      let request = URLRequest(url: url)
+      let request = URLRequest(url: metricsLoggingURL)
       let fetcher = fetcherService.fetcher(with: request)
       fetcher.allowLocalhostRequest = true
       fetcher.bodyData = messageData

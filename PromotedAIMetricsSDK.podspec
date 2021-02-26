@@ -21,17 +21,8 @@ Pod::Spec.new do |s|
   
   s.ios.deployment_target = '12.0'
   
-  s.subspec 'Base' do |b|
-    b.source_files = [
-      'Sources/PromotedAIMetricsSDK/**/*.{h,m,swift}']
-  end
-  
-  s.subspec 'Queenly' do |q|
-    q.source_files = [
-      'Sources/Queenly/**/*.{h,m,swift}']
-    q.dependency 'PromotedAIMetricsSDK/Base'
-    q.dependency 'PromotedAIMetricsSDK/QueenlySchemaProtosObjC'
-  end
+  s.source_files = [
+    'Sources/PromotedAIMetricsSDK/**/*.{h,m,swift}']
   
   schema_public_header_files = [
     'Sources/SchemaProtos/objc/headers/Common.pbobjc.h',
@@ -46,29 +37,10 @@ Pod::Spec.new do |s|
       'Sources/SchemaProtos/objc/proto/promotion/**/*.{h,m}']
     p.public_header_files = schema_public_header_files
     p.pod_target_xcconfig = {
-      'GCC_PREPROCESSOR_DEFINITIONS' => 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1'}
-    # TODO(yu-hong): __dir__ is a hack to get this working locally.
-    p.xcconfig = {
-      'USER_HEADER_SEARCH_PATHS' => '"' + __dir__ + '/Sources/SchemaProtos/objc"'}
+      'GCC_PREPROCESSOR_DEFINITIONS' => 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1',
+      # TODO(yu-hong): __dir__ is a hack to get this working locally.
+      'HEADER_SEARCH_PATHS' => '"' + __dir__ + '/Sources/SchemaProtos/objc"'}
     p.requires_arc = false
-  end
-  
-  queenly_public_header_files = [
-    'Sources/SchemaProtos/objc/headers/QueenlyContent.pbobjc.h',
-    'Sources/SchemaProtos/objc/headers/QueenlyEvent.pbobjc.h']
-  s.subspec 'QueenlySchemaProtosObjC' do |q|
-    q.source_files = queenly_public_header_files + [
-      'Sources/SchemaProtos/objc/proto/queenly/**/*.{h,m}',
-      'Sources/SchemaProtos/objc/headers/QueenlyContent.pbobjc.h',
-      'Sources/SchemaProtos/objc/headers/QueenlyEvent.pbobjc.h']
-    q.public_header_files = queenly_public_header_files
-    q.dependency 'PromotedAIMetricsSDK/SchemaProtosObjC'
-    q.pod_target_xcconfig = {
-      'GCC_PREPROCESSOR_DEFINITIONS' => 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1'}
-    # TODO(yu-hong): __dir__ is a hack to get this working locally.
-    q.xcconfig = {
-      'USER_HEADER_SEARCH_PATHS' => '"' + __dir__ + '/Sources/SchemaProtos/objc"'}
-    q.requires_arc = false
   end
   
 #  s.subspec 'SchemaProtosSwift' do |p|

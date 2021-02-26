@@ -4,16 +4,50 @@ import UIKit
 @objc(PACollectionViewCellImpression)
 public class CollectionViewCellImpression: NSObject {
   @objc public var path: IndexPath
-  @objc public var duration: TimeInterval
-  public init(path: IndexPath, duration: TimeInterval) {
+  @objc public var startTime: TimeInterval
+  @objc public var endTime: TimeInterval
+
+  @objc public var duration: TimeInterval {
+    get {
+      if endTime < 0.0 { return -1.0 }
+      return endTime - startTime
+    }
+  }
+
+  public init(path: IndexPath, startTime: TimeInterval, endTime: TimeInterval = -1.0) {
     self.path = path
-    self.duration = duration
+    self.startTime = startTime
+    self.endTime = endTime
+  }
+
+  public override var debugDescription: String {
+    return "(\(path.description), \(startTime), \(endTime))"
+  }
+  
+  public override var hash: Int {
+    return path.hashValue
+  }
+
+  public override func isEqual(_ object: Any?) -> Bool {
+    guard let rhs = object as? CollectionViewCellImpression else { return false }
+    return self == rhs
+  }
+  
+  static func == (lhs: CollectionViewCellImpression, rhs: CollectionViewCellImpression) -> Bool {
+    if lhs === rhs { return true }
+    return ((lhs.path == rhs.path) && (abs(lhs.startTime - rhs.startTime) < 0.01) &&
+            (abs(lhs.endTime - rhs.endTime) < 0.01))
   }
 }
 
 @objc(PACollectionViewImpressionLoggerDelegate)
 public protocol CollectionViewImpressionLoggerDelegate {
-  func impressionLogger(_ impressionLogger: CollectionViewImpressionLogger, didRecordImpressions impressions: [CollectionViewCellImpression])
+  func impressionLogger(
+      _ impressionLogger: CollectionViewImpressionLogger,
+      didStartImpressions impressions: [CollectionViewCellImpression])
+  func impressionLogger(
+      _ impressionLogger: CollectionViewImpressionLogger,
+      didEndImpressions impressions: [CollectionViewCellImpression])
 }
 
 @objc(PACollectionViewImpressionLoggerDataSource)
@@ -33,62 +67,88 @@ class UICollectionViewDataSource : CollectionViewImpressionLoggerDataSource {
 
 @objc(PACollectionViewImpressionLogger)
 public class CollectionViewImpressionLogger: NSObject {
-  private var dataSource: CollectionViewImpressionLoggerDataSource
+  private let dataSource: CollectionViewImpressionLoggerDataSource
+  private let clock: Clock
   private var impressionStarts: [IndexPath: TimeInterval]
+
   public weak var delegate: CollectionViewImpressionLoggerDelegate?
-  @objc public convenience init(collectionView: UICollectionView, delegate: CollectionViewImpressionLoggerDelegate? = nil) {
-    self.init(dataSource: UICollectionViewDataSource(collectionView), delegate: delegate)
+
+  @objc public convenience init(
+      collectionView: UICollectionView,
+      delegate: CollectionViewImpressionLoggerDelegate? = nil) {
+    self.init(dataSource: UICollectionViewDataSource(collectionView),
+              delegate: delegate)
   }
-  public init(dataSource: CollectionViewImpressionLoggerDataSource,
-        delegate: CollectionViewImpressionLoggerDelegate? = nil) {
+
+  public init(
+      dataSource: CollectionViewImpressionLoggerDataSource,
+      delegate: CollectionViewImpressionLoggerDelegate? = nil,
+      clock: Clock = SystemClock()) {
     self.dataSource = dataSource
+    self.clock = clock
     self.impressionStarts = [IndexPath: TimeInterval]()
     self.delegate = delegate
   }
+
   @objc public func collectionViewWillDisplay(item: IndexPath) {
-    let now = Date().timeIntervalSince1970
-    impressionStarts[item] = now
+    broadcastStartAndAddImpressions(items: [item], now: clock.now)
   }
+
   @objc public func collectionViewDidHide(item: IndexPath) {
-    broadcastAndRemoveImpressions(items: [item])
+    broadcastEndAndRemoveImpressions(items: [item], now: clock.now)
   }
+
   @objc public func collectionViewDidReloadAllItems() {
-    let now = Date().timeIntervalSince1970
+    let now = clock.now
     let visibleItems = dataSource.indexPathsForVisibleItems
-    var newlyShownItems = Set<IndexPath>()
+
+    var newlyShownItems = [IndexPath]()
     for item in visibleItems {
       if impressionStarts[item] == nil {
-        newlyShownItems.insert(item)
+        newlyShownItems.append(item)
       }
     }
-    var newlyHiddenItems = Set<IndexPath>()
+
+    var newlyHiddenItems = [IndexPath]()
     for item in impressionStarts.keys {
       if !visibleItems.contains(item) {
-        newlyHiddenItems.insert(item)
+        newlyHiddenItems.append(item)
       }
     }
-    for item in newlyShownItems {
-      impressionStarts[item] = now
-    }
-    if newlyHiddenItems.isEmpty {
-      return
-    }
-    broadcastAndRemoveImpressions(items: newlyHiddenItems, now: now)
+
+    broadcastStartAndAddImpressions(items: newlyShownItems, now: now)
+    broadcastEndAndRemoveImpressions(items: newlyHiddenItems, now: now)
   }
+
   @objc public func collectionViewDidHideAllItems() {
     let keys = [IndexPath](impressionStarts.keys)
-    broadcastAndRemoveImpressions(items: keys)
+    broadcastEndAndRemoveImpressions(items: keys, now: clock.now)
   }
-  private func broadcastAndRemoveImpressions<S>(items: S, now: TimeInterval = Date().timeIntervalSince1970) where S: Sequence, S.Element == IndexPath {
+  
+  private func broadcastStartAndAddImpressions(items: [IndexPath], now: TimeInterval) {
+    guard !items.isEmpty else { return }
+    var impressions = [CollectionViewCellImpression]()
+    for item in items {
+      let impression = CollectionViewCellImpression(path: item, startTime: now)
+      impressions.append(impression)
+      impressionStarts[item] = now
+    }
     if let delegate = self.delegate {
-      var impressions = [CollectionViewCellImpression]()
-      for item in items {
-        guard let start = impressionStarts.removeValue(forKey: item) else { continue }
-        let duration = now - start
-        let impression = CollectionViewCellImpression(path: item, duration: duration)
-        impressions.append(impression)
-      }
-      delegate.impressionLogger(self, didRecordImpressions: impressions)
+      delegate.impressionLogger(self, didStartImpressions: impressions)
+    }
+  }
+  
+  private func broadcastEndAndRemoveImpressions(items: [IndexPath], now: TimeInterval) {
+    guard !items.isEmpty else { return }
+    var impressions = [CollectionViewCellImpression]()
+    for item in items {
+      guard let start = impressionStarts.removeValue(forKey: item)
+          else { continue }
+      let impression = CollectionViewCellImpression(path: item, startTime: start, endTime: now)
+      impressions.append(impression)
+    }
+    if let delegate = self.delegate {
+      delegate.impressionLogger(self, didEndImpressions: impressions)
     }
   }
 }
