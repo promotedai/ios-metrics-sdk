@@ -27,28 +27,24 @@ open class MetricsLoggerService: NSObject, ClientConfigProvider {
   @objc public var metricsLogger: MetricsLogger {
     let _ = clientConfigService  // Force client config to initialize.
     if cachedMetricsLogger == nil {
-      cachedMetricsLogger = makeLogger(metricsLoggingURL: metricsLoggingURL,
+      cachedMetricsLogger = makeLogger(clientConfig: config,
                                        fetcherService: fetcherService,
                                        clock: clock)
     }
     return cachedMetricsLogger!
   }
   
-  private let metricsLoggingURL: URL
   private let fetcherService: GTMSessionFetcherService
   private let clock: Clock
   
-  @objc public convenience init(metricsLoggingURL: URL) {
-    self.init(metricsLoggingURL: metricsLoggingURL,
-              fetcherService: GTMSessionFetcherService(),
+  @objc public override convenience init() {
+    self.init(fetcherService: GTMSessionFetcherService(),
               clock: SystemClock())
   }
 
-  public init(metricsLoggingURL: URL,
-              fetcherService: GTMSessionFetcherService,
+  public init(fetcherService: GTMSessionFetcherService,
               clock: Clock) {
     self.fetcherService = fetcherService
-    self.metricsLoggingURL = metricsLoggingURL
     self.clock = clock
     self.cachedClientConfigService = nil
     self.cachedMetricsLogger = nil
@@ -58,15 +54,15 @@ open class MetricsLoggerService: NSObject, ClientConfigProvider {
     clientConfigService.fetchClientConfig()
   }
   
-  @objc public func makeLogger(metricsLoggingURL: URL,
-                               fetcherService: GTMSessionFetcherService,
-                               clock: Clock) -> MetricsLogger {
-    return MetricsLogger(metricsLoggingURL: metricsLoggingURL,
+  @objc open func makeLogger(clientConfig: ClientConfig,
+                             fetcherService: GTMSessionFetcherService,
+                             clock: Clock) -> MetricsLogger {
+    return MetricsLogger(clientConfig: clientConfig,
                          fetcherService: fetcherService,
                          clock: clock)
   }
   
-  @objc public func defaultConfig() -> ClientConfig {
+  @objc open func defaultConfig() -> ClientConfig {
     return ClientConfig()
   }
 }
