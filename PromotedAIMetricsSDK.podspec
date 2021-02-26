@@ -23,6 +23,7 @@ Pod::Spec.new do |s|
   
   s.source_files = [
     'Sources/PromotedAIMetricsSDK/**/*.{h,m,swift}']
+  s.swift_version = '5.2'
   
   schema_public_header_files = [
     'Sources/SchemaProtos/objc/headers/Common.pbobjc.h',
