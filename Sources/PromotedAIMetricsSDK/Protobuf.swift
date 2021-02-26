@@ -13,11 +13,11 @@ enum MessageSerializationError: Error {
 import Protobuf
 
 public typealias LogMessage = GPBMessage
-public typealias UserEvent = PSEUser
-public typealias ImpressionEvent = PSEImpression
-public typealias ClickEvent = PSEClick
+public typealias UserEvent = PAIUser
+public typealias ImpressionEvent = PAIImpression
+public typealias ClickEvent = PAIClick
 
-extension PSEUser {
+extension PAIUser {
   var platformID: UInt64 {
     get { return self.platformId }
     set(value) { self.platformId = value }
@@ -32,7 +32,7 @@ extension PSEUser {
   }
 }
 
-extension PSEImpression {
+extension PAIImpression {
   var platformID: UInt64 {
     get { return self.platformId }
     set(value) { self.platformId = value }
@@ -63,7 +63,7 @@ extension PSEImpression {
   }
 }
 
-extension PSEClick {
+extension PAIClick {
   var platformID: UInt64 {
     get { return self.platformId }
     set(value) { self.platformId = value }
