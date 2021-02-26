@@ -12,7 +12,7 @@ import GTMSessionFetcher
 import SwiftProtobuf
 #endif
 
-@objc(PAMetricsLogger)
+@objc(PROMetricsLogger)
 open class MetricsLogger: NSObject {
   
   private static let localMetricsLoggingURLString = "http://localhost:8080/metrics"
