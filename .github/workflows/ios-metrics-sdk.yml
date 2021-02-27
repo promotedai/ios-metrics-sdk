@@ -7,10 +7,16 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-
+  build-and-test-macos-latest:
     runs-on: macos-latest
-
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: swift build -v
+    - name: Test
+      run: swift test -v
+  build-and-test-macos-10.15:
+    runs-on: macos-10.15
     steps:
     - uses: actions/checkout@v2
     - name: Build
