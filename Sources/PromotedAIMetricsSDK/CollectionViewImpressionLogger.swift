@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#endif
 
 @objc(PROCollectionViewCellImpression)
 public class CollectionViewCellImpression: NSObject {
@@ -55,6 +57,7 @@ public protocol CollectionViewImpressionLoggerDataSource {
   var indexPathsForVisibleItems: [IndexPath] { get }
 }
 
+#if canImport(UIKit)
 class UICollectionViewDataSource : CollectionViewImpressionLoggerDataSource {
   private var collectionView: UICollectionView
   init(_ collectionView: UICollectionView) {
@@ -64,6 +67,7 @@ class UICollectionViewDataSource : CollectionViewImpressionLoggerDataSource {
     return collectionView.indexPathsForVisibleItems
   }
 }
+#endif
 
 @objc(PROCollectionViewImpressionLogger)
 public class CollectionViewImpressionLogger: NSObject {
@@ -73,12 +77,14 @@ public class CollectionViewImpressionLogger: NSObject {
 
   public weak var delegate: CollectionViewImpressionLoggerDelegate?
 
+  #if canImport(UIKit)
   @objc public convenience init(
       collectionView: UICollectionView,
       delegate: CollectionViewImpressionLoggerDelegate? = nil) {
     self.init(dataSource: UICollectionViewDataSource(collectionView),
               delegate: delegate)
   }
+  #endif
 
   public init(
       dataSource: CollectionViewImpressionLoggerDataSource,
