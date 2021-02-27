@@ -39,8 +39,7 @@ Pod::Spec.new do |s|
     p.public_header_files = schema_public_header_files
     p.pod_target_xcconfig = {
       'GCC_PREPROCESSOR_DEFINITIONS' => 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1',
-      # TODO(yu-hong): __dir__ is a hack to get this working locally.
-      'HEADER_SEARCH_PATHS' => '"' + __dir__ + '/Sources/SchemaProtos/objc"'}
+      'HEADER_SEARCH_PATHS' => '"$(PODS_TARGET_SRCROOT)/Sources/SchemaProtos/objc"'}
     p.requires_arc = false
   end
   
