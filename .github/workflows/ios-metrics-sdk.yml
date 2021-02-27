@@ -15,7 +15,7 @@ jobs:
       run: swift build -v
     - name: Test
       run: swift test -v
-  build-and-test-macos-10.15:
+  build-and-test-macos-1015:
     runs-on: macos-10.15
     steps:
     - uses: actions/checkout@v2
