@@ -23,8 +23,8 @@ open class MetricsLogger: NSObject {
   
   private let metricsLoggingURL: URL?
 
-  private var userID: String?
-  private var logUserID: String?
+  private(set) var userID: String?
+  private(set) var logUserID: String?
 
   @objc public init(clientConfig: ClientConfig,
                     fetcherService: GTMSessionFetcherService,
