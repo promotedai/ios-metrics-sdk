@@ -1,7 +1,7 @@
 import Foundation
 
 @objc(ClientConfigProvider)
-public protocol ClientConfigProvider {
+public protocol ClientConfigProvider: class {
   func defaultConfig() -> ClientConfig
 }
 
@@ -9,6 +9,7 @@ class ClientConfigService: NSObject {
 
   private var cachedConfig: ClientConfig?
   private weak var provider: ClientConfigProvider?
+  private weak var store: PersistentStore?
 
   /** Client configuration for this session. This will never change. */
   public var config: ClientConfig {
@@ -16,10 +17,12 @@ class ClientConfigService: NSObject {
     return provider!.defaultConfig()
   }
 
-  public init(provider: ClientConfigProvider) {
+  public init(provider: ClientConfigProvider,
+              store: PersistentStore) {
     super.init()
     self.cachedConfig = nil
     self.provider = provider
+    self.store = store
     
     // TODO: Stub always sets this to default config.
     // When we persist to disk, the user defaults should be the

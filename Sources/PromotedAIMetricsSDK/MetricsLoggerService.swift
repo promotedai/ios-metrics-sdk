@@ -11,41 +11,40 @@ import GTMSessionFetcher
 @objc(PROMetricsLoggerService)
 open class MetricsLoggerService: NSObject, ClientConfigProvider {
   
-  private var cachedClientConfigService: ClientConfigService?
   private var clientConfigService: ClientConfigService {
     if cachedClientConfigService == nil {
-      cachedClientConfigService = ClientConfigService(provider: self)
+      cachedClientConfigService = ClientConfigService(provider: self, store: store)
     }
     return cachedClientConfigService!
   }
-  
+  private var cachedClientConfigService: ClientConfigService?
+
   @objc public var config: ClientConfig {
     return clientConfigService.config
   }
   
-  private var cachedMetricsLogger: MetricsLogger?
   @objc public var metricsLogger: MetricsLogger {
-    let _ = clientConfigService  // Force client config to initialize.
     if cachedMetricsLogger == nil {
+      let _ = clientConfigService  // Force client config to initialize.
       cachedMetricsLogger = makeLogger(clientConfig: config,
                                        fetcherService: fetcherService,
-                                       clock: clock)
+                                       clock: clock,
+                                       store: store)
     }
     return cachedMetricsLogger!
   }
-  
+  private var cachedMetricsLogger: MetricsLogger?
+
   private let fetcherService: GTMSessionFetcherService
   private let clock: Clock
-  
-  @objc public override convenience init() {
-    self.init(fetcherService: GTMSessionFetcherService(),
-              clock: SystemClock())
-  }
-
-  public init(fetcherService: GTMSessionFetcherService,
-              clock: Clock) {
+  private let store: PersistentStore
+    
+  @objc public init(fetcherService: GTMSessionFetcherService,
+                    clock: Clock,
+                    store: PersistentStore) {
     self.fetcherService = fetcherService
     self.clock = clock
+    self.store = store
     self.cachedClientConfigService = nil
     self.cachedMetricsLogger = nil
   }
@@ -56,10 +55,12 @@ open class MetricsLoggerService: NSObject, ClientConfigProvider {
   
   @objc open func makeLogger(clientConfig: ClientConfig,
                              fetcherService: GTMSessionFetcherService,
-                             clock: Clock) -> MetricsLogger {
+                             clock: Clock,
+                             store: PersistentStore) -> MetricsLogger {
     return MetricsLogger(clientConfig: clientConfig,
                          fetcherService: fetcherService,
-                         clock: clock)
+                         clock: clock,
+                         store: store)
   }
   
   @objc open func defaultConfig() -> ClientConfig {
