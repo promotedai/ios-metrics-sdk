@@ -33,56 +33,70 @@ final class MetricsLoggerTests: XCTestCase {
                                   store: store!)
   }
   
+  private func assertLoggerAndStoreInSync() {
+    XCTAssertEqual(store!.userID, metricsLogger!.userID)
+    XCTAssertEqual(store!.logUserID, metricsLogger!.logUserID)
+  }
+  
   func testStartSession() {
     metricsLogger!.startSession(userID: "foobar")
     XCTAssertEqual("foobar", store!.userID)
     XCTAssertNotNil(store!.logUserID)
+    assertLoggerAndStoreInSync()
   }
   
   func testStartSessionMultiple() {
     metricsLogger!.startSession(userID: "foobar")
     XCTAssertEqual("foobar", store!.userID)
     XCTAssertNotNil(store!.logUserID)
+    assertLoggerAndStoreInSync()
     
     let previousLogUserID = store!.logUserID
     metricsLogger!.startSession(userID: "foobar")
     XCTAssertEqual("foobar", store!.userID)
     XCTAssertEqual(previousLogUserID, store!.logUserID)
+    assertLoggerAndStoreInSync()
     
     metricsLogger!.startSession(userID: "foobarbaz")
     XCTAssertEqual("foobarbaz", store!.userID)
     XCTAssertNotNil(store!.logUserID)
     XCTAssertNotEqual(previousLogUserID, store!.logUserID)
+    assertLoggerAndStoreInSync()
   }
   
   func testStartSessionSignedOut() {
     metricsLogger!.startSessionSignedOut()
     XCTAssertNil(store!.userID)
     XCTAssertNotNil(store!.logUserID)
+    assertLoggerAndStoreInSync()
   }
   
   func testStartSessionSignInThenSignOut() {
     metricsLogger!.startSession(userID: "foobar")
     XCTAssertEqual("foobar", store!.userID)
     XCTAssertNotNil(store!.logUserID)
+    assertLoggerAndStoreInSync()
     
     let previousLogUserID = store!.logUserID
     metricsLogger!.startSessionSignedOut()
     XCTAssertNil(store!.userID)
     XCTAssertNotNil(store!.logUserID)
     XCTAssertNotEqual(previousLogUserID, store!.logUserID)
+    assertLoggerAndStoreInSync()
   }
   
   func testStartSessionSignOutThenSignIn() {
     metricsLogger!.startSessionSignedOut()
     XCTAssertNil(store!.userID)
     XCTAssertNotNil(store!.logUserID)
+    assertLoggerAndStoreInSync()
     
     let previousLogUserID = store!.logUserID
     metricsLogger!.startSession(userID: "foobar")
     XCTAssertEqual("foobar", store!.userID)
     XCTAssertNotNil(store!.logUserID)
     XCTAssertNotEqual(previousLogUserID, store!.logUserID)
+    assertLoggerAndStoreInSync()
   }
   
   static var allTests = [
