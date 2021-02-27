@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test-macos-latest:
+  build-and-test-xcode-latest:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
@@ -15,10 +15,12 @@ jobs:
       run: swift build -v
     - name: Test
       run: swift test -v
-  build-and-test-macos-1015:
+  build-and-test-xcode-11:
     runs-on: macos-10.15
     steps:
     - uses: actions/checkout@v2
+      with:
+        xcode-version: '11.7'
     - name: Build
       run: swift build -v
     - name: Test
