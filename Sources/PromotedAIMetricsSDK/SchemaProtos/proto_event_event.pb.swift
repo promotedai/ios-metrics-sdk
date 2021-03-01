@@ -20,6 +20,89 @@ fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAP
   typealias Version = _2
 }
 
+/// Platform-specific cohorts should go into the wrapper.
+public enum Event_CohortId: SwiftProtobuf.Enum {
+  public typealias RawValue = Int
+
+  /// Common Cohort IDs will be here.
+  case unknownCohort // = 0
+  case UNRECOGNIZED(Int)
+
+  public init() {
+    self = .unknownCohort
+  }
+
+  public init?(rawValue: Int) {
+    switch rawValue {
+    case 0: self = .unknownCohort
+    default: self = .UNRECOGNIZED(rawValue)
+    }
+  }
+
+  public var rawValue: Int {
+    switch self {
+    case .unknownCohort: return 0
+    case .UNRECOGNIZED(let i): return i
+    }
+  }
+
+}
+
+#if swift(>=4.2)
+
+extension Event_CohortId: CaseIterable {
+  // The compiler won't synthesize support with the UNRECOGNIZED case.
+  public static var allCases: [Event_CohortId] = [
+    .unknownCohort,
+  ]
+}
+
+#endif  // swift(>=4.2)
+
+public enum Event_CohortExperimentGroup: SwiftProtobuf.Enum {
+  public typealias RawValue = Int
+  case unknownGroup // = 0
+  case control // = 1
+  case experiment // = 2
+  case UNRECOGNIZED(Int)
+
+  public init() {
+    self = .unknownGroup
+  }
+
+  public init?(rawValue: Int) {
+    switch rawValue {
+    case 0: self = .unknownGroup
+    case 1: self = .control
+    case 2: self = .experiment
+    default: self = .UNRECOGNIZED(rawValue)
+    }
+  }
+
+  public var rawValue: Int {
+    switch self {
+    case .unknownGroup: return 0
+    case .control: return 1
+    case .experiment: return 2
+    case .UNRECOGNIZED(let i): return i
+    }
+  }
+
+}
+
+#if swift(>=4.2)
+
+extension Event_CohortExperimentGroup: CaseIterable {
+  // The compiler won't synthesize support with the UNRECOGNIZED case.
+  public static var allCases: [Event_CohortExperimentGroup] = [
+    .unknownGroup,
+    .control,
+    .experiment,
+  ]
+}
+
+#endif  // swift(>=4.2)
+
 /// Next ID = 4.
 public enum Event_DeviceType: SwiftProtobuf.Enum {
   public typealias RawValue = Int
@@ -187,7 +270,7 @@ public struct Event_User {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  /// Optional.  Default derived from API Key or BatchLogRequest.
+  /// Read-only.  This is set by Event API.
   public var platformID: UInt64 = 0
 
   /// Required.  Can be optional if set on a wrapping BatchLogRequest.
@@ -196,12 +279,44 @@ public struct Event_User {
   /// Optional.  Can be optional if set on a wrapping BatchLogRequest.
   public var logUserID: String = String()
 
-  /// TODO - optional?
   /// Required.  Client timestamp when event was created.
   public var clientLogTimestamp: UInt64 = 0
 
   /// Clients should not set this.  This gets set in the Event API.
   public var eventApiTimestamp: UInt64 = 0
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// For linking users to cohorts.
+/// Next ID = 13.
+public struct Event_CohortMembership {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// Read-only.  This is set by Event API.
+  public var platformID: UInt64 = 0
+
+  /// Optional.  Can be optional if set on a wrapping BatchLogRequest.
+  public var logUserID: String = String()
+
+  /// Required.  Client timestamp when event was created.
+  public var clientLogTimestamp: UInt64 = 0
+
+  /// Clients should not set this.  This gets set in the Event API.
+  public var eventApiTimestamp: UInt64 = 0
+
+  /// Optional.  This can contain a log UUID to help track down log records.
+  public var membershipID: String = String()
+
+  /// Required.  This field refers to the cohort (currently stored as an enum).
+  public var cohortID: Event_CohortId = .unknownCohort
+
+  /// Optional.
+  public var experimentGroup: Event_CohortExperimentGroup = .unknownGroup
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -316,7 +431,7 @@ public struct Event_SessionProfile {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  /// Optional.  Default derived from API Key or BatchLogRequest.
+  /// Read-only.  This is set by Event API.
   public var platformID: UInt64 = 0
 
   /// Required.  Can be optional if set on a wrapping BatchLogRequest.
@@ -399,7 +514,7 @@ public struct Event_Session {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  /// Optional.  Default derived from API Key or BatchLogRequest.
+  /// Read-only.  This is set by Event API.
   public var platformID: UInt64 = 0
 
   /// Required.  Can be optional if set on a wrapping BatchLogRequest.
@@ -433,7 +548,7 @@ public struct Event_View {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  /// Optional.  Default derived from API Key or BatchLogRequest.
+  /// Read-only.  This is set by Event API.
   public var platformID: UInt64 {
     get {return _storage._platformID}
     set {_uniqueStorage()._platformID = newValue}
@@ -599,7 +714,7 @@ public struct Event_Request {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  /// Optional.  Default derived from API Key or BatchLogRequest.
+  /// Read-only.  This is set by Event API.
   public var platformID: UInt64 = 0
 
   /// Required.  Can be optional if set on a wrapping BatchLogRequest.
@@ -640,7 +755,7 @@ public struct Event_Insertion {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  /// Optional.  Default derived from API Key or BatchLogRequest.
+  /// Read-only.  This is set by Event API.
   public var platformID: UInt64 {
     get {return _storage._platformID}
     set {_uniqueStorage()._platformID = newValue}
@@ -738,7 +853,7 @@ public struct Event_Impression {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  /// Optional.  Default derived from API Key or BatchLogRequest.
+  /// Read-only.  This is set by Event API.
   public var platformID: UInt64 = 0
 
   /// Required.  Can be optional if set on a wrapping BatchLogRequest.
@@ -778,7 +893,7 @@ public struct Event_Click {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  /// Optional.  Default derived from API Key or BatchLogRequest.
+  /// Read-only.  This is set by Event API.
   public var platformID: UInt64 = 0
 
   /// Required.  Can be optional if set on a wrapping BatchLogRequest.
@@ -866,6 +981,20 @@ public struct Event_LatestImpression {
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
 fileprivate let _protobuf_package = "event"
+
+extension Event_CohortId: SwiftProtobuf._ProtoNameProviding {
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    0: .same(proto: "UNKNOWN_COHORT"),
+  ]
+}
+
+extension Event_CohortExperimentGroup: SwiftProtobuf._ProtoNameProviding {
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    0: .same(proto: "UNKNOWN_GROUP"),
+    1: .same(proto: "CONTROL"),
+    2: .same(proto: "EXPERIMENT"),
+  ]
+}
 
 extension Event_DeviceType: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -1017,6 +1146,74 @@ extension Event_User: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
     if lhs.logUserID != rhs.logUserID {return false}
     if lhs.clientLogTimestamp != rhs.clientLogTimestamp {return false}
     if lhs.eventApiTimestamp != rhs.eventApiTimestamp {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Event_CohortMembership: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".CohortMembership"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "platform_id"),
+    3: .standard(proto: "log_user_id"),
+    4: .standard(proto: "client_log_timestamp"),
+    5: .standard(proto: "event_api_timestamp"),
+    10: .standard(proto: "membership_id"),
+    11: .standard(proto: "cohort_id"),
+    12: .standard(proto: "experiment_group"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularUInt64Field(value: &self.platformID) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.logUserID) }()
+      case 4: try { try decoder.decodeSingularUInt64Field(value: &self.clientLogTimestamp) }()
+      case 5: try { try decoder.decodeSingularUInt64Field(value: &self.eventApiTimestamp) }()
+      case 10: try { try decoder.decodeSingularStringField(value: &self.membershipID) }()
+      case 11: try { try decoder.decodeSingularEnumField(value: &self.cohortID) }()
+      case 12: try { try decoder.decodeSingularEnumField(value: &self.experimentGroup) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.platformID != 0 {
+      try visitor.visitSingularUInt64Field(value: self.platformID, fieldNumber: 1)
+    }
+    if !self.logUserID.isEmpty {
+      try visitor.visitSingularStringField(value: self.logUserID, fieldNumber: 3)
+    }
+    if self.clientLogTimestamp != 0 {
+      try visitor.visitSingularUInt64Field(value: self.clientLogTimestamp, fieldNumber: 4)
+    }
+    if self.eventApiTimestamp != 0 {
+      try visitor.visitSingularUInt64Field(value: self.eventApiTimestamp, fieldNumber: 5)
+    }
+    if !self.membershipID.isEmpty {
+      try visitor.visitSingularStringField(value: self.membershipID, fieldNumber: 10)
+    }
+    if self.cohortID != .unknownCohort {
+      try visitor.visitSingularEnumField(value: self.cohortID, fieldNumber: 11)
+    }
+    if self.experimentGroup != .unknownGroup {
+      try visitor.visitSingularEnumField(value: self.experimentGroup, fieldNumber: 12)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Event_CohortMembership, rhs: Event_CohortMembership) -> Bool {
+    if lhs.platformID != rhs.platformID {return false}
+    if lhs.logUserID != rhs.logUserID {return false}
+    if lhs.clientLogTimestamp != rhs.clientLogTimestamp {return false}
+    if lhs.eventApiTimestamp != rhs.eventApiTimestamp {return false}
+    if lhs.membershipID != rhs.membershipID {return false}
+    if lhs.cohortID != rhs.cohortID {return false}
+    if lhs.experimentGroup != rhs.experimentGroup {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

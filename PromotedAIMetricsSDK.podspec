@@ -10,8 +10,7 @@ Pod::Spec.new do |s|
   
   s.description      = <<-DESC
   iOS client library for Promoted.ai metrics tracking.
-  Provided as both a Cocoapod and Swift Package. Only use the Cocoapod if you
-  require integration with Objective C Protobufs.
+  Provided as both a Cocoapod and Swift Package.
   DESC
   
   s.homepage         = 'https://github.com/promotedai/ios-metrics-sdk'
@@ -24,34 +23,7 @@ Pod::Spec.new do |s|
   s.source_files = [
     'Sources/PromotedAIMetricsSDK/**/*.{h,m,swift}']
   s.swift_version = '5.2'
-  
-  schema_public_header_files = [
-    'Sources/SchemaProtos/objc/headers/Common.pbobjc.h',
-    'Sources/SchemaProtos/objc/headers/Event.pbobjc.h',
-    'Sources/SchemaProtos/objc/headers/Pacing.pbobjc.h',
-    'Sources/SchemaProtos/objc/headers/Promotion.pbobjc.h']
-  s.subspec 'SchemaProtosObjC' do |p|
-    p.source_files = schema_public_header_files + [
-      'Sources/SchemaProtos/objc/proto/common/**/*.{h,m}',
-      'Sources/SchemaProtos/objc/proto/event/**/*.{h,m}',
-      'Sources/SchemaProtos/objc/proto/pacing/**/*.{h,m}',
-      'Sources/SchemaProtos/objc/proto/promotion/**/*.{h,m}']
-    p.public_header_files = schema_public_header_files
-    p.pod_target_xcconfig = {
-      'GCC_PREPROCESSOR_DEFINITIONS' => 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1',
-      'HEADER_SEARCH_PATHS' => '"$(PODS_TARGET_SRCROOT)/Sources/SchemaProtos/objc"'}
-    p.requires_arc = false
-  end
-  
-#  s.subspec 'SchemaProtosSwift' do |p|
-#    p.source_files = [
-#      'Sources/SchemaProtos/swift/proto_common_common.pb.swift',
-#      'Sources/SchemaProtos/swift/proto_event_event.pb.swift',
-#      'Sources/SchemaProtos/swift/proto_pacing_pacing.pb.swift',
-#      'Sources/SchemaProtos/swift/proto_promotion_promotion.pb.swift']
-#  end
 
-  s.dependency 'GTMSessionFetcher', '~> 1.5.0'
-  s.dependency 'Protobuf', '~> 3'
+  s.dependency 'GTMSessionFetcher/Core', '~> 1.5.0'
   s.dependency 'SwiftProtobuf', '~> 1.15.0'
 end

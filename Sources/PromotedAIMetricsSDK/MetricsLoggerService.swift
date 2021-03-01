@@ -49,7 +49,7 @@ open class MetricsLoggerService: NSObject, ClientConfigProvider {
     self.cachedMetricsLogger = nil
   }
 
-  @objc public func fetchClientConfig() {
+  @objc public func startLoggingSession() {
     clientConfigService.fetchClientConfig()
   }
   
