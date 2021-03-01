@@ -12,6 +12,10 @@ import GTMSessionFetcher
 import SwiftProtobuf
 #endif
 
+//#if canImport(SchemaProtosSwift)
+import SchemaProtosSwift
+//#endif
+
 @objc(PROMetricsLogger)
 open class MetricsLogger: NSObject {
 
@@ -63,9 +67,8 @@ open class MetricsLogger: NSObject {
     self.logUserID = newLogUserID
   }
 
-  public func commonUserEvent() -> UserEvent {
-    var user = UserEvent()
-    Protobuf.SilenceVarWarning(&user)
+  public func commonUserEvent() -> Event_User {
+    var user = Event_User()
     if let id = userID { user.userID = id }
     if let id = logUserID { user.logUserID = id }
     user.clientLogTimestamp = clock.nowMillis
@@ -77,9 +80,8 @@ open class MetricsLogger: NSObject {
       insertionID: String? = nil,
       requestID: String? = nil,
       sessionID: String? = nil,
-      viewID: String? = nil) -> ImpressionEvent {
-    var impression = ImpressionEvent()
-    Protobuf.SilenceVarWarning(&impression)
+      viewID: String? = nil) -> Event_Impression {
+    var impression = Event_Impression()
     if let id = logUserID { impression.logUserID = id }
     impression.clientLogTimestamp = clock.nowMillis
     impression.impressionID = impressionID
@@ -99,9 +101,8 @@ open class MetricsLogger: NSObject {
       viewID: String? = nil,
       name: String? = nil,
       targetURL: String? = nil,
-      elementID: String? = nil) -> ClickEvent {
-    var click = ClickEvent()
-    Protobuf.SilenceVarWarning(&click)
+      elementID: String? = nil) -> Event_Click {
+    var click = Event_Click()
     if let id = logUserID { click.logUserID = id }
     click.clientLogTimestamp = clock.nowMillis
     click.clickID = clickID
@@ -148,8 +149,6 @@ open class MetricsLogger: NSObject {
       print("ERROR: SwiftProtobuf: Missing required fields.")
     } catch BinaryEncodingError.anyTranscodeFailure {
       print("ERROR: SwiftProtobuf: Any transcode failed.")
-    } catch MessageSerializationError.unknownError {
-      print("ERROR: ObjCProtobuf: Error serializing protobuf.")
     } catch {
       print("ERROR: Error serializing protobuf.")
     }

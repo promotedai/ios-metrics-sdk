@@ -96,11 +96,13 @@ public class CollectionViewImpressionLogger: NSObject {
     self.delegate = delegate
   }
 
-  @objc public func collectionViewWillDisplay(item: IndexPath) {
+  @objc(collectionViewWillDisplayItem:)
+  public func collectionViewWillDisplay(item: IndexPath) {
     broadcastStartAndAddImpressions(items: [item], now: clock.now)
   }
 
-  @objc public func collectionViewDidHide(item: IndexPath) {
+  @objc(collectionViewDidHideItem:)
+  public func collectionViewDidHide(item: IndexPath) {
     broadcastEndAndRemoveImpressions(items: [item], now: clock.now)
   }
 
