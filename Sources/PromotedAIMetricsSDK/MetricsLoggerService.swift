@@ -30,10 +30,10 @@ open class MetricsLoggerService: NSObject, ClientConfigProvider {
   private let connection: NetworkConnection
   private let clock: Clock
   private let store: PersistentStore
-    
-  public init(connection: NetworkConnection,
-              clock: Clock,
-              store: PersistentStore) {
+
+  public init(connection: NetworkConnection = GTMSessionFetcherConnection(),
+              clock: Clock = SystemClock(),
+              store: PersistentStore = UserDefaultsPersistentStore()) {
     self.connection = connection
     self.clock = clock
     self.store = store

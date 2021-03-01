@@ -18,7 +18,7 @@ public class GTMSessionFetcherConnection: NetworkConnection {
   
   private let fetcherService: GTMSessionFetcherService
   
-  init() {
+  public init() {
     fetcherService = GTMSessionFetcherService()
   }
   
