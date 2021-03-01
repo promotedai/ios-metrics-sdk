@@ -23,14 +23,6 @@ Pod::Spec.new do |s|
   s.source_files = [
     'Sources/PromotedAIMetricsSDK/**/*.{h,m,swift}']
   s.swift_version = '5.2'
-  
-  s.subspec 'SchemaProtosSwift' do |p|
-    p.source_files = [
-      'Sources/SchemaProtos/swift/proto_common_common.pb.swift',
-      'Sources/SchemaProtos/swift/proto_event_event.pb.swift',
-      'Sources/SchemaProtos/swift/proto_pacing_pacing.pb.swift',
-      'Sources/SchemaProtos/swift/proto_promotion_promotion.pb.swift']
-  end
 
   s.dependency 'GTMSessionFetcher/Core', '~> 1.5.0'
   s.dependency 'SwiftProtobuf', '~> 1.15.0'

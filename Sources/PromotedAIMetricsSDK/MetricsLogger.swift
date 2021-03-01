@@ -12,10 +12,6 @@ import GTMSessionFetcher
 import SwiftProtobuf
 #endif
 
-//#if canImport(SchemaProtosSwift)
-import SchemaProtosSwift
-//#endif
-
 @objc(PROMetricsLogger)
 open class MetricsLogger: NSObject {
 

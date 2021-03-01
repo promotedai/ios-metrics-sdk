@@ -8,8 +8,8 @@ setopt extended_glob
 
 SCHEMA_OUT=Sources/$1/SchemaProtos
 shift
-echo $SCHEMA_OUT
 
+rm -rf $SCHEMA_OUT
 mkdir -p $SCHEMA_OUT
 protoc --swift_opt=Visibility=Public \
        --swift_opt=FileNaming=PathToUnderscores \
