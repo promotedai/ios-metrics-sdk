@@ -1,13 +1,5 @@
 import Foundation
 
-#if canImport(GTMSessionFetcherCore)
-import GTMSessionFetcherCore
-#elseif canImport(GTMSessionFetcher)
-import GTMSessionFetcher
-#else
-#error("Can't import GTMSessionFetcher")
-#endif
-
 @objc(PROMetricsLoggerService)
 open class MetricsLoggerService: NSObject, ClientConfigProvider {
   
@@ -27,7 +19,7 @@ open class MetricsLoggerService: NSObject, ClientConfigProvider {
     if cachedMetricsLogger == nil {
       let _ = clientConfigService  // Force client config to initialize.
       cachedMetricsLogger = makeLogger(clientConfig: config,
-                                       fetcherService: fetcherService,
+                                       connection: connection,
                                        clock: clock,
                                        store: store)
     }
@@ -35,14 +27,14 @@ open class MetricsLoggerService: NSObject, ClientConfigProvider {
   }
   private var cachedMetricsLogger: MetricsLogger?
 
-  private let fetcherService: GTMSessionFetcherService
+  private let connection: NetworkConnection
   private let clock: Clock
   private let store: PersistentStore
-    
-  @objc public init(fetcherService: GTMSessionFetcherService,
-                    clock: Clock,
-                    store: PersistentStore) {
-    self.fetcherService = fetcherService
+
+  public init(connection: NetworkConnection = GTMSessionFetcherConnection(),
+              clock: Clock = SystemClock(),
+              store: PersistentStore = UserDefaultsPersistentStore()) {
+    self.connection = connection
     self.clock = clock
     self.store = store
     self.cachedClientConfigService = nil
@@ -53,12 +45,12 @@ open class MetricsLoggerService: NSObject, ClientConfigProvider {
     clientConfigService.fetchClientConfig()
   }
   
-  @objc open func makeLogger(clientConfig: ClientConfig,
-                             fetcherService: GTMSessionFetcherService,
-                             clock: Clock,
-                             store: PersistentStore) -> MetricsLogger {
+  open func makeLogger(clientConfig: ClientConfig,
+                       connection: NetworkConnection,
+                       clock: Clock,
+                       store: PersistentStore) -> MetricsLogger {
     return MetricsLogger(clientConfig: clientConfig,
-                         fetcherService: fetcherService,
+                         connection: connection,
                          clock: clock,
                          store: store)
   }

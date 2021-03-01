@@ -1,22 +1,11 @@
 import Foundation
-
-#if canImport(GTMSessionFetcherCore)
-import GTMSessionFetcherCore
-#elseif canImport(GTMSessionFetcher)
-import GTMSessionFetcher
-#else
-#error("Can't import GTMSessionFetcher")
-#endif
-
-#if canImport(SwiftProtobuf)
 import SwiftProtobuf
-#endif
 
 @objc(PROMetricsLogger)
 open class MetricsLogger: NSObject {
 
   private let config: ClientConfig
-  private let fetcherService: GTMSessionFetcherService
+  private let connection: NetworkConnection
   private let clock: Clock
   private let store: PersistentStore
   private var events: [Message]
@@ -26,12 +15,12 @@ open class MetricsLogger: NSObject {
   private(set) var userID: String?
   private(set) var logUserID: String?
 
-  @objc public init(clientConfig: ClientConfig,
-                    fetcherService: GTMSessionFetcherService,
-                    clock: Clock,
-                    store: PersistentStore) {
+  public init(clientConfig: ClientConfig,
+              connection: NetworkConnection,
+              clock: Clock,
+              store: PersistentStore) {
     self.config = clientConfig
-    self.fetcherService = fetcherService
+    self.connection = connection
     self.clock = clock
     self.store = store
     self.events = []
@@ -129,24 +118,19 @@ open class MetricsLogger: NSObject {
     guard let batchMessage = batchLogMessage(events: eventsCopy) else { return }
     guard let url = metricsLoggingURL else { return }
     do {
-      let messageData = try batchMessage.serializedData()
-      let request = URLRequest(url: url)
-      let fetcher = fetcherService.fetcher(with: request)
-      fetcher.allowLocalhostRequest = true
-      fetcher.bodyData = messageData
-      fetcher.beginFetch { (data, error) in
+      try connection.sendMessage(batchMessage, url: url, callback: { (data, error) in
         guard error == nil else {
           print("ERROR: \(error.debugDescription)")
           return
         }
         print("Fetch finished: \(String(describing: data))")
-      }
-    } catch BinaryEncodingError.missingRequiredFields {
-      print("ERROR: SwiftProtobuf: Missing required fields.")
-    } catch BinaryEncodingError.anyTranscodeFailure {
-      print("ERROR: SwiftProtobuf: Any transcode failed.")
+      })
+    } catch NetworkConnectionError.messageSerializationError(let message) {
+      print(message)
+    } catch NetworkConnectionError.unknownError {
+      print("ERROR: Unknown NetworkConnectionError sending message.")
     } catch {
-      print("ERROR: Error serializing protobuf.")
+      print("ERROR: Unknown error sending message.")
     }
   }
 }

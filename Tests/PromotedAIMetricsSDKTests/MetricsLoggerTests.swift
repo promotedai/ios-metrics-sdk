@@ -1,20 +1,12 @@
 import Foundation
 import XCTest
 
-#if canImport(GTMSessionFetcherCore)
-import GTMSessionFetcherCore
-#elseif canImport(GTMSessionFetcher)
-import GTMSessionFetcher
-#else
-#error("Can't import GTMSessionFetcher")
-#endif
-
 @testable import PromotedAIMetricsSDK
 
 final class MetricsLoggerTests: XCTestCase {
   
   private var config: ClientConfig?
-  private var fetcherService: GTMSessionFetcherService?
+  private var connection: FakeNetworkConnection?
   private var clock: FakeClock?
   private var store: FakePersistentStore?
   private var metricsLogger: MetricsLogger?
@@ -22,13 +14,13 @@ final class MetricsLoggerTests: XCTestCase {
   public override func setUp() {
     super.setUp()
     config = ClientConfig()
-    fetcherService = GTMSessionFetcherService()
+    connection = FakeNetworkConnection()
     clock = FakeClock()
     store = FakePersistentStore()
     store!.userID = nil
     store!.logUserID = nil
     metricsLogger = MetricsLogger(clientConfig: config!,
-                                  fetcherService: fetcherService!,
+                                  connection: connection!,
                                   clock: clock!,
                                   store: store!)
   }
