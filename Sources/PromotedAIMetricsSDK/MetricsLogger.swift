@@ -8,9 +8,11 @@ open class MetricsLogger: NSObject {
   private let connection: NetworkConnection
   private let clock: Clock
   private let store: PersistentStore
-  private var events: [Message]
+  var events: [Message]
   
   private let metricsLoggingURL: URL?
+  /// Timer for pending batched log request.
+  private var batchLoggingTimer: ScheduledTimer?
 
   private(set) var userID: String?
   private(set) var logUserID: String?
@@ -29,11 +31,11 @@ open class MetricsLogger: NSObject {
     self.metricsLoggingURL = URL(string: config.metricsLoggingURL)
   }
   
-  @objc public func startSession(userID: String) {
+  public func startSession(userID: String) {
     startSessionAndUpdateUserIDs(userID: userID)
   }
   
-  @objc public func startSessionSignedOut() {
+  public func startSessionSignedOut() {
     startSessionAndUpdateUserIDs(userID: nil)
   }
   
@@ -104,6 +106,7 @@ open class MetricsLogger: NSObject {
   
   public func log(event: Message) {
     events.append(event)
+    maybeSchedulePendingBatchLoggingFlush()
   }
 
   /** Subclasses should override to provide batch protos. */
@@ -111,20 +114,38 @@ open class MetricsLogger: NSObject {
     // TODO(yu-hong): Update if we have a common batch message.
     return nil
   }
+  
+  private func maybeSchedulePendingBatchLoggingFlush() {
+    if batchLoggingTimer != nil { return }
+    let interval = config.batchLoggingFlushInterval
+    batchLoggingTimer = clock.schedule(timeInterval: interval) { [weak self] clock in
+      guard let strongSelf = self else { return }
+      strongSelf.batchLoggingTimer = nil
+      strongSelf.flush()
+    }
+  }
+  
+  private func cancelPendingBatchLoggingFlush() {
+    if let timer = batchLoggingTimer {
+      clock.cancel(scheduledTimer: timer)
+      batchLoggingTimer = nil
+    }
+  }
 
   @objc public func flush() {
+    cancelPendingBatchLoggingFlush()
     let eventsCopy = events
     events.removeAll()
     guard let batchMessage = batchLogMessage(events: eventsCopy) else { return }
     guard let url = metricsLoggingURL else { return }
     do {
-      try connection.sendMessage(batchMessage, url: url, callback: { (data, error) in
+      try connection.sendMessage(batchMessage, url: url) { (data, error) in
         guard error == nil else {
           print("ERROR: \(error.debugDescription)")
           return
         }
         print("Fetch finished: \(String(describing: data))")
-      })
+      }
     } catch NetworkConnectionError.messageSerializationError(let message) {
       print(message)
     } catch NetworkConnectionError.unknownError {
