@@ -11,7 +11,8 @@ import GTMSessionFetcher
 
 public protocol NetworkConnection {
   typealias Callback = (Data?, Error?) -> Void
-  func sendMessage(_ message: Message, url: URL, callback: Callback?) throws
+  func sendMessage(_ message: Message, url: URL, clientConfig: ClientConfig,
+                   callback: Callback?) throws
 }
 
 public class GTMSessionFetcherConnection: NetworkConnection {
@@ -22,12 +23,19 @@ public class GTMSessionFetcherConnection: NetworkConnection {
     fetcherService = GTMSessionFetcherService()
   }
   
-  public func sendMessage(_ message: Message, url: URL, callback: Callback?) throws {
+  public func sendMessage(_ message: Message, url: URL, clientConfig: ClientConfig,
+                          callback: Callback?) throws {
     do {
-      let messageData = try message.serializedData()
-      let request = URLRequest(url: url)
+      let messageData = try bodyData(message: message, clientConfig: clientConfig)
+      var request = URLRequest(url: url)
+      if let apiKey = clientConfig.metricsLoggingAPIKey {
+        request.addValue(apiKey, forHTTPHeaderField: "x-api-key")
+      }
+      if clientConfig.metricsLoggingWireFormat == .base64EncodedBinary {
+        request.addValue("text/plain", forHTTPHeaderField: "content-type")
+        request.addValue("Base64", forHTTPHeaderField: "Content-Transfer-Encoding")
+      }
       let fetcher = fetcherService.fetcher(with: request)
-      fetcher.allowLocalhostRequest = true
       fetcher.bodyData = messageData
       fetcher.beginFetch { (data, error) in
         callback?(data, error)
@@ -38,6 +46,17 @@ public class GTMSessionFetcherConnection: NetworkConnection {
       throw NetworkConnectionError.messageSerializationError(message: "Any transcode failed.")
     } catch {
       throw NetworkConnectionError.unknownError
+    }
+  }
+  
+  private func bodyData(message: Message, clientConfig: ClientConfig) throws -> Data {
+    switch clientConfig.metricsLoggingWireFormat {
+    case .base64EncodedBinary:
+      return try message.serializedData().base64EncodedData()
+    case .binary:
+      return try message.serializedData()
+    case .json:
+      return try message.jsonUTF8Data()
     }
   }
 }

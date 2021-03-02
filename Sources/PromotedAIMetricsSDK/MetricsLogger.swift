@@ -134,14 +134,17 @@ open class MetricsLogger: NSObject {
 
   @objc public func flush() {
     cancelPendingBatchLoggingFlush()
+    if events.isEmpty { return }
+
     let eventsCopy = events
     events.removeAll()
     guard let batchMessage = batchLogMessage(events: eventsCopy) else { return }
     guard let url = metricsLoggingURL else { return }
     do {
-      try connection.sendMessage(batchMessage, url: url) { (data, error) in
-        guard error == nil else {
-          print("ERROR: \(error.debugDescription)")
+      try connection.sendMessage(batchMessage, url: url, clientConfig: config) {
+          [weak self] (data, error) in
+        if let e = error  {
+          self?.handleSendMessageError(e)
           return
         }
         print("Fetch finished: \(String(describing: data))")
@@ -152,6 +155,20 @@ open class MetricsLogger: NSObject {
       print("ERROR: Unknown NetworkConnectionError sending message.")
     } catch {
       print("ERROR: Unknown error sending message.")
+    }
+  }
+  
+  func handleSendMessageError(_ error: Error) {
+    if let e = error as NSError? {
+      print("ERROR: domain=\(e.domain) code=\(e.code)")
+      if let data = e.userInfo["data"] as? Data {
+        let errorString = String(decoding: data, as: UTF8.self)
+        if !errorString.isEmpty {
+          print(errorString)
+        }
+      }
+    } else {
+      print("ERROR: \(error.localizedDescription)")
     }
   }
 }
