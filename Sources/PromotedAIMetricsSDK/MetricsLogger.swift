@@ -8,7 +8,7 @@ open class MetricsLogger: NSObject {
   private let connection: NetworkConnection
   private let clock: Clock
   private let store: PersistentStore
-  private var events: [Message]
+  var events: [Message]
   
   private let metricsLoggingURL: URL?
   /// Timer for pending batched log request.
