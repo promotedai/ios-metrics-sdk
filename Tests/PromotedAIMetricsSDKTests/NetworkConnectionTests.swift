@@ -20,7 +20,7 @@ final class NetworkConnectionTests: XCTestCase {
     message.clickID = "foo"
     
     do {
-      config?.metricsLoggingWireFormat = .json
+      config!.metricsLoggingWireFormat = .json
       let jsonData = try connection!.bodyData(message: message, clientConfig: config!)
       let jsonString = String(data: jsonData, encoding: .utf8)!
       XCTAssertEqual("{\"clickId\":\"foo\"}", jsonString)
@@ -34,7 +34,7 @@ final class NetworkConnectionTests: XCTestCase {
     message.clickID = "foo"
     
     do {
-      config?.metricsLoggingWireFormat = .binary
+      config!.metricsLoggingWireFormat = .binary
       let binaryData = try connection!.bodyData(message: message, clientConfig: config!)
       XCTAssertGreaterThan(binaryData.count, 0)
     } catch {
@@ -47,7 +47,7 @@ final class NetworkConnectionTests: XCTestCase {
     message.clickID = "foo"
     
     do {
-      config?.metricsLoggingWireFormat = .base64EncodedBinary
+      config!.metricsLoggingWireFormat = .base64EncodedBinary
       let binaryData = try connection!.bodyData(message: message, clientConfig: config!)
       XCTAssertGreaterThan(binaryData.count, 0)
     } catch {
@@ -55,9 +55,18 @@ final class NetworkConnectionTests: XCTestCase {
     }
   }
   
+  func testURLRequestAPIKey() {
+    config!.metricsLoggingAPIKey = "key!"
+    let url = URL(string: "http://promoted.ai")!
+    let data = "foobar".data(using: .utf8)!
+    let request = connection?.urlRequest(url: url, data: data, clientConfig: config!)
+    XCTAssertEqual("key!", request!.allHTTPHeaderFields!["x-api-key"]!)
+  }
+  
   static var allTests = [
     ("testBodyDataJSON", testBodyDataJSON),
     ("testBodyDataBinary", testBodyDataBinary),
     ("testBodyDataBase64EncodedBinary", testBodyDataBase64EncodedBinary),
+    ("testURLRequestAPIKey", testURLRequestAPIKey),
   ]
 }
