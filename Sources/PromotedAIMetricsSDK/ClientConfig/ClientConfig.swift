@@ -1,6 +1,5 @@
 import Foundation
 
-@objc(PROClientConfig)
 open class ClientConfig: NSObject {
   
   private static let localMetricsLoggingURLString = "http://localhost:8080/metrics"
@@ -11,5 +10,9 @@ open class ClientConfig: NSObject {
   
   public var metricsLoggingURL: String {
     return ClientConfig.localMetricsLoggingURLString
+  }
+  
+  public var batchLoggingFlushInterval: TimeInterval {
+    return 10.0
   }
 }
