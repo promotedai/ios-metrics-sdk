@@ -6,49 +6,48 @@ import XCTest
 final class IDMapTests: XCTestCase {
 
   private var map: IDMap?
+  
+  private static let testBits = 16
 
   public override func setUp() {
     super.setUp()
-    map = IDMap(namespace: "foobar")
+    map = IDMap()
   }
   
   private func iterateStrings(block: (String) -> Void) {
-    let chars = "0123456789abcdef"
-    for c0 in chars {
-      for c1 in chars {
-        for c2 in chars {
-          for c3 in chars {
-            for c4 in chars {
-              let str = "\(c0)\(c1)\(c2)\(c3)\(c4)"
-              block(str)
-            }
-          }
-        }
-      }
+    for i in 0 ..< (1 << IDMapTests.testBits) {
+      let str = String(format: "%02x", i)
+      block(str)
     }
   }
   
-  func testPerformance() {
-    let dictionaryBefore = Date().timeIntervalSince1970
-    var dictionary = [String: String]()
+  func testUniqueness() {
+    var idsSeen = [String: String]()
     iterateStrings { str in
-      dictionary[str] = UUID().uuidString
+      let id = map![str]
+      if let usedID = idsSeen[id] {
+        XCTFail("\(str): hash \(id) already seen for \(usedID)");
+        return
+      }
+      idsSeen[id] = str
     }
-    let dictionaryAfter = Date().timeIntervalSince1970
-    let dictionaryElapsed = dictionaryAfter - dictionaryBefore
-    print("Dictionary: \(dictionaryElapsed) sec")
-    
-    let idMapBefore = Date().timeIntervalSince1970
-    let idMap = IDMap(namespace: "baz")
+  }
+  
+  func testDeterminism() {
+    var idsSeen = [String: String]()
     iterateStrings { str in
-      _ = idMap[str]
+      let id = map![str]
+      idsSeen[str] = id
     }
-    let idMapAfter = Date().timeIntervalSince1970
-    let idMapElapsed = idMapAfter - idMapBefore
-    print("IDMap: \(idMapElapsed) sec")
+    iterateStrings { str in
+      let id = map![str]
+      let seenID = idsSeen[str]!
+      XCTAssertEqual(id, seenID, "Hash for \(str) was not unique: \(id) vs \(seenID)")
+    }
   }
   
   static var allTests = [
-    ("testPerformance", testPerformance),
+    ("testUniqueness", testUniqueness),
+    ("testDeterminism", testDeterminism),
   ]
 }

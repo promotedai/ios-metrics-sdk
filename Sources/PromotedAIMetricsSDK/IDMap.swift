@@ -1,25 +1,14 @@
 import CommonCrypto
-import CryptoKit
 import Foundation
 
 @available(OSX 10.15, *)
 public class IDMap {
 
   public subscript(value: String) -> String {
-    return sha1(value)
+    return IDMap.sha1(value)
   }
   
-  func md5(_ value: String) -> String {
-    let digest = Insecure.MD5.hash(data: value.data(using: .utf8) ?? Data())
-    return digest.map { String(format: "%02hhx", $0) }.joined()
-  }
-  
-  func cryptoKitSha1(_ value: String) -> String {
-    let digest = Insecure.SHA1.hash(data: value.data(using: .ascii) ?? Data())
-    return digest.map { String(format: "%02hhx", $0) }.joined()
-  }
-  
-  func sha1(_ value: String) -> String {
+  static func sha1(_ value: String) -> String {
     var context = CC_SHA1_CTX()
     CC_SHA1_Init(&context)
     _ = value.withCString { (cString) in
