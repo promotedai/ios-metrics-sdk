@@ -82,7 +82,7 @@ Example usage with UICollectionView:
 
 - (void)reloadCollectionView {
   [_collectionView reloadData];
-  NSArray<NSIndexPath *> *visibleItems = _newsfeed.indexPathsForVisibleItems;
+  NSArray<NSIndexPath *> *visibleItems = _collectionView.indexPathsForVisibleItems;
   [_impressionLogger collectionViewDidReloadWithVisibleItems:visibleItems];
 }
 ~~~
