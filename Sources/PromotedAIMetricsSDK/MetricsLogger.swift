@@ -4,10 +4,12 @@ import SwiftProtobuf
 @objc(PROMetricsLogger)
 open class MetricsLogger: NSObject {
 
+  private let clock: Clock
   private let config: ClientConfig
   private let connection: NetworkConnection
-  private let clock: Clock
+  public let idMap: IDMap
   private let store: PersistentStore
+
   var events: [Message]
   
   private let metricsLoggingURL: URL?
@@ -18,12 +20,14 @@ open class MetricsLogger: NSObject {
   private(set) var logUserID: String?
 
   public init(clientConfig: ClientConfig,
-              connection: NetworkConnection,
               clock: Clock,
+              connection: NetworkConnection,
+              idMap: IDMap,
               store: PersistentStore) {
+    self.clock = clock
     self.config = clientConfig
     self.connection = connection
-    self.clock = clock
+    self.idMap = idMap
     self.store = store
     self.events = []
     self.userID = nil

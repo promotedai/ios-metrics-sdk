@@ -5,8 +5,8 @@ open class BaseMetricsLoggerService<L>:
 
   public private(set) lazy var metricsLogger: L = {
     // Reading the config property initializes clientConfigService.
-    return makeLogger(clientConfig: config, connection: connection,
-                      clock: clock, store: store)
+    return makeLogger(clientConfig: config, clock: clock, connection: connection,
+                      idMap: idMap, store: store)
   } ()
 
   private lazy var clientConfigService: ClientConfigService = {
@@ -17,15 +17,18 @@ open class BaseMetricsLoggerService<L>:
     return clientConfigService.config
   }
 
-  private let connection: NetworkConnection
   private let clock: Clock
+  private let connection: NetworkConnection
+  private let idMap: IDMap
   private let store: PersistentStore
 
-  public init(connection: NetworkConnection = GTMSessionFetcherConnection(),
-              clock: Clock = SystemClock.instance,
+  public init(clock: Clock = SystemClock.instance,
+              connection: NetworkConnection = GTMSessionFetcherConnection(),
+              idMap: IDMap = SHA1IDMap.instance,
               store: PersistentStore = UserDefaultsPersistentStore()) {
-    self.connection = connection
     self.clock = clock
+    self.connection = connection
+    self.idMap = idMap
     self.store = store
   }
 
@@ -34,12 +37,14 @@ open class BaseMetricsLoggerService<L>:
   }
 
   open func makeLogger(clientConfig: ClientConfig,
-                       connection: NetworkConnection,
                        clock: Clock,
+                       connection: NetworkConnection,
+                       idMap: IDMap,
                        store: PersistentStore) -> L {
     return MetricsLogger(clientConfig: clientConfig,
-                         connection: connection,
                          clock: clock,
+                         connection: connection,
+                         idMap: idMap,
                          store: store) as! L
   }
   
