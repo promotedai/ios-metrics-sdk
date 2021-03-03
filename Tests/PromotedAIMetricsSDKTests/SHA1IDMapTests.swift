@@ -3,7 +3,7 @@ import XCTest
 
 @testable import PromotedAIMetricsSDK
 
-final class IDMapTests: XCTestCase {
+final class SHA1IDMapTests: XCTestCase {
 
   private var map: IDMap?
   
@@ -11,11 +11,11 @@ final class IDMapTests: XCTestCase {
 
   public override func setUp() {
     super.setUp()
-    map = IDMap()
+    map = SHA1IDMap.instance
   }
   
   private func iterateStrings(block: (String) -> Void) {
-    for i in 0 ..< (1 << IDMapTests.testBits) {
+    for i in 0 ..< (1 << SHA1IDMapTests.testBits) {
       let str = String(format: "%02x", i)
       block(str)
     }
@@ -24,7 +24,7 @@ final class IDMapTests: XCTestCase {
   func testUniqueness() {
     var idsSeen = [String: String]()
     iterateStrings { str in
-      let id = map![str]
+      let id = map!.deterministicUUIDString(value: str)
       if let usedID = idsSeen[id] {
         XCTFail("\(str): hash \(id) already seen for \(usedID)");
         return
@@ -36,11 +36,11 @@ final class IDMapTests: XCTestCase {
   func testDeterminism() {
     var idsSeen = [String: String]()
     iterateStrings { str in
-      let id = map![str]
+      let id = map!.deterministicUUIDString(value: str)
       idsSeen[str] = id
     }
     iterateStrings { str in
-      let id = map![str]
+      let id = map!.deterministicUUIDString(value: str)
       let seenID = idsSeen[str]!
       XCTAssertEqual(id, seenID, "Hash for \(str) was not unique: \(id) vs \(seenID)")
     }
