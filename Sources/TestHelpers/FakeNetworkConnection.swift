@@ -5,9 +5,9 @@ import SwiftProtobuf
 public class FakeNetworkConnection: NetworkConnection {
   
   public struct SendMessageArguments {
-    let message: Message?
-    let url: URL?
-    let callback: Callback?
+    public let message: Message?
+    public let url: URL?
+    public let callback: Callback?
   }
   
   public var messages: [SendMessageArguments]
