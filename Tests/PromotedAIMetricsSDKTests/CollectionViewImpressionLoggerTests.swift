@@ -2,6 +2,7 @@ import Foundation
 import XCTest
 
 @testable import PromotedAIMetricsSDK
+@testable import TestHelpers
 
 final class CollectionViewImpressionLoggerTests: XCTestCase {
   class FakeDataSource: CollectionViewImpressionLoggerDataSource {
