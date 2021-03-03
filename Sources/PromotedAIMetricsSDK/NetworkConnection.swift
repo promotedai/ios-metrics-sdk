@@ -33,8 +33,7 @@ extension NetworkConnection {
       request.addValue(apiKey, forHTTPHeaderField: "x-api-key")
     }
     if clientConfig.metricsLoggingWireFormat == .base64EncodedBinary {
-      request.addValue("text/plain", forHTTPHeaderField: "content-type")
-      request.addValue("Base64", forHTTPHeaderField: "Content-Transfer-Encoding")
+      request.addValue("application/protobuf", forHTTPHeaderField: "content-type")
     }
     return request
   }
