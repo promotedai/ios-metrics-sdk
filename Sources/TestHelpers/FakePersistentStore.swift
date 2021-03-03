@@ -1,8 +1,9 @@
 import Foundation
-@testable import PromotedAIMetricsSDK
+import PromotedAIMetricsSDK
 
-class FakePersistentStore: PersistentStore {
-  var userID: String?
-  var logUserID: String?
-  var clientConfigMessage: Data?
+public class FakePersistentStore: PersistentStore {
+  public var userID: String? = nil
+  public var logUserID: String? = nil
+  public var clientConfigMessage: Data? = nil
+  public init() {}
 }
