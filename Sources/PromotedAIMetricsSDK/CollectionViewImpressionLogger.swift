@@ -58,38 +58,29 @@ public protocol CollectionViewImpressionLoggerDataSource {
 }
 
 #if canImport(UIKit)
-class UICollectionViewDataSource : CollectionViewImpressionLoggerDataSource {
-  private var collectionView: UICollectionView
-  init(_ collectionView: UICollectionView) {
+public class UICollectionViewDataSource : CollectionViewImpressionLoggerDataSource {
+  private weak var collectionView: UICollectionView?
+  public init(_ collectionView: UICollectionView) {
     self.collectionView = collectionView
   }
-  var indexPathsForVisibleItems: [IndexPath] {
-    return collectionView.indexPathsForVisibleItems
+  public var indexPathsForVisibleItems: [IndexPath] {
+    return collectionView?.indexPathsForVisibleItems ?? []
   }
 }
 #endif
 
 @objc(PROCollectionViewImpressionLogger)
-public class CollectionViewImpressionLogger: NSObject {
+open class CollectionViewImpressionLogger: NSObject {
   private let dataSource: CollectionViewImpressionLoggerDataSource
   private let clock: Clock
   private var impressionStarts: [IndexPath: TimeInterval]
 
   public weak var delegate: CollectionViewImpressionLoggerDelegate?
 
-  #if canImport(UIKit)
-  @objc public convenience init(
-      collectionView: UICollectionView,
-      delegate: CollectionViewImpressionLoggerDelegate? = nil) {
-    self.init(dataSource: UICollectionViewDataSource(collectionView),
-              delegate: delegate)
-  }
-  #endif
-
   public init(
       dataSource: CollectionViewImpressionLoggerDataSource,
       delegate: CollectionViewImpressionLoggerDelegate? = nil,
-      clock: Clock = SystemClock()) {
+      clock: Clock) {
     self.dataSource = dataSource
     self.clock = clock
     self.impressionStarts = [IndexPath: TimeInterval]()

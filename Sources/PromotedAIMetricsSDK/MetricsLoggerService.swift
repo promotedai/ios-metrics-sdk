@@ -22,7 +22,7 @@ open class BaseMetricsLoggerService<L>:
   private let store: PersistentStore
 
   public init(connection: NetworkConnection = GTMSessionFetcherConnection(),
-              clock: Clock = SystemClock(),
+              clock: Clock = SystemClock.instance,
               store: PersistentStore = UserDefaultsPersistentStore()) {
     self.connection = connection
     self.clock = clock

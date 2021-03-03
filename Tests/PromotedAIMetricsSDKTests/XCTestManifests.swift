@@ -6,6 +6,7 @@ public func allTests() -> [XCTestCaseEntry] {
     testCase(CollectionViewImpressionLoggerTests.allTests),
     testCase(MetricsLoggerTests.allTests),
     testCase(NetworkConnectionTests.allTests),
+    testCase(SHA1IDMapTests.allTests),
   ]
 }
 #endif
