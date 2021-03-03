@@ -25,10 +25,16 @@ let package = Package(
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
         "SwiftProtobuf",
       ]),
+    .target(
+      name: "TestHelpers",
+      dependencies: [
+        "PromotedAIMetricsSDK",
+      ]),
     .testTarget(
       name: "PromotedAIMetricsSDKTests",
       dependencies: [
-        "PromotedAIMetricsSDK"
+        "PromotedAIMetricsSDK",
+        "TestHelpers",
       ]),
   ]
 )

@@ -3,6 +3,7 @@ import SwiftProtobuf
 import XCTest
 
 @testable import PromotedAIMetricsSDK
+@testable import TestHelpers
 
 final class NetworkConnectionTests: XCTestCase {
   
