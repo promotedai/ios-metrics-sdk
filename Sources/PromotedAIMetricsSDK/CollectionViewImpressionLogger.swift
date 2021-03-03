@@ -1,7 +1,4 @@
 import Foundation
-#if canImport(UIKit)
-import UIKit
-#endif
 
 @objc(PROCollectionViewCellImpression)
 public class CollectionViewCellImpression: NSObject {
@@ -52,36 +49,15 @@ public protocol CollectionViewImpressionLoggerDelegate {
       didEndImpressions impressions: [CollectionViewCellImpression])
 }
 
-@objc(PROCollectionViewImpressionLoggerDataSource)
-public protocol CollectionViewImpressionLoggerDataSource {
-  var indexPathsForVisibleItems: [IndexPath] { get }
-}
-
-#if canImport(UIKit)
-public class UICollectionViewDataSource : CollectionViewImpressionLoggerDataSource {
-  private weak var collectionView: UICollectionView?
-  public init(_ collectionView: UICollectionView) {
-    self.collectionView = collectionView
-  }
-  public var indexPathsForVisibleItems: [IndexPath] {
-    return collectionView?.indexPathsForVisibleItems ?? []
-  }
-}
-#endif
-
 @objc(PROCollectionViewImpressionLogger)
 open class CollectionViewImpressionLogger: NSObject {
-  private let dataSource: CollectionViewImpressionLoggerDataSource
   private let clock: Clock
   private var impressionStarts: [IndexPath: TimeInterval]
 
   public weak var delegate: CollectionViewImpressionLoggerDelegate?
 
-  public init(
-      dataSource: CollectionViewImpressionLoggerDataSource,
-      delegate: CollectionViewImpressionLoggerDelegate? = nil,
-      clock: Clock) {
-    self.dataSource = dataSource
+  public init(delegate: CollectionViewImpressionLoggerDelegate? = nil,
+              clock: Clock) {
     self.clock = clock
     self.impressionStarts = [IndexPath: TimeInterval]()
     self.delegate = delegate
@@ -97,9 +73,8 @@ open class CollectionViewImpressionLogger: NSObject {
     broadcastEndAndRemoveImpressions(items: [item], now: clock.now)
   }
 
-  @objc public func collectionViewDidReloadAllItems() {
+  @objc public func collectionViewDidReload(visibleItems: [IndexPath]) {
     let now = clock.now
-    let visibleItems = dataSource.indexPathsForVisibleItems
 
     var newlyShownItems = [IndexPath]()
     for item in visibleItems {
