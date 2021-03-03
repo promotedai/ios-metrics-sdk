@@ -1,5 +1,6 @@
 import Foundation
 import SwiftProtobuf
+import TestHelpers
 import XCTest
 
 @testable import PromotedAIMetricsSDK

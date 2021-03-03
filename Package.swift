@@ -13,6 +13,11 @@ let package = Package(
       targets: [
         "PromotedAIMetricsSDK",
       ]),
+    .library(
+      name: "TestHelpers",
+      targets: [
+        "TestHelpers",
+      ]),
   ],
   dependencies: [
     .package(name: "GTMSessionFetcher", url: "https://github.com/google/gtm-session-fetcher", from: "1.5.0"),

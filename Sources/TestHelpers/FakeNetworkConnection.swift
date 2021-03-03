@@ -1,23 +1,23 @@
 import Foundation
+import PromotedAIMetricsSDK
 import SwiftProtobuf
-@testable import PromotedAIMetricsSDK
 
-class FakeNetworkConnection: NetworkConnection {
+public class FakeNetworkConnection: NetworkConnection {
   
-  struct SendMessageArguments {
-    let message: Message?
-    let url: URL?
-    let callback: Callback?
+  public struct SendMessageArguments {
+    public let message: Message?
+    public let url: URL?
+    public let callback: Callback?
   }
   
-  var messages: [SendMessageArguments]
+  public var messages: [SendMessageArguments]
   
-  init() {
+  public init() {
     messages = []
   }
   
-  func sendMessage(_ message: Message, url: URL, clientConfig: ClientConfig,
-                   callback: Callback?) throws {
+  public func sendMessage(_ message: Message, url: URL, clientConfig: ClientConfig,
+                          callback: Callback?) throws {
     messages.append(SendMessageArguments(message: message, url: url, callback: callback))
   }
 }

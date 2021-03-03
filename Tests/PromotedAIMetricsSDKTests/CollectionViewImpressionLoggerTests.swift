@@ -1,15 +1,12 @@
 import Foundation
+import TestHelpers
 import XCTest
 
 @testable import PromotedAIMetricsSDK
 @testable import TestHelpers
 
 final class CollectionViewImpressionLoggerTests: XCTestCase {
-  class FakeDataSource: CollectionViewImpressionLoggerDataSource {
-    var indexPathsForVisibleItems: [IndexPath]
-    init(items: [IndexPath] = []) { indexPathsForVisibleItems = items }
-  }
-  
+
   class Delegate: CollectionViewImpressionLoggerDelegate {
     var startImpressions: [CollectionViewCellImpression]
     var endImpressions: [CollectionViewCellImpression]
@@ -46,7 +43,7 @@ final class CollectionViewImpressionLoggerTests: XCTestCase {
   }
   
   func testStartImpressions() {
-    let dataSource = FakeDataSource()
+    let dataSource = FakeCollectionViewImpressionLoggerDataSource()
     let delegate = Delegate()
     let clock = FakeClock(now: 123)
     let impressionLogger = CollectionViewImpressionLogger(
@@ -67,7 +64,7 @@ final class CollectionViewImpressionLoggerTests: XCTestCase {
   }
   
   func testEndImpressions() {
-    let dataSource = FakeDataSource()
+    let dataSource = FakeCollectionViewImpressionLoggerDataSource()
     let delegate = Delegate()
     let clock = FakeClock(now: 123)
     let impressionLogger = CollectionViewImpressionLogger(
@@ -80,7 +77,7 @@ final class CollectionViewImpressionLoggerTests: XCTestCase {
   }
   
   func testDidChangeImpressions() {
-    let dataSource = FakeDataSource()
+    let dataSource = FakeCollectionViewImpressionLoggerDataSource()
     let delegate = Delegate()
     let clock = FakeClock(now: 123)
     let impressionLogger = CollectionViewImpressionLogger(
@@ -107,7 +104,7 @@ final class CollectionViewImpressionLoggerTests: XCTestCase {
   }
   
   func testDidHideAllImpressions() {
-    let dataSource = FakeDataSource()
+    let dataSource = FakeCollectionViewImpressionLoggerDataSource()
     let delegate = Delegate()
     let clock = FakeClock(now: 123)
     let impressionLogger = CollectionViewImpressionLogger(
