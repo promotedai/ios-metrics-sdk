@@ -32,8 +32,10 @@ public class SystemClock: NSObject, Clock {
   struct SystemTimer: ScheduledTimer {
     let timer: Timer
   }
+  
+  public static let instance = SystemClock()
 
-  public override init() {}
+  private override init() {}
 
   public var now: TimeInterval {
     return Date().timeIntervalSince1970

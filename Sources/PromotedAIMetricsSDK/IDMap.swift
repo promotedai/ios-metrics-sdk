@@ -1,11 +1,24 @@
 import CommonCrypto
 import Foundation
 
-@available(OSX 10.15, *)
-public class IDMap {
+public protocol IDMap {
+  func deterministicUUIDString(value: String) -> String
+}
 
-  public subscript(value: String) -> String {
-    return IDMap.sha1(value)
+public extension IDMap {
+  func impressionID(clientID: String) -> String {
+    return deterministicUUIDString(value: clientID)
+  }
+}
+
+public class SHA1IDMap: IDMap {
+  
+  public static let instance = SHA1IDMap()
+  
+  private init() {}
+  
+  public func deterministicUUIDString(value: String) -> String {
+    return SHA1IDMap.sha1(value)
   }
   
   static func sha1(_ value: String) -> String {
