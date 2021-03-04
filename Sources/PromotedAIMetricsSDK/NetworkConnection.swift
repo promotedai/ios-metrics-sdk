@@ -18,8 +18,6 @@ public protocol NetworkConnection {
 extension NetworkConnection {
   func bodyData(message: Message, clientConfig: ClientConfig) throws -> Data {
     switch clientConfig.metricsLoggingWireFormat {
-    case .base64EncodedBinary:
-      return try message.serializedData().base64EncodedData()
     case .binary:
       return try message.serializedData()
     case .json:
@@ -32,7 +30,7 @@ extension NetworkConnection {
     if let apiKey = clientConfig.metricsLoggingAPIKey {
       request.addValue(apiKey, forHTTPHeaderField: "x-api-key")
     }
-    if clientConfig.metricsLoggingWireFormat == .base64EncodedBinary {
+    if clientConfig.metricsLoggingWireFormat == .binary {
       request.addValue("application/protobuf", forHTTPHeaderField: "content-type")
     }
     return request
