@@ -43,20 +43,7 @@ final class NetworkConnectionTests: XCTestCase {
       XCTFail("Binary serialization threw an exception.")
     }
   }
-  
-  func testBodyDataBase64EncodedBinary() {
-    var message = Event_Click()
-    message.clickID = "foo"
     
-    do {
-      config!.metricsLoggingWireFormat = .base64EncodedBinary
-      let binaryData = try connection!.bodyData(message: message, clientConfig: config!)
-      XCTAssertGreaterThan(binaryData.count, 0)
-    } catch {
-      XCTFail("Binary serialization threw an exception.")
-    }
-  }
-  
   func testURLRequestAPIKey() {
     config!.metricsLoggingAPIKey = "key!"
     let url = URL(string: "http://promoted.ai")!
@@ -68,7 +55,6 @@ final class NetworkConnectionTests: XCTestCase {
   static var allTests = [
     ("testBodyDataJSON", testBodyDataJSON),
     ("testBodyDataBinary", testBodyDataBinary),
-    ("testBodyDataBase64EncodedBinary", testBodyDataBase64EncodedBinary),
     ("testURLRequestAPIKey", testURLRequestAPIKey),
   ]
 }

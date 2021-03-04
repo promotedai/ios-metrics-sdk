@@ -4,7 +4,6 @@ open class ClientConfig: NSObject {
   
   public enum MetricsLoggingWireFormat {
     case json
-    case base64EncodedBinary
     case binary
   }
   
@@ -20,7 +19,7 @@ open class ClientConfig: NSObject {
   
   public var metricsLoggingAPIKey: String? = ClientConfig.devMetricsLoggingAPIKeyString
   
-  public var metricsLoggingWireFormat: MetricsLoggingWireFormat = .json
+  public var metricsLoggingWireFormat: MetricsLoggingWireFormat = .binary
   
   public var batchLoggingFlushInterval: TimeInterval = 10.0
 }
