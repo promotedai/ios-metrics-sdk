@@ -1,26 +1,66 @@
 import CommonCrypto
 import Foundation
 
+/** Maps client-side IDs to server-side IDs. */
 public protocol IDMap {
-  func deterministicUUIDString(value: String) -> String
+  
+  /// Produces a deterministic UUID string given an input value.
+  /// Collision of returned values when given different input should
+  /// be the same as generating new UUIDs. The generated UUIDs are
+  /// not necessarily cryptographically secure.
+  func deterministicUUIDString(value: String?) -> String
+
+  /// Given a client-side user ID, generate a log user ID which
+  /// is used to track the the current session without exposing
+  /// the underlying user ID.
+  func logUserID(userID: String?) -> String
+
+  /// Given a client-side ID, generate a server-side impression ID.
+  func impressionID(clientID: String?) -> String
+  
+  /// Generates a new click ID.
+  func clickID() -> String
 }
 
-public extension IDMap {
-  func impressionID(clientID: String) -> String {
+/**
+ DO NOT INSTANTIATE. Base class for IDMap implementation.
+ The `impressionID(clientID:)` and `logUserID(userID:)` methods would
+ ideally be in the protocol extension, but doing so prevents
+ FakeIDMap from overriding them for tests.
+ */
+open class AbstractIDMap: IDMap {
+
+  public init() {}
+
+  open func deterministicUUIDString(value: String?) -> String {
+    return ""
+  }
+
+  open func logUserID(userID: String?) -> String {
+    return UUID().uuidString
+  }
+
+  open func impressionID(clientID: String?) -> String {
     return deterministicUUIDString(value: clientID)
+  }
+  
+  open func clickID() -> String {
+    return UUID().uuidString
   }
 }
 
-public class SHA1IDMap: IDMap {
+/** SHA1-based deterministic UUID generation. */
+public class SHA1IDMap: AbstractIDMap {
   
   public static let instance = SHA1IDMap()
   
-  private init() {}
+  private override init() {}
   
-  public func deterministicUUIDString(value: String) -> String {
-    return SHA1IDMap.sha1(value)
+  public override func deterministicUUIDString(value: String?) -> String {
+    if let s = value { return SHA1IDMap.sha1(s) }
+    return "00000000-0000-0000-0000-000000000000"
   }
-  
+
   static func sha1(_ value: String) -> String {
     var context = CC_SHA1_CTX()
     CC_SHA1_Init(&context)

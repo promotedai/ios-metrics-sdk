@@ -52,8 +52,7 @@ open class MetricsLogger: NSObject {
       }
     }
     store.userID = userID
-    let uuid = UUID()
-    let newLogUserID = uuid.uuidString
+    let newLogUserID = idMap.logUserID(userID: userID)
     store.logUserID = newLogUserID
     self.logUserID = newLogUserID
   }
