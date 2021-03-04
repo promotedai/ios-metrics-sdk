@@ -20,6 +20,9 @@ public protocol IDMap {
   
   /// Generates a new click ID.
   func clickID() -> String
+  
+  /// Generates a new view ID.
+  func viewID(viewName: String?) -> String
 }
 
 /**
@@ -46,6 +49,10 @@ open class AbstractIDMap: IDMap {
   
   open func clickID() -> String {
     return UUID().uuidString
+  }
+  
+  open func viewID(viewName: String?) -> String {
+    return deterministicUUIDString(value: viewName)
   }
 }
 
