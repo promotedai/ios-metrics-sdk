@@ -130,7 +130,7 @@ open class MetricsLogger: NSObject {
   }
 }
 
-// Common events.
+// MARK: - Common events
 public extension MetricsLogger {
   
   func commonUserEvent() -> Event_User {
@@ -201,7 +201,7 @@ public extension MetricsLogger {
   }
 }
 
-// View controller logging.
+// MARK: - View controller logging
 public extension MetricsLogger {
   /// `UIViewController` if `UIKit` is supported on build platform,
   /// `AnyObject` otherwise. Allows us to unit test on macOS.
@@ -213,6 +213,8 @@ public extension MetricsLogger {
   
   func loggingNameFor(viewController: ViewControllerType) -> String {
     let className = String(describing: type(of: viewController))
-    return className.replacingOccurrences(of:"ViewController", with: "")
+    let loggingName = className.replacingOccurrences(of:"ViewController", with: "")
+    if loggingName.isEmpty { return "Unnamed" }
+    return loggingName
   }
 }
