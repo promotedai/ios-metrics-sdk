@@ -31,8 +31,9 @@ final class MetricsLoggerTests: XCTestCase {
     store!.userID = nil
     store!.logUserID = nil
     metricsLogger = TestableMetricsLogger(clientConfig: config!,
-                                          connection: connection!,
                                           clock: clock!,
+                                          connection: connection!,
+                                          idMap: SHA1IDMap.instance,
                                           store: store!)
   }
   
