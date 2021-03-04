@@ -107,22 +107,17 @@ open class CollectionViewImpressionLogger: NSObject {
       impressions.append(impression)
       impressionStarts[item] = now
     }
-    if let delegate = self.delegate {
-      delegate.impressionLogger(self, didStartImpressions: impressions)
-    }
+    delegate?.impressionLogger(self, didStartImpressions: impressions)
   }
   
   private func broadcastEndAndRemoveImpressions(items: [IndexPath], now: TimeInterval) {
     guard !items.isEmpty else { return }
     var impressions = [CollectionViewCellImpression]()
     for item in items {
-      guard let start = impressionStarts.removeValue(forKey: item)
-          else { continue }
+      guard let start = impressionStarts.removeValue(forKey: item) else { continue }
       let impression = CollectionViewCellImpression(path: item, startTime: start, endTime: now)
       impressions.append(impression)
     }
-    if let delegate = self.delegate {
-      delegate.impressionLogger(self, didEndImpressions: impressions)
-    }
+    delegate?.impressionLogger(self, didEndImpressions: impressions)
   }
 }
