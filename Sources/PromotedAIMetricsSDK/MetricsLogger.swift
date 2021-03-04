@@ -107,6 +107,23 @@ open class MetricsLogger: NSObject {
     return click
   }
   
+  public func commonViewEvent(
+      viewID: String,
+      sessionID: String? = nil,
+      name: String? = nil,
+      url: String? = nil,
+      useCase: Event_UseCase? = nil) -> Event_View {
+    var view = Event_View()
+    if let id = logUserID { view.logUserID = id }
+    view.clientLogTimestamp = clock.nowMillis
+    view.viewID = viewID
+    if let id = sessionID { view.sessionID = id }
+    if let n = name { view.name = n }
+    if let u = url { view.url = u }
+    if let use = useCase { view.useCase = use }
+    return view
+  }
+  
   public func log(event: Message) {
     events.append(event)
     maybeSchedulePendingBatchLoggingFlush()
