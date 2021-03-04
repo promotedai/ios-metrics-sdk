@@ -108,11 +108,11 @@ open class MetricsLogger: NSObject {
   }
   
   public func commonViewEvent(
-    viewID: String,
-    sessionID: String? = nil,
-    name: String? = nil,
-    url: String? = nil,
-    useCase: Event_UseCase? = nil) -> Event_View {
+      viewID: String,
+      sessionID: String? = nil,
+      name: String? = nil,
+      url: String? = nil,
+      useCase: Event_UseCase? = nil) -> Event_View {
     var view = Event_View()
     if let id = logUserID { view.logUserID = id }
     view.clientLogTimestamp = clock.nowMillis
