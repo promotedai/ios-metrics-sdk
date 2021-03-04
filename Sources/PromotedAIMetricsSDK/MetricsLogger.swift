@@ -1,6 +1,10 @@
 import Foundation
 import SwiftProtobuf
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
 @objc(PROMetricsLogger)
 open class MetricsLogger: NSObject {
 
@@ -57,73 +61,6 @@ open class MetricsLogger: NSObject {
     self.logUserID = newLogUserID
   }
 
-  public func commonUserEvent() -> Event_User {
-    var user = Event_User()
-    if let id = userID { user.userID = id }
-    if let id = logUserID { user.logUserID = id }
-    user.clientLogTimestamp = clock.nowMillis
-    return user
-  }
-
-  public func commonImpressionEvent(
-      impressionID: String,
-      insertionID: String? = nil,
-      requestID: String? = nil,
-      sessionID: String? = nil,
-      viewID: String? = nil) -> Event_Impression {
-    var impression = Event_Impression()
-    if let id = logUserID { impression.logUserID = id }
-    impression.clientLogTimestamp = clock.nowMillis
-    impression.impressionID = impressionID
-    if let id = insertionID { impression.insertionID = id }
-    if let id = requestID { impression.requestID = id }
-    if let id = sessionID { impression.sessionID = id }
-    if let id = viewID { impression.viewID = id }
-    return impression
-  }
-  
-  public func commonClickEvent(
-      clickID: String,
-      impressionID: String? = nil,
-      insertionID: String? = nil,
-      requestID: String? = nil,
-      sessionID: String? = nil,
-      viewID: String? = nil,
-      name: String? = nil,
-      targetURL: String? = nil,
-      elementID: String? = nil) -> Event_Click {
-    var click = Event_Click()
-    if let id = logUserID { click.logUserID = id }
-    click.clientLogTimestamp = clock.nowMillis
-    click.clickID = clickID
-    if let id = impressionID { click.impressionID = id }
-    if let id = insertionID { click.insertionID = id }
-    if let id = requestID { click.requestID = id }
-    if let id = sessionID { click.sessionID = id }
-    if let id = viewID { click.viewID = id }
-    if let s = name { click.name = s }
-    if let u = targetURL { click.targetURL = u }
-    if let id = elementID { click.elementID = id }
-    return click
-  }
-  
-  public func commonViewEvent(
-      viewID: String,
-      sessionID: String? = nil,
-      name: String? = nil,
-      url: String? = nil,
-      useCase: Event_UseCase? = nil) -> Event_View {
-    var view = Event_View()
-    if let id = logUserID { view.logUserID = id }
-    view.clientLogTimestamp = clock.nowMillis
-    view.viewID = viewID
-    if let id = sessionID { view.sessionID = id }
-    if let n = name { view.name = n }
-    if let u = url { view.url = u }
-    if let use = useCase { view.useCase = use }
-    return view
-  }
-  
   public func log(event: Message) {
     events.append(event)
     maybeSchedulePendingBatchLoggingFlush()
@@ -190,5 +127,92 @@ open class MetricsLogger: NSObject {
     } else {
       print("ERROR: \(error.localizedDescription)")
     }
+  }
+}
+
+// Common events.
+public extension MetricsLogger {
+  
+  func commonUserEvent() -> Event_User {
+    var user = Event_User()
+    if let id = userID { user.userID = id }
+    if let id = logUserID { user.logUserID = id }
+    user.clientLogTimestamp = clock.nowMillis
+    return user
+  }
+
+  func commonImpressionEvent(
+      impressionID: String,
+      insertionID: String? = nil,
+      requestID: String? = nil,
+      sessionID: String? = nil,
+      viewID: String? = nil) -> Event_Impression {
+    var impression = Event_Impression()
+    if let id = logUserID { impression.logUserID = id }
+    impression.clientLogTimestamp = clock.nowMillis
+    impression.impressionID = impressionID
+    if let id = insertionID { impression.insertionID = id }
+    if let id = requestID { impression.requestID = id }
+    if let id = sessionID { impression.sessionID = id }
+    if let id = viewID { impression.viewID = id }
+    return impression
+  }
+  
+  func commonClickEvent(
+      clickID: String,
+      impressionID: String? = nil,
+      insertionID: String? = nil,
+      requestID: String? = nil,
+      sessionID: String? = nil,
+      viewID: String? = nil,
+      name: String? = nil,
+      targetURL: String? = nil,
+      elementID: String? = nil) -> Event_Click {
+    var click = Event_Click()
+    if let id = logUserID { click.logUserID = id }
+    click.clientLogTimestamp = clock.nowMillis
+    click.clickID = clickID
+    if let id = impressionID { click.impressionID = id }
+    if let id = insertionID { click.insertionID = id }
+    if let id = requestID { click.requestID = id }
+    if let id = sessionID { click.sessionID = id }
+    if let id = viewID { click.viewID = id }
+    if let s = name { click.name = s }
+    if let u = targetURL { click.targetURL = u }
+    if let id = elementID { click.elementID = id }
+    return click
+  }
+  
+  func commonViewEvent(
+      viewID: String,
+      sessionID: String? = nil,
+      name: String? = nil,
+      url: String? = nil,
+      useCase: Event_UseCase? = nil) -> Event_View {
+    var view = Event_View()
+    if let id = logUserID { view.logUserID = id }
+    view.clientLogTimestamp = clock.nowMillis
+    view.viewID = viewID
+    if let id = sessionID { view.sessionID = id }
+    if let n = name { view.name = n }
+    if let u = url { view.url = u }
+    if let use = useCase { view.useCase = use }
+    return view
+  }
+}
+
+// View controller logging.
+public extension MetricsLogger {
+  /// `UIViewController` if `UIKit` is supported on build platform,
+  /// `AnyObject` otherwise. Allows us to unit test on macOS.
+  #if canImport(UIKit)
+  typealias ViewControllerType = UIViewController
+  #else
+  typealias ViewControllerType = AnyObject
+  #endif
+  
+  func loggingNameFor(viewController: ViewControllerType) -> String {
+    let className = String(describing: type(of: viewController))
+    return className.replacingOccurrences(of:"ViewController", with: "")
   }
 }
