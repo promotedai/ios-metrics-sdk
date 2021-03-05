@@ -83,6 +83,7 @@ open class BaseMetricsLoggerService<L>:
     self.store = store
   }
 
+  /// Call this to start logging services, prior to accessing the logger.
   public func startLoggingServices() {
     clientConfigService.fetchClientConfig()
   }
