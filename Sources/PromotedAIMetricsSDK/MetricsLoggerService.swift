@@ -14,6 +14,8 @@ import Foundation
  if desired. However, you should not create multiple services that point
  at the same backend.
  
+ Use from main thread only.
+ 
  # Usage
  Create and configure the service when your app starts, then retrieve the
  `MetricsLogger` instance from the service after it has been configured.
