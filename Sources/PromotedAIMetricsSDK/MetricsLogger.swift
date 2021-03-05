@@ -92,8 +92,15 @@ open class MetricsLogger: NSObject {
   /// Timer for pending batched log request.
   private var batchLoggingTimer: ScheduledTimer?
 
-  private(set) var userID: String?
-  private(set) var logUserID: String?
+  /// User ID for this session. Will be updated when
+  /// `startSession(userID:)` or `startSessionSignedOut()` is
+  /// called.
+  public private(set) var userID: String?
+  
+  /// Log user ID for this session. Will be updated when
+  /// `startSession(userID:)` or `startSessionSignedOut()` is
+  /// called.
+  public private(set) var logUserID: String?
 
   public init(clientConfig: ClientConfig,
               clock: Clock,
@@ -111,10 +118,29 @@ open class MetricsLogger: NSObject {
     self.metricsLoggingURL = URL(string: config.metricsLoggingURL)
   }
   
+  /// Starts a new session with the given `userID`.
+  /// If the `userID` has changed from the last value written to
+  /// persistent store, regenrates `logUserID` and caches the new
+  /// values of both to persistent store.
+  ///
+  /// You can call this method multiple times, whenever the user's
+  /// sign-in state changes.
+  ///
+  /// Either this method or `startSessionSignedOut()` should be
+  /// called before logging any events.
   public func startSession(userID: String) {
     startSessionAndUpdateUserIDs(userID: userID)
   }
   
+  /// Starts a new session with signed-out user.
+  /// Updates `userID` to `nil` and generates a new `logUserID`
+  /// for the session. Writes the new values to persistent store.
+  ///
+  /// You can call this method multiple times, whenever the user's
+  /// sign-in state changes.
+  ///
+  /// Either this method or `startSession(userID:)` should be
+  /// called before logging any events.
   public func startSessionSignedOut() {
     startSessionAndUpdateUserIDs(userID: nil)
   }
@@ -226,7 +252,6 @@ public extension MetricsLogger {
       sessionID: String? = nil,
       viewID: String? = nil) -> Event_Impression {
     var impression = Event_Impression()
-    if let id = logUserID { impression.logUserID = id }
     impression.clientLogTimestamp = clock.nowMillis
     impression.impressionID = impressionID
     if let id = insertionID { impression.insertionID = id }
@@ -247,7 +272,6 @@ public extension MetricsLogger {
       targetURL: String? = nil,
       elementID: String? = nil) -> Event_Click {
     var click = Event_Click()
-    if let id = logUserID { click.logUserID = id }
     click.clientLogTimestamp = clock.nowMillis
     click.clickID = clickID
     if let id = impressionID { click.impressionID = id }
@@ -268,7 +292,6 @@ public extension MetricsLogger {
       url: String? = nil,
       useCase: Event_UseCase? = nil) -> Event_View {
     var view = Event_View()
-    if let id = logUserID { view.logUserID = id }
     view.clientLogTimestamp = clock.nowMillis
     view.viewID = viewID
     if let id = sessionID { view.sessionID = id }
