@@ -60,13 +60,13 @@ open class AbstractIDMap: IDMap {
 
 // MARK: -
 /** SHA1-based deterministic UUID generation. */
-public class SHA1IDMap: AbstractIDMap {
+class SHA1IDMap: AbstractIDMap {
   
-  public static let instance = SHA1IDMap()
+  static let instance = SHA1IDMap()
   
   private override init() {}
   
-  public override func deterministicUUIDString(value: String?) -> String {
+  override func deterministicUUIDString(value: String?) -> String {
     if let s = value { return SHA1IDMap.sha1(s) }
     return "00000000-0000-0000-0000-000000000000"
   }

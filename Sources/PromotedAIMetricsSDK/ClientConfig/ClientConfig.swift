@@ -1,8 +1,8 @@
 import Foundation
 
-open class ClientConfig: NSObject {
+public struct ClientConfig {
   
-  public enum MetricsLoggingWireFormat {
+  enum MetricsLoggingWireFormat {
     case json
     case binary
   }
@@ -13,13 +13,13 @@ open class ClientConfig: NSObject {
       "https://srh9gl3spk.execute-api.us-east-1.amazonaws.com/dev/main"
   static let devMetricsLoggingAPIKeyString = "J8nvCqSFQw8n8JDwK8m1Z3KZY8CpjeT727JVEhuK"
   
-  public var loggingEnabled: Bool = true
+  var loggingEnabled: Bool = true
   
-  public var metricsLoggingURL: String = ClientConfig.devMetricsLoggingURLString
+  var metricsLoggingURL: String = ClientConfig.devMetricsLoggingURLString
   
-  public var metricsLoggingAPIKey: String? = ClientConfig.devMetricsLoggingAPIKeyString
+  var metricsLoggingAPIKey: String? = ClientConfig.devMetricsLoggingAPIKeyString
   
-  public var metricsLoggingWireFormat: MetricsLoggingWireFormat = .binary
+  var metricsLoggingWireFormat: MetricsLoggingWireFormat = .binary
   
-  public var batchLoggingFlushInterval: TimeInterval = 10.0
+  var batchLoggingFlushInterval: TimeInterval = 10.0
 }

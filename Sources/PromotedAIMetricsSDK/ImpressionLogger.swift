@@ -1,68 +1,18 @@
 import Foundation
 
 // MARK: -
-/** Represents an impression of a cell in the collection view. */
-@objc(PROCollectionViewCellImpression)
-public class CollectionViewCellImpression: NSObject {
-  
-  /// Index path of the cell that was impressed.
-  @objc public var path: IndexPath
-  
-  /// Start time of impression.
-  @objc public var startTime: TimeInterval
-  
-  /// End time of impression, if available. If not, returns -1.
-  @objc public var endTime: TimeInterval
-
-  /// Duration of impression, if available. If not, returns -1.
-  @objc public var duration: TimeInterval {
-    get {
-      if endTime < 0.0 { return -1.0 }
-      return endTime - startTime
-    }
-  }
-
-  public init(path: IndexPath, startTime: TimeInterval, endTime: TimeInterval = -1.0) {
-    self.path = path
-    self.startTime = startTime
-    self.endTime = endTime
-  }
-
-  public override var debugDescription: String {
-    return "(\(path.description), \(startTime), \(endTime))"
-  }
-  
-  public override var hash: Int {
-    return path.hashValue
-  }
-
-  public override func isEqual(_ object: Any?) -> Bool {
-    guard let rhs = object as? CollectionViewCellImpression else { return false }
-    return self == rhs
-  }
-  
-  static func == (lhs: CollectionViewCellImpression,
-                  rhs: CollectionViewCellImpression) -> Bool {
-    if lhs === rhs { return true }
-    return ((lhs.path == rhs.path) && (abs(lhs.startTime - rhs.startTime) < 0.01) &&
-            (abs(lhs.endTime - rhs.endTime) < 0.01))
-  }
-}
-
-// MARK: -
 /** Delegate to be notified when impressions start or end. */
-@objc(PROCollectionViewImpressionLoggerDelegate)
-public protocol CollectionViewImpressionLoggerDelegate {
+public protocol ImpressionLoggerDelegate: class {
 
   /// Notifies delegate of impression starts.
   func impressionLogger(
-      _ impressionLogger: CollectionViewImpressionLogger,
-      didStartImpressions impressions: [CollectionViewCellImpression])
+      _ impressionLogger: ImpressionLogger,
+      didStartImpressions impressions: [ImpressionLogger.Impression])
   
   /// Notifies delegate of impression ends.
   func impressionLogger(
-      _ impressionLogger: CollectionViewImpressionLogger,
-      didEndImpressions impressions: [CollectionViewCellImpression])
+      _ impressionLogger: ImpressionLogger,
+      didEndImpressions impressions: [ImpressionLogger.Impression])
 }
 
 // MARK: -
@@ -72,7 +22,7 @@ public protocol CollectionViewImpressionLoggerDelegate {
  can provide fine-grained updates of visible cells, but can also
  be adapted to work with views that don't.
  
- Clients should create an instance of `CollectionViewImpressionLogger`
+ Clients should create an instance of `ImpressionLogger`
  and reference it in their view controller, then provide updates
  to the impression logger as the collection view scrolls or updates.
  
@@ -80,7 +30,7 @@ public protocol CollectionViewImpressionLoggerDelegate {
  ~~~
  @implementation MyViewController {
    UICollectionView *_collectionView;
-   PROCollectionViewImpressionLogger *_impressionLogger;
+   PROImpressionLogger *_impressionLogger;
  }
 
  - (void)viewWillDisappear:(BOOL)animated {
@@ -107,14 +57,58 @@ public protocol CollectionViewImpressionLoggerDelegate {
  }
  ~~~
  */
-@objc(PROCollectionViewImpressionLogger)
-open class CollectionViewImpressionLogger: NSObject {
+@objc(PROImpressionLogger)
+open class ImpressionLogger: NSObject {
+
+  // MARK: -
+  /** Represents an impression of a cell in the collection view. */
+  public struct Impression: CustomDebugStringConvertible, Hashable {
+   
+    /// Index path of the cell that was impressed.
+    public var path: IndexPath
+    
+    /// Start time of impression.
+    public var startTime: TimeInterval
+    
+    /// End time of impression, if available. If not, returns -1.
+    public var endTime: TimeInterval
+
+    /// Duration of impression, if available. If not, returns -1.
+    public var duration: TimeInterval {
+      get {
+        if endTime < 0.0 { return -1.0 }
+        return endTime - startTime
+      }
+    }
+
+    public init(path: IndexPath, startTime: TimeInterval, endTime: TimeInterval = -1.0) {
+      self.path = path
+      self.startTime = startTime
+      self.endTime = endTime
+    }
+
+    public var debugDescription: String {
+      return "(\(path.description), \(startTime), \(endTime))"
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+      hasher.combine(path)
+    }
+    
+    public static func == (lhs: ImpressionLogger.Impression,
+                           rhs: ImpressionLogger.Impression) -> Bool {
+      return ((lhs.path == rhs.path) && (abs(lhs.startTime - rhs.startTime) < 0.01) &&
+              (abs(lhs.endTime - rhs.endTime) < 0.01))
+    }
+  }
+
+  // MARK: -
   private let clock: Clock
   private var impressionStarts: [IndexPath: TimeInterval]
 
-  public weak var delegate: CollectionViewImpressionLoggerDelegate?
+  public weak var delegate: ImpressionLoggerDelegate?
 
-  public init(delegate: CollectionViewImpressionLoggerDelegate? = nil,
+  public init(delegate: ImpressionLoggerDelegate? = nil,
               clock: Clock) {
     self.clock = clock
     self.impressionStarts = [IndexPath: TimeInterval]()
@@ -138,7 +132,7 @@ open class CollectionViewImpressionLogger: NSObject {
   /// Call this method when the collection view changes content, but
   /// does not provide per-item updates for the change. For example,
   /// when a collection reloads.
-  @objc public func collectionViewDidReload(visibleItems: [IndexPath]) {
+  @objc public func collectionViewDidChange(visibleItems: [IndexPath]) {
     let now = clock.now
 
     var newlyShownItems = [IndexPath]()
@@ -167,9 +161,9 @@ open class CollectionViewImpressionLogger: NSObject {
   
   private func broadcastStartAndAddImpressions(items: [IndexPath], now: TimeInterval) {
     guard !items.isEmpty else { return }
-    var impressions = [CollectionViewCellImpression]()
+    var impressions = [Impression]()
     for item in items {
-      let impression = CollectionViewCellImpression(path: item, startTime: now)
+      let impression = Impression(path: item, startTime: now)
       impressions.append(impression)
       impressionStarts[item] = now
     }
@@ -178,10 +172,10 @@ open class CollectionViewImpressionLogger: NSObject {
   
   private func broadcastEndAndRemoveImpressions(items: [IndexPath], now: TimeInterval) {
     guard !items.isEmpty else { return }
-    var impressions = [CollectionViewCellImpression]()
+    var impressions = [Impression]()
     for item in items {
       guard let start = impressionStarts.removeValue(forKey: item) else { continue }
-      let impression = CollectionViewCellImpression(path: item, startTime: start, endTime: now)
+      let impression = Impression(path: item, startTime: start, endTime: now)
       impressions.append(impression)
     }
     delegate?.impressionLogger(self, didEndImpressions: impressions)

@@ -54,7 +54,7 @@ import Foundation
  ~~~
  */
 open class BaseMetricsLoggerService<L>:
-    ClientConfigDefaultProvider where L: MetricsLogger {
+  ClientConfigDefaultProvider where L: MetricsLogger {
 
   public private(set) lazy var metricsLogger: L = {
     // Reading the config property initializes clientConfigService.
@@ -70,15 +70,22 @@ open class BaseMetricsLoggerService<L>:
     return clientConfigService.config
   }
 
-  private let clock: Clock
+  public let clock: Clock
   private let connection: NetworkConnection
   private let idMap: IDMap
   private let store: PersistentStore
 
-  public init(clock: Clock = SystemClock.instance,
-              connection: NetworkConnection = GTMSessionFetcherConnection(),
-              idMap: IDMap = SHA1IDMap.instance,
-              store: PersistentStore = UserDefaultsPersistentStore()) {
+  public init() {
+    self.clock = SystemClock.instance
+    self.connection = GTMSessionFetcherConnection()
+    self.idMap = SHA1IDMap.instance
+    self.store = UserDefaultsPersistentStore()
+  }
+  
+  public init(clock: Clock,
+              connection: NetworkConnection,
+              idMap: IDMap,
+              store: PersistentStore) {
     self.clock = clock
     self.connection = connection
     self.idMap = idMap
@@ -105,7 +112,7 @@ open class BaseMetricsLoggerService<L>:
                          store: store) as! L
   }
   
-  open func defaultConfig() -> ClientConfig {
+  func defaultConfig() -> ClientConfig {
     return ClientConfig()
   }
 }

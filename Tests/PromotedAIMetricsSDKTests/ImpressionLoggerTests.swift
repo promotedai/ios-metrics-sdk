@@ -5,11 +5,11 @@ import XCTest
 @testable import PromotedAIMetricsSDK
 @testable import TestHelpers
 
-final class CollectionViewImpressionLoggerTests: XCTestCase {
+final class ImpressionLoggerTests: XCTestCase {
 
-  class Delegate: CollectionViewImpressionLoggerDelegate {
-    var startImpressions: [CollectionViewCellImpression]
-    var endImpressions: [CollectionViewCellImpression]
+  class Delegate: ImpressionLoggerDelegate {
+    var startImpressions: [ImpressionLogger.Impression]
+    var endImpressions: [ImpressionLogger.Impression]
     init() {
       startImpressions = []
       endImpressions = []
@@ -18,34 +18,34 @@ final class CollectionViewImpressionLoggerTests: XCTestCase {
       startImpressions.removeAll()
       endImpressions.removeAll()
     }
-    func impressionLogger(_ impressionLogger: CollectionViewImpressionLogger,
-                          didStartImpressions impressions: [CollectionViewCellImpression]) {
+    func impressionLogger(_ impressionLogger: ImpressionLogger,
+                          didStartImpressions impressions: [ImpressionLogger.Impression]) {
       startImpressions.append(contentsOf: impressions)
     }
     
-    func impressionLogger(_ impressionLogger: CollectionViewImpressionLogger,
-                          didEndImpressions impressions: [CollectionViewCellImpression]) {
+    func impressionLogger(_ impressionLogger: ImpressionLogger,
+                          didEndImpressions impressions: [ImpressionLogger.Impression]) {
       endImpressions.append(contentsOf: impressions)
     }
   }
   
   private func impression(_ item: IndexPath.Element,
                           _ startTime: TimeInterval,
-                          _ endTime: TimeInterval = -1.0) -> CollectionViewCellImpression {
+                          _ endTime: TimeInterval = -1.0) -> ImpressionLogger.Impression {
     let path = IndexPath(index: item)
-    return CollectionViewCellImpression(path: path, startTime: startTime, endTime: endTime)
+    return ImpressionLogger.Impression(path: path, startTime: startTime, endTime: endTime)
   }
 
   /** Asserts that list contents are equal regardless of order. */
-  func assertContentsEqual(_ a: [CollectionViewCellImpression],
-                           _ b: [CollectionViewCellImpression]) {
+  func assertContentsEqual(_ a: [ImpressionLogger.Impression],
+                           _ b: [ImpressionLogger.Impression]) {
     XCTAssertEqual(Set(a), Set(b))
   }
-  
+
   func testStartImpressions() {
     let delegate = Delegate()
     let clock = FakeClock(now: 123)
-    let impressionLogger = CollectionViewImpressionLogger(delegate: delegate, clock: clock)
+    let impressionLogger = ImpressionLogger(delegate: delegate, clock: clock)
     
     impressionLogger.collectionViewWillDisplay(item: IndexPath(index: 0))
     assertContentsEqual(delegate.startImpressions, [impression(0, 123)])
@@ -64,7 +64,7 @@ final class CollectionViewImpressionLoggerTests: XCTestCase {
   func testEndImpressions() {
     let delegate = Delegate()
     let clock = FakeClock(now: 123)
-    let impressionLogger = CollectionViewImpressionLogger(delegate: delegate, clock: clock)
+    let impressionLogger = ImpressionLogger(delegate: delegate, clock: clock)
     
     impressionLogger.collectionViewWillDisplay(item: IndexPath(index: 0))
     clock.now = 200
@@ -75,7 +75,7 @@ final class CollectionViewImpressionLoggerTests: XCTestCase {
   func testDidChangeImpressions() {
     let delegate = Delegate()
     let clock = FakeClock(now: 123)
-    let impressionLogger = CollectionViewImpressionLogger(delegate: delegate, clock: clock)
+    let impressionLogger = ImpressionLogger(delegate: delegate, clock: clock)
     
     impressionLogger.collectionViewWillDisplay(item: IndexPath(index: 0))
     impressionLogger.collectionViewWillDisplay(item: IndexPath(index: 1))
@@ -90,7 +90,7 @@ final class CollectionViewImpressionLoggerTests: XCTestCase {
                         IndexPath(index: 4), IndexPath(index: 5)]
     clock.now = 200
     
-    impressionLogger.collectionViewDidReload(visibleItems: visibleItems)
+    impressionLogger.collectionViewDidChange(visibleItems: visibleItems)
     assertContentsEqual(delegate.startImpressions,
                         [impression(4, 200), impression(5, 200)])
     assertContentsEqual(delegate.endImpressions,
@@ -100,7 +100,7 @@ final class CollectionViewImpressionLoggerTests: XCTestCase {
   func testDidHideAllImpressions() {
     let delegate = Delegate()
     let clock = FakeClock(now: 123)
-    let impressionLogger = CollectionViewImpressionLogger(delegate: delegate, clock: clock)
+    let impressionLogger = ImpressionLogger(delegate: delegate, clock: clock)
     
     impressionLogger.collectionViewWillDisplay(item: IndexPath(index: 0))
     impressionLogger.collectionViewWillDisplay(item: IndexPath(index: 1))
