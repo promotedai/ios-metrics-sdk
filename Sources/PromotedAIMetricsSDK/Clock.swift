@@ -40,22 +40,22 @@ extension Clock {
 
 // MARK: -
 /** Default implementation of `Clock` that deals with real time. */
-public class SystemClock: Clock {
+class SystemClock: Clock {
   
   struct SystemTimer: ScheduledTimer {
     let timer: Timer
   }
   
-  public static let instance = SystemClock()
+  static let instance = SystemClock()
 
   private init() {}
 
-  public var now: TimeInterval {
+  var now: TimeInterval {
     return Date().timeIntervalSince1970
   }
 
-  public func schedule(timeInterval: TimeInterval,
-                       callback: @escaping Callback) -> ScheduledTimer? {
+  func schedule(timeInterval: TimeInterval,
+                callback: @escaping Callback) -> ScheduledTimer? {
     guard #available(iOS 10.0, macOS 10.12, *) else { return nil }
     let timer = Timer.scheduledTimer(withTimeInterval: timeInterval, repeats: false) {_ in
       callback(self)
@@ -63,7 +63,7 @@ public class SystemClock: Clock {
     return SystemTimer(timer: timer)
   }
 
-  public func cancel(scheduledTimer: ScheduledTimer) {
+  func cancel(scheduledTimer: ScheduledTimer) {
     guard let systemTimer = scheduledTimer as? SystemTimer else { return }
     systemTimer.timer.invalidate()
   }

@@ -63,16 +63,16 @@ extension NetworkConnection {
 
 // MARK: -
 /** Uses `GTMSessionFetcher` to perform the network connection. */
-public class GTMSessionFetcherConnection: NetworkConnection {
+class GTMSessionFetcherConnection: NetworkConnection {
   
   private let fetcherService: GTMSessionFetcherService
   
-  public init() {
+  init() {
     fetcherService = GTMSessionFetcherService()
   }
   
-  public func sendMessage(_ message: Message, url: URL, clientConfig: ClientConfig,
-                          callback: Callback?) throws {
+  func sendMessage(_ message: Message, url: URL, clientConfig: ClientConfig,
+                   callback: Callback?) throws {
     do {
       let messageData = try bodyData(message: message, clientConfig: clientConfig)
       let request = urlRequest(url: url, data: messageData, clientConfig: clientConfig)

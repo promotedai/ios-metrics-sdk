@@ -13,14 +13,14 @@ public protocol PersistentStore: class {
 
 // MARK: -
 /** Stores information in the app's `UserDefaults`. */
-public class UserDefaultsPersistentStore: PersistentStore {
+class UserDefaultsPersistentStore: PersistentStore {
   
   enum UserDefaultKey: String {
     case userIDString
     case logUserIDString
   }
   
-  public var userID: String? {
+  var userID: String? {
     get {
       return stringValue(forKey: .userIDString)
     }
@@ -29,7 +29,7 @@ public class UserDefaultsPersistentStore: PersistentStore {
     }
   }
 
-  public var logUserID: String? {
+  var logUserID: String? {
     get {
       return stringValue(forKey: .logUserIDString)
     }
@@ -40,7 +40,7 @@ public class UserDefaultsPersistentStore: PersistentStore {
 
   private let defaults: UserDefaults
   
-  public init(userDefaults: UserDefaults = UserDefaults.standard) {
+  init(userDefaults: UserDefaults = UserDefaults.standard) {
     self.defaults = userDefaults
   }
   

@@ -86,7 +86,7 @@ open class MetricsLogger: NSObject {
   public let idMap: IDMap
   private let store: PersistentStore
 
-  var events: [Message]
+  /*visibleForTesting*/ var events: [Message]
   
   private let metricsLoggingURL: URL?
   /// Timer for pending batched log request.
@@ -224,7 +224,7 @@ open class MetricsLogger: NSObject {
     }
   }
   
-  func handleSendMessageError(_ error: Error) {
+  private func handleSendMessageError(_ error: Error) {
     switch error {
     case NetworkConnectionError.networkSendError(let domain, let code, let errorString):
       print("ERROR: domain=\(domain) code=\(code) description=\(errorString)")

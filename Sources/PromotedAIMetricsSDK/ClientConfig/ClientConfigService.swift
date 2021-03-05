@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol ClientConfigDefaultProvider: class {
+protocol ClientConfigDefaultProvider: class {
   func defaultConfig() -> ClientConfig
 }
 
@@ -11,13 +11,13 @@ class ClientConfigService: NSObject {
   private weak var store: PersistentStore?
 
   /** Client configuration for this session. This will never change. */
-  public var config: ClientConfig {
+  var config: ClientConfig {
     if let result = cachedConfig { return result }
     return provider!.defaultConfig()
   }
 
-  public init(provider: ClientConfigDefaultProvider,
-              store: PersistentStore) {
+  init(provider: ClientConfigDefaultProvider,
+       store: PersistentStore) {
     super.init()
     self.cachedConfig = nil
     self.provider = provider
