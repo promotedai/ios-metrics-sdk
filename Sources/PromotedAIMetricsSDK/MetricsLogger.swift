@@ -5,6 +5,78 @@ import SwiftProtobuf
 import UIKit
 #endif
 
+/**
+ Promoted event logging interface. Use instances of `MetricsLogger`
+ to log events to Promoted's servers. Events are accumulated and sent
+ in batches on a timer (see `ClientConfig.batchLoggingFlushInterval`).
+ 
+ Typically, instances of `MetricsLogger`s are tied to a
+ `MetricsLoggingService`, which configures the logging environment and
+ maintains a `MetricLogger` for the lifetime of the service. See
+ `MetricsLoggingService` for more information about the scope of the
+ logger and the service.
+ 
+ Clients must subclass this logger in order to support batch logging
+ (see Subclassing).
+ 
+ Events are represented as protobuf messages internally. By default,
+ these messages are serialized to binary format for transmission over
+ the network.
+ 
+ Use from main thread only.
+ 
+ # Usage
+ To start a logging session, first call `startSession(userID:)` or
+ `startSessionSignedOut()` to set up the user ID and log user ID
+ for the session. You can call either `startSession` method more
+ than once to begin a new session with the given user ID.
+ 
+ Use `log(event:)` to enqueue an event for logging. When the batching
+ timer fires, all events are delivered to the server via the
+ `NetworkConnection`.
+ 
+ If you want to deliver queued events immediately, say when your app
+ enters the background, use `flush()`. It's not necessary for clients
+ to call `flush()` to deliver queued events. Events are automatically
+ delivered on a timer.
+ 
+ ## Example:
+ ~~~
+ let logger = MetricsLogger(...)
+ // Sets userID and logUserID for subsequent log() calls.
+ logger.startSession(userID: myUserID)
+ logger.log(event: myEvent)
+ // Resets userID and logUserID.
+ logger.startSession(userID: secondUserID)
+ ~~~
+ 
+ # Subclassing
+ Currently, clients will need to subclass `MetricsLogger` to deliver
+ client-specific batch messages. Subclasses must override the
+ `batchLogMessage(events:)` method to do so. Other logging methods
+ must also be implemented in subclasses if you need to log custom
+ messages.
+ 
+ ## Example:
+ ~~~
+ public class MyMetricsLogger: MetricsLogger {
+   public func logImpression(impressionID: String) {
+     var impression = MyImpressionMessage()
+     impression.common =
+         commonImpressionEvent(impressionID: impressionID)
+     log(event: impression)
+   }
+   public override func batchLogMessage(events: [Message])
+       -> Message? {
+     var batchMessage = MyBatchMessage()
+     for event in events {
+       // Fill in fields of batch message.
+     }
+     return batchMessage
+   }
+ }
+ ~~~
+ */
 @objc(PROMetricsLogger)
 open class MetricsLogger: NSObject {
 
@@ -61,12 +133,15 @@ open class MetricsLogger: NSObject {
     self.logUserID = newLogUserID
   }
 
+  /// Enqueues the given message for logging. Messages are then
+  /// delivered to the server on a timer.
   public func log(event: Message) {
     events.append(event)
     maybeSchedulePendingBatchLoggingFlush()
   }
 
-  /** Subclasses should override to provide batch protos. */
+  /// Subclasses should override to provide batch messages for the
+  /// given list of events. Returning `nil` will abort the log.
   open func batchLogMessage(events: [Message]) -> Message? {
     // TODO(yu-hong): Update if we have a common batch message.
     return nil
@@ -89,6 +164,14 @@ open class MetricsLogger: NSObject {
     }
   }
 
+  /// Delivers the set of pending events to server immediately.
+  /// Call this method when your app enters the background to ensure
+  /// consistent delivery of messages. Clients do NOT need to call
+  /// this method for normal delivery of messages, as messages are
+  /// batched and delivered automatically on a timer.
+  ///
+  /// Internally, a `UIBackgroundTask` is created during this operation.
+  /// Clients do not need to start a `UIBackgroundTask` to call `flush()`.
   @objc public func flush() {
     cancelPendingBatchLoggingFlush()
     if events.isEmpty { return }
