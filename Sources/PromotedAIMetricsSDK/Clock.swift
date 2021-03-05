@@ -1,17 +1,28 @@
 import Foundation
 
+// MARK: -
+/** Opaque type returned by `Clock.schedule()` to use when canceling. */
 public protocol ScheduledTimer {}
 
+// MARK: -
+/** Represents a way to get time and perform scheduling of tasks. */
 public protocol Clock {
+  
+  /// Returns time for use with timestamps.
   var now: TimeInterval { get }
   
   typealias Callback = (Clock) -> Void
   
+  /// Schedules a callback to be invoked in the future. Callback is
+  /// invoked on the main thread.
+  /// Callers can capture the return value to cancel the callback.
   func schedule(timeInterval: TimeInterval, callback: @escaping Callback) -> ScheduledTimer?
   
+  /// Cancels the given callback.
   func cancel(scheduledTimer: ScheduledTimer)
 }
 
+// MARK: -
 extension Clock {
   
   typealias TimeIntervalMillis = UInt64
@@ -27,7 +38,9 @@ extension Clock {
   }
 }
 
-public class SystemClock: NSObject, Clock {
+// MARK: -
+/** Default implementation of `Clock` that deals with real time. */
+public class SystemClock: Clock {
   
   struct SystemTimer: ScheduledTimer {
     let timer: Timer
@@ -35,7 +48,7 @@ public class SystemClock: NSObject, Clock {
   
   public static let instance = SystemClock()
 
-  private override init() {}
+  private init() {}
 
   public var now: TimeInterval {
     return Date().timeIntervalSince1970

@@ -199,15 +199,10 @@ open class MetricsLogger: NSObject {
   }
   
   func handleSendMessageError(_ error: Error) {
-    if let e = error as NSError? {
-      print("ERROR: domain=\(e.domain) code=\(e.code)")
-      if let data = e.userInfo["data"] as? Data {
-        let errorString = String(decoding: data, as: UTF8.self)
-        if !errorString.isEmpty {
-          print(errorString)
-        }
-      }
-    } else {
+    switch error {
+    case NetworkConnectionError.networkSendError(let domain, let code, let errorString):
+      print("ERROR: domain=\(domain) code=\(code) description=\(errorString)")
+    default:
       print("ERROR: \(error.localizedDescription)")
     }
   }

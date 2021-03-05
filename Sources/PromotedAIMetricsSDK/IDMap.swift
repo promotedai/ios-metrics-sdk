@@ -1,6 +1,7 @@
 import CommonCrypto
 import Foundation
 
+// MARK: -
 /** Maps client-side IDs to server-side IDs. */
 public protocol IDMap {
   
@@ -25,6 +26,7 @@ public protocol IDMap {
   func viewID(viewName: String?) -> String
 }
 
+// MARK: -
 /**
  DO NOT INSTANTIATE. Base class for IDMap implementation.
  The `impressionID(clientID:)` and `logUserID(userID:)` methods would
@@ -56,6 +58,7 @@ open class AbstractIDMap: IDMap {
   }
 }
 
+// MARK: -
 /** SHA1-based deterministic UUID generation. */
 public class SHA1IDMap: AbstractIDMap {
   

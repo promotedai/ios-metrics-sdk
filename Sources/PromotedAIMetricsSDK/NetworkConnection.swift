@@ -9,12 +9,36 @@ import GTMSessionFetcher
 #error("Can't import GTMSessionFetcher")
 #endif
 
+// MARK: -
+/** Network connection used to send log messages to server. */
 public protocol NetworkConnection {
+  
+  /// Callback for `sendMessage`. Will be invoked on main thread.
   typealias Callback = (Data?, Error?) -> Void
+  
+  /// Sends the given message using the given configuration.
+  /// Implementations should automatically retry within reason, so that
+  /// callers should not need to perform retry on fail.
+  ///
+  /// - Parameters:
+  ///   - message: Payload to deliver. Depending on the
+  ///     `metricsLoggingWireFormat` property of `clientConfig`, may
+  ///     be serialized as JSON or binary format.
+  ///   - url: Destination URL.
+  ///   - clientConfig: Configuration of send format.
+  ///   - callback: Invoked on completion of the network op.
+  ///     `NetworkConnection`s should manage their own retry logic, so
+  ///     if `callback` is invoked with an error, that error indicates
+  ///     a failure *after* retrying. Clients should not retry further.
+  /// - Throws: `NetworkConnectionError.messageSerializationError` for
+  ///   any errors that occurred in protobuf serialization *prior to*
+  ///   the network operation. Errors resulting from the network operation
+  ///   are passed through `callback`.
   func sendMessage(_ message: Message, url: URL, clientConfig: ClientConfig,
                    callback: Callback?) throws
 }
 
+// MARK: -
 extension NetworkConnection {
   func bodyData(message: Message, clientConfig: ClientConfig) throws -> Data {
     switch clientConfig.metricsLoggingWireFormat {
@@ -37,6 +61,8 @@ extension NetworkConnection {
   }
 }
 
+// MARK: -
+/** Uses `GTMSessionFetcher` to perform the network connection. */
 public class GTMSessionFetcherConnection: NetworkConnection {
   
   private let fetcherService: GTMSessionFetcherService
@@ -52,8 +78,18 @@ public class GTMSessionFetcherConnection: NetworkConnection {
       let request = urlRequest(url: url, data: messageData, clientConfig: clientConfig)
       let fetcher = fetcherService.fetcher(with: request)
       fetcher.bodyData = messageData
+      fetcher.isRetryEnabled = true
       fetcher.beginFetch { (data, error) in
-        callback?(data, error)
+        var callbackError = error
+        if let e = error as NSError? {
+          var errorString = ""
+          if let data = e.userInfo["data"] as? Data {
+            errorString = String(decoding: data, as: UTF8.self)
+          }
+          callbackError = NetworkConnectionError.networkSendError(
+              domain: e.domain, code: e.code, errorString: errorString)
+        }
+        callback?(data, callbackError)
       }
     } catch BinaryEncodingError.missingRequiredFields {
       throw NetworkConnectionError.messageSerializationError(message: "Missing required fields.")
@@ -65,7 +101,16 @@ public class GTMSessionFetcherConnection: NetworkConnection {
   }
 }
 
+// MARK: -
+/** Class of errors produced by `NetworkConnection`. */
 enum NetworkConnectionError: Error {
+  
+  /// Indicates an error in message serialization prior to network send.
   case messageSerializationError(message: String)
+  
+  /// Indicates an error from the network operation after completion.
+  case networkSendError(domain: String, code: Int, errorString: String)
+  
+  /// Indicates an error that is not one of the above cases.
   case unknownError
 }
