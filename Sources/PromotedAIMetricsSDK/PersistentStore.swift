@@ -45,10 +45,10 @@ public class UserDefaultsPersistentStore: PersistentStore {
   }
   
   private func stringValue(forKey key: UserDefaultKey) -> String? {
-    return defaults.string(forKey: "ai.promoted" + key.rawValue)
+    return defaults.string(forKey: "ai.promoted." + key.rawValue)
   }
   
   private func setStringValue(_ value: String?, forKey key: UserDefaultKey) {
-    defaults.setValue(value, forKey: "ai.promoted" + key.rawValue)
+    defaults.setValue(value, forKey: "ai.promoted." + key.rawValue)
   }
 }
