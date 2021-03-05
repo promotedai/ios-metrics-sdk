@@ -1,51 +1,54 @@
 import Foundation
 
-@objc(PROPersistentStore)
+// MARK: -
+/** Stores information between invocations of the app. */
 public protocol PersistentStore: class {
+  
+  /// User ID of last signed-in user. `nil` if user was signed out.
   var userID: String? { get set }
+  
+  /// Log user ID of last signed-in or signed-out user.
   var logUserID: String? { get set }
-  var clientConfigMessage: Data? { get set }
 }
 
-@objc(PROUserDefaultsPersistentStore)
-public class UserDefaultsPersistentStore: NSObject, PersistentStore {
+// MARK: -
+/** Stores information in the app's `UserDefaults`. */
+public class UserDefaultsPersistentStore: PersistentStore {
   
   enum UserDefaultKey: String {
     case userIDString
     case logUserIDString
-    case clientConfigMessageData
   }
   
   public var userID: String? {
     get {
-      return defaults.string(forKey: UserDefaultKey.userIDString.rawValue)
+      return stringValue(forKey: .userIDString)
     }
     set(value) {
-      defaults.setValue(value, forKey: UserDefaultKey.userIDString.rawValue)
+      setStringValue(value, forKey: .userIDString)
     }
   }
 
   public var logUserID: String? {
     get {
-      return defaults.string(forKey: UserDefaultKey.logUserIDString.rawValue)
+      return stringValue(forKey: .logUserIDString)
     }
     set(value) {
-      defaults.setValue(value, forKey: UserDefaultKey.logUserIDString.rawValue)
-    }
-  }
-  
-  public var clientConfigMessage: Data? {
-    get {
-      return defaults.data(forKey: UserDefaultKey.clientConfigMessageData.rawValue)
-    }
-    set(value) {
-      defaults.setValue(value, forKey: UserDefaultKey.clientConfigMessageData.rawValue)
+      setStringValue(value, forKey: .logUserIDString)
     }
   }
 
   private let defaults: UserDefaults
   
-  @objc public init(userDefaults: UserDefaults = UserDefaults.standard) {
+  public init(userDefaults: UserDefaults = UserDefaults.standard) {
     self.defaults = userDefaults
+  }
+  
+  private func stringValue(forKey key: UserDefaultKey) -> String? {
+    return defaults.string(forKey: "ai.promoted" + key.rawValue)
+  }
+  
+  private func setStringValue(_ value: String?, forKey key: UserDefaultKey) {
+    defaults.setValue(value, forKey: "ai.promoted" + key.rawValue)
   }
 }
