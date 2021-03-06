@@ -83,7 +83,7 @@ open class MetricsLogger: NSObject {
   private let clock: Clock
   private let config: ClientConfig
   private let connection: NetworkConnection
-  public let idMap: IDMap
+  private let idMap: IDMap
   private let store: PersistentStore
 
   /*visibleForTesting*/ var events: [Message]
@@ -116,6 +116,24 @@ open class MetricsLogger: NSObject {
     self.userID = nil
     self.logUserID = nil
     self.metricsLoggingURL = URL(string: config.metricsLoggingURL)
+  }
+  
+  // MARK: - Starting new sessions
+  /// Call when sign-in completes with specified user ID.
+  /// Starts logging session with the provided user and logs a
+  /// user event.
+  @objc(startSessionAndLogUserWithID:)
+  public func startSessionAndLogUser(userID: String) {
+    startSession(userID: userID)
+    logUser()
+  }
+  
+  /// Call when sign-in completes with no user.
+  /// Starts logging session with signed-out user and logs a
+  /// user event.
+  @objc public func startSessionAndLogSignedOutUser() {
+    startSessionSignedOut()
+    logUser()
   }
   
   /// Starts a new session with the given `userID`.
@@ -158,19 +176,131 @@ open class MetricsLogger: NSObject {
     store.logUserID = newLogUserID
     self.logUserID = newLogUserID
   }
+  
+  // MARK: - Impressions
+  /// Logs an impression for the given wardrobe item.
+  @objc public func logImpression(item: Item) {
+    let impressionID = idMap.impressionID(clientID: item.itemID)
+    logImpression(impressionID: impressionID,
+                  insertionID: item.insertionID)
+  }
+
+  // MARK: - Clicks
+  /// Logs a click to like/unlike the given item.
+  @objc(logClickToLikeItem:didLike:)
+  public func logClickToLike(item: Item, didLike: Bool) {
+    let targetURL = didLike ? "#like" : "#unlike"
+    let elementID = didLike ? "like" : "unlike"
+    logClick(clickID: idMap.clickID(),
+             impressionID: idMap.impressionID(clientID: item.itemID),
+             insertionID: item.insertionID,
+             targetURL: targetURL,
+             elementID: elementID)
+  }
+
+  /// Logs a click to show the given view controller.
+  @objc(logClickToShowViewController:forItem:)
+  public func logClickToShow(viewController: ViewControllerType, forItem item: Item) {
+    let impressionID = idMap.impressionID(clientID: item.itemID)
+    logClick(clickID: idMap.clickID(),
+             impressionID: impressionID,
+             insertionID: item.insertionID,
+             targetURL: "#" + loggingNameFor(viewController: viewController),
+             elementID: impressionID)  // Re-use impressionID for elementID.
+  }
+  
+  /// Logs a click to sign up as a new user.
+  @objc public func logClickToSignUp(userID: String) {
+    logClick(clickID: idMap.clickID(),
+             impressionID: idMap.impressionID(clientID: userID),
+             targetURL: "#sign-up",
+             elementID: "sign-up")
+  }
+  
+  /// Logs a click to purchase the given item.
+  @objc(logClickToPurchaseItem:)
+  public func logClickToPurchase(item: Item) {
+    let impressionID = idMap.impressionID(clientID: item.itemID)
+    logClick(clickID: idMap.clickID(),
+             impressionID: impressionID,
+             targetURL: "#purchase",
+             elementID: "purchase")
+  }
+  
+  // MARK: - Views
+  /// Logs a view of the given view controller.
+  @objc public func logView(viewController: ViewControllerType) {
+    self.logView(viewController: viewController, optionalUseCase: nil)
+  }
+  
+  /// Logs a view of the given view controller and use case.
+  @objc public func logView(viewController: ViewControllerType,
+                            useCase: UseCase) {
+    self.logView(viewController: viewController, optionalUseCase: useCase)
+  }
+  
+  private func logView(viewController: ViewControllerType,
+                       optionalUseCase: UseCase?) {
+    let name = loggingNameFor(viewController: viewController)
+    let protoUseCase = (optionalUseCase != nil ?
+                        Event_UseCase(rawValue: optionalUseCase!.rawValue) : nil)
+    let url = "#" + name
+    logView(viewID: idMap.viewID(viewName: name), name: name,
+            url: url, useCase: protoUseCase)
+  }
+  
+  // MARK: - Methods to override
+  /// Sublcasses should override to create and log a user event.
+  ///
+  /// # Example:
+  /// ~~~
+  /// public override func logUser() {
+  ///   var user = MyUser()
+  ///   user.common = commonUserEvent()
+  ///   log(event: user)
+  /// }
+  /// ~~~
+  open func logUser() {}
+  
+  /// Subclasses should override to create and log an impression event.
+  open func logImpression(impressionID: String,
+                          insertionID: String? = nil,
+                          requestID: String? = nil,
+                          viewID: String? = nil) {}
+
+  /// Subclasses should override to create and log a click event.
+  open func logClick(clickID: String,
+                     impressionID: String,
+                     insertionID: String? = nil,
+                     requestID: String? = nil,
+                     viewID: String? = nil,
+                     name: String? = nil,
+                     targetURL: String? = nil,
+                     elementID: String? = nil) {}
+  
+  /// Subclasses should override to create and log a view event.
+  open func logView(viewID: String,
+                    sessionID: String? = nil,
+                    name: String? = nil,
+                    url: String? = nil,
+                    useCase: Event_UseCase? = nil) {}
+  
+  /// Subclasses should override to provide batch messages for the
+  /// given list of events. Returning `nil` will abort the log.
+  open func batchLogMessage(events: [Message]) -> Message? {
+    // TODO(yu-hong): Update if we have a common batch message.
+    return nil
+  }
+}
+
+// MARK: - Sending events
+extension MetricsLogger {
 
   /// Enqueues the given message for logging. Messages are then
   /// delivered to the server on a timer.
   public func log(event: Message) {
     events.append(event)
     maybeSchedulePendingBatchLoggingFlush()
-  }
-
-  /// Subclasses should override to provide batch messages for the
-  /// given list of events. Returning `nil` will abort the log.
-  open func batchLogMessage(events: [Message]) -> Message? {
-    // TODO(yu-hong): Update if we have a common batch message.
-    return nil
   }
   
   private func maybeSchedulePendingBatchLoggingFlush() {
@@ -234,7 +364,7 @@ open class MetricsLogger: NSObject {
   }
 }
 
-// MARK: - Common events
+// MARK: - Common event creation
 public extension MetricsLogger {
   
   func commonUserEvent() -> Event_User {
