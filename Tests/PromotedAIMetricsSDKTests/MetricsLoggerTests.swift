@@ -47,6 +47,19 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertEqual("foobar", store!.userID)
     XCTAssertNotNil(store!.logUserID)
     assertLoggerAndStoreInSync()
+    
+    var session = Event_Session()
+    session.logUserID = "somefakeuser"
+    session.clientLogTimestamp = 10000000
+    var foo = Event_Foo()
+    foo.bar = session
+    
+    try {
+      let data = try session.serializedData()
+      print("\(data)")
+    } catch {
+      XCTFail("failed")
+    }
   }
   
   func testStartSessionMultiple() {

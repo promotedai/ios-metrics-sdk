@@ -5,6 +5,80 @@ import SwiftProtobuf
 import UIKit
 #endif
 
+// MARK: -
+/** Provides client-specific log messages to `MetricsLogger`. */
+public protocol MessageProvider {
+
+  /// Creates a client-specific user event.
+  /// Make sure to set the `common` field in your returned message
+  /// with the value provided.
+  ///
+  /// # Example:
+  /// ~~~
+  /// func userMessage(commonMessage: Event_User,
+  ///                  clientMessage: MyUser) -> Message {
+  ///   var user = clientMessage ?? MyUser()
+  ///   // Determine if incoming message has the field set.
+  ///   if (!user.hasMyCustomField) {
+  ///     user.myCustomField = myCustomValue
+  ///   }
+  ///   user.common = commonUserMessage()
+  ///   return user
+  /// }
+  /// ~~~
+  func userMessage<U: Message>(commonMessage: Event_User,
+                               clientMessage: U?) -> Message
+    
+  /// Creates a client-specific impression event.
+  /// Make sure to set the `common` field in your returned message
+  /// with the value provided.
+  func impressionMessage<I: Message>(commonMessage: Event_Impression,
+                                     clientMessage: I?) -> Message
+
+  /// Creates a client-specific click event.
+  /// Make sure to set the `common` field in your returned message
+  /// with the value provided.
+  func clickMessage<C: Message>(commonMessage: Event_Click,
+                                clientMessage: C?) -> Message
+    
+  /// Creates a client-specific view event.
+  /// Make sure to set the `common` field in your returned message
+  /// with the value provided.
+  func viewMessage<V: Message>(commonMessage: Event_View,
+                               clientMessage: V?) -> Message
+    
+  /// Creates a batch message for the given list of events.
+  /// Make sure to set the `userID` and `logUserID` fields in your
+  /// returned message.
+  func batchLogMessage(events: [Message],
+                       userID: String?,
+                       logUserID: String?) -> Message
+}
+
+// MARK: -
+public class BaseMessageProvider: MessageProvider {
+  public func userMessage<U>(commonMessage: Event_User, clientMessage: U?) -> Message where U : Message {
+    return commonMessage
+  }
+  
+  public func impressionMessage<I>(commonMessage: Event_Impression, clientMessage: I?) -> Message where I : Message {
+    return commonMessage
+  }
+  
+  public func clickMessage<C>(commonMessage: Event_Click, clientMessage: C?) -> Message where C : Message {
+    return commonMessage
+  }
+  
+  public func viewMessage<V>(commonMessage: Event_View, clientMessage: V?) -> Message where V : Message {
+    return commonMessage
+  }
+  
+  public func batchLogMessage(events: [Message], userID: String?, logUserID: String?) -> Message {
+    return Event_User()
+  }
+}
+
+// MARK: -
 /**
  Promoted event logging interface. Use instances of `MetricsLogger`
  to log events to Promoted's servers. Events are accumulated and sent
@@ -15,9 +89,6 @@ import UIKit
  maintains a `MetricLogger` for the lifetime of the service. See
  `MetricsLoggingService` for more information about the scope of the
  logger and the service.
- 
- Clients must subclass this logger in order to support batch logging
- (see Subclassing).
  
  Events are represented as protobuf messages internally. By default,
  these messages are serialized to binary format for transmission over
@@ -50,43 +121,47 @@ import UIKit
  logger.startSession(userID: secondUserID)
  ~~~
  
- # Subclassing
- Currently, clients will need to subclass `MetricsLogger` to deliver
- client-specific batch messages. Subclasses must override the
- `batchLogMessage(events:)` method to do so. Other logging methods
- must also be implemented in subclasses if you need to log custom
- messages.
- 
+ # `MessageProvider`
+ Clients must implement `MessageProvider` and supply `MetricsLogger`
+ with the provider.
+  
  ## Example:
  ~~~
- public class MyMetricsLogger: MetricsLogger {
-   public func logImpression(impressionID: String) {
+ public class MyProvider: MessageProvider {
+   public func impressionMessage(common: Event_Impression,
+                                 ...) -> Message {
      var impression = MyImpressionMessage()
-     impression.common =
-         commonImpressionEvent(impressionID: impressionID)
-     log(event: impression)
+     impression.common = common
+     return impression
    }
-   public override func batchLogMessage(events: [Message])
-       -> Message? {
+   public func batchLogMessage(events: [Message],
+                               userID: String?,
+                               logUserID: String?) -> Message? {
      var batchMessage = MyBatchMessage()
+     if let id = userID { batchMessage.userID = id }
+     if let id = logUserID { batchMessage.logUserID = id }
      for event in events {
        // Fill in fields of batch message.
      }
      return batchMessage
    }
  }
+ 
+ let logger = MetricsLogger(messageProvider: MyProvider(), ...)
  ~~~
  */
 @objc(PROMetricsLogger)
-open class MetricsLogger: NSObject {
+public class MetricsLogger: NSObject {
 
   private let clock: Clock
   private let config: ClientConfig
   private let connection: NetworkConnection
   private let idMap: IDMap
   private let store: PersistentStore
+  
+  private let provider: MessageProvider
 
-  /*visibleForTesting*/ var events: [Message]
+  /*visibleForTesting*/ private(set) var events: [Message]
   
   private let metricsLoggingURL: URL?
   /// Timer for pending batched log request.
@@ -95,18 +170,20 @@ open class MetricsLogger: NSObject {
   /// User ID for this session. Will be updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
   /// called.
-  public private(set) var userID: String?
+  /*visibleForTesting*/ private(set) var userID: String?
   
   /// Log user ID for this session. Will be updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
   /// called.
-  public private(set) var logUserID: String?
+  /*visibleForTesting*/ private(set) var logUserID: String?
 
-  public init(clientConfig: ClientConfig,
+  public init(messageProvider: MessageProvider,
+              clientConfig: ClientConfig,
               clock: Clock,
               connection: NetworkConnection,
               idMap: IDMap,
               store: PersistentStore) {
+    self.provider = messageProvider
     self.clock = clock
     self.config = clientConfig
     self.connection = connection
@@ -125,7 +202,7 @@ open class MetricsLogger: NSObject {
   @objc(startSessionAndLogUserWithID:)
   public func startSessionAndLogUser(userID: String) {
     startSession(userID: userID)
-    logUser()
+    logUser(clientMessage: nil as Event_User?)
   }
   
   /// Call when sign-in completes with no user.
@@ -133,7 +210,7 @@ open class MetricsLogger: NSObject {
   /// user event.
   @objc public func startSessionAndLogSignedOutUser() {
     startSessionSignedOut()
-    logUser()
+    logUser(clientMessage: nil as Event_User?)
   }
   
   /// Starts a new session with the given `userID`.
@@ -182,7 +259,8 @@ open class MetricsLogger: NSObject {
   @objc public func logImpression(item: Item) {
     let impressionID = idMap.impressionID(clientID: item.itemID)
     logImpression(impressionID: impressionID,
-                  insertionID: item.insertionID)
+                  insertionID: item.insertionID,
+                  clientMessage: nil as Event_Impression?)
   }
 
   // MARK: - Clicks
@@ -195,7 +273,8 @@ open class MetricsLogger: NSObject {
              impressionID: idMap.impressionID(clientID: item.itemID),
              insertionID: item.insertionID,
              targetURL: targetURL,
-             elementID: elementID)
+             elementID: elementID,
+             clientMessage: nil as Event_Click?)
   }
 
   /// Logs a click to show the given view controller.
@@ -206,7 +285,8 @@ open class MetricsLogger: NSObject {
              impressionID: impressionID,
              insertionID: item.insertionID,
              targetURL: "#" + loggingNameFor(viewController: viewController),
-             elementID: impressionID)  // Re-use impressionID for elementID.
+             elementID: impressionID,  // Re-use impressionID for elementID.
+             clientMessage: nil as Event_Click?)
   }
   
   /// Logs a click to sign up as a new user.
@@ -214,7 +294,8 @@ open class MetricsLogger: NSObject {
     logClick(clickID: idMap.clickID(),
              impressionID: idMap.impressionID(clientID: userID),
              targetURL: "#sign-up",
-             elementID: "sign-up")
+             elementID: "sign-up",
+             clientMessage: nil as Event_Click?)
   }
   
   /// Logs a click to purchase the given item.
@@ -224,7 +305,8 @@ open class MetricsLogger: NSObject {
     logClick(clickID: idMap.clickID(),
              impressionID: impressionID,
              targetURL: "#purchase",
-             elementID: "purchase")
+             elementID: "purchase",
+             clientMessage: nil as Event_Click?)
   }
   
   // MARK: - Views
@@ -245,51 +327,11 @@ open class MetricsLogger: NSObject {
     let protoUseCase = (optionalUseCase != nil ?
                         Event_UseCase(rawValue: optionalUseCase!.rawValue) : nil)
     let url = "#" + name
-    logView(viewID: idMap.viewID(viewName: name), name: name,
-            url: url, useCase: protoUseCase)
-  }
-  
-  // MARK: - Methods to override
-  /// Sublcasses should override to create and log a user event.
-  ///
-  /// # Example:
-  /// ~~~
-  /// public override func logUser() {
-  ///   var user = MyUser()
-  ///   user.common = commonUserEvent()
-  ///   log(event: user)
-  /// }
-  /// ~~~
-  open func logUser() {}
-  
-  /// Subclasses should override to create and log an impression event.
-  open func logImpression(impressionID: String,
-                          insertionID: String? = nil,
-                          requestID: String? = nil,
-                          viewID: String? = nil) {}
-
-  /// Subclasses should override to create and log a click event.
-  open func logClick(clickID: String,
-                     impressionID: String,
-                     insertionID: String? = nil,
-                     requestID: String? = nil,
-                     viewID: String? = nil,
-                     name: String? = nil,
-                     targetURL: String? = nil,
-                     elementID: String? = nil) {}
-  
-  /// Subclasses should override to create and log a view event.
-  open func logView(viewID: String,
-                    sessionID: String? = nil,
-                    name: String? = nil,
-                    url: String? = nil,
-                    useCase: Event_UseCase? = nil) {}
-  
-  /// Subclasses should override to provide batch messages for the
-  /// given list of events. Returning `nil` will abort the log.
-  open func batchLogMessage(events: [Message]) -> Message? {
-    // TODO(yu-hong): Update if we have a common batch message.
-    return nil
+    logView(viewID: idMap.viewID(viewName: name),
+            name: name,
+            url: url,
+            useCase: protoUseCase,
+            clientMessage: nil as Event_View?)
   }
 }
 
@@ -306,7 +348,8 @@ extension MetricsLogger {
   private func maybeSchedulePendingBatchLoggingFlush() {
     if batchLoggingTimer != nil { return }
     let interval = config.batchLoggingFlushInterval
-    batchLoggingTimer = clock.schedule(timeInterval: interval) { [weak self] clock in
+    batchLoggingTimer = clock.schedule(timeInterval: interval) {
+        [weak self] clock in
       guard let strongSelf = self else { return }
       strongSelf.batchLoggingTimer = nil
       strongSelf.flush()
@@ -334,7 +377,9 @@ extension MetricsLogger {
 
     let eventsCopy = events
     events.removeAll()
-    guard let batchMessage = batchLogMessage(events: eventsCopy) else { return }
+    let batchMessage = provider.batchLogMessage(events: eventsCopy,
+                                                userID: userID,
+                                                logUserID: logUserID)
     guard let url = metricsLoggingURL else { return }
     do {
       try connection.sendMessage(batchMessage, url: url, clientConfig: config) {
@@ -364,10 +409,76 @@ extension MetricsLogger {
   }
 }
 
-// MARK: - Common event creation
+// MARK: - Generalized event logging
 public extension MetricsLogger {
   
-  func commonUserEvent() -> Event_User {
+  func logUser<U: Message>(clientMessage: U? = nil) {
+    let commonMessage = commonUserMessage()
+    let user = provider.userMessage(commonMessage: commonMessage,
+                                    clientMessage: clientMessage)
+    log(event: user)
+  }
+  
+  func logImpression<I: Message>(
+      impressionID: String,
+      insertionID: String? = nil,
+      requestID: String? = nil,
+      viewID: String? = nil,
+      clientMessage: I? = nil) {
+    let commonMessage = commonImpressionMessage(impressionID: impressionID,
+                                                insertionID: insertionID,
+                                                requestID: requestID,
+                                                viewID: viewID)
+    let impression = provider.impressionMessage(commonMessage: commonMessage,
+                                                clientMessage: clientMessage)
+    log(event: impression)
+  }
+
+  func logClick<C: Message>(
+      clickID: String,
+      impressionID: String,
+      insertionID: String? = nil,
+      requestID: String? = nil,
+      viewID: String? = nil,
+      name: String? = nil,
+      targetURL: String? = nil,
+      elementID: String? = nil,
+      clientMessage: C? = nil) {
+    let commonMessage = commonClickMessage(clickID: clickID,
+                                           impressionID: impressionID,
+                                           insertionID: insertionID,
+                                           requestID: requestID,
+                                           viewID: viewID,
+                                           name: name,
+                                           targetURL: targetURL,
+                                           elementID: elementID)
+    let click = provider.clickMessage(commonMessage: commonMessage,
+                                      clientMessage: clientMessage)
+    log(event: click)
+  }
+  
+  func logView<V: Message>(
+      viewID: String,
+      sessionID: String? = nil,
+      name: String? = nil,
+      url: String? = nil,
+      useCase: Event_UseCase? = nil,
+      clientMessage: V? = nil) {
+    let commonMessage = commonViewMessage(viewID: viewID,
+                                          sessionID: sessionID,
+                                          name: name,
+                                          url: url,
+                                          useCase: useCase)
+    let view = provider.viewMessage(commonMessage: commonMessage,
+                                    clientMessage: clientMessage)
+    log(event: view)
+  }
+}
+
+// MARK: - Common event creation
+extension MetricsLogger {
+  
+  func commonUserMessage() -> Event_User {
     var user = Event_User()
     if let id = userID { user.userID = id }
     if let id = logUserID { user.logUserID = id }
@@ -375,7 +486,7 @@ public extension MetricsLogger {
     return user
   }
 
-  func commonImpressionEvent(
+  func commonImpressionMessage(
       impressionID: String,
       insertionID: String? = nil,
       requestID: String? = nil,
@@ -391,7 +502,7 @@ public extension MetricsLogger {
     return impression
   }
   
-  func commonClickEvent(
+  func commonClickMessage(
       clickID: String,
       impressionID: String? = nil,
       insertionID: String? = nil,
@@ -415,7 +526,7 @@ public extension MetricsLogger {
     return click
   }
   
-  func commonViewEvent(
+  func commonViewMessage(
       viewID: String,
       sessionID: String? = nil,
       name: String? = nil,
@@ -433,13 +544,13 @@ public extension MetricsLogger {
 }
 
 // MARK: - View controller logging
-public extension MetricsLogger {
+extension MetricsLogger {
   /// `UIViewController` if `UIKit` is supported on build platform,
   /// `AnyObject` otherwise. Allows us to unit test on macOS.
   #if canImport(UIKit)
-  typealias ViewControllerType = UIViewController
+  public typealias ViewControllerType = UIViewController
   #else
-  typealias ViewControllerType = AnyObject
+  public typealias ViewControllerType = AnyObject
   #endif
   
   func loggingNameFor(viewController: ViewControllerType) -> String {
