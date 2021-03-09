@@ -10,72 +10,27 @@ import UIKit
 public protocol MessageProvider {
 
   /// Creates a client-specific user event.
-  /// Make sure to set the `common` field in your returned message
-  /// with the value provided.
-  ///
-  /// # Example:
-  /// ~~~
-  /// func userMessage(commonMessage: Event_User,
-  ///                  clientMessage: MyUser) -> Message {
-  ///   var user = clientMessage ?? MyUser()
-  ///   // Determine if incoming message has the field set.
-  ///   if (!user.hasMyCustomField) {
-  ///     user.myCustomField = myCustomValue
-  ///   }
-  ///   user.common = commonUserMessage()
-  ///   return user
-  /// }
-  /// ~~~
-  func userMessage<U: Message>(commonMessage: Event_User,
-                               clientMessage: U?) -> Message
-    
+  /// Don't fill out any fields on the returned value.
+  func userMessage<U: Message>() -> User<U>
+
   /// Creates a client-specific impression event.
-  /// Make sure to set the `common` field in your returned message
-  /// with the value provided.
-  func impressionMessage<I: Message>(commonMessage: Event_Impression,
-                                     clientMessage: I?) -> Message
+  /// Don't fill out any fields on the returned value.
+  func impressionMessage<I: Message>() -> Impression<I>
 
   /// Creates a client-specific click event.
-  /// Make sure to set the `common` field in your returned message
-  /// with the value provided.
-  func clickMessage<C: Message>(commonMessage: Event_Click,
-                                clientMessage: C?) -> Message
-    
+  /// Don't fill out any fields on the returned value.
+  func clickMessage<C: Message>() -> Click<C>
+
   /// Creates a client-specific view event.
-  /// Make sure to set the `common` field in your returned message
-  /// with the value provided.
-  func viewMessage<V: Message>(commonMessage: Event_View,
-                               clientMessage: V?) -> Message
-    
+  /// Don't fill out any fields on the returned value.
+  func viewMessage<V: Message>() -> View<V>
+
   /// Creates a batch message for the given list of events.
   /// Make sure to set the `userID` and `logUserID` fields in your
   /// returned message.
   func batchLogMessage(events: [Message],
                        userID: String?,
                        logUserID: String?) -> Message
-}
-
-// MARK: -
-public class BaseMessageProvider: MessageProvider {
-  public func userMessage<U>(commonMessage: Event_User, clientMessage: U?) -> Message where U : Message {
-    return commonMessage
-  }
-  
-  public func impressionMessage<I>(commonMessage: Event_Impression, clientMessage: I?) -> Message where I : Message {
-    return commonMessage
-  }
-  
-  public func clickMessage<C>(commonMessage: Event_Click, clientMessage: C?) -> Message where C : Message {
-    return commonMessage
-  }
-  
-  public func viewMessage<V>(commonMessage: Event_View, clientMessage: V?) -> Message where V : Message {
-    return commonMessage
-  }
-  
-  public func batchLogMessage(events: [Message], userID: String?, logUserID: String?) -> Message {
-    return Event_User()
-  }
 }
 
 // MARK: -
@@ -128,11 +83,8 @@ public class BaseMessageProvider: MessageProvider {
  ## Example:
  ~~~
  public class MyProvider: MessageProvider {
-   public func impressionMessage(common: Event_Impression,
-                                 ...) -> Message {
-     var impression = MyImpressionMessage()
-     impression.common = common
-     return impression
+   public func impressionMessage() -> MyImpressionMessage {
+     return MyImpressionMessage()
    }
    public func batchLogMessage(events: [Message],
                                userID: String?,
@@ -161,7 +113,7 @@ public class MetricsLogger: NSObject {
   
   private let provider: MessageProvider
 
-  /*visibleForTesting*/ private(set) var events: [Message]
+  /*visibleForTesting*/ private(set) var logMessages: [Message]
   
   private let metricsLoggingURL: URL?
   /// Timer for pending batched log request.
@@ -189,7 +141,7 @@ public class MetricsLogger: NSObject {
     self.connection = connection
     self.idMap = idMap
     self.store = store
-    self.events = []
+    self.logMessages = []
     self.userID = nil
     self.logUserID = nil
     self.metricsLoggingURL = URL(string: config.metricsLoggingURL)
@@ -202,15 +154,19 @@ public class MetricsLogger: NSObject {
   @objc(startSessionAndLogUserWithID:)
   public func startSessionAndLogUser(userID: String) {
     startSession(userID: userID)
-    logUser(clientMessage: nil as Event_User?)
+    let event: AnyUser = provider.userMessage()
+    event.fillCommon(timestamp: clock.nowMillis)
+    log(event: event)
   }
-  
+
   /// Call when sign-in completes with no user.
   /// Starts logging session with signed-out user and logs a
   /// user event.
   @objc public func startSessionAndLogSignedOutUser() {
     startSessionSignedOut()
-    logUser(clientMessage: nil as Event_User?)
+    let event: AnyUser = provider.userMessage()
+    event.fillCommon(timestamp: clock.nowMillis)
+    log(event: event)
   }
   
   /// Starts a new session with the given `userID`.
@@ -257,56 +213,68 @@ public class MetricsLogger: NSObject {
   // MARK: - Impressions
   /// Logs an impression for the given wardrobe item.
   @objc public func logImpression(item: Item) {
+    let event: AnyImpression = provider.impressionMessage()
     let impressionID = idMap.impressionID(clientID: item.itemID)
-    logImpression(impressionID: impressionID,
-                  insertionID: item.insertionID,
-                  clientMessage: nil as Event_Impression?)
+    event.fillCommon(timestamp: clock.nowMillis,
+                     impressionID: impressionID,
+                     insertionID: item.insertionID)
+    log(event: event)
   }
 
   // MARK: - Clicks
   /// Logs a click to like/unlike the given item.
   @objc(logClickToLikeItem:didLike:)
   public func logClickToLike(item: Item, didLike: Bool) {
+    let event: AnyClick = provider.clickMessage()
     let targetURL = didLike ? "#like" : "#unlike"
     let elementID = didLike ? "like" : "unlike"
-    logClick(clickID: idMap.clickID(),
-             impressionID: idMap.impressionID(clientID: item.itemID),
-             insertionID: item.insertionID,
-             targetURL: targetURL,
-             elementID: elementID,
-             clientMessage: nil as Event_Click?)
+    event.fillCommon(timestamp: clock.nowMillis,
+                     clickID: idMap.clickID(),
+                     impressionID: idMap.impressionID(clientID: item.itemID),
+                     insertionID: item.insertionID,
+                     targetURL: targetURL,
+                     elementID: elementID)
+    log(event: event)
   }
 
   /// Logs a click to show the given view controller.
   @objc(logClickToShowViewController:forItem:)
-  public func logClickToShow(viewController: ViewControllerType, forItem item: Item) {
+  public func logClickToShow(viewController: ViewControllerType,
+                             forItem item: Item) {
+    let event: AnyClick = provider.clickMessage()
     let impressionID = idMap.impressionID(clientID: item.itemID)
-    logClick(clickID: idMap.clickID(),
-             impressionID: impressionID,
-             insertionID: item.insertionID,
-             targetURL: "#" + loggingNameFor(viewController: viewController),
-             elementID: impressionID,  // Re-use impressionID for elementID.
-             clientMessage: nil as Event_Click?)
+    let targetURL = "#" + loggingNameFor(viewController: viewController)
+    event.fillCommon(timestamp: clock.nowMillis,
+                     clickID: idMap.clickID(),
+                     impressionID: impressionID,
+                     insertionID: item.insertionID,
+                     targetURL: targetURL,
+                     elementID: impressionID)  // Re-use impressionID for elementID.
+    log(event: event)
   }
   
   /// Logs a click to sign up as a new user.
   @objc public func logClickToSignUp(userID: String) {
-    logClick(clickID: idMap.clickID(),
-             impressionID: idMap.impressionID(clientID: userID),
-             targetURL: "#sign-up",
-             elementID: "sign-up",
-             clientMessage: nil as Event_Click?)
+    let event: AnyClick = provider.clickMessage()
+    event.fillCommon(timestamp: clock.nowMillis,
+                     clickID: idMap.clickID(),
+                     impressionID: idMap.impressionID(clientID: userID),
+                     targetURL: "#sign-up",
+                     elementID: "sign-up")
+    log(event: event)
   }
   
   /// Logs a click to purchase the given item.
   @objc(logClickToPurchaseItem:)
   public func logClickToPurchase(item: Item) {
+    let event: AnyClick = provider.clickMessage()
     let impressionID = idMap.impressionID(clientID: item.itemID)
-    logClick(clickID: idMap.clickID(),
-             impressionID: impressionID,
-             targetURL: "#purchase",
-             elementID: "purchase",
-             clientMessage: nil as Event_Click?)
+    event.fillCommon(timestamp: clock.nowMillis,
+                     clickID: idMap.clickID(),
+                     impressionID: impressionID,
+                     targetURL: "#purchase",
+                     elementID: "purchase")
+    log(event: event)
   }
   
   // MARK: - Views
@@ -323,25 +291,33 @@ public class MetricsLogger: NSObject {
   
   private func logView(viewController: ViewControllerType,
                        optionalUseCase: UseCase?) {
+    let event: AnyView = provider.viewMessage()
     let name = loggingNameFor(viewController: viewController)
     let protoUseCase = (optionalUseCase != nil ?
                         Event_UseCase(rawValue: optionalUseCase!.rawValue) : nil)
     let url = "#" + name
-    logView(viewID: idMap.viewID(viewName: name),
-            name: name,
-            url: url,
-            useCase: protoUseCase,
-            clientMessage: nil as Event_View?)
+    event.fillCommon(timestamp: clock.nowMillis,
+                     viewID: idMap.viewID(viewName: name),
+                     name: name,
+                     url: url,
+                     useCase: protoUseCase)
+    log(event: event)
   }
 }
 
 // MARK: - Sending events
-extension MetricsLogger {
+public extension MetricsLogger {
+  
+  func log(event: AnyEvent) {
+    if let clientMessage = event.messageForLogging() {
+      log(message: clientMessage)
+    }
+  }
 
   /// Enqueues the given message for logging. Messages are then
   /// delivered to the server on a timer.
-  public func log(event: Message) {
-    events.append(event)
+  func log(message: Message) {
+    logMessages.append(message)
     maybeSchedulePendingBatchLoggingFlush()
   }
   
@@ -371,12 +347,12 @@ extension MetricsLogger {
   ///
   /// Internally, a `UIBackgroundTask` is created during this operation.
   /// Clients do not need to start a `UIBackgroundTask` to call `flush()`.
-  @objc public func flush() {
+  @objc func flush() {
     cancelPendingBatchLoggingFlush()
-    if events.isEmpty { return }
+    if logMessages.isEmpty { return }
 
-    let eventsCopy = events
-    events.removeAll()
+    let eventsCopy = logMessages
+    logMessages.removeAll()
     let batchMessage = provider.batchLogMessage(events: eventsCopy,
                                                 userID: userID,
                                                 logUserID: logUserID)
@@ -406,140 +382,6 @@ extension MetricsLogger {
     default:
       print("ERROR: \(error.localizedDescription)")
     }
-  }
-}
-
-// MARK: - Generalized event logging
-public extension MetricsLogger {
-  
-  func logUser<U: Message>(clientMessage: U? = nil) {
-    let commonMessage = commonUserMessage()
-    let user = provider.userMessage(commonMessage: commonMessage,
-                                    clientMessage: clientMessage)
-    log(event: user)
-  }
-  
-  func logImpression<I: Message>(
-      impressionID: String,
-      insertionID: String? = nil,
-      requestID: String? = nil,
-      viewID: String? = nil,
-      clientMessage: I? = nil) {
-    let commonMessage = commonImpressionMessage(impressionID: impressionID,
-                                                insertionID: insertionID,
-                                                requestID: requestID,
-                                                viewID: viewID)
-    let impression = provider.impressionMessage(commonMessage: commonMessage,
-                                                clientMessage: clientMessage)
-    log(event: impression)
-  }
-
-  func logClick<C: Message>(
-      clickID: String,
-      impressionID: String,
-      insertionID: String? = nil,
-      requestID: String? = nil,
-      viewID: String? = nil,
-      name: String? = nil,
-      targetURL: String? = nil,
-      elementID: String? = nil,
-      clientMessage: C? = nil) {
-    let commonMessage = commonClickMessage(clickID: clickID,
-                                           impressionID: impressionID,
-                                           insertionID: insertionID,
-                                           requestID: requestID,
-                                           viewID: viewID,
-                                           name: name,
-                                           targetURL: targetURL,
-                                           elementID: elementID)
-    let click = provider.clickMessage(commonMessage: commonMessage,
-                                      clientMessage: clientMessage)
-    log(event: click)
-  }
-  
-  func logView<V: Message>(
-      viewID: String,
-      sessionID: String? = nil,
-      name: String? = nil,
-      url: String? = nil,
-      useCase: Event_UseCase? = nil,
-      clientMessage: V? = nil) {
-    let commonMessage = commonViewMessage(viewID: viewID,
-                                          sessionID: sessionID,
-                                          name: name,
-                                          url: url,
-                                          useCase: useCase)
-    let view = provider.viewMessage(commonMessage: commonMessage,
-                                    clientMessage: clientMessage)
-    log(event: view)
-  }
-}
-
-// MARK: - Common event creation
-extension MetricsLogger {
-  
-  func commonUserMessage() -> Event_User {
-    var user = Event_User()
-    if let id = userID { user.userID = id }
-    if let id = logUserID { user.logUserID = id }
-    user.clientLogTimestamp = clock.nowMillis
-    return user
-  }
-
-  func commonImpressionMessage(
-      impressionID: String,
-      insertionID: String? = nil,
-      requestID: String? = nil,
-      sessionID: String? = nil,
-      viewID: String? = nil) -> Event_Impression {
-    var impression = Event_Impression()
-    impression.clientLogTimestamp = clock.nowMillis
-    impression.impressionID = impressionID
-    if let id = insertionID { impression.insertionID = id }
-    if let id = requestID { impression.requestID = id }
-    if let id = sessionID { impression.sessionID = id }
-    if let id = viewID { impression.viewID = id }
-    return impression
-  }
-  
-  func commonClickMessage(
-      clickID: String,
-      impressionID: String? = nil,
-      insertionID: String? = nil,
-      requestID: String? = nil,
-      sessionID: String? = nil,
-      viewID: String? = nil,
-      name: String? = nil,
-      targetURL: String? = nil,
-      elementID: String? = nil) -> Event_Click {
-    var click = Event_Click()
-    click.clientLogTimestamp = clock.nowMillis
-    click.clickID = clickID
-    if let id = impressionID { click.impressionID = id }
-    if let id = insertionID { click.insertionID = id }
-    if let id = requestID { click.requestID = id }
-    if let id = sessionID { click.sessionID = id }
-    if let id = viewID { click.viewID = id }
-    if let s = name { click.name = s }
-    if let u = targetURL { click.targetURL = u }
-    if let id = elementID { click.elementID = id }
-    return click
-  }
-  
-  func commonViewMessage(
-      viewID: String,
-      sessionID: String? = nil,
-      name: String? = nil,
-      url: String? = nil,
-      useCase: Event_UseCase? = nil) -> Event_View {
-    var view = Event_View()
-    view.clientLogTimestamp = clock.nowMillis
-    view.viewID = viewID
-    if let id = sessionID { view.sessionID = id }
-    if let n = name { view.name = n }
-    if let u = url { view.url = u }
-    if let use = useCase { view.useCase = use }
-    return view
   }
 }
 

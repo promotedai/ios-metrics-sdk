@@ -125,25 +125,25 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger!.log(event: e)
     XCTAssertEqual(1, clock!.scheduledTimers.count)
     XCTAssertEqual(flushInterval, clock!.scheduledTimers[0].timeInterval)
-    XCTAssertEqual(1, metricsLogger!.events.count)
+    XCTAssertEqual(1, metricsLogger!.logMessages.count)
     XCTAssertEqual(0, connection!.messages.count)
 
     clock!.advance(to: 5.0)
     metricsLogger!.log(event: e)
     XCTAssertEqual(1, clock!.scheduledTimers.count)
-    XCTAssertEqual(2, metricsLogger!.events.count)
+    XCTAssertEqual(2, metricsLogger!.logMessages.count)
     XCTAssertEqual(0, connection!.messages.count)
 
     clock!.advance(to: flushInterval + 10)
     XCTAssertEqual(0, clock!.scheduledTimers.count)
-    XCTAssertEqual(0, metricsLogger!.events.count)
+    XCTAssertEqual(0, metricsLogger!.logMessages.count)
     XCTAssertEqual(1, connection!.messages.count)
 
     connection!.messages.removeAll()
     metricsLogger!.log(event: e)
     XCTAssertEqual(1, clock!.scheduledTimers.count)
     XCTAssertEqual(flushInterval, clock!.scheduledTimers[0].timeInterval)
-    XCTAssertEqual(1, metricsLogger!.events.count)
+    XCTAssertEqual(1, metricsLogger!.logMessages.count)
     XCTAssertEqual(0, connection!.messages.count)
   }
   
