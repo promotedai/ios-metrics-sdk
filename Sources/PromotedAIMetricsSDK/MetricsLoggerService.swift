@@ -1,5 +1,6 @@
 import Foundation
 
+// MARK: -
 /**
  Configures a logging session and its associated `MetricsLogger`.
  
@@ -10,6 +11,8 @@ import Foundation
  corresponding `MetricLogger` a singleton. You may also choose to
  instantiate `MetricsLoggingService` and hold a reference to the instance.
  
+ The service also provides a facility to create `ImpressionLogger`s.
+ 
  You can create multiple instances of the service with different backends
  if desired. However, you should not create multiple services that point
  at the same backend.
@@ -19,47 +22,27 @@ import Foundation
  # Usage
  Create and configure the service when your app starts, then retrieve the
  `MetricsLogger` instance from the service after it has been configured.
+ Alternatively, create `ImpressionLogger` instances using the service.
  
  ## Example:
  ~~~
  let service = MetricsLoggingService(...)
  service.startLoggingServices()
  let logger = service.metricsLogger
- ~~~
- 
- # Subclassing
- Subclass the service to specialize the type of the `MetricsLogger` it
- creates. If you want to use the resulting subclass in Objective C, you'll
- need to create an Objective C wrapper for the subclass, because Swift
- generics aren't supported in Objective C.
- 
- ## Example:
- ~~~
- public class MyLoggerService:
-     BaseMetricsLoggerService<MyLogger> {
-   public func makeLogger(clientConfig: ClientConfig,
-                          clock: Clock,
-                          connection: NetworkConnection,
-                          idMap: IDMap,
-                          store: PersistentStore) -> MyLogger {
-     return MyLogger(...)
-   }
- }
- 
- @objc public class MyLoggerServiceObjCWrapper: NSObject {
-   @objc public var metricsLogger: MyLogger {
-     return myLoggerService.metricsLogger
-   }
- }
+ let impressionLogger = service.impressionLogger(dataSource: ...)
  ~~~
  */
-open class BaseMetricsLoggerService<L>:
-  ClientConfigDefaultProvider where L: MetricsLogger {
+@objc(PROMetricsLoggerService)
+public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
 
-  public private(set) lazy var metricsLogger: L = {
+  public private(set) lazy var metricsLogger: MetricsLogger = {
     // Reading the config property initializes clientConfigService.
-    return makeLogger(clientConfig: config, clock: clock, connection: connection,
-                      idMap: idMap, store: store)
+    return MetricsLogger(messageProvider: self.messageProvider,
+                         clientConfig: self.config,
+                         clock: self.clock,
+                         connection: self.connection,
+                         idMap: self.idMap,
+                         store: self.store)
   } ()
 
   private lazy var clientConfigService: ClientConfigService = {
@@ -73,22 +56,26 @@ open class BaseMetricsLoggerService<L>:
   public let clock: Clock
   private let connection: NetworkConnection
   private let idMap: IDMap
+  private let messageProvider: MessageProvider
   private let store: PersistentStore
 
-  public init() {
+  public init(messageProvider: MessageProvider) {
     self.clock = SystemClock.instance
     self.connection = GTMSessionFetcherConnection()
     self.idMap = SHA1IDMap.instance
+    self.messageProvider = messageProvider
     self.store = UserDefaultsPersistentStore()
   }
   
   public init(clock: Clock,
               connection: NetworkConnection,
               idMap: IDMap,
+              messageProvider: MessageProvider,
               store: PersistentStore) {
     self.clock = clock
     self.connection = connection
     self.idMap = idMap
+    self.messageProvider = messageProvider
     self.store = store
   }
 
@@ -97,25 +84,29 @@ open class BaseMetricsLoggerService<L>:
     clientConfigService.fetchClientConfig()
   }
 
-  /// Subclasses should override to provide an instance of its
-  /// `MetricsLogger`. Will only be invoked once by the service,
-  /// to create the logger lazily.
-  open func makeLogger(clientConfig: ClientConfig,
-                       clock: Clock,
-                       connection: NetworkConnection,
-                       idMap: IDMap,
-                       store: PersistentStore) -> L {
-    return MetricsLogger(clientConfig: clientConfig,
-                         clock: clock,
-                         connection: connection,
-                         idMap: idMap,
-                         store: store) as! L
-  }
-  
   func defaultConfig() -> ClientConfig {
     return ClientConfig()
   }
+
+  @objc public func impressionLogger(
+      dataSource: ImpressionLoggerDataSource) -> ImpressionLogger {
+    return ImpressionLogger(dataSource: dataSource,
+                            metricsLogger: self.metricsLogger,
+                            clock: self.clock)
+  }
 }
 
-/** Default implementation of `BaseMetricsLoggerService`. */
-public class MetricsLoggerService: BaseMetricsLoggerService<MetricsLogger> {}
+// MARK: - Singleton support for `MetricsLoggingService`
+public extension MetricsLoggerService {
+
+  static var messageProvider: MessageProvider?
+  
+  static func startServices(messageProvider: MessageProvider) {
+    self.messageProvider = messageProvider
+    self.sharedService.startLoggingServices()
+  }
+
+  /// Returns the shared logger. Causes error if `messageProvider` is not set.
+  @objc static let sharedService =
+      MetricsLoggerService(messageProvider: messageProvider!)
+}

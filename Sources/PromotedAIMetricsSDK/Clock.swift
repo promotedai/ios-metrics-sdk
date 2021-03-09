@@ -11,6 +11,7 @@ public protocol Clock {
   /// Returns time for use with timestamps.
   var now: TimeInterval { get }
   
+  typealias TimeIntervalMillis = UInt64
   typealias Callback = (Clock) -> Void
   
   /// Schedules a callback to be invoked in the future. Callback is
@@ -24,9 +25,7 @@ public protocol Clock {
 
 // MARK: -
 extension Clock {
-  
-  typealias TimeIntervalMillis = UInt64
-  
+
   var nowMillis: TimeIntervalMillis {
     return TimeIntervalMillis(now * 1000)
   }

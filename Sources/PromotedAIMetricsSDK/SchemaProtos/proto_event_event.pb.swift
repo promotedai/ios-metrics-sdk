@@ -541,6 +541,27 @@ public struct Event_Session {
   public init() {}
 }
 
+public struct Event_Foo {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var bar: Event_Session {
+    get {return _bar ?? Event_Session()}
+    set {_bar = newValue}
+  }
+  /// Returns true if `bar` has been explicitly set.
+  public var hasBar: Bool {return self._bar != nil}
+  /// Clears the value of `bar`. Subsequent reads from it will return its default value.
+  public mutating func clearBar() {self._bar = nil}
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+
+  fileprivate var _bar: Event_Session? = nil
+}
+
 /// A view of a single page (e.g. feed, search results, etc).
 /// Next ID = 37.
 public struct Event_View {
@@ -1603,6 +1624,38 @@ extension Event_Session: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     if lhs.sessionID != rhs.sessionID {return false}
     if lhs.startEpochMillis != rhs.startEpochMillis {return false}
     if lhs.exclusiveEndEpochMillis != rhs.exclusiveEndEpochMillis {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Event_Foo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Foo"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "bar"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularMessageField(value: &self._bar) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if let v = self._bar {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Event_Foo, rhs: Event_Foo) -> Bool {
+    if lhs._bar != rhs._bar {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
