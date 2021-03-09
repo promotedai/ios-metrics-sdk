@@ -119,7 +119,9 @@ public class ImpressionLogger: NSObject {
       }
     }
 
-    public init(path: IndexPath, startTime: TimeInterval, endTime: TimeInterval = -1.0) {
+    public init(path: IndexPath,
+                startTime: TimeInterval,
+                endTime: TimeInterval = -1.0) {
       self.path = path
       self.startTime = startTime
       self.endTime = endTime

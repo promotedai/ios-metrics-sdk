@@ -96,8 +96,7 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
   }
 }
 
-// MARK: -
-/** Singleton support for `MetricsLoggingService`. */
+// MARK: - Singleton support for `MetricsLoggingService`
 public extension MetricsLoggerService {
 
   static var messageProvider: MessageProvider?

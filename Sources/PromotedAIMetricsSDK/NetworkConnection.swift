@@ -94,7 +94,7 @@ class GTMSessionFetcherConnection: NetworkConnection {
     } catch BinaryEncodingError.missingRequiredFields {
       throw NetworkConnectionError.messageSerializationError(message: "Missing required fields.")
     } catch BinaryEncodingError.anyTranscodeFailure {
-      throw NetworkConnectionError.messageSerializationError(message: "Any transcode failed.")
+      throw NetworkConnectionError.messageSerializationError(message: "`Any` transcode failed.")
     } catch {
       throw NetworkConnectionError.unknownError
     }
