@@ -173,6 +173,7 @@ public class MetricsLogger: NSObject {
     log(event: event)
   }
   
+
   /// Starts a new session with the given `userID`.
   /// If the `userID` has changed from the last value written to
   /// persistent store, regenrates `logUserID` and caches the new
@@ -324,6 +325,17 @@ public extension MetricsLogger {
   /// delivered to the server on a timer.
   func log(message: Message) {
     logMessages.append(message)
+    maybeSchedulePendingBatchLoggingFlush()
+  }
+}
+
+// MARK: - Sending events
+extension MetricsLogger {
+
+  /// Enqueues the given message for logging. Messages are then
+  /// delivered to the server on a timer.
+  public func log(event: Message) {
+    events.append(event)
     maybeSchedulePendingBatchLoggingFlush()
   }
   

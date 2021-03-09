@@ -83,6 +83,6 @@ Example usage with UICollectionView:
 - (void)reloadCollectionView {
   [_collectionView reloadData];
   NSArray<NSIndexPath *> *visibleItems = _collectionView.indexPathsForVisibleItems;
-  [_impressionLogger collectionViewDidReloadWithVisibleItems:visibleItems];
+  [_impressionLogger collectionViewDidChangeWithVisibleItems:visibleItems];
 }
 ~~~
