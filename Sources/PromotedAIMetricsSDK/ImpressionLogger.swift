@@ -17,6 +17,44 @@ public protocol ImpressionLoggerDelegate: class {
 
 // MARK: -
 /**
+ Provides `QueenlyWardrobeItem`s displayed in a collection view.
+ Typically, a `UIViewController` that hosts the collection view
+ will implement this protocol.
+ 
+ # Example:
+ ~~~
+ @interface MyViewController () <PROQueenlyWardrobeItemDataSource>
+ @end
+ 
+ @implementation MyViewController
+ 
+ - (void)createImpressionLogger {
+   _logger = [_service impressionLoggerWithDataSource:self];
+ }
+ 
+ - (QueenlyWardrobeItem *)wardrobeItemAt:(NSIndexPath *)indexPath {
+   NSInteger item = indexPath.item;
+   if (item >= _items.count) { return nil; }
+   NSDictionary<NSString *, NSString *> *item = _items[item];
+   return [[PROQueenlyWardrobeItem alloc] initWithDictionary:item];
+ }
+ 
+ @end
+ ~~~
+ */
+@objc(PROImpressionLoggerDataSource)
+public protocol ImpressionLoggerDataSource {
+  
+  /// Returns the item at the given index path. Return `nil` if no
+  /// such item exists.
+  /// **IMPORTANT**: Always check the range of the index path, in case
+  /// your collection view displays cells at index paths that are not
+  /// wardrobe items.
+  @objc func wardrobeItem(at indexPath: IndexPath) -> Item?
+}
+
+// MARK: -
+/**
  Tracks impressions across scrolling collection views, such as
  `UICollectionView` or `UITableView`. Works best with views that
  can provide fine-grained updates of visible cells, but can also
@@ -101,15 +139,51 @@ public class ImpressionLogger: NSObject {
               (abs(lhs.endTime - rhs.endTime) < 0.01))
     }
   }
+  
+  // MARK: -
+  class ImpressionLoggerAdaptor: ImpressionLoggerDelegate {
+    private weak var dataSource: ImpressionLoggerDataSource?
+    private weak var metricsLogger: MetricsLogger?
+    
+    init(dataSource: ImpressionLoggerDataSource,
+         metricsLogger: MetricsLogger) {
+      self.dataSource = dataSource
+      self.metricsLogger = metricsLogger
+    }
+    
+    func impressionLogger(
+        _ impressionLogger: ImpressionLogger,
+        didStartImpressions impressions: [ImpressionLogger.Impression]) {
+      for impression in impressions {
+        if let item = dataSource?.wardrobeItem(at: impression.path) {
+          metricsLogger?.logImpression(item: item)
+        }
+      }
+    }
+    
+    func impressionLogger(
+        _ impressionLogger: ImpressionLogger,
+        didEndImpressions impressions: [ImpressionLogger.Impression]) {
+      // No logging end impressions for now.
+    }
+  }
 
   // MARK: -
   private let clock: Clock
   private var impressionStarts: [IndexPath: TimeInterval]
 
-  public weak var delegate: ImpressionLoggerDelegate?
+  private var delegate: ImpressionLoggerDelegate?
 
-  public init(delegate: ImpressionLoggerDelegate? = nil,
-              clock: Clock) {
+  init(dataSource: ImpressionLoggerDataSource,
+       metricsLogger: MetricsLogger,
+       clock: Clock) {
+    self.clock = clock
+    self.impressionStarts = [IndexPath: TimeInterval]()
+    self.delegate = ImpressionLoggerAdaptor(
+        dataSource: dataSource, metricsLogger: metricsLogger)
+  }
+  
+  init(delegate: ImpressionLoggerDelegate? = nil, clock: Clock) {
     self.clock = clock
     self.impressionStarts = [IndexPath: TimeInterval]()
     self.delegate = delegate

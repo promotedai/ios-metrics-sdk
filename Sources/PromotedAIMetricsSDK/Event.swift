@@ -5,36 +5,27 @@ import SwiftProtobuf
 /** Base class of all `Event` objects to provide a non-generic type. */
 open class AnyEvent {
   open func messageForLogging() -> Message? {
+    assertionFailure("Subclasses must override messageForLogging.")
     return nil
   }
 }
 
 // MARK: -
 /** Represents a logged event with both a common and client messages. */
-open class Event<ClientMessage, CommonMessage>: AnyEvent
-    where ClientMessage: Message, CommonMessage: Message {
-  public var clientMessage: ClientMessage?
+open class Event<CommonMessage>: AnyEvent where CommonMessage: Message {
+  public var clientMessage: Message?
   public var commonMessage: CommonMessage?
   
-  public init(clientMessage: ClientMessage? = nil,
+  public init(clientMessage: Message? = nil,
               commonMessage: CommonMessage? = nil) {
     self.clientMessage = clientMessage
     self.commonMessage = commonMessage
   }
-  
-  open override func messageForLogging() -> Message? {
-    return nil
-  }
 }
 
 // MARK: -
-/**
- Used in place of `User<?>` in common code, where we don't ever access
- `clientMessage` directly.
- */
-typealias AnyUser = User<Event_User>
 
-open class User<U>: Event<U, Event_User> where U: Message {
+open class User: Event<Event_User> {
   public func fillCommon(timestamp: Clock.TimeIntervalMillis,
                          userID: String? = nil,
                          logUserID: String? = nil) {
@@ -47,13 +38,8 @@ open class User<U>: Event<U, Event_User> where U: Message {
 }
 
 // MARK: -
-/**
- Used in place of `Impression<?>` in common code, where we don't ever access
- `clientMessage` directly.
- */
-typealias AnyImpression = Impression<Event_Impression>
 
-open class Impression<I>: Event<I, Event_Impression> where I: Message {
+open class Impression: Event<Event_Impression> {
   public func fillCommon(timestamp: Clock.TimeIntervalMillis,
                          impressionID: String,
                          insertionID: String? = nil,
@@ -72,13 +58,8 @@ open class Impression<I>: Event<I, Event_Impression> where I: Message {
 }
 
 // MARK: -
-/**
- Used in place of `Click<?>` in common code, where we don't ever access
- `clientMessage` directly.
- */
-typealias AnyClick = Click<Event_Click>
 
-open class Click<C>: Event<C, Event_Click> where C: Message {
+open class Click: Event<Event_Click> {
   public func fillCommon(timestamp: Clock.TimeIntervalMillis,
                          clickID: String,
                          impressionID: String? = nil,
@@ -105,13 +86,8 @@ open class Click<C>: Event<C, Event_Click> where C: Message {
 }
 
 // MARK: -
-/**
- Used in place of `View<?>` in common code, where we don't ever access
- `clientMessage` directly.
- */
-typealias AnyView = View<Event_View>
 
-open class View<V>: Event<V, Event_View> where V: Message {
+open class View: Event<Event_View> {
   public func fillCommon(timestamp: Clock.TimeIntervalMillis,
                          viewID: String,
                          sessionID: String? = nil,

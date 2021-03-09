@@ -11,19 +11,19 @@ public protocol MessageProvider {
 
   /// Creates a client-specific user event.
   /// Don't fill out any fields on the returned value.
-  func userMessage<U: Message>() -> User<U>
+  func userMessage() -> User
 
   /// Creates a client-specific impression event.
   /// Don't fill out any fields on the returned value.
-  func impressionMessage<I: Message>() -> Impression<I>
+  func impressionMessage() -> Impression
 
   /// Creates a client-specific click event.
   /// Don't fill out any fields on the returned value.
-  func clickMessage<C: Message>() -> Click<C>
+  func clickMessage() -> Click
 
   /// Creates a client-specific view event.
   /// Don't fill out any fields on the returned value.
-  func viewMessage<V: Message>() -> View<V>
+  func viewMessage() -> View
 
   /// Creates a batch message for the given list of events.
   /// Make sure to set the `userID` and `logUserID` fields in your
@@ -154,9 +154,7 @@ public class MetricsLogger: NSObject {
   @objc(startSessionAndLogUserWithID:)
   public func startSessionAndLogUser(userID: String) {
     startSession(userID: userID)
-    let event: AnyUser = provider.userMessage()
-    event.fillCommon(timestamp: clock.nowMillis)
-    log(event: event)
+    logUser()
   }
 
   /// Call when sign-in completes with no user.
@@ -164,8 +162,14 @@ public class MetricsLogger: NSObject {
   /// user event.
   @objc public func startSessionAndLogSignedOutUser() {
     startSessionSignedOut()
-    let event: AnyUser = provider.userMessage()
-    event.fillCommon(timestamp: clock.nowMillis)
+    logUser()
+  }
+  
+  public func logUser() {
+    let event = provider.userMessage()
+    event.fillCommon(timestamp: clock.nowMillis,
+                     userID: userID,
+                     logUserID: logUserID)
     log(event: event)
   }
   
@@ -213,7 +217,7 @@ public class MetricsLogger: NSObject {
   // MARK: - Impressions
   /// Logs an impression for the given wardrobe item.
   @objc public func logImpression(item: Item) {
-    let event: AnyImpression = provider.impressionMessage()
+    let event = provider.impressionMessage()
     let impressionID = idMap.impressionID(clientID: item.itemID)
     event.fillCommon(timestamp: clock.nowMillis,
                      impressionID: impressionID,
@@ -225,7 +229,7 @@ public class MetricsLogger: NSObject {
   /// Logs a click to like/unlike the given item.
   @objc(logClickToLikeItem:didLike:)
   public func logClickToLike(item: Item, didLike: Bool) {
-    let event: AnyClick = provider.clickMessage()
+    let event = provider.clickMessage()
     let targetURL = didLike ? "#like" : "#unlike"
     let elementID = didLike ? "like" : "unlike"
     event.fillCommon(timestamp: clock.nowMillis,
@@ -241,7 +245,7 @@ public class MetricsLogger: NSObject {
   @objc(logClickToShowViewController:forItem:)
   public func logClickToShow(viewController: ViewControllerType,
                              forItem item: Item) {
-    let event: AnyClick = provider.clickMessage()
+    let event = provider.clickMessage()
     let impressionID = idMap.impressionID(clientID: item.itemID)
     let targetURL = "#" + loggingNameFor(viewController: viewController)
     event.fillCommon(timestamp: clock.nowMillis,
@@ -255,7 +259,7 @@ public class MetricsLogger: NSObject {
   
   /// Logs a click to sign up as a new user.
   @objc public func logClickToSignUp(userID: String) {
-    let event: AnyClick = provider.clickMessage()
+    let event = provider.clickMessage()
     event.fillCommon(timestamp: clock.nowMillis,
                      clickID: idMap.clickID(),
                      impressionID: idMap.impressionID(clientID: userID),
@@ -267,7 +271,7 @@ public class MetricsLogger: NSObject {
   /// Logs a click to purchase the given item.
   @objc(logClickToPurchaseItem:)
   public func logClickToPurchase(item: Item) {
-    let event: AnyClick = provider.clickMessage()
+    let event = provider.clickMessage()
     let impressionID = idMap.impressionID(clientID: item.itemID)
     event.fillCommon(timestamp: clock.nowMillis,
                      clickID: idMap.clickID(),
@@ -291,10 +295,10 @@ public class MetricsLogger: NSObject {
   
   private func logView(viewController: ViewControllerType,
                        optionalUseCase: UseCase?) {
-    let event: AnyView = provider.viewMessage()
+    let event = provider.viewMessage()
     let name = loggingNameFor(viewController: viewController)
-    let protoUseCase = (optionalUseCase != nil ?
-                        Event_UseCase(rawValue: optionalUseCase!.rawValue) : nil)
+    let protoUseCase = (optionalUseCase != nil) ?
+        Event_UseCase(rawValue: optionalUseCase!.rawValue) : nil
     let url = "#" + name
     event.fillCommon(timestamp: clock.nowMillis,
                      viewID: idMap.viewID(viewName: name),
@@ -308,6 +312,8 @@ public class MetricsLogger: NSObject {
 // MARK: - Sending events
 public extension MetricsLogger {
   
+  /// Enqueues the given event for logging. Messages are then
+  /// delivered to the server on a timer.
   func log(event: AnyEvent) {
     if let clientMessage = event.messageForLogging() {
       log(message: clientMessage)
