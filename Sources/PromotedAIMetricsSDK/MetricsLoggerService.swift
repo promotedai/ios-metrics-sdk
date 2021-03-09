@@ -53,8 +53,8 @@ import Foundation
  }
  ~~~
  */
-open class BaseMetricsLoggerService<L>:
-  ClientConfigDefaultProvider where L: MetricsLogger {
+open class MetricsLoggerService<L>: ClientConfigDefaultProvider
+    where L: MetricsLogger {
 
   public private(set) lazy var metricsLogger: L = {
     // Reading the config property initializes clientConfigService.
@@ -105,17 +105,11 @@ open class BaseMetricsLoggerService<L>:
                        connection: NetworkConnection,
                        idMap: IDMap,
                        store: PersistentStore) -> L {
-    return MetricsLogger(clientConfig: clientConfig,
-                         clock: clock,
-                         connection: connection,
-                         idMap: idMap,
-                         store: store) as! L
+    assertionFailure("Subclasses must override this method.")
+    return NSObject() as! L
   }
   
   func defaultConfig() -> ClientConfig {
     return ClientConfig()
   }
 }
-
-/** Default implementation of `BaseMetricsLoggerService`. */
-public class MetricsLoggerService: BaseMetricsLoggerService<MetricsLogger> {}

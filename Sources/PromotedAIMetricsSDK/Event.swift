@@ -23,7 +23,7 @@ open class Event<ClientMessage, CommonMessage>: AnyEvent
   }
   
   open override func messageForLogging() -> Message? {
-    return clientMessage
+    return nil
   }
 }
 

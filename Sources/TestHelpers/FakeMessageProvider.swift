@@ -1,29 +1,29 @@
 import Foundation
-import PromotedAIMetricsSDK
+import SwiftProtobuf
 
-public class BaseMessageProvider: MessageProvider {
-  public func userMessage<Event_User>(
-      commonMessage: Event_User,
-      clientMessage: Event_User?) -> Message {
-    return commonMessage
+@testable import PromotedAIMetricsSDK
+
+public typealias FakeUser = AnyUser
+public typealias FakeImpression = AnyImpression
+public typealias FakeClick = AnyClick
+public typealias FakeView = AnyView
+
+public class FakeMessageProvider: MessageProvider {
+  public func userMessage<Event_User>() -> User<Event_User> {
+    return FakeUser() as! User<Event_User>
+  }
+
+  public func impressionMessage<Event_Impression>() ->
+      Impression<Event_Impression> {
+    return FakeImpression() as! Impression<Event_Impression>
   }
   
-  public func impressionMessage<Event_Impression>(
-      commonMessage: Event_Impression,
-      clientMessage: Event_Impression?) -> Message {
-    return commonMessage
+  public func clickMessage<Event_Click>() -> Click<Event_Click> {
+    return FakeClick() as! Click<Event_Click>
   }
   
-  public func clickMessage<Event_Click>(
-      commonMessage: Event_Click,
-      clientMessage: Event_Click?) -> Message {
-    return commonMessage
-  }
-  
-  public func viewMessage<Event_View>(
-      commonMessage: Event_View,
-      clientMessage: Event_View?) -> Message {
-    return commonMessage
+  public func viewMessage<Event_View>() -> View<Event_View> {
+    return FakeView() as! View<Event_View>
   }
   
   public func batchLogMessage(events: [Message],

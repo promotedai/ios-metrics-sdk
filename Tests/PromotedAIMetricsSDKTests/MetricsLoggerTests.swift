@@ -13,15 +13,7 @@ final class MetricsLoggerTests: XCTestCase {
   private var clock: FakeClock?
   private var store: FakePersistentStore?
   private var metricsLogger: MetricsLogger?
-  
-  class TestableMetricsLogger: MetricsLogger {
-    /// Need to return a non-nil object to cause the `flush()` method to
-    /// call the network connection.
-    override func batchLogMessage(events: [Message]) -> Message? {
-      return Event_Click()
-    }
-  }
-  
+
   public override func setUp() {
     super.setUp()
     config = ClientConfig()
@@ -30,11 +22,12 @@ final class MetricsLoggerTests: XCTestCase {
     store = FakePersistentStore()
     store!.userID = nil
     store!.logUserID = nil
-    metricsLogger = TestableMetricsLogger(clientConfig: config!,
-                                          clock: clock!,
-                                          connection: connection!,
-                                          idMap: SHA1IDMap.instance,
-                                          store: store!)
+    metricsLogger = MetricsLogger(messageProvider: FakeMessageProvider(),
+                                  clientConfig: config!,
+                                  clock: clock!,
+                                  connection: connection!,
+                                  idMap: SHA1IDMap.instance,
+                                  store: store!)
   }
   
   private func assertLoggerAndStoreInSync() {
@@ -54,7 +47,7 @@ final class MetricsLoggerTests: XCTestCase {
     var foo = Event_Foo()
     foo.bar = session
     
-    try {
+    do {
       let data = try session.serializedData()
       print("\(data)")
     } catch {
@@ -119,17 +112,17 @@ final class MetricsLoggerTests: XCTestCase {
   func testBatchFlush() {
     let flushInterval = config!.batchLoggingFlushInterval
     metricsLogger!.startSession(userID: "foobar")
-    let e = metricsLogger!.commonClickEvent(clickID: "clickid")
+    let e = Event_Click()
 
     clock!.advance(to: 0.0)
-    metricsLogger!.log(event: e)
+    metricsLogger!.log(message: e)
     XCTAssertEqual(1, clock!.scheduledTimers.count)
     XCTAssertEqual(flushInterval, clock!.scheduledTimers[0].timeInterval)
     XCTAssertEqual(1, metricsLogger!.logMessages.count)
     XCTAssertEqual(0, connection!.messages.count)
 
     clock!.advance(to: 5.0)
-    metricsLogger!.log(event: e)
+    metricsLogger!.log(message: e)
     XCTAssertEqual(1, clock!.scheduledTimers.count)
     XCTAssertEqual(2, metricsLogger!.logMessages.count)
     XCTAssertEqual(0, connection!.messages.count)
@@ -140,7 +133,7 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertEqual(1, connection!.messages.count)
 
     connection!.messages.removeAll()
-    metricsLogger!.log(event: e)
+    metricsLogger!.log(message: e)
     XCTAssertEqual(1, clock!.scheduledTimers.count)
     XCTAssertEqual(flushInterval, clock!.scheduledTimers[0].timeInterval)
     XCTAssertEqual(1, metricsLogger!.logMessages.count)
