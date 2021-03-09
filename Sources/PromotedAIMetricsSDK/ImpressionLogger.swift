@@ -17,7 +17,7 @@ public protocol ImpressionLoggerDelegate: class {
 
 // MARK: -
 /**
- Provides `QueenlyWardrobeItem`s displayed in a collection view.
+ Provides `Item`s displayed in a collection view.
  Typically, a `UIViewController` that hosts the collection view
  will implement this protocol.
  
@@ -32,11 +32,11 @@ public protocol ImpressionLoggerDelegate: class {
    _logger = [_service impressionLoggerWithDataSource:self];
  }
  
- - (QueenlyWardrobeItem *)wardrobeItemAt:(NSIndexPath *)indexPath {
+ - (PROItem *)impressionLoggerItemAt:(NSIndexPath *)indexPath {
    NSInteger item = indexPath.item;
    if (item >= _items.count) { return nil; }
    NSDictionary<NSString *, NSString *> *item = _items[item];
-   return [[PROQueenlyWardrobeItem alloc] initWithDictionary:item];
+   return [[PROItem alloc] initWithDictionary:item];
  }
  
  @end
