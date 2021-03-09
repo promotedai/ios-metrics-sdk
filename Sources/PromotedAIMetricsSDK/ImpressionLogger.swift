@@ -50,7 +50,7 @@ public protocol ImpressionLoggerDataSource {
   /// **IMPORTANT**: Always check the range of the index path, in case
   /// your collection view displays cells at index paths that are not
   /// wardrobe items.
-  @objc func wardrobeItem(at indexPath: IndexPath) -> Item?
+  @objc func impressionLoggerItem(at indexPath: IndexPath) -> Item?
 }
 
 // MARK: -
@@ -141,7 +141,8 @@ public class ImpressionLogger: NSObject {
   }
   
   // MARK: -
-  class ImpressionLoggerAdaptor: ImpressionLoggerDelegate {
+  /** Ties a `ImpressionLoggerDataSource` and a `MetricsLogger`. */
+  private class ImpressionLoggerAdaptor: ImpressionLoggerDelegate {
     private weak var dataSource: ImpressionLoggerDataSource?
     private weak var metricsLogger: MetricsLogger?
     
@@ -155,7 +156,7 @@ public class ImpressionLogger: NSObject {
         _ impressionLogger: ImpressionLogger,
         didStartImpressions impressions: [ImpressionLogger.Impression]) {
       for impression in impressions {
-        if let item = dataSource?.wardrobeItem(at: impression.path) {
+        if let item = dataSource?.impressionLoggerItem(at: impression.path) {
           metricsLogger?.logImpression(item: item)
         }
       }
@@ -172,6 +173,11 @@ public class ImpressionLogger: NSObject {
   private let clock: Clock
   private var impressionStarts: [IndexPath: TimeInterval]
 
+  // TODO(yu-hong): Delegates are typically weak because they tend
+  // to be UIViewControllers or some other object that owns this
+  // enclosing class (ImpressionLogger). Right now the only way
+  // to create ImpressionLogger is through the ImpressionLoggerAdaptor,
+  // so this has to be strong.
   private var delegate: ImpressionLoggerDelegate?
 
   init(dataSource: ImpressionLoggerDataSource,

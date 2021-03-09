@@ -1,5 +1,6 @@
 import Foundation
 
+// MARK: -
 /**
  Configures a logging session and its associated `MetricsLogger`.
  
@@ -79,7 +80,7 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
   }
 
   /// Call this to start logging services, prior to accessing the logger.
-  func startLoggingServices() {
+  public func startLoggingServices() {
     clientConfigService.fetchClientConfig()
   }
 
@@ -93,4 +94,20 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
                             metricsLogger: self.metricsLogger,
                             clock: self.clock)
   }
+}
+
+// MARK: -
+/** Singleton support for `MetricsLoggingService`. */
+public extension MetricsLoggerService {
+
+  static var messageProvider: MessageProvider?
+  
+  static func startServices(messageProvider: MessageProvider) {
+    self.messageProvider = messageProvider
+    self.sharedService.startLoggingServices()
+  }
+
+  /// Returns the shared logger. Causes error if `messageProvider` is not set.
+  @objc static let sharedService =
+      MetricsLoggerService(messageProvider: messageProvider!)
 }
