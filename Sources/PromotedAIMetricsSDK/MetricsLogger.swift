@@ -327,17 +327,6 @@ public extension MetricsLogger {
     logMessages.append(message)
     maybeSchedulePendingBatchLoggingFlush()
   }
-}
-
-// MARK: - Sending events
-extension MetricsLogger {
-
-  /// Enqueues the given message for logging. Messages are then
-  /// delivered to the server on a timer.
-  public func log(event: Message) {
-    events.append(event)
-    maybeSchedulePendingBatchLoggingFlush()
-  }
   
   private func maybeSchedulePendingBatchLoggingFlush() {
     if batchLoggingTimer != nil { return }
