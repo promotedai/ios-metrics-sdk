@@ -59,11 +59,18 @@ extension Event_CohortId: CaseIterable {
 
 #endif  // swift(>=4.2)
 
-public enum Event_CohortExperimentGroup: SwiftProtobuf.Enum {
+/// The arm (experiment's group) when the Cohort is for an experiment.
+/// Next ID = 6.
+public enum Event_CohortArm: SwiftProtobuf.Enum {
   public typealias RawValue = Int
   case unknownGroup // = 0
   case control // = 1
-  case experiment // = 2
+  case treatment // = 2
+
+  /// These are generic arms (groups) that can be used when there are multiple treatments.
+  case treatment1 // = 3
+  case treatment2 // = 4
+  case treatment3 // = 5
   case UNRECOGNIZED(Int)
 
   public init() {
@@ -74,7 +81,10 @@ public enum Event_CohortExperimentGroup: SwiftProtobuf.Enum {
     switch rawValue {
     case 0: self = .unknownGroup
     case 1: self = .control
-    case 2: self = .experiment
+    case 2: self = .treatment
+    case 3: self = .treatment1
+    case 4: self = .treatment2
+    case 5: self = .treatment3
     default: self = .UNRECOGNIZED(rawValue)
     }
   }
@@ -83,7 +93,10 @@ public enum Event_CohortExperimentGroup: SwiftProtobuf.Enum {
     switch self {
     case .unknownGroup: return 0
     case .control: return 1
-    case .experiment: return 2
+    case .treatment: return 2
+    case .treatment1: return 3
+    case .treatment2: return 4
+    case .treatment3: return 5
     case .UNRECOGNIZED(let i): return i
     }
   }
@@ -92,12 +105,15 @@ public enum Event_CohortExperimentGroup: SwiftProtobuf.Enum {
 
 #if swift(>=4.2)
 
-extension Event_CohortExperimentGroup: CaseIterable {
+extension Event_CohortArm: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  public static var allCases: [Event_CohortExperimentGroup] = [
+  public static var allCases: [Event_CohortArm] = [
     .unknownGroup,
     .control,
-    .experiment,
+    .treatment,
+    .treatment1,
+    .treatment2,
+    .treatment3,
   ]
 }
 
@@ -316,7 +332,7 @@ public struct Event_CohortMembership {
   public var cohortID: Event_CohortId = .unknownCohort
 
   /// Optional.
-  public var experimentGroup: Event_CohortExperimentGroup = .unknownGroup
+  public var arm: Event_CohortArm = .unknownGroup
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -539,27 +555,6 @@ public struct Event_Session {
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
-}
-
-public struct Event_Foo {
-  // SwiftProtobuf.Message conformance is added in an extension below. See the
-  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-  // methods supported on all messages.
-
-  public var bar: Event_Session {
-    get {return _bar ?? Event_Session()}
-    set {_bar = newValue}
-  }
-  /// Returns true if `bar` has been explicitly set.
-  public var hasBar: Bool {return self._bar != nil}
-  /// Clears the value of `bar`. Subsequent reads from it will return its default value.
-  public mutating func clearBar() {self._bar = nil}
-
-  public var unknownFields = SwiftProtobuf.UnknownStorage()
-
-  public init() {}
-
-  fileprivate var _bar: Event_Session? = nil
 }
 
 /// A view of a single page (e.g. feed, search results, etc).
@@ -1009,11 +1004,14 @@ extension Event_CohortId: SwiftProtobuf._ProtoNameProviding {
   ]
 }
 
-extension Event_CohortExperimentGroup: SwiftProtobuf._ProtoNameProviding {
+extension Event_CohortArm: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     0: .same(proto: "UNKNOWN_GROUP"),
     1: .same(proto: "CONTROL"),
-    2: .same(proto: "EXPERIMENT"),
+    2: .same(proto: "TREATMENT"),
+    3: .same(proto: "TREATMENT1"),
+    4: .same(proto: "TREATMENT2"),
+    5: .same(proto: "TREATMENT3"),
   ]
 }
 
@@ -1181,7 +1179,7 @@ extension Event_CohortMembership: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     5: .standard(proto: "event_api_timestamp"),
     10: .standard(proto: "membership_id"),
     11: .standard(proto: "cohort_id"),
-    12: .standard(proto: "experiment_group"),
+    12: .same(proto: "arm"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1196,7 +1194,7 @@ extension Event_CohortMembership: SwiftProtobuf.Message, SwiftProtobuf._MessageI
       case 5: try { try decoder.decodeSingularUInt64Field(value: &self.eventApiTimestamp) }()
       case 10: try { try decoder.decodeSingularStringField(value: &self.membershipID) }()
       case 11: try { try decoder.decodeSingularEnumField(value: &self.cohortID) }()
-      case 12: try { try decoder.decodeSingularEnumField(value: &self.experimentGroup) }()
+      case 12: try { try decoder.decodeSingularEnumField(value: &self.arm) }()
       default: break
       }
     }
@@ -1221,8 +1219,8 @@ extension Event_CohortMembership: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     if self.cohortID != .unknownCohort {
       try visitor.visitSingularEnumField(value: self.cohortID, fieldNumber: 11)
     }
-    if self.experimentGroup != .unknownGroup {
-      try visitor.visitSingularEnumField(value: self.experimentGroup, fieldNumber: 12)
+    if self.arm != .unknownGroup {
+      try visitor.visitSingularEnumField(value: self.arm, fieldNumber: 12)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -1234,7 +1232,7 @@ extension Event_CohortMembership: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     if lhs.eventApiTimestamp != rhs.eventApiTimestamp {return false}
     if lhs.membershipID != rhs.membershipID {return false}
     if lhs.cohortID != rhs.cohortID {return false}
-    if lhs.experimentGroup != rhs.experimentGroup {return false}
+    if lhs.arm != rhs.arm {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1624,38 +1622,6 @@ extension Event_Session: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     if lhs.sessionID != rhs.sessionID {return false}
     if lhs.startEpochMillis != rhs.startEpochMillis {return false}
     if lhs.exclusiveEndEpochMillis != rhs.exclusiveEndEpochMillis {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension Event_Foo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  public static let protoMessageName: String = _protobuf_package + ".Foo"
-  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "bar"),
-  ]
-
-  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeSingularMessageField(value: &self._bar) }()
-      default: break
-      }
-    }
-  }
-
-  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if let v = self._bar {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
-    }
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  public static func ==(lhs: Event_Foo, rhs: Event_Foo) -> Bool {
-    if lhs._bar != rhs._bar {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
