@@ -4,6 +4,7 @@ import SwiftProtobuf
 /// `UIViewController` if `UIKit` is supported on build platform,
 /// `AnyObject` otherwise. Allows us to unit test on macOS.
 #if canImport(UIKit)
+import UIKit
 public typealias ViewControllerType = UIViewController
 #else
 public typealias ViewControllerType = AnyObject

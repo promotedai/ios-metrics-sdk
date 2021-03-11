@@ -1,7 +1,7 @@
 import Foundation
 
 protocol ClientConfigDefaultProvider: class {
-  func defaultConfig() -> ClientConfig
+  var defaultConfig: ClientConfig { get }
 }
 
 class ClientConfigService: NSObject {
@@ -13,7 +13,7 @@ class ClientConfigService: NSObject {
   /** Client configuration for this session. This will never change. */
   var config: ClientConfig {
     if let result = cachedConfig { return result }
-    return provider!.defaultConfig()
+    return provider!.defaultConfig
   }
 
   init(provider: ClientConfigDefaultProvider,
@@ -26,7 +26,7 @@ class ClientConfigService: NSObject {
     // TODO: Stub always sets this to default config.
     // When we persist to disk, the user defaults should be the
     // first thing we try, then the default config.
-    self.cachedConfig = provider.defaultConfig()
+    self.cachedConfig = provider.defaultConfig
   }
 
   func fetchClientConfig() {
