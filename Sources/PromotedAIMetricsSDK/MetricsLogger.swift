@@ -103,7 +103,7 @@ public protocol MessageProvider {
  ~~~
  */
 @objc(PROMetricsLogger)
-public class MetricsLogger: NSObject {
+public class MetricsLogger: NSObject, InternalLogger {
 
   private let clock: Clock
   private let config: ClientConfig
@@ -184,7 +184,7 @@ public class MetricsLogger: NSObject {
   ///
   /// Either this method or `startSessionSignedOut()` should be
   /// called before logging any events.
-  public func startSession(userID: String) {
+  /*visibleForTesting*/ func startSession(userID: String) {
     startSessionAndUpdateUserIDs(userID: userID)
   }
   
@@ -197,7 +197,7 @@ public class MetricsLogger: NSObject {
   ///
   /// Either this method or `startSession(userID:)` should be
   /// called before logging any events.
-  public func startSessionSignedOut() {
+  /*visibleForTesting*/ func startSessionSignedOut() {
     startSessionAndUpdateUserIDs(userID: nil)
   }
   
@@ -216,7 +216,7 @@ public class MetricsLogger: NSObject {
   }
   
   // MARK: - Impressions
-  /// Logs an impression for the given wardrobe item.
+  /// Logs an impression for the given item.
   @objc public func logImpression(item: Item) {
     let event = provider.impressionMessage()
     let impressionID = idMap.impressionID(clientID: item.itemID)
@@ -243,16 +243,40 @@ public class MetricsLogger: NSObject {
   }
 
   /// Logs a click to show the given view controller.
+  @objc(logClickToShowViewController:)
+  public func logClickToShow(viewController: ViewControllerType) {
+    logClickToShow(name: loggingNameFor(viewController: viewController),
+                   optionalItem: nil)
+  }
+
+  /// Logs a click to show the given view controller.
   @objc(logClickToShowViewController:forItem:)
   public func logClickToShow(viewController: ViewControllerType,
                              forItem item: Item) {
+    logClickToShow(name: loggingNameFor(viewController: viewController),
+                   optionalItem: item)
+  }
+  
+  /// Logs a click to show a screen with given name.
+  @objc(logClickToShowScreenName:)
+  public func logClickToShow(screenName: String) {
+    logClickToShow(name: screenName, optionalItem: nil)
+  }
+  
+  /// Logs a click to show a screen with given name for given item.
+  @objc(logClickToShowScreenName:forItem:)
+  public func logClickToShow(screenName: String, forItem item: Item) {
+    logClickToShow(name: screenName, optionalItem: item)
+  }
+
+  private func logClickToShow(name: String, optionalItem item: Item?) {
     let event = provider.clickMessage()
-    let impressionID = idMap.impressionID(clientID: item.itemID)
-    let targetURL = "#" + loggingNameFor(viewController: viewController)
+    let impressionID = idMap.impressionIDOrNil(clientID: item?.itemID)
+    let targetURL = "#" + name
     event.fillCommon(timestamp: clock.nowMillis,
                      clickID: idMap.clickID(),
                      impressionID: impressionID,
-                     insertionID: item.insertionID,
+                     insertionID: item?.insertionID,
                      targetURL: targetURL,
                      elementID: impressionID)  // Re-use impressionID for elementID.
     log(event: event)
@@ -285,19 +309,29 @@ public class MetricsLogger: NSObject {
   // MARK: - Views
   /// Logs a view of the given view controller.
   @objc public func logView(viewController: ViewControllerType) {
-    self.logView(viewController: viewController, optionalUseCase: nil)
+    let name = loggingNameFor(viewController: viewController)
+    self.logView(name: name, optionalUseCase: nil)
   }
   
   /// Logs a view of the given view controller and use case.
   @objc public func logView(viewController: ViewControllerType,
                             useCase: UseCase) {
-    self.logView(viewController: viewController, optionalUseCase: useCase)
+    let name = loggingNameFor(viewController: viewController)
+    self.logView(name: name, optionalUseCase: useCase)
+  }
+
+  /// Logs a view of a screen with the given name.
+  @objc public func logView(screenName: String) {
+    self.logView(name: screenName, optionalUseCase: nil)
   }
   
-  private func logView(viewController: ViewControllerType,
-                       optionalUseCase: UseCase?) {
+  /// Logs a view of a screen with the given name and use case.
+  @objc public func logView(screenName: String, useCase: UseCase) {
+    self.logView(name: screenName, optionalUseCase: useCase)
+  }
+  
+  private func logView(name: String, optionalUseCase: UseCase?) {
     let event = provider.viewMessage()
-    let name = loggingNameFor(viewController: viewController)
     let protoUseCase = (optionalUseCase != nil) ?
         Event_UseCase(rawValue: optionalUseCase!.rawValue) : nil
     let url = "#" + name
@@ -324,6 +358,7 @@ public extension MetricsLogger {
   /// Enqueues the given message for logging. Messages are then
   /// delivered to the server on a timer.
   func log(message: Message) {
+    assert(Thread.isMainThread, "[MetricsLogger] Logging must be done on main thread")
     logMessages.append(message)
     maybeSchedulePendingBatchLoggingFlush()
   }
@@ -371,36 +406,29 @@ public extension MetricsLogger {
           self?.handleSendMessageError(e)
           return
         }
-        print("Fetch finished: \(String(describing: data))")
+        print("[MetricsLogger] Fetch finished.")
       }
     } catch NetworkConnectionError.messageSerializationError(let message) {
       print(message)
     } catch NetworkConnectionError.unknownError {
-      print("ERROR: Unknown NetworkConnectionError sending message.")
+      print("[MetricsLogger] ERROR: Unknown NetworkConnectionError sending message.")
     } catch {
-      print("ERROR: Unknown error sending message.")
+      print("[MetricsLogger] ERROR: Unknown error sending message.")
     }
   }
   
   private func handleSendMessageError(_ error: Error) {
     switch error {
     case NetworkConnectionError.networkSendError(let domain, let code, let errorString):
-      print("ERROR: domain=\(domain) code=\(code) description=\(errorString)")
+      print("[MetricsLogger] ERROR: domain=\(domain) code=\(code) description=\(errorString)")
     default:
-      print("ERROR: \(error.localizedDescription)")
+      print("[MetricsLogger] ERROR: \(error.localizedDescription)")
     }
   }
 }
 
 // MARK: - View controller logging
 extension MetricsLogger {
-  /// `UIViewController` if `UIKit` is supported on build platform,
-  /// `AnyObject` otherwise. Allows us to unit test on macOS.
-  #if canImport(UIKit)
-  public typealias ViewControllerType = UIViewController
-  #else
-  public typealias ViewControllerType = AnyObject
-  #endif
   
   func loggingNameFor(viewController: ViewControllerType) -> String {
     let className = String(describing: type(of: viewController))

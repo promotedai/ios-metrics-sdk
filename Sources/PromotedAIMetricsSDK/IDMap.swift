@@ -14,16 +14,27 @@ public protocol IDMap {
   /// Given a client-side user ID, generate a log user ID which
   /// is used to track the the current session without exposing
   /// the underlying user ID.
+  /// Returns the null UUID string when passed `nil`.
   func logUserID(userID: String?) -> String
 
   /// Given a client-side ID, generate a server-side impression ID.
+  /// Returns the null UUID string when passed `nil`.
   func impressionID(clientID: String?) -> String
   
   /// Generates a new click ID.
   func clickID() -> String
   
   /// Generates a new view ID.
+  /// Returns the null UUID string when passed `nil`.
   func viewID(viewName: String?) -> String
+}
+
+public extension IDMap {
+  /// Same as `impressionID(clientID:)`, but returns `nil` on `nil` input.
+  func impressionIDOrNil(clientID: String?) -> String? {
+    if let clientID = clientID { return impressionID(clientID: clientID) }
+    return nil
+  }
 }
 
 // MARK: -

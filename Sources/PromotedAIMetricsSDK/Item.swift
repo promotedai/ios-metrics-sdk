@@ -1,8 +1,6 @@
 import Foundation
 
-/**
- Represents a saleable unit in your marketplace.
- */
+/** Represents a saleable unit in your marketplace. */
 @objc(PROItem)
 public class Item: NSObject {
 
@@ -24,8 +22,7 @@ public class Item: NSObject {
     self.insertionID = nil
   }
   
-  /// Initializes with the given `itemID = wardrobeID` and reads remaining
-  /// attributes from `dictionary`.
+  /// Initializes with the given `itemID` and `insertionID`.
   @objc public init(itemID: String, insertionID: String) {
     self.itemID = itemID
     self.insertionID = insertionID
