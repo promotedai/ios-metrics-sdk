@@ -10,8 +10,8 @@ public struct ClientConfig {
   static let localMetricsLoggingURLString = "http://rhubarb.local:8080/metrics"
   
   static let devMetricsLoggingURLString =
-      "https://srh9gl3spk.execute-api.us-east-1.amazonaws.com/dev/main"
-  static let devMetricsLoggingAPIKeyString = "J8nvCqSFQw8n8JDwK8m1Z3KZY8CpjeT727JVEhuK"
+      "https://5tbepnh11h.execute-api.us-east-2.amazonaws.com/dev/main"
+  static let devMetricsLoggingAPIKeyString = "OLpsrVSd565IQmOAR62dO9GkXUJngNo5ZUdCMV70"
   
   var loggingEnabled: Bool = true
   
