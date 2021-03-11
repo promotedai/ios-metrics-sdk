@@ -51,9 +51,7 @@ extension NetworkConnection {
 
   func urlRequest(url: URL, data: Data, clientConfig: ClientConfig) -> URLRequest {
     var request = URLRequest(url: url)
-    if let apiKey = clientConfig.metricsLoggingAPIKey {
-      request.addValue(apiKey, forHTTPHeaderField: "x-api-key")
-    }
+    request.addValue(clientConfig.metricsLoggingAPIKey, forHTTPHeaderField: "x-api-key")
     if clientConfig.metricsLoggingWireFormat == .binary {
       request.addValue("application/protobuf", forHTTPHeaderField: "content-type")
     }
