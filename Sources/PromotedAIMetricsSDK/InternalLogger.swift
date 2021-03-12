@@ -56,6 +56,12 @@ public typealias ViewControllerType = AnyObject
   /// Logs a click to purchase the given item.
   @objc(logClickToPurchaseItem:)
   func logClickToPurchase(item: Item)
+
+  /// Logs a click for the given action name.
+  @objc func logClick(actionName: String)
+
+  /// Logs a click for the given action name involving the given item.
+  @objc func logClick(actionName: String, item: Item)
   
   // MARK: - Views
   /// Logs a view of the given view controller.

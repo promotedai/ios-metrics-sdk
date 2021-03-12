@@ -230,16 +230,9 @@ public class MetricsLogger: NSObject, InternalLogger {
   /// Logs a click to like/unlike the given item.
   @objc(logClickToLikeItem:didLike:)
   public func logClickToLike(item: Item, didLike: Bool) {
-    let event = provider.clickMessage()
-    let targetURL = didLike ? "#like" : "#unlike"
-    let elementID = didLike ? "like" : "unlike"
-    event.fillCommon(timestamp: clock.nowMillis,
-                     clickID: idMap.clickID(),
-                     impressionID: idMap.impressionID(clientID: item.itemID),
-                     insertionID: item.insertionID,
-                     targetURL: targetURL,
-                     elementID: elementID)
-    log(event: event)
+    let actionName = didLike ? "like" : "unlike"
+    logClick(actionName: actionName, clientID: item.itemID,
+             insertionID: item.insertionID)
   }
 
   /// Logs a click to show the given view controller.
@@ -270,39 +263,44 @@ public class MetricsLogger: NSObject, InternalLogger {
   }
 
   private func logClickToShow(name: String, optionalItem item: Item?) {
-    let event = provider.clickMessage()
-    let impressionID = idMap.impressionIDOrNil(clientID: item?.itemID)
-    let targetURL = "#" + name
-    event.fillCommon(timestamp: clock.nowMillis,
-                     clickID: idMap.clickID(),
-                     impressionID: impressionID,
-                     insertionID: item?.insertionID,
-                     targetURL: targetURL,
-                     elementID: impressionID)  // Re-use impressionID for elementID.
-    log(event: event)
+    logClick(actionName: name, clientID: item?.itemID,
+             insertionID: item?.insertionID)
   }
   
   /// Logs a click to sign up as a new user.
   @objc public func logClickToSignUp(userID: String) {
-    let event = provider.clickMessage()
-    event.fillCommon(timestamp: clock.nowMillis,
-                     clickID: idMap.clickID(),
-                     impressionID: idMap.impressionID(clientID: userID),
-                     targetURL: "#sign-up",
-                     elementID: "sign-up")
-    log(event: event)
+    logClick(actionName: "sign-up", clientID: userID, insertionID: nil)
   }
   
   /// Logs a click to purchase the given item.
   @objc(logClickToPurchaseItem:)
   public func logClickToPurchase(item: Item) {
+    logClick(actionName: "purchase", clientID: item.itemID,
+             insertionID: item.insertionID)
+  }
+  
+  /// Logs a click for the given action name.
+  @objc public func logClick(actionName: String) {
+    logClick(actionName: actionName, clientID: nil, insertionID: nil)
+  }
+  
+  /// Logs a click for the given action name involving the given item.
+  @objc public func logClick(actionName: String, item: Item) {
+    logClick(actionName: actionName, clientID: item.itemID,
+             insertionID: item.insertionID)
+  }
+  
+  private func logClick(actionName: String,
+                        clientID: String? = nil,
+                        insertionID: String? = nil) {
     let event = provider.clickMessage()
-    let impressionID = idMap.impressionID(clientID: item.itemID)
+    let impressionID = idMap.impressionIDOrNil(clientID: clientID)
     event.fillCommon(timestamp: clock.nowMillis,
                      clickID: idMap.clickID(),
                      impressionID: impressionID,
-                     targetURL: "#purchase",
-                     elementID: "purchase")
+                     insertionID: insertionID,
+                     targetURL: "#" + actionName,
+                     elementID: actionName)
     log(event: event)
   }
   
