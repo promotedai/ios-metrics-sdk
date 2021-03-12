@@ -63,7 +63,7 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
   }
 
   var defaultConfig: ClientConfig {
-    return ClientConfig()
+    return initialConfig
   }
 
   public let clock: Clock

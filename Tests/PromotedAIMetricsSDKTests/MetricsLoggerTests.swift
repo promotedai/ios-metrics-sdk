@@ -17,6 +17,7 @@ final class MetricsLoggerTests: XCTestCase {
   public override func setUp() {
     super.setUp()
     config = ClientConfig()
+    config!.metricsLoggingURL = "http://fake.promoted.ai/metrics"
     connection = FakeNetworkConnection()
     clock = FakeClock()
     store = FakePersistentStore()
