@@ -27,4 +27,23 @@ public class Item: NSObject {
     self.itemID = itemID
     self.insertionID = insertionID
   }
+  
+  /// Initializes with given dictionary as used to represent
+  /// an item, using the key arrays to read the dictionary.
+  /// If the given properties do not contain an item ID, `itemID`
+  /// will be `nil`. If the properties do not contain an insertion
+  /// ID, `insertionID` will be nil.
+  ///
+  /// - Parameters:
+  ///   - properties: Dictionary of properties to read from.
+  ///   - itemIDKeys: Keys used to read `itemID`, in preferred
+  ///     order.
+  ///   - insertionIDKeys: Keys used to read `insertionID`, in
+  ///     preferred order.
+  @objc public init(properties: [String: Any]?,
+                    itemIDKeys: [String],
+                    insertionIDKeys: [String]) {
+    self.itemID = properties?.firstValueFromKeysInArray(itemIDKeys)
+    self.insertionID = properties?.firstValueFromKeysInArray(insertionIDKeys)
+  }
 }
