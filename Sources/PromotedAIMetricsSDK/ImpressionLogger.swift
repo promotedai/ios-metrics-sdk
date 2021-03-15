@@ -143,58 +143,20 @@ public class ImpressionLogger: NSObject {
   }
   
   // MARK: -
-  /** Ties a `ImpressionLoggerDataSource` and a `MetricsLogger`. */
-  private class ImpressionLoggerAdaptor: ImpressionLoggerDelegate {
-    private weak var dataSource: ImpressionLoggerDataSource?
-    private weak var metricsLogger: MetricsLogger?
-    
-    init(dataSource: ImpressionLoggerDataSource,
-         metricsLogger: MetricsLogger) {
-      self.dataSource = dataSource
-      self.metricsLogger = metricsLogger
-    }
-    
-    func impressionLogger(
-        _ impressionLogger: ImpressionLogger,
-        didStartImpressions impressions: [ImpressionLogger.Impression]) {
-      for impression in impressions {
-        if let item = dataSource?.impressionLoggerItem(at: impression.path) {
-          metricsLogger?.logImpression(item: item)
-        }
-      }
-    }
-    
-    func impressionLogger(
-        _ impressionLogger: ImpressionLogger,
-        didEndImpressions impressions: [ImpressionLogger.Impression]) {
-      // No logging end impressions for now.
-    }
-  }
-
-  // MARK: -
+  private weak var dataSource: ImpressionLoggerDataSource?
+  private weak var metricsLogger: MetricsLogger?
   private let clock: Clock
   private var impressionStarts: [IndexPath: TimeInterval]
 
-  // TODO(yu-hong): Delegates are typically weak because they tend
-  // to be UIViewControllers or some other object that owns this
-  // enclosing class (ImpressionLogger). Right now the only way
-  // to create ImpressionLogger is through the ImpressionLoggerAdaptor,
-  // so this has to be strong.
-  private var delegate: ImpressionLoggerDelegate?
+  public weak var delegate: ImpressionLoggerDelegate?
 
   init(dataSource: ImpressionLoggerDataSource,
        metricsLogger: MetricsLogger,
        clock: Clock) {
+    self.dataSource = dataSource
+    self.metricsLogger = metricsLogger
     self.clock = clock
     self.impressionStarts = [IndexPath: TimeInterval]()
-    self.delegate = ImpressionLoggerAdaptor(
-        dataSource: dataSource, metricsLogger: metricsLogger)
-  }
-  
-  init(delegate: ImpressionLoggerDelegate? = nil, clock: Clock) {
-    self.clock = clock
-    self.impressionStarts = [IndexPath: TimeInterval]()
-    self.delegate = delegate
   }
 
   /// Call this method when new items are displayed.
@@ -249,6 +211,11 @@ public class ImpressionLogger: NSObject {
       impressions.append(impression)
       impressionStarts[item] = now
     }
+    for impression in impressions {
+      if let item = dataSource?.impressionLoggerItem(at: impression.path) {
+        metricsLogger?.logImpression(item: item)
+      }
+    }
     delegate?.impressionLogger(self, didStartImpressions: impressions)
   }
   
@@ -260,6 +227,7 @@ public class ImpressionLogger: NSObject {
       let impression = Impression(path: item, startTime: start, endTime: now)
       impressions.append(impression)
     }
+    // Not calling `metricsLogger`. No logging end impressions for now.
     delegate?.impressionLogger(self, didEndImpressions: impressions)
   }
 }

@@ -103,7 +103,7 @@ public protocol MessageProvider {
  ~~~
  */
 @objc(PROMetricsLogger)
-public class MetricsLogger: NSObject, InternalLogger {
+public class MetricsLogger: NSObject, SharedLogger {
 
   private let clock: Clock
   private let config: ClientConfig

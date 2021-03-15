@@ -11,7 +11,7 @@ public typealias ViewControllerType = AnyObject
 #endif
 
 /** Common protocol between `MetricsLogger` and React Native module. */
-@objc public protocol InternalLogger {
+@objc public protocol SharedLogger {
 
   // MARK: - Starting new sessions
   /// Call when sign-in completes with specified user ID.
