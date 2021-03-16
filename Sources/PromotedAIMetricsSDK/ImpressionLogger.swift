@@ -236,11 +236,6 @@ public class ImpressionLogger: NSObject {
         metricsLogger.logImpression(item: item)
       }
     }
-    for impression in impressions {
-      if let item = dataSource?.impressionLoggerItem(at: impression.path) {
-        metricsLogger?.logImpression(item: item)
-      }
-    }
     delegate?.impressionLogger(self, didStartImpressions: impressions)
   }
   
