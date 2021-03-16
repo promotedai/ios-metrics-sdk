@@ -7,7 +7,7 @@ import XCTest
 
 final class ScrollTrackerTests: XCTestCase {
   
-  private var data: [[Item]]?
+  private var data: [[Content]]?
   private var clock: FakeClock?
   private var idMap: IDMap?
   private var metricsLogger: MetricsLogger?
@@ -24,7 +24,7 @@ final class ScrollTrackerTests: XCTestCase {
                                   connection: FakeNetworkConnection(),
                                   idMap: idMap!,
                                   store: FakePersistentStore())
-    data = [[Item(itemID: "id0")], [Item(itemID: "id1"), Item(itemID: "id2")]]
+    data = [[Content(contentID: "id0")], [Content(contentID: "id1"), Content(contentID: "id2")]]
     impressionLogger = ImpressionLogger(sectionedArray: data!,
                                         metricsLogger: metricsLogger!,
                                         clock: clock!)
@@ -37,7 +37,7 @@ final class ScrollTrackerTests: XCTestCase {
     scrollTracker!.setFrame(CGRect(x: 10, y: 10, width: 20, height: 20),
                             forContentAtIndex: IndexPath(indexes: [0, 0]))
     scrollTracker!.setFrame(CGRect(x: 50, y: 50, width: 100, height: 100),
-                            forContent: Item(itemID: "id1"))
+                            forContent: Content(contentID: "id1"))
     XCTAssertEqual(CGRect(x: 10, y: 10, width: 20, height: 20),
                    scrollTracker!.frames[0][0])
     XCTAssertEqual(CGRect(x: 50, y: 50, width: 100, height: 100),
@@ -47,20 +47,20 @@ final class ScrollTrackerTests: XCTestCase {
   
   func testSetViewport() {
     scrollTracker!.setFrame(CGRect(x: 0, y: 0, width: 20, height: 20),
-                            forContent: Item(itemID: "id0"))
+                            forContent: Content(contentID: "id0"))
     scrollTracker!.setFrame(CGRect(x: 0, y: 20, width: 20, height: 20),
-                            forContent: Item(itemID: "id1"))
+                            forContent: Content(contentID: "id1"))
     scrollTracker!.setFrame(CGRect(x: 0, y: 40, width: 20, height: 20),
-                            forContent: Item(itemID: "id2"))
+                            forContent: Content(contentID: "id2"))
     
     // Top two views on screen, second view is 50% visible.
     scrollTracker!.viewport = CGRect(x: 0, y: 0, width: 20, height: 30)
     clock!.advance(to: 1)
     XCTAssertEqual(2, metricsLogger!.logMessages.count)
     let impression0 = metricsLogger!.logMessages[0] as! Event_Impression
-    XCTAssertEqual(idMap?.impressionID(clientID: "id0"), impression0.impressionID)
+    XCTAssertEqual(idMap?.impressionID(contentID: "id0"), impression0.impressionID)
     let impression1 = metricsLogger!.logMessages[1] as! Event_Impression
-    XCTAssertEqual(idMap?.impressionID(clientID: "id1"), impression1.impressionID)
+    XCTAssertEqual(idMap?.impressionID(contentID: "id1"), impression1.impressionID)
     impressionLogger!.collectionViewDidHideAllContent()
     metricsLogger!.flush()
     
@@ -69,23 +69,23 @@ final class ScrollTrackerTests: XCTestCase {
     clock!.advance(to: 2)
     XCTAssertEqual(1, metricsLogger!.logMessages.count)
     let impression = metricsLogger!.logMessages[0] as! Event_Impression
-    XCTAssertEqual(idMap?.impressionID(clientID: "id1"), impression.impressionID)
+    XCTAssertEqual(idMap?.impressionID(contentID: "id1"), impression.impressionID)
   }
   
   func testSetViewportItemNotOnScreen() {
     scrollTracker!.setFrame(CGRect(x: 0, y: 0, width: 20, height: 20),
-                            forContent: Item(itemID: "id0"))
+                            forContent: Content(contentID: "id0"))
     scrollTracker!.setFrame(CGRect(x: 0, y: 20, width: 20, height: 20),
-                            forContent: Item(itemID: "id1"))
+                            forContent: Content(contentID: "id1"))
     scrollTracker!.setFrame(CGRect(x: 0, y: 40, width: 20, height: 20),
-                            forContent: Item(itemID: "id2"))
+                            forContent: Content(contentID: "id2"))
 
     // Item "id1" is not more than 50% on screen.
     scrollTracker!.viewport = CGRect(x: 0, y: 0, width: 20, height: 25)
     clock!.advance(to: 1)
     XCTAssertEqual(1, metricsLogger!.logMessages.count)
     let impression0 = metricsLogger!.logMessages[0] as! Event_Impression
-    XCTAssertEqual(idMap?.impressionID(clientID: "id0"), impression0.impressionID)
+    XCTAssertEqual(idMap?.impressionID(contentID: "id0"), impression0.impressionID)
   }
   
   static var allTests = [

@@ -30,7 +30,7 @@ final class ImpressionLoggerTests: XCTestCase {
   }
   
   class DataSource: ImpressionLoggerDataSource {
-    func impressionLoggerItem(at indexPath: IndexPath) -> Item? {
+    func impressionLoggerContent(at indexPath: IndexPath) -> Content? {
       return nil
     }
   }
@@ -144,7 +144,7 @@ final class ImpressionLoggerTests: XCTestCase {
   }
   
   func testSingleSectionArrayDataSource() {
-    let array = [Item(itemID: "id0"), Item(itemID: "id1"), Item(itemID: "id2")]
+    let array = [Content(contentID: "id0"), Content(contentID: "id1"), Content(contentID: "id2")]
     impressionLogger = ImpressionLogger(sectionedArray: [array],
                                         metricsLogger: metricsLogger!,
                                         clock: clock!)
@@ -155,13 +155,13 @@ final class ImpressionLoggerTests: XCTestCase {
 
     XCTAssertEqual(2, metricsLogger!.logMessages.count)
     let impression0 = metricsLogger!.logMessages[0] as! Event_Impression
-    XCTAssertEqual(idMap!.impressionID(clientID: "id0"), impression0.impressionID)
+    XCTAssertEqual(idMap!.impressionID(contentID: "id0"), impression0.impressionID)
     let impression1 = metricsLogger!.logMessages[1] as! Event_Impression
-    XCTAssertEqual(idMap!.impressionID(clientID: "id1"), impression1.impressionID)
+    XCTAssertEqual(idMap!.impressionID(contentID: "id1"), impression1.impressionID)
   }
   
   func testMultiSectionArrayDataSource() {
-    let array = [[Item(itemID: "id0")], [Item(itemID: "id1"), Item(itemID: "id2")]]
+    let array = [[Content(contentID: "id0")], [Content(contentID: "id1"), Content(contentID: "id2")]]
     impressionLogger = ImpressionLogger(sectionedArray: array,
                                         metricsLogger: metricsLogger!,
                                         clock: clock!)
@@ -172,9 +172,9 @@ final class ImpressionLoggerTests: XCTestCase {
 
     XCTAssertEqual(2, metricsLogger!.logMessages.count)
     let impression0 = metricsLogger!.logMessages[0] as! Event_Impression
-    XCTAssertEqual(idMap!.impressionID(clientID: "id0"), impression0.impressionID)
+    XCTAssertEqual(idMap!.impressionID(contentID: "id0"), impression0.impressionID)
     let impression1 = metricsLogger!.logMessages[1] as! Event_Impression
-    XCTAssertEqual(idMap!.impressionID(clientID: "id1"), impression1.impressionID)
+    XCTAssertEqual(idMap!.impressionID(contentID: "id1"), impression1.impressionID)
   }
   
   static var allTests = [
