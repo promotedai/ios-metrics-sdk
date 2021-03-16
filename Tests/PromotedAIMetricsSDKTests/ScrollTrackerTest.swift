@@ -52,6 +52,8 @@ final class ScrollTrackerTests: XCTestCase {
                             forContent: Item(itemID: "id1"))
     scrollTracker!.setFrame(CGRect(x: 0, y: 40, width: 20, height: 20),
                             forContent: Item(itemID: "id2"))
+    
+    // Top two views on screen, second view is 50% visible.
     scrollTracker!.viewport = CGRect(x: 0, y: 0, width: 20, height: 30)
     clock!.advance(to: 1)
     XCTAssertEqual(2, metricsLogger!.logMessages.count)
@@ -59,6 +61,15 @@ final class ScrollTrackerTests: XCTestCase {
     XCTAssertEqual(idMap?.impressionID(clientID: "id0"), impression0.impressionID)
     let impression1 = metricsLogger!.logMessages[1] as! Event_Impression
     XCTAssertEqual(idMap?.impressionID(clientID: "id1"), impression1.impressionID)
+    impressionLogger!.collectionViewDidHideAllContent()
+    metricsLogger!.flush()
+    
+    // Middle view on screen.
+    scrollTracker!.viewport = CGRect(x: 0, y: 20, width: 20, height: 20)
+    clock!.advance(to: 2)
+    XCTAssertEqual(1, metricsLogger!.logMessages.count)
+    let impression = metricsLogger!.logMessages[0] as! Event_Impression
+    XCTAssertEqual(idMap?.impressionID(clientID: "id1"), impression.impressionID)
   }
   
   func testSetViewportItemNotOnScreen() {
@@ -68,6 +79,7 @@ final class ScrollTrackerTests: XCTestCase {
                             forContent: Item(itemID: "id1"))
     scrollTracker!.setFrame(CGRect(x: 0, y: 40, width: 20, height: 20),
                             forContent: Item(itemID: "id2"))
+
     // Item "id1" is not more than 50% on screen.
     scrollTracker!.viewport = CGRect(x: 0, y: 0, width: 20, height: 25)
     clock!.advance(to: 1)

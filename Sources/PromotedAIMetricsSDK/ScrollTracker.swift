@@ -53,18 +53,21 @@ import Foundation
   }
   
   private func updateVisibility() {
-    var visibleItems = [IndexPath]()
+    var visibleContent = [IndexPath]()
     // TODO: For large content, binary or interpolation search.
+    outerLoop:
     for (sectionIndex, section) in frames.enumerated() {
       for (frameIndex, frame) in section.enumerated() {
         let intersection = frame.intersection(viewport)
         let overlapRatio = intersection.area / frame.area
         if overlapRatio >= Self.visibilityThreshold {
-          visibleItems.append(IndexPath(indexes: [sectionIndex, frameIndex]))
+          visibleContent.append(IndexPath(indexes: [sectionIndex, frameIndex]))
+        } else if !visibleContent.isEmpty {
+          break outerLoop
         }
       }
     }
-    impressionLogger.collectionViewDidChangeContent(atIndexes: visibleItems)
+    impressionLogger.collectionViewDidChangeContent(atIndexes: visibleContent)
   }
 }
 
