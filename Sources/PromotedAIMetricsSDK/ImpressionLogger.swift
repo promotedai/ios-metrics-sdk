@@ -143,6 +143,18 @@ public class ImpressionLogger: NSObject {
   }
   
   // MARK: -
+  private class ArrayDataSource: ImpressionLoggerDataSource {
+    private let array: [Item]
+    init(array: [Item]) { self.array = array }
+    func impressionLoggerItem(at indexPath: IndexPath) -> Item? {
+      guard let index = indexPath.first else { return nil }
+      if index < array.count { return array[index] }
+      return nil
+    }
+  }
+
+  // MARK: -
+  private let arrayDataSource: ArrayDataSource?
   private weak var dataSource: ImpressionLoggerDataSource?
   private weak var metricsLogger: MetricsLogger?
   private let clock: Clock
@@ -153,7 +165,18 @@ public class ImpressionLogger: NSObject {
   init(dataSource: ImpressionLoggerDataSource,
        metricsLogger: MetricsLogger,
        clock: Clock) {
+    self.arrayDataSource = nil
     self.dataSource = dataSource
+    self.metricsLogger = metricsLogger
+    self.clock = clock
+    self.impressionStarts = [IndexPath: TimeInterval]()
+  }
+  
+  init(array: [Item],
+       metricsLogger: MetricsLogger,
+       clock: Clock) {
+    self.arrayDataSource = ArrayDataSource(array: array)
+    self.dataSource = self.arrayDataSource
     self.metricsLogger = metricsLogger
     self.clock = clock
     self.impressionStarts = [IndexPath: TimeInterval]()

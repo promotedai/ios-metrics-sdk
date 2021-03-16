@@ -48,23 +48,28 @@ final class ImpressionLoggerTests: XCTestCase {
     XCTAssertEqual(Set(a), Set(b))
   }
   
-  private var delegate: Delegate?
   private var clock: FakeClock?
+  private var dataSource: DataSource?
+  private var delegate: Delegate?
+  private var idMap: IDMap?
+  private var metricsLogger: MetricsLogger?
   private var impressionLogger: ImpressionLogger?
   
   public override func setUp() {
     super.setUp()
     clock = FakeClock()
-    let metricsLogger = MetricsLogger(messageProvider: FakeMessageProvider(),
-                                      clientConfig: ClientConfig(),
-                                      clock: clock!,
-                                      connection: FakeNetworkConnection(),
-                                      idMap: SHA1IDMap.instance,
-                                      store: FakePersistentStore())
-    impressionLogger = ImpressionLogger(dataSource: DataSource(),
-                                        metricsLogger: metricsLogger,
-                                        clock: clock!)
+    dataSource = DataSource()
     delegate = Delegate()
+    idMap = SHA1IDMap.instance
+    metricsLogger = MetricsLogger(messageProvider: FakeMessageProvider(),
+                                  clientConfig: ClientConfig(),
+                                  clock: clock!,
+                                  connection: FakeNetworkConnection(),
+                                  idMap: idMap!,
+                                  store: FakePersistentStore())
+    impressionLogger = ImpressionLogger(dataSource: dataSource!,
+                                        metricsLogger: metricsLogger!,
+                                        clock: clock!)
     impressionLogger!.delegate = delegate
   }
 
@@ -136,6 +141,23 @@ final class ImpressionLoggerTests: XCTestCase {
     assertContentsEqual(delegate!.endImpressions,
                         [impression(0, 123, 200), impression(1, 123, 200),
                          impression(2, 123, 200), impression(3, 123, 200)])
+  }
+  
+  func testArrayDataSource() {
+    let array = [Item(itemID: "id0"), Item(itemID: "id1"), Item(itemID: "id2")]
+    impressionLogger = ImpressionLogger(array: array,
+                                        metricsLogger: metricsLogger!,
+                                        clock: clock!)
+    
+    clock!.advance(to: 123)
+    impressionLogger!.collectionViewWillDisplay(item: IndexPath(index: 0))
+    impressionLogger!.collectionViewWillDisplay(item: IndexPath(index: 1))
+
+    XCTAssertEqual(2, metricsLogger!.logMessages.count)
+    let impression0 = metricsLogger!.logMessages[0] as! Event_Impression
+    XCTAssertEqual(idMap!.impressionID(clientID: "id0"), impression0.impressionID)
+    let impression1 = metricsLogger!.logMessages[1] as! Event_Impression
+    XCTAssertEqual(idMap!.impressionID(clientID: "id1"), impression1.impressionID)
   }
 
   static var allTests = [
