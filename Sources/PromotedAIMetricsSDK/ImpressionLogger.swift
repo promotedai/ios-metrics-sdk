@@ -17,29 +17,23 @@ public protocol ImpressionLoggerDelegate: class {
 
 // MARK: -
 /**
- Provides `Item`s displayed in a collection view.
+ Provides `Content` displayed in a collection view.
  Typically, a `UIViewController` that hosts the collection view
  will implement this protocol.
  
  # Example:
  ~~~
- @interface MyViewController () <PROQueenlyWardrobeItemDataSource>
- @end
- 
- @implementation MyViewController
- 
- - (void)createImpressionLogger {
-   _logger = [_service impressionLoggerWithDataSource:self];
+ class MyViewController: ImpressionLoggerDataSource {
+   func createImpressionLogger() {
+     self.logger = service.impressionLogger(dataSource: self)
+   }
+   func impressionLoggerContent(at path: IndexPath) -> Content? {
+     let item = path.item
+     if item >= self.items.count { return nil }
+     let myItemProperties = self.items[item]
+     return Item(properties: myItemProperties)
+   }
  }
- 
- - (PROItem *)impressionLoggerItemAt:(NSIndexPath *)indexPath {
-   NSInteger item = indexPath.item;
-   if (item >= _items.count) { return nil; }
-   NSDictionary<NSString *, NSString *> *item = _items[item];
-   return [[PROItem alloc] initWithDictionary:item];
- }
- 
- @end
  ~~~
  */
 @objc(PROImpressionLoggerDataSource)
@@ -50,7 +44,7 @@ public protocol ImpressionLoggerDataSource {
   /// **IMPORTANT**: Always check the range of the index path, in case
   /// your collection view displays cells at index paths that are not
   /// wardrobe items.
-  @objc func impressionLoggerItem(at indexPath: IndexPath) -> Item?
+  @objc func impressionLoggerContent(at indexPath: IndexPath) -> Content?
 }
 
 // MARK: -
@@ -66,32 +60,32 @@ public protocol ImpressionLoggerDataSource {
  
  # Example:
  ~~~
- @implementation MyViewController {
-   UICollectionView *_collectionView;
-   PROImpressionLogger *_impressionLogger;
- }
+ class MyViewController: UIViewController {
+   var collectionView: UICollectionView
+   var logger: MetricsLogger
+   var impressionLogger: ImpressionLogger
 
- - (void)viewWillDisappear:(BOOL)animated {
-   [_impressionLogger collectionViewDidHideAllItems];
- }
+   func viewWillDisappear(_ animated: Bool) {
+     impressionLogger.collectionViewDidHideAllItems()
+   }
 
- - (void)collectionView:(UICollectionView *)collectionView
-        willDisplayCell:(UICollectionViewCell *)cell
-     forItemAtIndexPath:(NSIndexPath *)indexPath {
-   [_impressionLogger collectionViewWillDisplayItem:indexPath];
- }
-  
- - (void)collectionView:(UICollectionView *)collectionView
-   didEndDisplayingCell:(UICollectionViewCell *)cell
-     forItemAtIndexPath:(NSIndexPath *)indexPath {
-   [_impressionLogger collectionViewDidHideItem:indexPath];
- }
+   func collectionView(_ collectionView: UICollectionView,
+                       willDisplay cell: UICollectionViewCell,
+                       forItemAt indexPath: IndexPath) {
+     impressionLogger.collectionViewWillDisplayContent(atIndex: indexPath)
+   }
+    
+   func collectionView(_ collectionView: UICollectionView,
+                       didEndDisplaying cell: UICollectionViewCell,
+                       forItemAt indexPath: IndexPath) {
+     impressionLogger.collectionViewDidHideContent(atIndex: indexPath)
+   }
 
- - (void)reloadCollectionView {
-   [_collectionView reloadData];
-   NSArray<NSIndexPath *> *items =
-       _collectionView.indexPathsForVisibleItems;
-   [_impressionLogger collectionViewDidReloadWithVisibleItems:items];
+   func reloadCollectionView() {
+     self.collectionView.reloadData()
+     let visibleItems = collectionView.indexPathsForVisibleItems;
+     impressionLogger.collectionViewDidChangeContentAtIndexes:visibleItems)
+   }
  }
  ~~~
  */
@@ -137,7 +131,8 @@ public class ImpressionLogger: NSObject {
     
     public static func == (lhs: ImpressionLogger.Impression,
                            rhs: ImpressionLogger.Impression) -> Bool {
-      return ((lhs.path == rhs.path) && (abs(lhs.startTime - rhs.startTime) < 0.01) &&
+      return ((lhs.path == rhs.path) &&
+              (abs(lhs.startTime - rhs.startTime) < 0.01) &&
               (abs(lhs.endTime - rhs.endTime) < 0.01))
     }
   }
@@ -145,9 +140,9 @@ public class ImpressionLogger: NSObject {
   // MARK: -
   /** Stores a copy of content in the logger itself. */
   private class ArrayDataSource: ImpressionLoggerDataSource {
-    private let array: [[Item]]
-    init(array: [[Item]]) { self.array = array }
-    func impressionLoggerItem(at indexPath: IndexPath) -> Item? {
+    private let array: [[Content]]
+    init(array: [[Content]]) { self.array = array }
+    func impressionLoggerContent(at indexPath: IndexPath) -> Content? {
       return indexPath.valueFromArray(array)
     }
   }
@@ -171,7 +166,7 @@ public class ImpressionLogger: NSObject {
     self.impressionStarts = [IndexPath: TimeInterval]()
   }
   
-  convenience init(sectionedArray: [[Item]],
+  convenience init(sectionedArray: [[Content]],
                    metricsLogger: MetricsLogger,
                    clock: Clock) {
     let arrayDataSource = ArrayDataSource(array: sectionedArray)
@@ -232,8 +227,8 @@ public class ImpressionLogger: NSObject {
       impressionStarts[index] = now
     }
     for impression in impressions {
-      if let item = dataSource.impressionLoggerItem(at: impression.path) {
-        metricsLogger.logImpression(item: item)
+      if let content = dataSource.impressionLoggerContent(at: impression.path) {
+        metricsLogger.logImpression(content: content)
       }
     }
     delegate?.impressionLogger(self, didStartImpressions: impressions)

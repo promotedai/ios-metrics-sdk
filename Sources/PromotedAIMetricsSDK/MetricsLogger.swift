@@ -216,85 +216,85 @@ public class MetricsLogger: NSObject, SharedLogger {
   }
   
   // MARK: - Impressions
-  /// Logs an impression for the given item.
-  @objc public func logImpression(item: Item) {
+  /// Logs an impression for the given content.
+  @objc public func logImpression(content: Content) {
     let event = provider.impressionMessage()
-    let impressionID = idMap.impressionID(clientID: item.itemID)
+    let impressionID = idMap.impressionID(contentID: content.contentID)
     event.fillCommon(timestamp: clock.nowMillis,
                      impressionID: impressionID,
-                     insertionID: item.insertionID)
+                     insertionID: content.insertionID)
     log(event: event)
   }
 
   // MARK: - Clicks
   /// Logs a click to like/unlike the given item.
   @objc(logClickToLikeItem:didLike:)
-  public func logClickToLike(item: Item, didLike: Bool) {
+  public func logClickToLike(content: Content, didLike: Bool) {
     let actionName = didLike ? "like" : "unlike"
-    logClick(actionName: actionName, clientID: item.itemID,
-             insertionID: item.insertionID)
+    logClick(actionName: actionName, contentID: content.contentID,
+             insertionID: content.insertionID)
   }
 
   /// Logs a click to show the given view controller.
   @objc(logClickToShowViewController:)
   public func logClickToShow(viewController: ViewControllerType) {
     logClickToShow(name: loggingNameFor(viewController: viewController),
-                   optionalItem: nil)
+                   optionalContent: nil)
   }
 
   /// Logs a click to show the given view controller.
   @objc(logClickToShowViewController:forItem:)
   public func logClickToShow(viewController: ViewControllerType,
-                             forItem item: Item) {
+                             forContent content: Content) {
     logClickToShow(name: loggingNameFor(viewController: viewController),
-                   optionalItem: item)
+                   optionalContent: content)
   }
   
   /// Logs a click to show a screen with given name.
   @objc(logClickToShowScreenName:)
   public func logClickToShow(screenName: String) {
-    logClickToShow(name: screenName, optionalItem: nil)
+    logClickToShow(name: screenName, optionalContent: nil)
   }
   
   /// Logs a click to show a screen with given name for given item.
   @objc(logClickToShowScreenName:forItem:)
-  public func logClickToShow(screenName: String, forItem item: Item) {
-    logClickToShow(name: screenName, optionalItem: item)
+  public func logClickToShow(screenName: String, forContent content: Content) {
+    logClickToShow(name: screenName, optionalContent: content)
   }
 
-  private func logClickToShow(name: String, optionalItem item: Item?) {
-    logClick(actionName: name, clientID: item?.itemID,
-             insertionID: item?.insertionID)
+  private func logClickToShow(name: String, optionalContent content: Content?) {
+    logClick(actionName: name, contentID: content?.contentID,
+             insertionID: content?.insertionID)
   }
   
   /// Logs a click to sign up as a new user.
   @objc public func logClickToSignUp(userID: String) {
-    logClick(actionName: "sign-up", clientID: userID, insertionID: nil)
+    logClick(actionName: "sign-up", contentID: userID, insertionID: nil)
   }
   
   /// Logs a click to purchase the given item.
   @objc(logClickToPurchaseItem:)
-  public func logClickToPurchase(item: Item) {
-    logClick(actionName: "purchase", clientID: item.itemID,
+  public func logClickToPurchase(item: Content) {
+    logClick(actionName: "purchase", contentID: item.contentID,
              insertionID: item.insertionID)
   }
   
   /// Logs a click for the given action name.
   @objc public func logClick(actionName: String) {
-    logClick(actionName: actionName, clientID: nil, insertionID: nil)
+    logClick(actionName: actionName, contentID: nil, insertionID: nil)
   }
   
   /// Logs a click for the given action name involving the given item.
-  @objc public func logClick(actionName: String, item: Item) {
-    logClick(actionName: actionName, clientID: item.itemID,
+  @objc public func logClick(actionName: String, item: Content) {
+    logClick(actionName: actionName, contentID: item.contentID,
              insertionID: item.insertionID)
   }
   
   private func logClick(actionName: String,
-                        clientID: String? = nil,
+                        contentID: String? = nil,
                         insertionID: String? = nil) {
     let event = provider.clickMessage()
-    let impressionID = idMap.impressionIDOrNil(clientID: clientID)
+    let impressionID = idMap.impressionIDOrNil(contentID: contentID)
     event.fillCommon(timestamp: clock.nowMillis,
                      clickID: idMap.clickID(),
                      impressionID: impressionID,

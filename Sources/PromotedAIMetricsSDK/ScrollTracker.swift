@@ -14,15 +14,15 @@ import Foundation
   }
 
   /*visibleForTesting*/ private(set) var frames: [[CGRect]]
-  private let contentToIndexPath: [Item: IndexPath]
+  private let contentToIndexPath: [Content: IndexPath]
   private var timer: ScheduledTimer?
   
-  init(sectionedArray: [[Item]], impressionLogger: ImpressionLogger, clock: Clock) {
+  init(sectionedArray: [[Content]], impressionLogger: ImpressionLogger, clock: Clock) {
     self.impressionLogger = impressionLogger
     self.clock = clock
     self.viewport = CGRect.zero
     self.frames = []
-    var contentToIndexPath = [Item: IndexPath]()
+    var contentToIndexPath = [Content: IndexPath]()
     for (sectionIndex, section) in sectionedArray.enumerated() {
       self.frames.append([CGRect](repeating: CGRect.zero, count: section.count))
       for (itemIndex, item) in section.enumerated() {
@@ -37,7 +37,7 @@ import Foundation
     index.setValue(frame, inArray: &frames)
   }
   
-  @objc public func setFrame(_ frame: CGRect, forContent content: Item) {
+  @objc public func setFrame(_ frame: CGRect, forContent content: Content) {
     if let path = contentToIndexPath[content] {
       self.setFrame(frame, forContentAtIndex: path)
     }

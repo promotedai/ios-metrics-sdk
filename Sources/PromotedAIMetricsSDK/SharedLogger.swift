@@ -27,12 +27,12 @@ public typealias ViewControllerType = AnyObject
   
   // MARK: - Impressions
   /// Logs an impression for the given item.
-  @objc func logImpression(item: Item)
+  @objc func logImpression(content: Content)
 
   // MARK: - Clicks
   /// Logs a click to like/unlike the given item.
   @objc(logClickToLikeItem:didLike:)
-  func logClickToLike(item: Item, didLike: Bool)
+  func logClickToLike(content: Content, didLike: Bool)
 
   /// Logs a click to show the given view controller.
   @objc(logClickToShowViewController:)
@@ -40,7 +40,8 @@ public typealias ViewControllerType = AnyObject
   
   /// Logs a click to show the given view controller for given item.
   @objc(logClickToShowViewController:forItem:)
-  func logClickToShow(viewController: ViewControllerType, forItem item: Item)
+  func logClickToShow(viewController: ViewControllerType,
+                      forContent content: Content)
   
   /// Logs a click to show a screen with given name.
   @objc(logClickToShowScreenName:)
@@ -48,20 +49,20 @@ public typealias ViewControllerType = AnyObject
   
   /// Logs a click to show a screen with given name for given item.
   @objc(logClickToShowScreenName:forItem:)
-  func logClickToShow(screenName: String, forItem item: Item)
+  func logClickToShow(screenName: String, forContent content: Content)
   
   /// Logs a click to sign up as a new user.
   @objc func logClickToSignUp(userID: String)
   
   /// Logs a click to purchase the given item.
   @objc(logClickToPurchaseItem:)
-  func logClickToPurchase(item: Item)
+  func logClickToPurchase(item: Content)
 
   /// Logs a click for the given action name.
   @objc func logClick(actionName: String)
 
   /// Logs a click for the given action name involving the given item.
-  @objc func logClick(actionName: String, item: Item)
+  @objc func logClick(actionName: String, item: Content)
   
   // MARK: - Views
   /// Logs a view of the given view controller.

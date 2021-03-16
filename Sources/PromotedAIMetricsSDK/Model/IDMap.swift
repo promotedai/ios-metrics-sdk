@@ -19,7 +19,7 @@ public protocol IDMap {
 
   /// Given a client-side ID, generate a server-side impression ID.
   /// Returns the null UUID string when passed `nil`.
-  func impressionID(clientID: String?) -> String
+  func impressionID(contentID: String?) -> String
   
   /// Generates a new click ID.
   func clickID() -> String
@@ -31,8 +31,8 @@ public protocol IDMap {
 
 public extension IDMap {
   /// Same as `impressionID(clientID:)`, but returns `nil` on `nil` input.
-  func impressionIDOrNil(clientID: String?) -> String? {
-    if let clientID = clientID { return impressionID(clientID: clientID) }
+  func impressionIDOrNil(contentID: String?) -> String? {
+    if let contentID = contentID { return impressionID(contentID: contentID) }
     return nil
   }
 }
@@ -56,8 +56,8 @@ open class AbstractIDMap: IDMap {
     return UUID().uuidString
   }
 
-  open func impressionID(clientID: String?) -> String {
-    return deterministicUUIDString(value: clientID)
+  open func impressionID(contentID: String?) -> String {
+    return deterministicUUIDString(value: contentID)
   }
   
   open func clickID() -> String {

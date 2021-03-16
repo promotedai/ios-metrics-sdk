@@ -30,23 +30,23 @@ Initialization of the library is lightweight and mostly occurs in the background
 Example usage:
 ~~~
 // In your AppDelegate:
-- (BOOL)application:(UIApplication *)application 
-    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-  PROMetricsLoggingService *loggingService = PROMetricsLoggingService.sharedService;
+func application(_ application: UIApplication,
+                 didFinishLaunchingWithOptions...) -> Bool
+  let loggingService = MetricsLoggingService.sharedService
   // If you use the services pattern or other kind of dependency injection,
-  // you can also use [[PROMetricsLoggingService alloc] init] to create an
-  // instance of LoggingService.
-  [loggingService startLoggingServices];
-  self.logger = loggingService.logger;
+  // you can also use MetricsLoggingService(...) to create an instance of
+  // MetricsLoggingService.
+  loggingService.startLoggingServices()
+  self.logger = loggingService.metricsLogger
 }
 
 // Handling user sign-in/sign-out:
-- (void)userDidSignInWithID:(NSString *)userID {
-  [self.logger startSessionWithUserID:userID];
+func userDidSignInWithID(_ userID: String) {
+  self.logger.startSessionAndLogUser(userID: userID);
 }
 
-- (void)userDidSignOut {
-  [self.logger startSessionSignedOut];
+func userDidSignOut() {
+  self.logger.startSessionAndLogSignedOutUser()
 }
 ~~~
 
@@ -54,35 +54,35 @@ Example usage:
 Logger batches log messages to avoid wasteful network traffic that would affect battery life. It also provides hooks into the app’s life cycle to ensure delivery of client logs. The interface to Logger is minimally intrusive to your app’s code.
 
 ### Impression Logging Helper
-For `UICollectionViews` and other scroll views, we can track the appearance and disappearance of individual cells for fine-grained impression logging. We provide `CollectionViewImpressionLogger`, a solution that hooks into most `UICollectionView`s and `UIViewController`s easily.
+For `UICollectionViews` and other scroll views, we can track the appearance and disappearance of individual cells for fine-grained impression logging. We provide `ImpressionLogger`, a solution that hooks into most `UICollectionView`s and `UIViewController`s easily.
 
 Example usage with UICollectionView:
 ~~~
-@implementation MyViewController {
-  UICollectionView *_collectionView;
-  PROMetricsLogger *_logger;
-  PROCollectionViewImpressionLogger *_impressionLogger;
-}
+class MyViewController: UIViewController {
+  var collectionView: UICollectionView
+  var logger: MetricsLogger
+  var impressionLogger: ImpressionLogger
 
-- (void)viewWillDisappear:(BOOL)animated {
-  [_impressionLogger collectionViewDidHideAllItems];
-}
+  func viewWillDisappear(_ animated: Bool) {
+    impressionLogger.collectionViewDidHideAllItems()
+  }
 
-- (void)collectionView:(UICollectionView *)collectionView
-       willDisplayCell:(UICollectionViewCell *)cell
-    forItemAtIndexPath:(NSIndexPath *)indexPath {
-  [_impressionLogger collectionViewWillDisplayItem:indexPath];
-}
- 
-- (void)collectionView:(UICollectionView *)collectionView
-  didEndDisplayingCell:(UICollectionViewCell *)cell
-    forItemAtIndexPath:(NSIndexPath *)indexPath {
-  [_impressionLogger collectionViewDidHideItem:indexPath];
-}
+  func collectionView(_ collectionView: UICollectionView,
+                      willDisplay cell: UICollectionViewCell,
+                      forItemAt indexPath: IndexPath) {
+    impressionLogger.collectionViewWillDisplayContent(atIndex: indexPath)
+  }
+   
+  func collectionView(_ collectionView: UICollectionView,
+                      didEndDisplaying cell: UICollectionViewCell,
+                      forItemAt indexPath: IndexPath) {
+    impressionLogger.collectionViewDidHideContent(atIndex: indexPath)
+  }
 
-- (void)reloadCollectionView {
-  [_collectionView reloadData];
-  NSArray<NSIndexPath *> *visibleItems = _collectionView.indexPathsForVisibleItems;
-  [_impressionLogger collectionViewDidChangeWithVisibleItems:visibleItems];
+  func reloadCollectionView() {
+    self.collectionView.reloadData()
+    let visibleItems = collectionView.indexPathsForVisibleItems;
+    impressionLogger.collectionViewDidChangeContentAtIndexes:visibleItems)
+  }
 }
 ~~~
