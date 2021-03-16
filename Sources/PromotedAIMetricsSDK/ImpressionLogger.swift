@@ -171,17 +171,10 @@ public class ImpressionLogger: NSObject {
     self.impressionStarts = [IndexPath: TimeInterval]()
   }
   
-  convenience init(singleSectionArray: [Item],
+  convenience init(sectionedArray: [[Item]],
                    metricsLogger: MetricsLogger,
                    clock: Clock) {
-    let arrayDataSource = ArrayDataSource(array: [singleSectionArray])
-    self.init(dataSource: arrayDataSource, metricsLogger: metricsLogger, clock: clock)
-  }
-  
-  convenience init(multiSectionArray: [[Item]],
-                   metricsLogger: MetricsLogger,
-                   clock: Clock) {
-    let arrayDataSource = ArrayDataSource(array: multiSectionArray)
+    let arrayDataSource = ArrayDataSource(array: sectionedArray)
     self.init(dataSource: arrayDataSource, metricsLogger: metricsLogger, clock: clock)
   }
 

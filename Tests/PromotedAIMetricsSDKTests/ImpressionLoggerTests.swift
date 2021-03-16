@@ -145,7 +145,7 @@ final class ImpressionLoggerTests: XCTestCase {
   
   func testSingleSectionArrayDataSource() {
     let array = [Item(itemID: "id0"), Item(itemID: "id1"), Item(itemID: "id2")]
-    impressionLogger = ImpressionLogger(singleSectionArray: array,
+    impressionLogger = ImpressionLogger(sectionedArray: [array],
                                         metricsLogger: metricsLogger!,
                                         clock: clock!)
     
@@ -162,7 +162,7 @@ final class ImpressionLoggerTests: XCTestCase {
   
   func testMultiSectionArrayDataSource() {
     let array = [[Item(itemID: "id0")], [Item(itemID: "id1"), Item(itemID: "id2")]]
-    impressionLogger = ImpressionLogger(multiSectionArray: array,
+    impressionLogger = ImpressionLogger(sectionedArray: array,
                                         metricsLogger: metricsLogger!,
                                         clock: clock!)
     
