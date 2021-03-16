@@ -46,4 +46,15 @@ public class Item: NSObject {
     self.itemID = properties?.firstValueFromKeysInArray(itemIDKeys)
     self.insertionID = properties?.firstValueFromKeysInArray(insertionIDKeys)
   }
+  
+  public override func isEqual(_ object: Any?) -> Bool {
+    if let other = object as? Item {
+      return self.itemID == other.itemID
+    }
+    return false
+  }
+  
+  public override var hash: Int {
+    return itemID?.hash ?? 0
+  }
 }
