@@ -24,7 +24,7 @@ Your app controls the initialization and behavior of our client library through 
 A LoggingService, which configures the behavior and initialization of the library. 
 A Logger, which accepts log messages to send to the server. 
 
-### LoggingService
+### MetricsLoggerService
 Initialization of the library is lightweight and mostly occurs in the background, and does not impact app startup performance.
 
 Example usage (singleton):
@@ -69,17 +69,16 @@ func userDidSignOut() {
 }
 ~~~
 
-### Logger
+### MetricsLogger
 Logger batches log messages to avoid wasteful network traffic that would affect battery life. It also provides hooks into the app’s life cycle to ensure delivery of client logs. The interface to Logger is minimally intrusive to your app’s code.
 
-### Impression Logging Helper
+### ImpressionLogger
 For `UICollectionViews` and other scroll views, we can track the appearance and disappearance of individual cells for fine-grained impression logging. We provide `ImpressionLogger`, a solution that hooks into most `UICollectionView`s and `UIViewController`s easily.
 
 Example usage with UICollectionView:
 ~~~
 class MyViewController: UIViewController {
   var collectionView: UICollectionView
-  var logger: MetricsLogger
   var impressionLogger: ImpressionLogger
 
   func viewWillDisappear(_ animated: Bool) {
@@ -99,7 +98,7 @@ class MyViewController: UIViewController {
   }
 
   func reloadCollectionView() {
-    self.collectionView.reloadData()
+    collectionView.reloadData()
     let visibleItems = collectionView.indexPathsForVisibleItems
     impressionLogger.collectionViewDidChangeVisibleContent(atIndexes:visibleItems)
   }
