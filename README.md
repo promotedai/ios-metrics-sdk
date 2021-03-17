@@ -31,7 +31,7 @@ Example usage (singleton):
 ~~~
 // In your AppDelegate:
 func application(_ application: UIApplication,
-                 didFinishLaunchingWithOptions...) -> Bool
+                 didFinishLaunchingWithOptions...) -> Bool {
   let config = ClientConfig()
   config.metricsLoggingURL = "..."
   config.metricsLoggingAPIKey = "..."
@@ -46,7 +46,7 @@ Example usage (dependency injection):
 ~~~
 // In your AppDelegate:
 func application(_ application: UIApplication,
-                 didFinishLaunchingWithOptions...) -> Bool
+                 didFinishLaunchingWithOptions...) -> Bool {
   let config = ClientConfig()
   config.metricsLoggingURL = "..."
   config.metricsLoggingAPIKey = "..."
