@@ -39,6 +39,7 @@ func application(_ application: UIApplication,
                                       clientConfig: config)
   let loggingService = MetricsLoggingService.sharedService
   self.logger = loggingService.metricsLogger
+  return true
 }
 ~~~
 
@@ -54,6 +55,7 @@ func application(_ application: UIApplication,
                                        clientConfig: config)
   self.service.startLoggingServices()
   self.logger = service.metricsLogger
+  return true
 }
 ~~~
 
@@ -100,7 +102,7 @@ class MyViewController: UIViewController {
   func reloadCollectionView() {
     collectionView.reloadData()
     let visibleItems = collectionView.indexPathsForVisibleItems
-    impressionLogger.collectionViewDidChangeVisibleContent(atIndexes:visibleItems)
+    impressionLogger.collectionViewDidChangeVisibleContent(atIndexes: visibleItems)
   }
 }
 ~~~
