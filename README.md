@@ -27,19 +27,38 @@ A Logger, which accepts log messages to send to the server.
 ### LoggingService
 Initialization of the library is lightweight and mostly occurs in the background, and does not impact app startup performance.
 
-Example usage:
+Example usage (singleton):
 ~~~
 // In your AppDelegate:
 func application(_ application: UIApplication,
                  didFinishLaunchingWithOptions...) -> Bool
+  let config = ClientConfig()
+  config.metricsLoggingURL = "..."
+  config.metricsLoggingAPIKey = "..."
+  MetricsLoggingService.startServices(messageProvider: MyProvider(),
+                                      clientConfig: config)
   let loggingService = MetricsLoggingService.sharedService
-  // If you use the services pattern or other kind of dependency injection,
-  // you can also use MetricsLoggingService(...) to create an instance of
-  // MetricsLoggingService.
-  loggingService.startLoggingServices()
   self.logger = loggingService.metricsLogger
 }
+~~~
 
+Example usage (dependency injection):
+~~~
+// In your AppDelegate:
+func application(_ application: UIApplication,
+                 didFinishLaunchingWithOptions...) -> Bool
+  let config = ClientConfig()
+  config.metricsLoggingURL = "..."
+  config.metricsLoggingAPIKey = "..."
+  let service = MetricsLoggingService(messageProvider: MyProvider(),
+                                      clientConfig: config)
+  service.startLoggingServices()
+  self.logger = service.metricsLogger
+}
+~~~
+
+Handling user sign-in:
+~~~
 // Handling user sign-in/sign-out:
 func userDidSignInWithID(_ userID: String) {
   self.logger.startSessionAndLogUser(userID: userID);
