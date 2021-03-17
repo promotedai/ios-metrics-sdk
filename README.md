@@ -1,7 +1,7 @@
 # Promoted.ai iOS Client Library
 Promoted.ai provides an iOS logging library for integration with iOS apps. This library contains the functionality required to track events in your iOS app and deliver them efficiently to Promoted.ai backends.
 
-Our client library is available for iOS 12.4+, and works with both Swift and Objective C apps.
+Our client library is available for iOS 11+, and works with both Swift and Objective C apps.
 
 ## Technology
 Our client library is built on a number of proven technologies:
@@ -101,7 +101,7 @@ class MyViewController: UIViewController {
   func reloadCollectionView() {
     self.collectionView.reloadData()
     let visibleItems = collectionView.indexPathsForVisibleItems;
-    impressionLogger.collectionViewDidChangeVisibleContentAtIndexes:visibleItems)
+    impressionLogger.collectionViewDidChangeVisibleContent(atIndexes:visibleItems)
   }
 }
 ~~~
