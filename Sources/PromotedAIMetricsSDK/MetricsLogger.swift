@@ -103,8 +103,14 @@ public protocol MessageProvider {
  ~~~
  */
 @objc(PROMetricsLogger)
-public class MetricsLogger: NSObject, SharedLogger {
+public class MetricsLogger: NSObject {
 
+  #if canImport(UIKit)
+  public typealias ViewControllerType = UIViewController
+  #else
+  public typealias ViewControllerType = AnyObject
+  #endif
+  
   private let clock: Clock
   private let config: ClientConfig
   private let connection: NetworkConnection
@@ -274,7 +280,7 @@ public class MetricsLogger: NSObject, SharedLogger {
   
   /// Logs a click to purchase the given item.
   @objc(logClickToPurchaseItem:)
-  public func logClickToPurchase(item: Content) {
+  public func logClickToPurchase(item: Item) {
     logClick(actionName: "purchase", contentID: item.contentID,
              insertionID: item.insertionID)
   }
@@ -285,9 +291,9 @@ public class MetricsLogger: NSObject, SharedLogger {
   }
   
   /// Logs a click for the given action name involving the given item.
-  @objc public func logClick(actionName: String, item: Content) {
-    logClick(actionName: actionName, contentID: item.contentID,
-             insertionID: item.insertionID)
+  @objc public func logClick(actionName: String, content: Content) {
+    logClick(actionName: actionName, contentID: content.contentID,
+             insertionID: content.insertionID)
   }
   
   private func logClick(actionName: String,
