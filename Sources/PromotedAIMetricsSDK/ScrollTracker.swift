@@ -17,13 +17,13 @@ import Foundation
   private let contentToIndexPath: [Content: IndexPath]
   private var timer: ScheduledTimer?
   
-  init(sectionedArray: [[Content]], impressionLogger: ImpressionLogger, clock: Clock) {
+  init(sectionedContent: [[Content]], impressionLogger: ImpressionLogger, clock: Clock) {
     self.impressionLogger = impressionLogger
     self.clock = clock
     self.viewport = CGRect.zero
     self.frames = []
     var contentToIndexPath = [Content: IndexPath]()
-    for (sectionIndex, section) in sectionedArray.enumerated() {
+    for (sectionIndex, section) in sectionedContent.enumerated() {
       self.frames.append([CGRect](repeating: CGRect.zero, count: section.count))
       for (itemIndex, item) in section.enumerated() {
         contentToIndexPath[item] = IndexPath(indexes: [sectionIndex, itemIndex])
@@ -67,7 +67,7 @@ import Foundation
         }
       }
     }
-    impressionLogger.collectionViewDidChangeContent(atIndexes: visibleContent)
+    impressionLogger.collectionViewDidChangeVisibleContent(atIndexes: visibleContent)
   }
 }
 

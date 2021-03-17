@@ -82,7 +82,7 @@ class MyViewController: UIViewController {
   func reloadCollectionView() {
     self.collectionView.reloadData()
     let visibleItems = collectionView.indexPathsForVisibleItems;
-    impressionLogger.collectionViewDidChangeContentAtIndexes:visibleItems)
+    impressionLogger.collectionViewDidChangeVisibleContentAtIndexes:visibleItems)
   }
 }
 ~~~

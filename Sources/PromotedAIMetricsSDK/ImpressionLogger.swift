@@ -84,7 +84,7 @@ public protocol ImpressionLoggerDataSource {
    func reloadCollectionView() {
      self.collectionView.reloadData()
      let visibleItems = collectionView.indexPathsForVisibleItems;
-     impressionLogger.collectionViewDidChangeContentAtIndexes:visibleItems)
+     impressionLogger.collectionViewDidChangeVisibleContentAtIndexes:visibleItems)
    }
  }
  ~~~
@@ -166,10 +166,10 @@ public class ImpressionLogger: NSObject {
     self.impressionStarts = [IndexPath: TimeInterval]()
   }
   
-  convenience init(sectionedArray: [[Content]],
+  convenience init(sectionedContent: [[Content]],
                    metricsLogger: MetricsLogger,
                    clock: Clock) {
-    let arrayDataSource = ArrayDataSource(array: sectionedArray)
+    let arrayDataSource = ArrayDataSource(array: sectionedContent)
     self.init(dataSource: arrayDataSource, metricsLogger: metricsLogger, clock: clock)
   }
 
@@ -190,8 +190,8 @@ public class ImpressionLogger: NSObject {
   /// Call this method when the collection view changes content, but
   /// does not provide per-item updates for the change. For example,
   /// when a collection reloads.
-  @objc(collectionViewDidChangeContentAtIndexes:)
-  public func collectionViewDidChangeContent(atIndexes indexes: [IndexPath]) {
+  @objc(collectionViewDidChangeVisibleContentAtIndexes:)
+  public func collectionViewDidChangeVisibleContent(atIndexes indexes: [IndexPath]) {
     let now = clock.now
 
     var newlyShownItems = [IndexPath]()
