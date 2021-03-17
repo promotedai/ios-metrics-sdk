@@ -12,6 +12,10 @@ import Foundation
   @objc public var viewport: CGRect {
     didSet { maybeScheduleUpdateVisibilityTimer() }
   }
+  
+  public var sectionedContent: [[Content]] {
+    return impressionLogger.sectionedContent!
+  }
 
   /*visibleForTesting*/ private(set) var frames: [[CGRect]]
   private let contentToIndexPath: [Content: IndexPath]

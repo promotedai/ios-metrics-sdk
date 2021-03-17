@@ -8,6 +8,8 @@ import Foundation
  */
 @objc(PROContent)
 public class Content: NSObject {
+  /// Human-readable identifier. Debug-only.
+  @objc public var name: String?
 
   /// Unique ID for this content. Can be an internal ID from your system.
   @objc public var contentID: String?
@@ -16,40 +18,70 @@ public class Content: NSObject {
   @objc public var insertionID: String?
   
   /// Initializes with nil `contentID` and nil `insertionID`.
-  @objc public override init() {
-    self.contentID = nil
-    self.insertionID = nil
+  @objc public convenience override init() {
+    self.init(name: nil, contentID: nil, insertionID: nil)
   }
   
   /// Initializes with the given `contentID` and nil `insertionID`.
-  @objc public init(contentID: String) {
-    self.contentID = contentID
-    self.insertionID = nil
+  @objc public convenience init(contentID: String) {
+    self.init(name: nil, contentID: contentID, insertionID: nil)
   }
   
   /// Initializes with the given `contentID` and `insertionID`.
-  @objc public init(contentID: String, insertionID: String) {
+  @objc public convenience init(contentID: String, insertionID: String) {
+    self.init(name: nil, contentID: contentID, insertionID: insertionID)
+  }
+  
+  public init(name: String? = nil,
+              contentID: String? = nil,
+              insertionID: String? = nil) {
+    self.name = name
     self.contentID = contentID
     self.insertionID = insertionID
   }
-  
+
   /// Initializes with given dictionary as used to represent
   /// a piece of content, using the key arrays to read the dictionary.
-  /// If the given properties do not contain a content ID, `contentID`
-  /// will be `nil`. If the properties do not contain an insertion
-  /// ID, `insertionID` will be nil.
+  /// Primarily used to parse dictionaries from React Native.
+  /// If the given properties do not contain any of the provided keys
+  /// for a given attribute, then that attribute will be nil.
   ///
   /// - Parameters:
   ///   - properties: Dictionary of properties to read from.
+  ///   - nameKeys: Keys used to read `name`, in preferred order.
   ///   - contentIDKeys: Keys used to read `contentID`, in preferred
   ///     order.
   ///   - insertionIDKeys: Keys used to read `insertionID`, in
   ///     preferred order.
   @objc public init(properties: [String: Any]?,
+                    nameKeys: [String],
                     contentIDKeys: [String],
                     insertionIDKeys: [String]) {
+    self.name = properties?.firstValueFromKeysInArray(nameKeys)
     self.contentID = properties?.firstValueFromKeysInArray(contentIDKeys)
     self.insertionID = properties?.firstValueFromKeysInArray(insertionIDKeys)
+  }
+  
+  public override var description: String {
+    return debugDescription
+  }
+
+  public override var debugDescription: String {
+    var result = "("
+    var separator = ""
+    if let name = self.name {
+      result += "name=\(name)"
+      separator = ", "
+    }
+    if let contentID = self.contentID {
+      result += "\(separator)contentID=\(contentID)"
+      separator = ", "
+    }
+    if let insertionID = self.insertionID {
+      result += "\(separator)insertionID=\(insertionID)"
+    }
+    result += ")"
+    return result
   }
   
   public override func isEqual(_ object: Any?) -> Bool {

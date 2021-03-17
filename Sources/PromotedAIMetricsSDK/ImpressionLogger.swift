@@ -140,7 +140,7 @@ public class ImpressionLogger: NSObject {
   // MARK: -
   /** Stores a copy of content in the logger itself. */
   private class ArrayDataSource: ImpressionLoggerDataSource {
-    private let array: [[Content]]
+    let array: [[Content]]
     init(array: [[Content]]) { self.array = array }
     func impressionLoggerContent(at indexPath: IndexPath) -> Content? {
       return indexPath.valueFromArray(array)
@@ -153,6 +153,10 @@ public class ImpressionLogger: NSObject {
   private unowned let metricsLogger: MetricsLogger
   private let clock: Clock
   private var impressionStarts: [IndexPath: TimeInterval]
+  
+  public var sectionedContent: [[Content]]? {
+    return arrayDataSource?.array
+  }
 
   public weak var delegate: ImpressionLoggerDelegate?
 
@@ -228,6 +232,7 @@ public class ImpressionLogger: NSObject {
     }
     for impression in impressions {
       if let content = dataSource.impressionLoggerContent(at: impression.path) {
+        print("***** logging impression for \(content)")
         metricsLogger.logImpression(content: content)
       }
     }
