@@ -25,10 +25,10 @@ final class ScrollTrackerTests: XCTestCase {
                                   idMap: idMap!,
                                   store: FakePersistentStore())
     data = [[Content(contentID: "id0")], [Content(contentID: "id1"), Content(contentID: "id2")]]
-    impressionLogger = ImpressionLogger(sectionedArray: data!,
+    impressionLogger = ImpressionLogger(sectionedContent: data!,
                                         metricsLogger: metricsLogger!,
                                         clock: clock!)
-    scrollTracker = ScrollTracker(sectionedArray: data!,
+    scrollTracker = ScrollTracker(sectionedContent: data!,
                                   impressionLogger: impressionLogger!,
                                   clock: clock!)
   }

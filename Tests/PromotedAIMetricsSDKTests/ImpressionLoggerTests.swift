@@ -115,7 +115,7 @@ final class ImpressionLoggerTests: XCTestCase {
                         IndexPath(index: 4), IndexPath(index: 5)]
     clock!.now = 200
     
-    impressionLogger!.collectionViewDidChangeContent(atIndexes: visibleItems)
+    impressionLogger!.collectionViewDidChangeVisibleContent(atIndexes: visibleItems)
     assertContentsEqual(delegate!.startImpressions,
                         [impression(4, 200), impression(5, 200)])
     assertContentsEqual(delegate!.endImpressions,
@@ -145,7 +145,7 @@ final class ImpressionLoggerTests: XCTestCase {
   
   func testSingleSectionArrayDataSource() {
     let array = [Content(contentID: "id0"), Content(contentID: "id1"), Content(contentID: "id2")]
-    impressionLogger = ImpressionLogger(sectionedArray: [array],
+    impressionLogger = ImpressionLogger(sectionedContent: [array],
                                         metricsLogger: metricsLogger!,
                                         clock: clock!)
     
@@ -162,7 +162,7 @@ final class ImpressionLoggerTests: XCTestCase {
   
   func testMultiSectionArrayDataSource() {
     let array = [[Content(contentID: "id0")], [Content(contentID: "id1"), Content(contentID: "id2")]]
-    impressionLogger = ImpressionLogger(sectionedArray: array,
+    impressionLogger = ImpressionLogger(sectionedContent: array,
                                         metricsLogger: metricsLogger!,
                                         clock: clock!)
     
