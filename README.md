@@ -50,9 +50,9 @@ func application(_ application: UIApplication,
   let config = ClientConfig()
   config.metricsLoggingURL = "..."
   config.metricsLoggingAPIKey = "..."
-  let service = MetricsLoggingService(messageProvider: MyProvider(),
-                                      clientConfig: config)
-  service.startLoggingServices()
+  self.service = MetricsLoggingService(messageProvider: MyProvider(),
+                                       clientConfig: config)
+  self.service.startLoggingServices()
   self.logger = service.metricsLogger
 }
 ~~~
@@ -100,7 +100,7 @@ class MyViewController: UIViewController {
 
   func reloadCollectionView() {
     self.collectionView.reloadData()
-    let visibleItems = collectionView.indexPathsForVisibleItems;
+    let visibleItems = collectionView.indexPathsForVisibleItems
     impressionLogger.collectionViewDidChangeVisibleContent(atIndexes:visibleItems)
   }
 }
