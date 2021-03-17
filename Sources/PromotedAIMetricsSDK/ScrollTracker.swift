@@ -58,8 +58,7 @@ import Foundation
     outerLoop:
     for (sectionIndex, section) in frames.enumerated() {
       for (frameIndex, frame) in section.enumerated() {
-        let intersection = frame.intersection(viewport)
-        let overlapRatio = intersection.area / frame.area
+        let overlapRatio = frame.overlapRatio(viewport)
         if overlapRatio >= Self.visibilityThreshold {
           visibleContent.append(IndexPath(indexes: [sectionIndex, frameIndex]))
         } else if !visibleContent.isEmpty {
@@ -74,5 +73,12 @@ import Foundation
 extension CGRect {
   var area: Float {
     return Float(width * height)
+  }
+  
+  func overlapRatio(_ other: CGRect) -> Float {
+    let area = self.area
+    if area == 0 { return 0 }
+    let intersection = self.intersection(other)
+    return intersection.area / area
   }
 }

@@ -88,9 +88,24 @@ final class ScrollTrackerTests: XCTestCase {
     XCTAssertEqual(idMap?.impressionID(contentID: "id0"), impression0.impressionID)
   }
   
+  /// Make sure that frames with 0 area don't cause division by 0.
+  func testZeroAreaFrame() {
+    scrollTracker!.setFrame(CGRect(x: 0, y: 0, width: 20, height: 0),
+                            forContent: Content(contentID: "id0"))
+    scrollTracker!.setFrame(CGRect(x: 0, y: 20, width: 20, height: 0),
+                            forContent: Content(contentID: "id1"))
+    scrollTracker!.setFrame(CGRect(x: 0, y: 40, width: 20, height: 0),
+                            forContent: Content(contentID: "id2"))
+
+    scrollTracker!.viewport = CGRect(x: 0, y: 0, width: 20, height: 25)
+    clock!.advance(to: 1)
+    XCTAssertEqual(0, metricsLogger!.logMessages.count)
+  }
+  
   static var allTests = [
     ("testSetFrame", testSetFrame),
     ("testSetViewport", testSetViewport),
     ("testSetViewportItemNotOnScreen", testSetViewportItemNotOnScreen),
+    ("testZeroAreaFrame", testZeroAreaFrame),
   ]
 }
