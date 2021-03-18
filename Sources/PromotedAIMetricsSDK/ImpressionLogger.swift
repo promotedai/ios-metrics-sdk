@@ -153,10 +153,6 @@ public class ImpressionLogger: NSObject {
   private unowned let metricsLogger: MetricsLogger
   private let clock: Clock
   private var impressionStarts: [IndexPath: TimeInterval]
-  
-  public var sectionedContent: [[Content]]? {
-    return arrayDataSource?.array
-  }
 
   public weak var delegate: ImpressionLoggerDelegate?
 

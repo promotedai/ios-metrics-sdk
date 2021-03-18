@@ -116,13 +116,8 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
                             clock: self.clock)
   }
   
-  @objc public func scrollTracker(sectionedContent: [[Content]]) -> ScrollTracker {
-    let impressionLogger = ImpressionLogger(sectionedContent: sectionedContent,
-                                            metricsLogger: self.metricsLogger,
-                                            clock: self.clock)
-    return ScrollTracker(sectionedContent: sectionedContent,
-                         impressionLogger: impressionLogger,
-                         clock: self.clock)
+  public func scrollTracker() -> ScrollTracker {
+    return ScrollTracker(metricsLogger: self.metricsLogger, clock: self.clock)
   }
 }
 
