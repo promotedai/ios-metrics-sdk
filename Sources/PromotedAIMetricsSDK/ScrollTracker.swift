@@ -20,15 +20,13 @@ public class ScrollTracker {
   public var viewport: CGRect {
     didSet { maybeScheduleUpdateVisibilityTimer() }
   }
-  
-  /// Top left of scroll view in screen coordinates.
-  public var offset: CGPoint
-  
+
   /// Content for scroll view.
   public var sectionedContent: [[Content]] {
     didSet {
       invalidateImpressionLogger()
       syncWithSectionedContent()
+      maybeScheduleUpdateVisibilityTimer()
     }
   }
 
@@ -42,7 +40,6 @@ public class ScrollTracker {
     self.timer = nil
     
     self.viewport = CGRect.zero
-    self.offset = CGPoint.zero
     self.sectionedContent = []
   }
   
@@ -98,14 +95,11 @@ public class ScrollTracker {
 
   private func updateVisibility() {
     var visibleContent = [IndexPath]()
-    var offsetViewport = viewport
-    offsetViewport.origin.x += offset.x
-    offsetViewport.origin.y += offset.y
     // TODO: For large content, binary or interpolation search.
     outerLoop:
     for (sectionIndex, section) in frames.enumerated() {
       for (frameIndex, frame) in section.enumerated() {
-        let overlapRatio = frame.overlapRatio(offsetViewport)
+        let overlapRatio = frame.overlapRatio(viewport)
         if overlapRatio >= Self.visibilityThreshold {
           visibleContent.append(IndexPath(indexes: [sectionIndex, frameIndex]))
         } else if !visibleContent.isEmpty {
