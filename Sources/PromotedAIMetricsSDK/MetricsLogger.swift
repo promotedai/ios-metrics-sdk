@@ -423,7 +423,7 @@ public extension MetricsLogger {
     }
   }
   
-  private func logRequest(events: [Message]) -> Event_LogRequest {
+  private func logRequestMessage(events: [Message]) -> Event_LogRequest {
     var logRequest = Event_LogRequest()
     if let id = userID { logRequest.userID = id }
     if let id = logUserID { logRequest.logUserID = id }
@@ -467,7 +467,7 @@ public extension MetricsLogger {
 
     let eventsCopy = logMessages
     logMessages.removeAll()
-    let request = logRequest(events: eventsCopy)
+    let request = logRequestMessage(events: eventsCopy)
     guard let url = metricsLoggingURL else { return }
     do {
       try connection.sendMessage(request, url: url, clientConfig: config) {
