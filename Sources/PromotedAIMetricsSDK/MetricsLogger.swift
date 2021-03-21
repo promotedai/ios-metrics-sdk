@@ -29,7 +29,7 @@ import UIKit
  for the session. You can call either `startSession` method more
  than once to begin a new session with the given user ID.
  
- Use `log(event:)` to enqueue an event for logging. When the batching
+ Use `log(message:)` to enqueue an event for logging. When the batching
  timer fires, all events are delivered to the server via the
  `NetworkConnection`.
  
@@ -46,32 +46,6 @@ import UIKit
  logger.log(event: myEvent)
  // Resets userID and logUserID.
  logger.startSession(userID: secondUserID)
- ~~~
- 
- # `MessageProvider`
- Clients must implement `MessageProvider` and supply `MetricsLogger`
- with the provider.
-  
- ## Example:
- ~~~
- public class MyProvider: MessageProvider {
-   public func impressionMessage() -> MyImpressionMessage {
-     return MyImpressionMessage()
-   }
-   public func batchLogMessage(events: [Message],
-                               userID: String?,
-                               logUserID: String?) -> Message? {
-     var batchMessage = MyBatchMessage()
-     if let id = userID { batchMessage.userID = id }
-     if let id = logUserID { batchMessage.logUserID = id }
-     for event in events {
-       // Fill in fields of batch message.
-     }
-     return batchMessage
-   }
- }
- 
- let logger = MetricsLogger(messageProvider: MyProvider(), ...)
  ~~~
  */
 @objc(PROMetricsLogger)
@@ -184,11 +158,15 @@ public class MetricsLogger: NSObject {
 // MARK: - Event logging base methods
 public extension MetricsLogger {
   /// Logs a user event.
+  ///
   /// Autogenerates the following fields:
+  /// - `userID` from the state in this object
+  /// - `logUserID` from the state in this object
   /// - `clientLogTimestamp` from `clock.nowMillis`
-  func logUser(userID: String? = nil,
-               logUserID: String? = nil,
-               payload: Message? = nil) {
+  ///
+  /// - Parameters:
+  ///   - payload: Client-specific message
+  func logUser(payload: Message? = nil) {
     var user = Event_User()
     if let id = userID { user.userID = id }
     if let id = logUserID { user.logUserID = id }
@@ -197,9 +175,15 @@ public extension MetricsLogger {
   }
 
   /// Logs an impression event.
+  ///
   /// Autogenerates the following fields:
   /// - `clientLogTimestamp` from `clock.nowMillis`
   /// - `impressionID` from `contentID`
+  ///
+  /// - Parameters:
+  ///   - contentID: Content ID from which to derive `impressionID`
+  ///   - insertionID: Insertion ID as provided by Promoted
+  ///   - payload: Client-specific message
   func logImpression(contentID: String,
                      insertionID: String? = nil,
                      requestID: String? = nil,
@@ -217,17 +201,26 @@ public extension MetricsLogger {
   }
   
   /// Logs a click event.
+  ///
   /// Autogenerates the following fields:
   /// - `clientLogTimestamp` from `clock.nowMillis`
   /// - `clickID` as a UUID
   /// - `impressionID` from `contentID`
+  /// - `name` from `actionName`
+  /// - If no `targetURL` is provided, `targetURL` is derived from `name`
+  /// - If no `elementID` is provided, `elementID` is derived from `name`
+  ///
+  /// - Parameters:
+  ///   - actionName: Name for action to log, human readable
+  ///   - contentID: Content ID from which to derive `impressionID`
+  ///   - insertionID: Insertion ID as provided by Promoted
+  ///   - payload: Client-specific message
   func logClick(actionName: String,
                 contentID: String? = nil,
                 insertionID: String? = nil,
                 requestID: String? = nil,
                 sessionID: String? = nil,
                 viewID: String? = nil,
-                name: String? = nil,
                 targetURL: String? = nil,
                 elementID: String? = nil,
                 payload: Message? = nil) {
@@ -247,9 +240,17 @@ public extension MetricsLogger {
   }
 
   /// Logs a view event.
+  ///
   /// Autogenerates the following fields:
   /// - `clientLogTimestamp` from `clock.nowMillis`
   /// - `viewID` from `name`
+  /// - If no `url` is provided, `url` is derived from `name`
+  ///
+  /// - Parameters:
+  ///   - name: Name for view, human readable
+  ///   - url: URL for the view, can contain options for the view
+  ///   - useCase: Use case for view
+  ///   - payload: Client-specific message
   func logView(name: String,
                sessionID: String? = nil,
                url: String? = nil,
@@ -338,25 +339,26 @@ public extension MetricsLogger {
   }
 
   // MARK: - View logging helper methods
-  /// Logs a view of the given view controller.
+  /// Logs a view of the given `UIViewController`.
   @objc func logView(viewController: ViewControllerType) {
     let name = loggingNameFor(viewController: viewController)
     self.logView(name: name, useCase: nil)
   }
   
-  /// Logs a view of the given view controller and use case.
+  /// Logs a view of the given `UIViewController` and use case.
   @objc func logView(viewController: ViewControllerType,
                      useCase: UseCase) {
     let name = loggingNameFor(viewController: viewController)
     self.logView(name: name, useCase: useCase.protoValue)
   }
 
-  /// Logs a view of a screen with the given name.
+  /// Logs a view of a screen with the given name (React Native).
   @objc func logView(screenName: String) {
     self.logView(name: screenName, useCase: nil)
   }
   
-  /// Logs a view of a screen with the given name and use case.
+  /// Logs a view of a screen with the given name (React Native)
+  /// and use case.
   @objc func logView(screenName: String, useCase: UseCase) {
     self.logView(name: screenName, useCase: useCase.protoValue)
   }
@@ -368,7 +370,8 @@ public extension MetricsLogger {
   /// Enqueues the given message for logging. Messages are then
   /// delivered to the server on a timer.
   func log(message: Message) {
-    assert(Thread.isMainThread, "[MetricsLogger] Logging must be done on main thread")
+    assert(Thread.isMainThread,
+           "[MetricsLogger] Logging must be done on main thread")
     logMessages.append(message)
     maybeSchedulePendingBatchLoggingFlush()
   }
@@ -466,7 +469,6 @@ public extension MetricsLogger {
 
 // MARK: - View controller logging
 extension MetricsLogger {
-  
   func loggingNameFor(viewController: ViewControllerType) -> String {
     let className = String(describing: type(of: viewController))
     let loggingName = className.replacingOccurrences(of:"ViewController", with: "")

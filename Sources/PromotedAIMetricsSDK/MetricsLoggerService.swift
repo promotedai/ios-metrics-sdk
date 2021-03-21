@@ -26,7 +26,7 @@ import Foundation
  
  ## Example (using instance):
  ~~~
- let service = MetricsLoggingService(messageProvider: ...)
+ let service = MetricsLoggingService(initialConfig: ...)
  service.startLoggingServices()
  let logger = service.metricsLogger
  let impressionLogger = service.impressionLogger(dataSource: ...)
@@ -35,7 +35,7 @@ import Foundation
  ## Example (using sharedService):
  ~~~
  // Call this first before accessing the instance.
- MetricsLoggerService.startServices(messageProvider: ...)
+ MetricsLoggerService.startServices(initialConfig: ...)
  let service = MetricsLoggerService.sharedService
  let logger = service.metricsLogger
  let impressionLogger = service.impressionLogger(dataSource: ...)
@@ -45,7 +45,7 @@ import Foundation
 public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
 
   public private(set) lazy var metricsLogger: MetricsLogger = {
-    // Reading the config property initializes clientConfigService.
+    // Reading `self.config` initializes clientConfigService.
     return MetricsLogger(clientConfig: self.config,
                          clock: self.clock,
                          connection: self.connection,
