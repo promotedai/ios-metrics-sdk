@@ -23,8 +23,7 @@ final class MetricsLoggerTests: XCTestCase {
     store = FakePersistentStore()
     store!.userID = nil
     store!.logUserID = nil
-    metricsLogger = MetricsLogger(messageProvider: FakeMessageProvider(),
-                                  clientConfig: config!,
+    metricsLogger = MetricsLogger(clientConfig: config!,
                                   clock: clock!,
                                   connection: connection!,
                                   idMap: SHA1IDMap.instance,

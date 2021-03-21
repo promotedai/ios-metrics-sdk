@@ -20,45 +20,6 @@ fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAP
   typealias Version = _2
 }
 
-/// Platform-specific cohorts should go into the wrapper.
-public enum Event_CohortId: SwiftProtobuf.Enum {
-  public typealias RawValue = Int
-
-  /// Common Cohort IDs will be here.
-  case unknownCohort // = 0
-  case UNRECOGNIZED(Int)
-
-  public init() {
-    self = .unknownCohort
-  }
-
-  public init?(rawValue: Int) {
-    switch rawValue {
-    case 0: self = .unknownCohort
-    default: self = .UNRECOGNIZED(rawValue)
-    }
-  }
-
-  public var rawValue: Int {
-    switch self {
-    case .unknownCohort: return 0
-    case .UNRECOGNIZED(let i): return i
-    }
-  }
-
-}
-
-#if swift(>=4.2)
-
-extension Event_CohortId: CaseIterable {
-  // The compiler won't synthesize support with the UNRECOGNIZED case.
-  public static var allCases: [Event_CohortId] = [
-    .unknownCohort,
-  ]
-}
-
-#endif  // swift(>=4.2)
-
 /// The arm (experiment's group) when the Cohort is for an experiment.
 /// Next ID = 6.
 public enum Event_CohortArm: SwiftProtobuf.Enum {
@@ -276,11 +237,69 @@ public struct Event_JoinedIdentifiers {
   public init() {}
 }
 
+/// Supports custom messages per platform.
+/// Next ID = 3;
+public struct Event_Payload {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var payload: Event_Payload.OneOf_Payload? = nil
+
+  /// Optional.  Contains protobuf serialized bytes.
+  public var payloadBytes: Data {
+    get {
+      if case .payloadBytes(let v)? = payload {return v}
+      return Data()
+    }
+    set {payload = .payloadBytes(newValue)}
+  }
+
+  /// Optional.  Contains struct/json {Platform}User.
+  public var `struct`: SwiftProtobuf.Google_Protobuf_Struct {
+    get {
+      if case .struct(let v)? = payload {return v}
+      return SwiftProtobuf.Google_Protobuf_Struct()
+    }
+    set {payload = .struct(newValue)}
+  }
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public enum OneOf_Payload: Equatable {
+    /// Optional.  Contains protobuf serialized bytes.
+    case payloadBytes(Data)
+    /// Optional.  Contains struct/json {Platform}User.
+    case `struct`(SwiftProtobuf.Google_Protobuf_Struct)
+
+  #if !swift(>=4.1)
+    public static func ==(lhs: Event_Payload.OneOf_Payload, rhs: Event_Payload.OneOf_Payload) -> Bool {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch (lhs, rhs) {
+      case (.payloadBytes, .payloadBytes): return {
+        guard case .payloadBytes(let l) = lhs, case .payloadBytes(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.struct, .struct): return {
+        guard case .struct(let l) = lhs, case .struct(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      default: return false
+      }
+    }
+  #endif
+  }
+
+  public init() {}
+}
+
 /// Used to store user properties.  E.g. purchasedContentIds.
 /// Clients can update each User multiple times by logging the User with the same
 /// user_id.  Unset fields will not be updated. Repeated fields will act like a
 /// merge if the item has a key.  Otherwise, it'll act like an append.
-/// Next ID = 6.
+/// Next ID = 7.
 public struct Event_User {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -289,10 +308,10 @@ public struct Event_User {
   /// Read-only.  This is set by Event API.
   public var platformID: UInt64 = 0
 
-  /// Required.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Required.  Can be optional if set on a wrapping LogRequest.
   public var userID: String = String()
 
-  /// Optional.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Optional.  Can be optional if set on a wrapping LogRequest.
   public var logUserID: String = String()
 
   /// Required.  Client timestamp when event was created.
@@ -301,13 +320,25 @@ public struct Event_User {
   /// Clients should not set this.  This gets set in the Event API.
   public var eventApiTimestamp: UInt64 = 0
 
+  /// Optional.  Custom message per platform.
+  public var payload: Event_Payload {
+    get {return _payload ?? Event_Payload()}
+    set {_payload = newValue}
+  }
+  /// Returns true if `payload` has been explicitly set.
+  public var hasPayload: Bool {return self._payload != nil}
+  /// Clears the value of `payload`. Subsequent reads from it will return its default value.
+  public mutating func clearPayload() {self._payload = nil}
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
+
+  fileprivate var _payload: Event_Payload? = nil
 }
 
 /// For linking users to cohorts.
-/// Next ID = 13.
+/// Next ID = 15.
 public struct Event_CohortMembership {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -316,7 +347,7 @@ public struct Event_CohortMembership {
   /// Read-only.  This is set by Event API.
   public var platformID: UInt64 = 0
 
-  /// Optional.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Optional.  Can be optional if set on a wrapping LogRequest.
   public var logUserID: String = String()
 
   /// Required.  Client timestamp when event was created.
@@ -328,15 +359,27 @@ public struct Event_CohortMembership {
   /// Optional.  This can contain a log UUID to help track down log records.
   public var membershipID: String = String()
 
-  /// Required.  This field refers to the cohort (currently stored as an enum).
-  public var cohortID: Event_CohortId = .unknownCohort
+  /// Optional.  This field refers to the cohort (currently stored as an enum).
+  public var cohortID: String = String()
 
   /// Optional.
   public var arm: Event_CohortArm = .unknownGroup
 
+  /// Optional.  Custom message per platform.
+  public var payload: Event_Payload {
+    get {return _payload ?? Event_Payload()}
+    set {_payload = newValue}
+  }
+  /// Returns true if `payload` has been explicitly set.
+  public var hasPayload: Bool {return self._payload != nil}
+  /// Clears the value of `payload`. Subsequent reads from it will return its default value.
+  public mutating func clearPayload() {self._payload = nil}
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
+
+  fileprivate var _payload: Event_Payload? = nil
 }
 
 /// A sub-message containing Device info.
@@ -441,7 +484,7 @@ public struct Event_Browser {
 }
 
 /// Profile (contains pii) version of Session.
-/// Next ID = 14.
+/// Next ID = 20.
 public struct Event_SessionProfile {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -450,10 +493,10 @@ public struct Event_SessionProfile {
   /// Read-only.  This is set by Event API.
   public var platformID: UInt64 = 0
 
-  /// Required.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Required.  Can be optional if set on a wrapping LogRequest.
   public var userID: String = String()
 
-  /// Required.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Required.  Can be optional if set on a wrapping LogRequest.
   /// Client timestamp when event was created.
   public var clientLogTimestamp: UInt64 = 0
 
@@ -489,6 +532,16 @@ public struct Event_SessionProfile {
   /// [-180, 180]
   public var longitude: Double = 0
 
+  /// Optional.  Custom message per platform.
+  public var payload: Event_Payload {
+    get {return _payload ?? Event_Payload()}
+    set {_payload = newValue}
+  }
+  /// Returns true if `payload` has been explicitly set.
+  public var hasPayload: Bool {return self._payload != nil}
+  /// Clears the value of `payload`. Subsequent reads from it will return its default value.
+  public mutating func clearPayload() {self._payload = nil}
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   /// Geo.
@@ -518,6 +571,8 @@ public struct Event_SessionProfile {
   }
 
   public init() {}
+
+  fileprivate var _payload: Event_Payload? = nil
 }
 
 /// A period of activity by a single User.  Users can have multiple Sessions.
@@ -533,10 +588,10 @@ public struct Event_Session {
   /// Read-only.  This is set by Event API.
   public var platformID: UInt64 = 0
 
-  /// Required.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Required.  Can be optional if set on a wrapping LogRequest.
   public var logUserID: String = String()
 
-  /// Required.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Required.  Can be optional if set on a wrapping LogRequest.
   /// Client timestamp when event was created.
   public var clientLogTimestamp: UInt64 = 0
 
@@ -552,9 +607,21 @@ public struct Event_Session {
   /// Optional. End time. If not set, we'll infer this from the API calls.
   public var exclusiveEndEpochMillis: UInt64 = 0
 
+  /// Optional.  Custom message per platform.
+  public var payload: Event_Payload {
+    get {return _payload ?? Event_Payload()}
+    set {_payload = newValue}
+  }
+  /// Returns true if `payload` has been explicitly set.
+  public var hasPayload: Bool {return self._payload != nil}
+  /// Clears the value of `payload`. Subsequent reads from it will return its default value.
+  public mutating func clearPayload() {self._payload = nil}
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
+
+  fileprivate var _payload: Event_Payload? = nil
 }
 
 /// A view of a single page (e.g. feed, search results, etc).
@@ -570,13 +637,13 @@ public struct Event_View {
     set {_uniqueStorage()._platformID = newValue}
   }
 
-  /// Required.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Required.  Can be optional if set on a wrapping LogRequest.
   public var logUserID: String {
     get {return _storage._logUserID}
     set {_uniqueStorage()._logUserID = newValue}
   }
 
-  /// Required.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Required.  Can be optional if set on a wrapping LogRequest.
   /// Client timestamp when event was created.
   public var clientLogTimestamp: UInt64 {
     get {return _storage._clientLogTimestamp}
@@ -625,6 +692,16 @@ public struct Event_View {
     get {return _storage._searchQuery}
     set {_uniqueStorage()._searchQuery = newValue}
   }
+
+  /// Optional.  Custom message per platform.
+  public var payload: Event_Payload {
+    get {return _storage._payload ?? Event_Payload()}
+    set {_uniqueStorage()._payload = newValue}
+  }
+  /// Returns true if `payload` has been explicitly set.
+  public var hasPayload: Bool {return _storage._payload != nil}
+  /// Clears the value of `payload`. Subsequent reads from it will return its default value.
+  public mutating func clearPayload() {_uniqueStorage()._payload = nil}
 
   public var platformType: Event_View.PlatformType {
     get {return _storage._platformType}
@@ -723,9 +800,38 @@ extension Event_View.PlatformType: CaseIterable {
 
 #endif  // swift(>=4.2)
 
-/// A request for Insertions. A View can issue multiple Requests.
-/// Next ID = 16.
+/// Request for Delivery
+/// Next ID = 3.
 public struct Event_Request {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// We require the following params to be set: log_user_id, ...
+  public var header: Event_RequestHeader {
+    get {return _header ?? Event_RequestHeader()}
+    set {_header = newValue}
+  }
+  /// Returns true if `header` has been explicitly set.
+  public var hasHeader: Bool {return self._header != nil}
+  /// Clears the value of `header`. Subsequent reads from it will return its default value.
+  public mutating func clearHeader() {self._header = nil}
+
+  /// Supports passing (1) content IDs or (2) a list of content.
+  public var insertion: [Event_Insertion] = []
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+
+  fileprivate var _header: Event_RequestHeader? = nil
+}
+
+/// Represents a Request metadata in Delivery API and Metrics API.
+/// The more expensive parts of the request
+///
+/// Next ID = 17.
+public struct Event_RequestHeader {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -733,10 +839,10 @@ public struct Event_Request {
   /// Read-only.  This is set by Event API.
   public var platformID: UInt64 = 0
 
-  /// Required.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Required.  Can be optional if set on a wrapping LogRequest.
   public var logUserID: String = String()
 
-  /// Required.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Required.  Can be optional if set on a wrapping LogRequest.
   /// Client timestamp when event was created.
   public var clientLogTimestamp: UInt64 = 0
 
@@ -758,9 +864,21 @@ public struct Event_Request {
   /// Optional.
   public var searchQuery: String = String()
 
+  /// Optional.  Custom message per platform.
+  public var payload: Event_Payload {
+    get {return _payload ?? Event_Payload()}
+    set {_payload = newValue}
+  }
+  /// Returns true if `payload` has been explicitly set.
+  public var hasPayload: Bool {return self._payload != nil}
+  /// Clears the value of `payload`. Subsequent reads from it will return its default value.
+  public mutating func clearPayload() {self._payload = nil}
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
+
+  fileprivate var _payload: Event_Payload? = nil
 }
 
 /// This Event represents a Content being served at a certain position regardless
@@ -777,13 +895,13 @@ public struct Event_Insertion {
     set {_uniqueStorage()._platformID = newValue}
   }
 
-  /// Required.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Required.  Can be optional if set on a wrapping LogRequest.
   public var logUserID: String {
     get {return _storage._logUserID}
     set {_uniqueStorage()._logUserID = newValue}
   }
 
-  /// Required.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Required.  Can be optional if set on a wrapping LogRequest.
   /// Client timestamp when event was created.
   public var clientLogTimestamp: UInt64 {
     get {return _storage._clientLogTimestamp}
@@ -838,6 +956,16 @@ public struct Event_Insertion {
     set {_uniqueStorage()._position = newValue}
   }
 
+  /// Optional.  Custom message per platform.
+  public var payload: Event_Payload {
+    get {return _storage._payload ?? Event_Payload()}
+    set {_uniqueStorage()._payload = newValue}
+  }
+  /// Returns true if `payload` has been explicitly set.
+  public var hasPayload: Bool {return _storage._payload != nil}
+  /// Clears the value of `payload`. Subsequent reads from it will return its default value.
+  public mutating func clearPayload() {_uniqueStorage()._payload = nil}
+
   /// Internal.
   public var insertionLogFlatPromotion: Promotion_InsertionLogFlatPromotion {
     get {return _storage._insertionLogFlatPromotion ?? Promotion_InsertionLogFlatPromotion()}
@@ -863,7 +991,7 @@ public struct Event_Insertion {
 
 /// When an Insertion is shown to a user.
 /// Impressions are immutable.
-/// Next ID = 16.
+/// Next ID = 17.
 public struct Event_Impression {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -872,10 +1000,10 @@ public struct Event_Impression {
   /// Read-only.  This is set by Event API.
   public var platformID: UInt64 = 0
 
-  /// Required.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Required.  Can be optional if set on a wrapping LogRequest.
   public var logUserID: String = String()
 
-  /// Required.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Required.  Can be optional if set on a wrapping LogRequest.
   /// Client timestamp when event was created.
   public var clientLogTimestamp: UInt64 = 0
 
@@ -897,9 +1025,21 @@ public struct Event_Impression {
   /// Optional.
   public var viewID: String = String()
 
+  /// Optional.  Custom message per platform.
+  public var payload: Event_Payload {
+    get {return _payload ?? Event_Payload()}
+    set {_payload = newValue}
+  }
+  /// Returns true if `payload` has been explicitly set.
+  public var hasPayload: Bool {return self._payload != nil}
+  /// Clears the value of `payload`. Subsequent reads from it will return its default value.
+  public mutating func clearPayload() {self._payload = nil}
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
+
+  fileprivate var _payload: Event_Payload? = nil
 }
 
 /// Clicks are immutable.
@@ -912,10 +1052,10 @@ public struct Event_Click {
   /// Read-only.  This is set by Event API.
   public var platformID: UInt64 = 0
 
-  /// Required.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Required.  Can be optional if set on a wrapping LogRequest.
   public var logUserID: String = String()
 
-  /// Required.  Can be optional if set on a wrapping BatchLogRequest.
+  /// Required.  Can be optional if set on a wrapping LogRequest.
   /// Client timestamp when event was created.
   public var clientLogTimestamp: UInt64 = 0
 
@@ -940,6 +1080,16 @@ public struct Event_Click {
   /// Optional.
   public var viewID: String = String()
 
+  /// Optional.  Custom message per platform.
+  public var payload: Event_Payload {
+    get {return _payload ?? Event_Payload()}
+    set {_payload = newValue}
+  }
+  /// Returns true if `payload` has been explicitly set.
+  public var hasPayload: Bool {return self._payload != nil}
+  /// Clears the value of `payload`. Subsequent reads from it will return its default value.
+  public mutating func clearPayload() {self._payload = nil}
+
   /// Optional.  Name of the click.  E.g. "FILTER_UPDATED" or  "CLOSEUP".
   /// Do not stick parameters in this name.
   public var name: String = String()
@@ -953,6 +1103,8 @@ public struct Event_Click {
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
+
+  fileprivate var _payload: Event_Payload? = nil
 }
 
 /// Contains a list of recent impressions for a flat event.
@@ -975,7 +1127,7 @@ public struct Event_LatestImpressions {
 
 /// A smaller Impression to be used on LatestImpressions.
 /// For Promoted-internal use only.
-/// Next ID = 4.
+/// Next ID = 6.
 public struct Event_LatestImpression {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -985,24 +1137,175 @@ public struct Event_LatestImpression {
 
   public var contentID: String = String()
 
-  /// This will be client_log_timestamp if available.  If not, then it will be
-  /// event_api_timestamp.
-  public var timestamp: UInt64 = 0
+  /// Optional.  Depends on if the client sets it.  This can be impacted by
+  /// client clock skew.
+  public var clientLogTimestamp: UInt64 = 0
+
+  /// Required.  Generated in Event API.
+  public var eventApiTimestamp: UInt64 = 0
+
+  /// Required.  This is the event timestamp in our stream job (currently the
+  /// Kafka insertion timestamp).
+  public var eventTimestamp: UInt64 = 0
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
 }
 
+/// A way to batch up log requests into the same request.
+/// Clients can reference logs in different batches.
+/// Next ID = 21.
+public struct Event_LogRequest {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// Optional.  Default derived from API Key or LogRequest.
+  public var platformID: UInt64 = 0
+
+  /// Required.
+  public var userID: String = String()
+
+  /// Required.
+  public var logUserID: String = String()
+
+  /// Optional.  Used as a default for each log record.
+  /// Client timestamp when event was created.
+  public var clientLogTimestamp: UInt64 = 0
+
+  public var user: [Event_User] = []
+
+  public var cohortMembership: [Event_CohortMembership] = []
+
+  public var sessionProfile: [Event_SessionProfile] = []
+
+  public var session: [Event_Session] = []
+
+  public var view: [Event_View] = []
+
+  public var request: [Event_Request] = []
+
+  public var insertion: [Event_Insertion] = []
+
+  public var impression: [Event_Impression] = []
+
+  public var click: [Event_Click] = []
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// Internal Proto used for flattened events.
+/// Keep proto IDs matching LogRequest.
+/// Next ID = 21.
+public struct Event_FlatEvent {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var ids: Event_JoinedIdentifiers {
+    get {return _storage._ids ?? Event_JoinedIdentifiers()}
+    set {_uniqueStorage()._ids = newValue}
+  }
+  /// Returns true if `ids` has been explicitly set.
+  public var hasIds: Bool {return _storage._ids != nil}
+  /// Clears the value of `ids`. Subsequent reads from it will return its default value.
+  public mutating func clearIds() {_uniqueStorage()._ids = nil}
+
+  public var user: Event_User {
+    get {return _storage._user ?? Event_User()}
+    set {_uniqueStorage()._user = newValue}
+  }
+  /// Returns true if `user` has been explicitly set.
+  public var hasUser: Bool {return _storage._user != nil}
+  /// Clears the value of `user`. Subsequent reads from it will return its default value.
+  public mutating func clearUser() {_uniqueStorage()._user = nil}
+
+  public var sessionProfile: Event_SessionProfile {
+    get {return _storage._sessionProfile ?? Event_SessionProfile()}
+    set {_uniqueStorage()._sessionProfile = newValue}
+  }
+  /// Returns true if `sessionProfile` has been explicitly set.
+  public var hasSessionProfile: Bool {return _storage._sessionProfile != nil}
+  /// Clears the value of `sessionProfile`. Subsequent reads from it will return its default value.
+  public mutating func clearSessionProfile() {_uniqueStorage()._sessionProfile = nil}
+
+  public var session: Event_Session {
+    get {return _storage._session ?? Event_Session()}
+    set {_uniqueStorage()._session = newValue}
+  }
+  /// Returns true if `session` has been explicitly set.
+  public var hasSession: Bool {return _storage._session != nil}
+  /// Clears the value of `session`. Subsequent reads from it will return its default value.
+  public mutating func clearSession() {_uniqueStorage()._session = nil}
+
+  public var view: Event_View {
+    get {return _storage._view ?? Event_View()}
+    set {_uniqueStorage()._view = newValue}
+  }
+  /// Returns true if `view` has been explicitly set.
+  public var hasView: Bool {return _storage._view != nil}
+  /// Clears the value of `view`. Subsequent reads from it will return its default value.
+  public mutating func clearView() {_uniqueStorage()._view = nil}
+
+  public var requestHeader: Event_RequestHeader {
+    get {return _storage._requestHeader ?? Event_RequestHeader()}
+    set {_uniqueStorage()._requestHeader = newValue}
+  }
+  /// Returns true if `requestHeader` has been explicitly set.
+  public var hasRequestHeader: Bool {return _storage._requestHeader != nil}
+  /// Clears the value of `requestHeader`. Subsequent reads from it will return its default value.
+  public mutating func clearRequestHeader() {_uniqueStorage()._requestHeader = nil}
+
+  public var insertion: Event_Insertion {
+    get {return _storage._insertion ?? Event_Insertion()}
+    set {_uniqueStorage()._insertion = newValue}
+  }
+  /// Returns true if `insertion` has been explicitly set.
+  public var hasInsertion: Bool {return _storage._insertion != nil}
+  /// Clears the value of `insertion`. Subsequent reads from it will return its default value.
+  public mutating func clearInsertion() {_uniqueStorage()._insertion = nil}
+
+  public var impression: Event_Impression {
+    get {return _storage._impression ?? Event_Impression()}
+    set {_uniqueStorage()._impression = newValue}
+  }
+  /// Returns true if `impression` has been explicitly set.
+  public var hasImpression: Bool {return _storage._impression != nil}
+  /// Clears the value of `impression`. Subsequent reads from it will return its default value.
+  public mutating func clearImpression() {_uniqueStorage()._impression = nil}
+
+  public var click: Event_Click {
+    get {return _storage._click ?? Event_Click()}
+    set {_uniqueStorage()._click = newValue}
+  }
+  /// Returns true if `click` has been explicitly set.
+  public var hasClick: Bool {return _storage._click != nil}
+  /// Clears the value of `click`. Subsequent reads from it will return its default value.
+  public mutating func clearClick() {_uniqueStorage()._click = nil}
+
+  /// For Promoted-internal use only.
+  public var latestImpressions: Event_LatestImpressions {
+    get {return _storage._latestImpressions ?? Event_LatestImpressions()}
+    set {_uniqueStorage()._latestImpressions = newValue}
+  }
+  /// Returns true if `latestImpressions` has been explicitly set.
+  public var hasLatestImpressions: Bool {return _storage._latestImpressions != nil}
+  /// Clears the value of `latestImpressions`. Subsequent reads from it will return its default value.
+  public mutating func clearLatestImpressions() {_uniqueStorage()._latestImpressions = nil}
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+
+  fileprivate var _storage = _StorageClass.defaultInstance
+}
+
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
 fileprivate let _protobuf_package = "event"
-
-extension Event_CohortId: SwiftProtobuf._ProtoNameProviding {
-  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    0: .same(proto: "UNKNOWN_COHORT"),
-  ]
-}
 
 extension Event_CohortArm: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -1114,6 +1417,64 @@ extension Event_JoinedIdentifiers: SwiftProtobuf.Message, SwiftProtobuf._Message
   }
 }
 
+extension Event_Payload: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Payload"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "payload_bytes"),
+    2: .same(proto: "struct"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try {
+        if self.payload != nil {try decoder.handleConflictingOneOf()}
+        var v: Data?
+        try decoder.decodeSingularBytesField(value: &v)
+        if let v = v {self.payload = .payloadBytes(v)}
+      }()
+      case 2: try {
+        var v: SwiftProtobuf.Google_Protobuf_Struct?
+        if let current = self.payload {
+          try decoder.handleConflictingOneOf()
+          if case .struct(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {self.payload = .struct(v)}
+      }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every case branch when no optimizations are
+    // enabled. https://github.com/apple/swift-protobuf/issues/1034
+    switch self.payload {
+    case .payloadBytes?: try {
+      guard case .payloadBytes(let v)? = self.payload else { preconditionFailure() }
+      try visitor.visitSingularBytesField(value: v, fieldNumber: 1)
+    }()
+    case .struct?: try {
+      guard case .struct(let v)? = self.payload else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
+    }()
+    case nil: break
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Event_Payload, rhs: Event_Payload) -> Bool {
+    if lhs.payload != rhs.payload {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
 extension Event_User: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".User"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -1122,6 +1483,7 @@ extension Event_User: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
     3: .standard(proto: "log_user_id"),
     4: .standard(proto: "client_log_timestamp"),
     5: .standard(proto: "event_api_timestamp"),
+    6: .same(proto: "payload"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1135,6 +1497,7 @@ extension Event_User: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
       case 3: try { try decoder.decodeSingularStringField(value: &self.logUserID) }()
       case 4: try { try decoder.decodeSingularUInt64Field(value: &self.clientLogTimestamp) }()
       case 5: try { try decoder.decodeSingularUInt64Field(value: &self.eventApiTimestamp) }()
+      case 6: try { try decoder.decodeSingularMessageField(value: &self._payload) }()
       default: break
       }
     }
@@ -1156,6 +1519,9 @@ extension Event_User: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
     if self.eventApiTimestamp != 0 {
       try visitor.visitSingularUInt64Field(value: self.eventApiTimestamp, fieldNumber: 5)
     }
+    if let v = self._payload {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 6)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -1165,6 +1531,7 @@ extension Event_User: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
     if lhs.logUserID != rhs.logUserID {return false}
     if lhs.clientLogTimestamp != rhs.clientLogTimestamp {return false}
     if lhs.eventApiTimestamp != rhs.eventApiTimestamp {return false}
+    if lhs._payload != rhs._payload {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1178,8 +1545,9 @@ extension Event_CohortMembership: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     4: .standard(proto: "client_log_timestamp"),
     5: .standard(proto: "event_api_timestamp"),
     10: .standard(proto: "membership_id"),
-    11: .standard(proto: "cohort_id"),
-    12: .same(proto: "arm"),
+    12: .standard(proto: "cohort_id"),
+    13: .same(proto: "arm"),
+    14: .same(proto: "payload"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1193,8 +1561,9 @@ extension Event_CohortMembership: SwiftProtobuf.Message, SwiftProtobuf._MessageI
       case 4: try { try decoder.decodeSingularUInt64Field(value: &self.clientLogTimestamp) }()
       case 5: try { try decoder.decodeSingularUInt64Field(value: &self.eventApiTimestamp) }()
       case 10: try { try decoder.decodeSingularStringField(value: &self.membershipID) }()
-      case 11: try { try decoder.decodeSingularEnumField(value: &self.cohortID) }()
-      case 12: try { try decoder.decodeSingularEnumField(value: &self.arm) }()
+      case 12: try { try decoder.decodeSingularStringField(value: &self.cohortID) }()
+      case 13: try { try decoder.decodeSingularEnumField(value: &self.arm) }()
+      case 14: try { try decoder.decodeSingularMessageField(value: &self._payload) }()
       default: break
       }
     }
@@ -1216,11 +1585,14 @@ extension Event_CohortMembership: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     if !self.membershipID.isEmpty {
       try visitor.visitSingularStringField(value: self.membershipID, fieldNumber: 10)
     }
-    if self.cohortID != .unknownCohort {
-      try visitor.visitSingularEnumField(value: self.cohortID, fieldNumber: 11)
+    if !self.cohortID.isEmpty {
+      try visitor.visitSingularStringField(value: self.cohortID, fieldNumber: 12)
     }
     if self.arm != .unknownGroup {
-      try visitor.visitSingularEnumField(value: self.arm, fieldNumber: 12)
+      try visitor.visitSingularEnumField(value: self.arm, fieldNumber: 13)
+    }
+    if let v = self._payload {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 14)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -1233,6 +1605,7 @@ extension Event_CohortMembership: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     if lhs.membershipID != rhs.membershipID {return false}
     if lhs.cohortID != rhs.cohortID {return false}
     if lhs.arm != rhs.arm {return false}
+    if lhs._payload != rhs._payload {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1474,6 +1847,7 @@ extension Event_SessionProfile: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
     16: .standard(proto: "ip_address_v6"),
     17: .same(proto: "latitude"),
     18: .same(proto: "longitude"),
+    19: .same(proto: "payload"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1501,6 +1875,7 @@ extension Event_SessionProfile: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
       }()
       case 17: try { try decoder.decodeSingularDoubleField(value: &self.latitude) }()
       case 18: try { try decoder.decodeSingularDoubleField(value: &self.longitude) }()
+      case 19: try { try decoder.decodeSingularMessageField(value: &self._payload) }()
       default: break
       }
     }
@@ -1542,6 +1917,9 @@ extension Event_SessionProfile: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
     if self.longitude != 0 {
       try visitor.visitSingularDoubleField(value: self.longitude, fieldNumber: 18)
     }
+    if let v = self._payload {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 19)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -1554,6 +1932,7 @@ extension Event_SessionProfile: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
     if lhs.ipAddress != rhs.ipAddress {return false}
     if lhs.latitude != rhs.latitude {return false}
     if lhs.longitude != rhs.longitude {return false}
+    if lhs._payload != rhs._payload {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1569,6 +1948,7 @@ extension Event_Session: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     11: .standard(proto: "session_id"),
     13: .standard(proto: "start_epoch_millis"),
     14: .standard(proto: "exclusive_end_epoch_millis"),
+    19: .same(proto: "payload"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1584,6 +1964,7 @@ extension Event_Session: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
       case 11: try { try decoder.decodeSingularStringField(value: &self.sessionID) }()
       case 13: try { try decoder.decodeSingularUInt64Field(value: &self.startEpochMillis) }()
       case 14: try { try decoder.decodeSingularUInt64Field(value: &self.exclusiveEndEpochMillis) }()
+      case 19: try { try decoder.decodeSingularMessageField(value: &self._payload) }()
       default: break
       }
     }
@@ -1611,6 +1992,9 @@ extension Event_Session: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     if self.exclusiveEndEpochMillis != 0 {
       try visitor.visitSingularUInt64Field(value: self.exclusiveEndEpochMillis, fieldNumber: 14)
     }
+    if let v = self._payload {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 19)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -1622,6 +2006,7 @@ extension Event_Session: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     if lhs.sessionID != rhs.sessionID {return false}
     if lhs.startEpochMillis != rhs.startEpochMillis {return false}
     if lhs.exclusiveEndEpochMillis != rhs.exclusiveEndEpochMillis {return false}
+    if lhs._payload != rhs._payload {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1640,6 +2025,7 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
     14: .same(proto: "url"),
     15: .standard(proto: "use_case"),
     16: .standard(proto: "search_query"),
+    17: .same(proto: "payload"),
     30: .standard(proto: "platform_type"),
     32: .same(proto: "referrer"),
     33: .same(proto: "device"),
@@ -1659,6 +2045,7 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
     var _url: String = String()
     var _useCase: Event_UseCase = .unknown
     var _searchQuery: String = String()
+    var _payload: Event_Payload? = nil
     var _platformType: Event_View.PlatformType = .unknown
     var _referrer: String = String()
     var _device: Event_Device? = nil
@@ -1681,6 +2068,7 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
       _url = source._url
       _useCase = source._useCase
       _searchQuery = source._searchQuery
+      _payload = source._payload
       _platformType = source._platformType
       _referrer = source._referrer
       _device = source._device
@@ -1715,6 +2103,7 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
         case 14: try { try decoder.decodeSingularStringField(value: &_storage._url) }()
         case 15: try { try decoder.decodeSingularEnumField(value: &_storage._useCase) }()
         case 16: try { try decoder.decodeSingularStringField(value: &_storage._searchQuery) }()
+        case 17: try { try decoder.decodeSingularMessageField(value: &_storage._payload) }()
         case 30: try { try decoder.decodeSingularEnumField(value: &_storage._platformType) }()
         case 32: try { try decoder.decodeSingularStringField(value: &_storage._referrer) }()
         case 33: try { try decoder.decodeSingularMessageField(value: &_storage._device) }()
@@ -1759,6 +2148,9 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
       if !_storage._searchQuery.isEmpty {
         try visitor.visitSingularStringField(value: _storage._searchQuery, fieldNumber: 16)
       }
+      if let v = _storage._payload {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 17)
+      }
       if _storage._platformType != .unknown {
         try visitor.visitSingularEnumField(value: _storage._platformType, fieldNumber: 30)
       }
@@ -1796,6 +2188,7 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
         if _storage._url != rhs_storage._url {return false}
         if _storage._useCase != rhs_storage._useCase {return false}
         if _storage._searchQuery != rhs_storage._searchQuery {return false}
+        if _storage._payload != rhs_storage._payload {return false}
         if _storage._platformType != rhs_storage._platformType {return false}
         if _storage._referrer != rhs_storage._referrer {return false}
         if _storage._device != rhs_storage._device {return false}
@@ -1823,6 +2216,44 @@ extension Event_View.PlatformType: SwiftProtobuf._ProtoNameProviding {
 extension Event_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Request"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "header"),
+    2: .same(proto: "insertion"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularMessageField(value: &self._header) }()
+      case 2: try { try decoder.decodeRepeatedMessageField(value: &self.insertion) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if let v = self._header {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
+    }
+    if !self.insertion.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.insertion, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Event_Request, rhs: Event_Request) -> Bool {
+    if lhs._header != rhs._header {return false}
+    if lhs.insertion != rhs.insertion {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Event_RequestHeader: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".RequestHeader"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .standard(proto: "platform_id"),
     3: .standard(proto: "log_user_id"),
     4: .standard(proto: "client_log_timestamp"),
@@ -1832,6 +2263,7 @@ extension Event_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     15: .standard(proto: "session_id"),
     13: .standard(proto: "use_case"),
     14: .standard(proto: "search_query"),
+    16: .same(proto: "payload"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1849,6 +2281,7 @@ extension Event_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
       case 13: try { try decoder.decodeSingularEnumField(value: &self.useCase) }()
       case 14: try { try decoder.decodeSingularStringField(value: &self.searchQuery) }()
       case 15: try { try decoder.decodeSingularStringField(value: &self.sessionID) }()
+      case 16: try { try decoder.decodeSingularMessageField(value: &self._payload) }()
       default: break
       }
     }
@@ -1882,10 +2315,13 @@ extension Event_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     if !self.sessionID.isEmpty {
       try visitor.visitSingularStringField(value: self.sessionID, fieldNumber: 15)
     }
+    if let v = self._payload {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 16)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  public static func ==(lhs: Event_Request, rhs: Event_Request) -> Bool {
+  public static func ==(lhs: Event_RequestHeader, rhs: Event_RequestHeader) -> Bool {
     if lhs.platformID != rhs.platformID {return false}
     if lhs.logUserID != rhs.logUserID {return false}
     if lhs.clientLogTimestamp != rhs.clientLogTimestamp {return false}
@@ -1895,6 +2331,7 @@ extension Event_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     if lhs.sessionID != rhs.sessionID {return false}
     if lhs.useCase != rhs.useCase {return false}
     if lhs.searchQuery != rhs.searchQuery {return false}
+    if lhs._payload != rhs._payload {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1914,6 +2351,7 @@ extension Event_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
     13: .standard(proto: "content_id"),
     14: .standard(proto: "promotedai_content_id"),
     15: .same(proto: "position"),
+    18: .same(proto: "payload"),
     30: .standard(proto: "insertion_log_flat_promotion"),
     31: .standard(proto: "aws_personalize_recommendation_id"),
   ]
@@ -1930,6 +2368,7 @@ extension Event_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
     var _contentID: String = String()
     var _promotedaiContentID: UInt64 = 0
     var _position: UInt64 = 0
+    var _payload: Event_Payload? = nil
     var _insertionLogFlatPromotion: Promotion_InsertionLogFlatPromotion? = nil
     var _awsPersonalizeRecommendationID: String = String()
 
@@ -1949,6 +2388,7 @@ extension Event_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
       _contentID = source._contentID
       _promotedaiContentID = source._promotedaiContentID
       _position = source._position
+      _payload = source._payload
       _insertionLogFlatPromotion = source._insertionLogFlatPromotion
       _awsPersonalizeRecommendationID = source._awsPersonalizeRecommendationID
     }
@@ -1980,6 +2420,7 @@ extension Event_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
         case 15: try { try decoder.decodeSingularUInt64Field(value: &_storage._position) }()
         case 16: try { try decoder.decodeSingularStringField(value: &_storage._sessionID) }()
         case 17: try { try decoder.decodeSingularStringField(value: &_storage._viewID) }()
+        case 18: try { try decoder.decodeSingularMessageField(value: &_storage._payload) }()
         case 30: try { try decoder.decodeSingularMessageField(value: &_storage._insertionLogFlatPromotion) }()
         case 31: try { try decoder.decodeSingularStringField(value: &_storage._awsPersonalizeRecommendationID) }()
         default: break
@@ -2023,6 +2464,9 @@ extension Event_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
       if !_storage._viewID.isEmpty {
         try visitor.visitSingularStringField(value: _storage._viewID, fieldNumber: 17)
       }
+      if let v = _storage._payload {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 18)
+      }
       if let v = _storage._insertionLogFlatPromotion {
         try visitor.visitSingularMessageField(value: v, fieldNumber: 30)
       }
@@ -2049,6 +2493,7 @@ extension Event_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
         if _storage._contentID != rhs_storage._contentID {return false}
         if _storage._promotedaiContentID != rhs_storage._promotedaiContentID {return false}
         if _storage._position != rhs_storage._position {return false}
+        if _storage._payload != rhs_storage._payload {return false}
         if _storage._insertionLogFlatPromotion != rhs_storage._insertionLogFlatPromotion {return false}
         if _storage._awsPersonalizeRecommendationID != rhs_storage._awsPersonalizeRecommendationID {return false}
         return true
@@ -2072,6 +2517,7 @@ extension Event_Impression: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     13: .standard(proto: "request_id"),
     14: .standard(proto: "session_id"),
     15: .standard(proto: "view_id"),
+    16: .same(proto: "payload"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -2089,6 +2535,7 @@ extension Event_Impression: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       case 13: try { try decoder.decodeSingularStringField(value: &self.requestID) }()
       case 14: try { try decoder.decodeSingularStringField(value: &self.sessionID) }()
       case 15: try { try decoder.decodeSingularStringField(value: &self.viewID) }()
+      case 16: try { try decoder.decodeSingularMessageField(value: &self._payload) }()
       default: break
       }
     }
@@ -2122,6 +2569,9 @@ extension Event_Impression: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     if !self.viewID.isEmpty {
       try visitor.visitSingularStringField(value: self.viewID, fieldNumber: 15)
     }
+    if let v = self._payload {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 16)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -2135,6 +2585,7 @@ extension Event_Impression: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     if lhs.requestID != rhs.requestID {return false}
     if lhs.sessionID != rhs.sessionID {return false}
     if lhs.viewID != rhs.viewID {return false}
+    if lhs._payload != rhs._payload {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -2153,6 +2604,7 @@ extension Event_Click: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementati
     13: .standard(proto: "request_id"),
     14: .standard(proto: "session_id"),
     15: .standard(proto: "view_id"),
+    16: .same(proto: "payload"),
     20: .same(proto: "name"),
     21: .standard(proto: "target_url"),
     22: .standard(proto: "element_id"),
@@ -2174,6 +2626,7 @@ extension Event_Click: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementati
       case 13: try { try decoder.decodeSingularStringField(value: &self.requestID) }()
       case 14: try { try decoder.decodeSingularStringField(value: &self.sessionID) }()
       case 15: try { try decoder.decodeSingularStringField(value: &self.viewID) }()
+      case 16: try { try decoder.decodeSingularMessageField(value: &self._payload) }()
       case 20: try { try decoder.decodeSingularStringField(value: &self.name) }()
       case 21: try { try decoder.decodeSingularStringField(value: &self.targetURL) }()
       case 22: try { try decoder.decodeSingularStringField(value: &self.elementID) }()
@@ -2213,6 +2666,9 @@ extension Event_Click: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementati
     if !self.viewID.isEmpty {
       try visitor.visitSingularStringField(value: self.viewID, fieldNumber: 15)
     }
+    if let v = self._payload {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 16)
+    }
     if !self.name.isEmpty {
       try visitor.visitSingularStringField(value: self.name, fieldNumber: 20)
     }
@@ -2236,6 +2692,7 @@ extension Event_Click: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementati
     if lhs.requestID != rhs.requestID {return false}
     if lhs.sessionID != rhs.sessionID {return false}
     if lhs.viewID != rhs.viewID {return false}
+    if lhs._payload != rhs._payload {return false}
     if lhs.name != rhs.name {return false}
     if lhs.targetURL != rhs.targetURL {return false}
     if lhs.elementID != rhs.elementID {return false}
@@ -2281,7 +2738,9 @@ extension Event_LatestImpression: SwiftProtobuf.Message, SwiftProtobuf._MessageI
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .standard(proto: "impression_id"),
     2: .standard(proto: "content_id"),
-    3: .same(proto: "timestamp"),
+    3: .standard(proto: "client_log_timestamp"),
+    4: .standard(proto: "event_api_timestamp"),
+    5: .standard(proto: "event_timestamp"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -2292,7 +2751,9 @@ extension Event_LatestImpression: SwiftProtobuf.Message, SwiftProtobuf._MessageI
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularStringField(value: &self.impressionID) }()
       case 2: try { try decoder.decodeSingularStringField(value: &self.contentID) }()
-      case 3: try { try decoder.decodeSingularUInt64Field(value: &self.timestamp) }()
+      case 3: try { try decoder.decodeSingularUInt64Field(value: &self.clientLogTimestamp) }()
+      case 4: try { try decoder.decodeSingularUInt64Field(value: &self.eventApiTimestamp) }()
+      case 5: try { try decoder.decodeSingularUInt64Field(value: &self.eventTimestamp) }()
       default: break
       }
     }
@@ -2305,8 +2766,14 @@ extension Event_LatestImpression: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     if !self.contentID.isEmpty {
       try visitor.visitSingularStringField(value: self.contentID, fieldNumber: 2)
     }
-    if self.timestamp != 0 {
-      try visitor.visitSingularUInt64Field(value: self.timestamp, fieldNumber: 3)
+    if self.clientLogTimestamp != 0 {
+      try visitor.visitSingularUInt64Field(value: self.clientLogTimestamp, fieldNumber: 3)
+    }
+    if self.eventApiTimestamp != 0 {
+      try visitor.visitSingularUInt64Field(value: self.eventApiTimestamp, fieldNumber: 4)
+    }
+    if self.eventTimestamp != 0 {
+      try visitor.visitSingularUInt64Field(value: self.eventTimestamp, fieldNumber: 5)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -2314,7 +2781,249 @@ extension Event_LatestImpression: SwiftProtobuf.Message, SwiftProtobuf._MessageI
   public static func ==(lhs: Event_LatestImpression, rhs: Event_LatestImpression) -> Bool {
     if lhs.impressionID != rhs.impressionID {return false}
     if lhs.contentID != rhs.contentID {return false}
-    if lhs.timestamp != rhs.timestamp {return false}
+    if lhs.clientLogTimestamp != rhs.clientLogTimestamp {return false}
+    if lhs.eventApiTimestamp != rhs.eventApiTimestamp {return false}
+    if lhs.eventTimestamp != rhs.eventTimestamp {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Event_LogRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".LogRequest"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "platform_id"),
+    2: .standard(proto: "user_id"),
+    3: .standard(proto: "log_user_id"),
+    4: .standard(proto: "client_log_timestamp"),
+    10: .same(proto: "user"),
+    20: .standard(proto: "cohort_membership"),
+    12: .standard(proto: "session_profile"),
+    13: .same(proto: "session"),
+    14: .same(proto: "view"),
+    15: .same(proto: "request"),
+    16: .same(proto: "insertion"),
+    17: .same(proto: "impression"),
+    18: .same(proto: "click"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularUInt64Field(value: &self.platformID) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.userID) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.logUserID) }()
+      case 4: try { try decoder.decodeSingularUInt64Field(value: &self.clientLogTimestamp) }()
+      case 10: try { try decoder.decodeRepeatedMessageField(value: &self.user) }()
+      case 12: try { try decoder.decodeRepeatedMessageField(value: &self.sessionProfile) }()
+      case 13: try { try decoder.decodeRepeatedMessageField(value: &self.session) }()
+      case 14: try { try decoder.decodeRepeatedMessageField(value: &self.view) }()
+      case 15: try { try decoder.decodeRepeatedMessageField(value: &self.request) }()
+      case 16: try { try decoder.decodeRepeatedMessageField(value: &self.insertion) }()
+      case 17: try { try decoder.decodeRepeatedMessageField(value: &self.impression) }()
+      case 18: try { try decoder.decodeRepeatedMessageField(value: &self.click) }()
+      case 20: try { try decoder.decodeRepeatedMessageField(value: &self.cohortMembership) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.platformID != 0 {
+      try visitor.visitSingularUInt64Field(value: self.platformID, fieldNumber: 1)
+    }
+    if !self.userID.isEmpty {
+      try visitor.visitSingularStringField(value: self.userID, fieldNumber: 2)
+    }
+    if !self.logUserID.isEmpty {
+      try visitor.visitSingularStringField(value: self.logUserID, fieldNumber: 3)
+    }
+    if self.clientLogTimestamp != 0 {
+      try visitor.visitSingularUInt64Field(value: self.clientLogTimestamp, fieldNumber: 4)
+    }
+    if !self.user.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.user, fieldNumber: 10)
+    }
+    if !self.sessionProfile.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.sessionProfile, fieldNumber: 12)
+    }
+    if !self.session.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.session, fieldNumber: 13)
+    }
+    if !self.view.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.view, fieldNumber: 14)
+    }
+    if !self.request.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.request, fieldNumber: 15)
+    }
+    if !self.insertion.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.insertion, fieldNumber: 16)
+    }
+    if !self.impression.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.impression, fieldNumber: 17)
+    }
+    if !self.click.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.click, fieldNumber: 18)
+    }
+    if !self.cohortMembership.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.cohortMembership, fieldNumber: 20)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Event_LogRequest, rhs: Event_LogRequest) -> Bool {
+    if lhs.platformID != rhs.platformID {return false}
+    if lhs.userID != rhs.userID {return false}
+    if lhs.logUserID != rhs.logUserID {return false}
+    if lhs.clientLogTimestamp != rhs.clientLogTimestamp {return false}
+    if lhs.user != rhs.user {return false}
+    if lhs.cohortMembership != rhs.cohortMembership {return false}
+    if lhs.sessionProfile != rhs.sessionProfile {return false}
+    if lhs.session != rhs.session {return false}
+    if lhs.view != rhs.view {return false}
+    if lhs.request != rhs.request {return false}
+    if lhs.insertion != rhs.insertion {return false}
+    if lhs.impression != rhs.impression {return false}
+    if lhs.click != rhs.click {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Event_FlatEvent: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".FlatEvent"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    6: .same(proto: "ids"),
+    10: .same(proto: "user"),
+    12: .standard(proto: "session_profile"),
+    13: .same(proto: "session"),
+    14: .same(proto: "view"),
+    15: .standard(proto: "request_header"),
+    16: .same(proto: "insertion"),
+    17: .same(proto: "impression"),
+    18: .same(proto: "click"),
+    19: .standard(proto: "latest_impressions"),
+  ]
+
+  fileprivate class _StorageClass {
+    var _ids: Event_JoinedIdentifiers? = nil
+    var _user: Event_User? = nil
+    var _sessionProfile: Event_SessionProfile? = nil
+    var _session: Event_Session? = nil
+    var _view: Event_View? = nil
+    var _requestHeader: Event_RequestHeader? = nil
+    var _insertion: Event_Insertion? = nil
+    var _impression: Event_Impression? = nil
+    var _click: Event_Click? = nil
+    var _latestImpressions: Event_LatestImpressions? = nil
+
+    static let defaultInstance = _StorageClass()
+
+    private init() {}
+
+    init(copying source: _StorageClass) {
+      _ids = source._ids
+      _user = source._user
+      _sessionProfile = source._sessionProfile
+      _session = source._session
+      _view = source._view
+      _requestHeader = source._requestHeader
+      _insertion = source._insertion
+      _impression = source._impression
+      _click = source._click
+      _latestImpressions = source._latestImpressions
+    }
+  }
+
+  fileprivate mutating func _uniqueStorage() -> _StorageClass {
+    if !isKnownUniquelyReferenced(&_storage) {
+      _storage = _StorageClass(copying: _storage)
+    }
+    return _storage
+  }
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    _ = _uniqueStorage()
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      while let fieldNumber = try decoder.nextFieldNumber() {
+        // The use of inline closures is to circumvent an issue where the compiler
+        // allocates stack space for every case branch when no optimizations are
+        // enabled. https://github.com/apple/swift-protobuf/issues/1034
+        switch fieldNumber {
+        case 6: try { try decoder.decodeSingularMessageField(value: &_storage._ids) }()
+        case 10: try { try decoder.decodeSingularMessageField(value: &_storage._user) }()
+        case 12: try { try decoder.decodeSingularMessageField(value: &_storage._sessionProfile) }()
+        case 13: try { try decoder.decodeSingularMessageField(value: &_storage._session) }()
+        case 14: try { try decoder.decodeSingularMessageField(value: &_storage._view) }()
+        case 15: try { try decoder.decodeSingularMessageField(value: &_storage._requestHeader) }()
+        case 16: try { try decoder.decodeSingularMessageField(value: &_storage._insertion) }()
+        case 17: try { try decoder.decodeSingularMessageField(value: &_storage._impression) }()
+        case 18: try { try decoder.decodeSingularMessageField(value: &_storage._click) }()
+        case 19: try { try decoder.decodeSingularMessageField(value: &_storage._latestImpressions) }()
+        default: break
+        }
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      if let v = _storage._ids {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 6)
+      }
+      if let v = _storage._user {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 10)
+      }
+      if let v = _storage._sessionProfile {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 12)
+      }
+      if let v = _storage._session {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 13)
+      }
+      if let v = _storage._view {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 14)
+      }
+      if let v = _storage._requestHeader {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 15)
+      }
+      if let v = _storage._insertion {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 16)
+      }
+      if let v = _storage._impression {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 17)
+      }
+      if let v = _storage._click {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 18)
+      }
+      if let v = _storage._latestImpressions {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 19)
+      }
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Event_FlatEvent, rhs: Event_FlatEvent) -> Bool {
+    if lhs._storage !== rhs._storage {
+      let storagesAreEqual: Bool = withExtendedLifetime((lhs._storage, rhs._storage)) { (_args: (_StorageClass, _StorageClass)) in
+        let _storage = _args.0
+        let rhs_storage = _args.1
+        if _storage._ids != rhs_storage._ids {return false}
+        if _storage._user != rhs_storage._user {return false}
+        if _storage._sessionProfile != rhs_storage._sessionProfile {return false}
+        if _storage._session != rhs_storage._session {return false}
+        if _storage._view != rhs_storage._view {return false}
+        if _storage._requestHeader != rhs_storage._requestHeader {return false}
+        if _storage._insertion != rhs_storage._insertion {return false}
+        if _storage._impression != rhs_storage._impression {return false}
+        if _storage._click != rhs_storage._click {return false}
+        if _storage._latestImpressions != rhs_storage._latestImpressions {return false}
+        return true
+      }
+      if !storagesAreEqual {return false}
+    }
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
