@@ -140,7 +140,7 @@ public class ImpressionLogger: NSObject {
   // MARK: -
   /** Stores a copy of content in the logger itself. */
   private class ArrayDataSource: ImpressionLoggerDataSource {
-    let array: [[Content]]
+    private let array: [[Content]]
     init(array: [[Content]]) { self.array = array }
     func impressionLoggerContent(at indexPath: IndexPath) -> Content? {
       return indexPath.valueFromArray(array)
@@ -228,7 +228,6 @@ public class ImpressionLogger: NSObject {
     }
     for impression in impressions {
       if let content = dataSource.impressionLoggerContent(at: impression.path) {
-        print("***** logging impression for \(content)")
         metricsLogger.logImpression(content: content)
       }
     }
