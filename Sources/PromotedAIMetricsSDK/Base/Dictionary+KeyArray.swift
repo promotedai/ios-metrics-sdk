@@ -1,6 +1,6 @@
 import Foundation
 
-extension Dictionary where Key == String {
+public extension Dictionary where Key == String {
   /// Returns the first value present in the dictionary from
   /// `keyArray`.
   func firstValueFromKeysInArray(_ keyArray: [Key]) -> String? {
