@@ -171,6 +171,9 @@ public extension MetricsLogger {
     if let id = userID { user.userID = id }
     if let id = logUserID { user.logUserID = id }
     user.clientLogTimestamp = clock.nowMillis
+    if let payload = Self.payloadWrapperMessage(payload) {
+      user.payload = payload
+    }
     log(message: user)
   }
 
@@ -197,6 +200,9 @@ public extension MetricsLogger {
     if let id = requestID { impression.requestID = id }
     if let id = sessionID { impression.sessionID = id }
     if let id = viewID { impression.viewID = id }
+    if let payload = Self.payloadWrapperMessage(payload) {
+      impression.payload = payload
+    }
     log(message: impression)
   }
   
@@ -236,6 +242,9 @@ public extension MetricsLogger {
     click.name = actionName
     click.targetURL = targetURL ?? "#" + actionName
     click.elementID = actionName
+    if let payload = Self.payloadWrapperMessage(payload) {
+      click.payload = payload
+    }
     log(message: click)
   }
 
@@ -263,7 +272,27 @@ public extension MetricsLogger {
     view.name = name
     view.url = url ?? "#" + name
     if let use = useCase { view.useCase = use }
+    if let payload = Self.payloadWrapperMessage(payload) {
+      view.payload = payload
+    }
     log(message: view)
+  }
+  
+  private static func payloadWrapperMessage(_ message: Message?)
+      -> Event_Payload? {
+    do {
+      if let message = message {
+        var payloadMessage = Event_Payload()
+        try payloadMessage.payloadBytes = message.serializedData()
+        return payloadMessage
+      }
+    } catch BinaryEncodingError.missingRequiredFields {
+      print("[MetricsLogger] Payload missing required fields: " +
+            String(describing: message))
+    } catch {
+      print("[MetricsLogger] Unknown error serializing payload")
+    }
+    return nil
   }
 }
 
@@ -378,7 +407,7 @@ public extension MetricsLogger {
   
   private func maybeSchedulePendingBatchLoggingFlush() {
     if batchLoggingTimer != nil { return }
-    let interval = config.batchLoggingFlushInterval
+    let interval = config.loggingFlushInterval
     batchLoggingTimer = clock.schedule(timeInterval: interval) {
         [weak self] clock in
       guard let strongSelf = self else { return }
@@ -434,6 +463,7 @@ public extension MetricsLogger {
   @objc func flush() {
     cancelPendingBatchLoggingFlush()
     if logMessages.isEmpty { return }
+    if !config.loggingEnabled { return }
 
     let eventsCopy = logMessages
     logMessages.removeAll()
@@ -449,7 +479,7 @@ public extension MetricsLogger {
         print("[MetricsLogger] Fetch finished.")
       }
     } catch NetworkConnectionError.messageSerializationError(let message) {
-      print(message)
+      print("[MetricsLogger] \(message)")
     } catch NetworkConnectionError.unknownError {
       print("[MetricsLogger] ERROR: Unknown NetworkConnectionError sending message.")
     } catch {

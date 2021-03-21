@@ -97,7 +97,7 @@ final class MetricsLoggerTests: XCTestCase {
   }
   
   func testBatchFlush() {
-    let flushInterval = config!.batchLoggingFlushInterval
+    let flushInterval = config!.loggingFlushInterval
     metricsLogger!.startSession(userID: "foobar")
     let e = Event_Click()
 
@@ -124,6 +124,44 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertEqual(1, clock!.scheduledTimers.count)
     XCTAssertEqual(flushInterval, clock!.scheduledTimers[0].timeInterval)
     XCTAssertEqual(1, metricsLogger!.logMessages.count)
+    XCTAssertEqual(0, connection!.messages.count)
+  }
+  
+  func testPayload() {
+    var payload = Event_Impression()
+    payload.impressionID = "foobar"
+    metricsLogger!.logUser(payload: payload)
+    XCTAssertEqual(1, metricsLogger!.logMessages.count)
+    let message = metricsLogger!.logMessages[0]
+    XCTAssertTrue(message is Event_User)
+    let payloadData = (message as! Event_User).payload.payloadBytes
+    do {
+      let deserializedPayload = try Event_Impression(serializedData: payloadData)
+      XCTAssertEqual("foobar", deserializedPayload.impressionID)
+    } catch {
+      XCTFail("Exception when deserializing payload")
+    }
+  }
+  
+  func testDisableLogging() {
+    // Logging enabled.
+    metricsLogger!.logUser()
+    XCTAssertEqual(1, metricsLogger!.logMessages.count)
+    let message = metricsLogger!.logMessages[0]
+    XCTAssertTrue(message is Event_User)
+    metricsLogger!.flush()
+    XCTAssertEqual(1, connection!.messages.count)
+
+    // Logging disabled.
+    connection!.messages.removeAll()
+    config!.loggingEnabled = false
+    metricsLogger = MetricsLogger(clientConfig: config!,
+                                  clock: clock!,
+                                  connection: connection!,
+                                  idMap: SHA1IDMap.instance,
+                                  store: store!)
+    metricsLogger!.logUser()
+    metricsLogger!.flush()
     XCTAssertEqual(0, connection!.messages.count)
   }
   

@@ -15,7 +15,7 @@ public struct ClientConfig {
   
   var metricsLoggingWireFormat: MetricsLoggingWireFormat = .binary
   
-  var batchLoggingFlushInterval: TimeInterval = 10.0
+  var loggingFlushInterval: TimeInterval = 10.0
   
   public init() {}
 }
