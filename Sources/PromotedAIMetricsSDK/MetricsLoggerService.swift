@@ -26,7 +26,7 @@ import Foundation
  
  ## Example (using instance):
  ~~~
- let service = MetricsLoggingService(messageProvider: ...)
+ let service = MetricsLoggingService(initialConfig: ...)
  service.startLoggingServices()
  let logger = service.metricsLogger
  let impressionLogger = service.impressionLogger(dataSource: ...)
@@ -35,7 +35,7 @@ import Foundation
  ## Example (using sharedService):
  ~~~
  // Call this first before accessing the instance.
- MetricsLoggerService.startServices(messageProvider: ...)
+ MetricsLoggerService.startServices(initialConfig: ...)
  let service = MetricsLoggerService.sharedService
  let logger = service.metricsLogger
  let impressionLogger = service.impressionLogger(dataSource: ...)
@@ -45,9 +45,8 @@ import Foundation
 public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
 
   public private(set) lazy var metricsLogger: MetricsLogger = {
-    // Reading the config property initializes clientConfigService.
-    return MetricsLogger(messageProvider: self.messageProvider,
-                         clientConfig: self.config,
+    // Reading `self.config` initializes clientConfigService.
+    return MetricsLogger(clientConfig: self.config,
                          clock: self.clock,
                          connection: self.connection,
                          idMap: self.idMap,
@@ -70,16 +69,13 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
   private let connection: NetworkConnection
   private let initialConfig: ClientConfig
   private let idMap: IDMap
-  private let messageProvider: MessageProvider
   private let store: PersistentStore
 
-  public init(messageProvider: MessageProvider,
-              initialConfig: ClientConfig) {
+  public init(initialConfig: ClientConfig) {
     self.clock = SystemClock.instance
     self.connection = GTMSessionFetcherConnection()
     self.idMap = SHA1IDMap.instance
     self.initialConfig = initialConfig
-    self.messageProvider = messageProvider
     self.store = UserDefaultsPersistentStore()
   }
   
@@ -87,13 +83,11 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
               connection: NetworkConnection,
               idMap: IDMap,
               initialConfig: ClientConfig,
-              messageProvider: MessageProvider,
               store: PersistentStore) {
     self.clock = clock
     self.connection = connection
     self.idMap = idMap
     self.initialConfig = initialConfig
-    self.messageProvider = messageProvider
     self.store = store
   }
 
@@ -124,18 +118,14 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
 // MARK: - Singleton support for `MetricsLoggingService`
 public extension MetricsLoggerService {
 
-  static var messageProvider: MessageProvider?
   static var initialConfig: ClientConfig?
   
-  static func startServices(messageProvider: MessageProvider,
-                            initialConfig: ClientConfig) {
-    self.messageProvider = messageProvider
+  static func startServices(initialConfig: ClientConfig) {
     self.initialConfig = initialConfig
     self.sharedService.startLoggingServices()
   }
 
   /// Returns the shared logger. Causes error if `messageProvider` is not set.
   @objc static let sharedService =
-      MetricsLoggerService(messageProvider: messageProvider!,
-                           initialConfig: initialConfig!)
+      MetricsLoggerService(initialConfig: initialConfig!)
 }
