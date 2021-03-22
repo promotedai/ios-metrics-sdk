@@ -62,10 +62,10 @@ public protocol ImpressionLoggerDelegate: class {
 
    func reloadCollectionView() {
      self.collectionView.reloadData()
-     let visibleItems = collectionView.indexPathsForVisibleItems.map {
+     let visibleContent = collectionView.indexPathsForVisibleItems.map {
        path in content(atIndexPath: path)
      };
-     impressionLogger.collectionViewDidChangeVisibleContent(content)
+     impressionLogger.collectionViewDidChangeVisibleContent(visibleContent)
    }
  }
  ~~~
