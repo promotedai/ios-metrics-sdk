@@ -38,9 +38,11 @@ final class ScrollTrackerTests: XCTestCase {
     clock!.advance(to: 1)
     XCTAssertEqual(2, metricsLogger!.logMessages.count)
     let impression0 = metricsLogger!.logMessages[0] as! Event_Impression
-    XCTAssertEqual(idMap?.impressionID(contentID: "id0"), impression0.impressionID)
     let impression1 = metricsLogger!.logMessages[1] as! Event_Impression
-    XCTAssertEqual(idMap?.impressionID(contentID: "id1"), impression1.impressionID)
+    let actualSet = Set(arrayLiteral: impression0.impressionID, impression1.impressionID)
+    let expectedSet = Set(arrayLiteral: idMap!.impressionID(contentID: "id0"),
+                          idMap!.impressionID(contentID: "id1"))
+    XCTAssertEqual(expectedSet, actualSet)
 
     // Reset viewport to force all views visible on next pass.
     scrollTracker!.viewport = CGRect.zero
