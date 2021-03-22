@@ -9,9 +9,8 @@ public class ScrollTracker {
   private let clock: Clock
   private let metricsLogger: MetricsLogger
   
-  private var impressionLogger: ImpressionLogger?
-  /*visibleForTesting*/ private(set) var frames: [[CGRect]]
-  private var contentToIndexPath: [Content: IndexPath]
+  private var impressionLogger: ImpressionLogger
+  /*visibleForTesting*/ private(set) var contentToFrame: [Content: CGRect]
   private var timer: ScheduledTimer?
   
   /// Viewport of scroll view, based on scroll view's coord system.
@@ -21,69 +20,24 @@ public class ScrollTracker {
     didSet { maybeScheduleUpdateVisibilityTimer() }
   }
 
-  /// Content for scroll view.
-  public var sectionedContent: [[Content]] {
-    didSet {
-      invalidateImpressionLogger()
-      syncWithSectionedContent()
-      maybeScheduleUpdateVisibilityTimer()
-    }
-  }
-
   init(metricsLogger: MetricsLogger, clock: Clock) {
     self.clock = clock
     self.metricsLogger = metricsLogger
-    
-    self.impressionLogger = nil
-    self.frames = []
-    self.contentToIndexPath = [Content: IndexPath]()
+    self.impressionLogger = ImpressionLogger(metricsLogger: metricsLogger,
+                                             clock: clock)
+    self.contentToFrame = [:]
     self.timer = nil
-    
     self.viewport = CGRect.zero
-    self.sectionedContent = []
   }
   
-  public func setFrame(_ frame: CGRect, forContentAtIndex index: IndexPath) {
-    index.setValue(frame, inArray: &frames)
+  public func clearContent() {
+    contentToFrame.removeAll()
   }
   
   public func setFrame(_ frame: CGRect, forContent content: Content) {
-    if let path = contentToIndexPath[content] {
-      self.setFrame(frame, forContentAtIndex: path)
-    }
-  }
-  
-  private func syncWithSectionedContent() {
-    let previousFrames = frames
-    var frames: [[CGRect]] = []
-    var contentToIndexPath = [Content: IndexPath]()
-    for (sectionIndex, section) in sectionedContent.enumerated() {
-      frames.append([CGRect](repeating: CGRect.zero, count: section.count))
-      for (itemIndex, item) in section.enumerated() {
-        let indexPath = IndexPath(indexes: [sectionIndex, itemIndex])
-        contentToIndexPath[item] = indexPath
-        // If there's an existing frame at indexPath, re-use it.
-        if let previousFrame = indexPath.valueFromArray(previousFrames) {
-          indexPath.setValue(previousFrame, inArray: &frames)
-        }
-      }
-    }
-    self.frames = frames
-    self.contentToIndexPath = contentToIndexPath
+    contentToFrame[content] = frame
   }
 
-  private func ensureImpressionLogger() -> ImpressionLogger {
-    if let logger = impressionLogger { return logger }
-    impressionLogger = ImpressionLogger(sectionedContent: sectionedContent,
-                                        metricsLogger: metricsLogger,
-                                        clock: clock)
-    return impressionLogger!
-  }
-  
-  private func invalidateImpressionLogger() {
-    impressionLogger = nil
-  }
-  
   private func maybeScheduleUpdateVisibilityTimer() {
     if timer != nil { return }
     timer = clock.schedule(timeInterval: Self.updateThreshold) { [weak self] _ in
@@ -94,20 +48,16 @@ public class ScrollTracker {
   }
 
   private func updateVisibility() {
-    var visibleContent = [IndexPath]()
-    // TODO: For large content, binary or interpolation search.
-    outerLoop:
-    for (sectionIndex, section) in frames.enumerated() {
-      for (frameIndex, frame) in section.enumerated() {
-        let overlapRatio = frame.overlapRatio(viewport)
-        if overlapRatio >= Self.visibilityThreshold {
-          visibleContent.append(IndexPath(indexes: [sectionIndex, frameIndex]))
-        } else if !visibleContent.isEmpty {
-          break outerLoop
-        }
+    var visibleContent = [Content]()
+    // TODO(yu-hong): Replace linear search with binary/interpolation search
+    // for larger inputs. Need a secondary data structure to sort frames.
+    for (content, frame) in contentToFrame {
+      let overlapRatio = frame.overlapRatio(viewport)
+      if overlapRatio >= Self.visibilityThreshold {
+        visibleContent.append(content)
       }
     }
-    ensureImpressionLogger().collectionViewDidChangeVisibleContent(atIndexes: visibleContent)
+    impressionLogger.collectionViewDidChangeVisibleContent(visibleContent)
   }
 }
 

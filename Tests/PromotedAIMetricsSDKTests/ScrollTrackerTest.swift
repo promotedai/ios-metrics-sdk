@@ -7,7 +7,6 @@ import XCTest
 
 final class ScrollTrackerTests: XCTestCase {
   
-  private var data: [[Content]]?
   private var clock: FakeClock?
   private var idMap: IDMap?
   private var metricsLogger: MetricsLogger?
@@ -24,22 +23,8 @@ final class ScrollTrackerTests: XCTestCase {
                                   store: FakePersistentStore())
     scrollTracker = ScrollTracker(metricsLogger: metricsLogger!,
                                   clock: clock!)
-    data = [[Content(contentID: "id0")], [Content(contentID: "id1"), Content(contentID: "id2")]]
-    scrollTracker!.sectionedContent = data!
   }
 
-  func testSetFrame() {
-    scrollTracker!.setFrame(CGRect(x: 10, y: 10, width: 20, height: 20),
-                            forContentAtIndex: IndexPath(indexes: [0, 0]))
-    scrollTracker!.setFrame(CGRect(x: 50, y: 50, width: 100, height: 100),
-                            forContent: Content(contentID: "id1"))
-    XCTAssertEqual(CGRect(x: 10, y: 10, width: 20, height: 20),
-                   scrollTracker!.frames[0][0])
-    XCTAssertEqual(CGRect(x: 50, y: 50, width: 100, height: 100),
-                   scrollTracker!.frames[1][0])
-    XCTAssertEqual(CGRect.zero, scrollTracker!.frames[1][1])
-  }
-  
   func testSetViewport() {
     scrollTracker!.setFrame(CGRect(x: 0, y: 0, width: 20, height: 20),
                             forContent: Content(contentID: "id0"))
@@ -53,9 +38,11 @@ final class ScrollTrackerTests: XCTestCase {
     clock!.advance(to: 1)
     XCTAssertEqual(2, metricsLogger!.logMessages.count)
     let impression0 = metricsLogger!.logMessages[0] as! Event_Impression
-    XCTAssertEqual(idMap?.impressionID(contentID: "id0"), impression0.impressionID)
     let impression1 = metricsLogger!.logMessages[1] as! Event_Impression
-    XCTAssertEqual(idMap?.impressionID(contentID: "id1"), impression1.impressionID)
+    let actualSet = Set(arrayLiteral: impression0.impressionID, impression1.impressionID)
+    let expectedSet = Set(arrayLiteral: idMap!.impressionID(contentID: "id0"),
+                          idMap!.impressionID(contentID: "id1"))
+    XCTAssertEqual(expectedSet, actualSet)
 
     // Reset viewport to force all views visible on next pass.
     scrollTracker!.viewport = CGRect.zero
@@ -101,7 +88,6 @@ final class ScrollTrackerTests: XCTestCase {
   }
   
   static var allTests = [
-    ("testSetFrame", testSetFrame),
     ("testSetViewport", testSetViewport),
     ("testSetViewportItemNotOnScreen", testSetViewportItemNotOnScreen),
     ("testZeroAreaFrame", testZeroAreaFrame),
