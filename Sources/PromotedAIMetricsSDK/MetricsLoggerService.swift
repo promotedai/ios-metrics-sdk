@@ -71,7 +71,7 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
   private let idMap: IDMap
   private let store: PersistentStore
 
-  public init(initialConfig: ClientConfig) {
+  @objc public init(initialConfig: ClientConfig) {
     self.clock = SystemClock.instance
     self.connection = GTMSessionFetcherConnection()
     self.idMap = SHA1IDMap.instance
@@ -92,7 +92,10 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
   }
 
   /// Call this to start logging services, prior to accessing the logger.
-  public func startLoggingServices() {
+  /// Initialization is asynchronous, so this can be called from app
+  /// startup without performance penalty. For example, in
+  /// `application(_:didFinishLaunchingWithOptions:)`.
+  @objc public func startLoggingServices() {
     clientConfigService.fetchClientConfig()
   }
 
