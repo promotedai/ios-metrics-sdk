@@ -17,38 +17,6 @@ public protocol ImpressionLoggerDelegate: class {
 
 // MARK: -
 /**
- Provides `Content` displayed in a collection view.
- Typically, a `UIViewController` that hosts the collection view
- will implement this protocol.
- 
- # Example:
- ~~~
- class MyViewController: ImpressionLoggerDataSource {
-   func createImpressionLogger() {
-     self.logger = service.impressionLogger(dataSource: self)
-   }
-   func impressionLoggerContent(at path: IndexPath) -> Content? {
-     let item = path.item
-     if item >= self.items.count { return nil }
-     let myItemProperties = self.items[item]
-     return Item(properties: myItemProperties)
-   }
- }
- ~~~
- */
-@objc(PROImpressionLoggerDataSource)
-public protocol ImpressionLoggerDataSource {
-  
-  /// Returns the item at the given index path. Return `nil` if no
-  /// such item exists.
-  /// **IMPORTANT**: Always check the range of the index path, in case
-  /// your collection view displays cells at index paths that are not
-  /// wardrobe items.
-  @objc func impressionLoggerContent(at indexPath: IndexPath) -> Content?
-}
-
-// MARK: -
-/**
  Tracks impressions across scrolling collection views, such as
  `UICollectionView` or `UITableView`. Works best with views that
  can provide fine-grained updates of visible cells, but can also
@@ -64,27 +32,40 @@ public protocol ImpressionLoggerDataSource {
    var collectionView: UICollectionView
    var logger: MetricsLogger
    var impressionLogger: ImpressionLogger
+ 
+   private func content(atIndexPath path: IndexPath) -> Content? {
+     let item = path.item
+     if item >= self.items.count { return nil }
+     let myItemProperties = self.items[item]
+     return Item(properties: myItemProperties)
+   }
 
    func viewWillDisappear(_ animated: Bool) {
-     impressionLogger.collectionViewDidHideAllItems()
+     impressionLogger.collectionViewDidHideAllContent()
    }
 
    func collectionView(_ collectionView: UICollectionView,
                        willDisplay cell: UICollectionViewCell,
                        forItemAt indexPath: IndexPath) {
-     impressionLogger.collectionViewWillDisplayContent(atIndex: indexPath)
+     if let content = content(atIndexPath: indexPath) {
+      impressionLogger.collectionViewWillDisplay(content: content)
+     }
    }
     
    func collectionView(_ collectionView: UICollectionView,
                        didEndDisplaying cell: UICollectionViewCell,
                        forItemAt indexPath: IndexPath) {
-     impressionLogger.collectionViewDidHideContent(atIndex: indexPath)
+     if let content = content(atIndexPath: indexPath) {
+       impressionLogger.collectionViewDidHide(content: content)
+     }
    }
 
    func reloadCollectionView() {
      self.collectionView.reloadData()
-     let visibleItems = collectionView.indexPathsForVisibleItems;
-     impressionLogger.collectionViewDidChangeVisibleContentAtIndexes:visibleItems)
+     let visibleItems = collectionView.indexPathsForVisibleItems.map {
+       path in content(atIndexPath: path)
+     };
+     impressionLogger.collectionViewDidChangeVisibleContent(content)
    }
  }
  ~~~
@@ -96,8 +77,8 @@ public class ImpressionLogger: NSObject {
   /** Represents an impression of a cell in the collection view. */
   public struct Impression: CustomDebugStringConvertible, Hashable {
    
-    /// Index path of the cell that was impressed.
-    public var path: IndexPath
+    /// Content that was impressed.
+    public var content: Content
     
     /// Start time of impression.
     public var startTime: TimeInterval
@@ -113,133 +94,109 @@ public class ImpressionLogger: NSObject {
       }
     }
 
-    public init(path: IndexPath,
+    public init(content: Content,
                 startTime: TimeInterval,
                 endTime: TimeInterval = -1.0) {
-      self.path = path
+      self.content = content
       self.startTime = startTime
       self.endTime = endTime
     }
 
     public var debugDescription: String {
-      return "(\(path.description), \(startTime), \(endTime))"
+      return "(\(content.description), \(startTime), \(endTime))"
     }
     
     public func hash(into hasher: inout Hasher) {
-      hasher.combine(path)
+      hasher.combine(content)
     }
     
     public static func == (lhs: ImpressionLogger.Impression,
                            rhs: ImpressionLogger.Impression) -> Bool {
-      return ((lhs.path == rhs.path) &&
+      return ((lhs.content == rhs.content) &&
               (abs(lhs.startTime - rhs.startTime) < 0.01) &&
               (abs(lhs.endTime - rhs.endTime) < 0.01))
     }
   }
   
   // MARK: -
-  /** Stores a copy of content in the logger itself. */
-  private class ArrayDataSource: ImpressionLoggerDataSource {
-    private let array: [[Content]]
-    init(array: [[Content]]) { self.array = array }
-    func impressionLoggerContent(at indexPath: IndexPath) -> Content? {
-      return indexPath.valueFromArray(array)
-    }
-  }
-
-  // MARK: -
-  private let arrayDataSource: ArrayDataSource?
-  private unowned let dataSource: ImpressionLoggerDataSource
   private unowned let metricsLogger: MetricsLogger
   private let clock: Clock
-  private var impressionStarts: [IndexPath: TimeInterval]
+  private var impressionStarts: [Content: TimeInterval]
 
   public weak var delegate: ImpressionLoggerDelegate?
 
-  init(dataSource: ImpressionLoggerDataSource,
-       metricsLogger: MetricsLogger,
+  init(metricsLogger: MetricsLogger,
        clock: Clock) {
-    self.arrayDataSource = (dataSource as? ArrayDataSource) ?? nil
-    self.dataSource = dataSource
     self.metricsLogger = metricsLogger
     self.clock = clock
-    self.impressionStarts = [IndexPath: TimeInterval]()
-  }
-  
-  convenience init(sectionedContent: [[Content]],
-                   metricsLogger: MetricsLogger,
-                   clock: Clock) {
-    let arrayDataSource = ArrayDataSource(array: sectionedContent)
-    self.init(dataSource: arrayDataSource, metricsLogger: metricsLogger, clock: clock)
+    self.impressionStarts = [Content: TimeInterval]()
   }
 
   /// Call this method when new items are displayed.
   @objc(collectionViewWillDisplayContentAtIndex:)
-  public func collectionViewWillDisplayContent(atIndex index: IndexPath) {
-    broadcastStartAndAddImpressions(indexes: [index], now: clock.now)
+  public func collectionViewWillDisplay(content: Content) {
+    broadcastStartAndAddImpressions(contentArray: [content], now: clock.now)
   }
 
   /// Call this method when previously displayed items are hidden.
   /// If an item is reported as hidden that had not previously
   /// been displayed, the impression for that item will be ignored.
   @objc(collectionViewDidHideContentAtIndex:)
-  public func collectionViewDidHideContent(atIndex index: IndexPath) {
-    broadcastEndAndRemoveImpressions(indexes: [index], now: clock.now)
+  public func collectionViewDidHide(content: Content) {
+    broadcastEndAndRemoveImpressions(contentArray: [content], now: clock.now)
   }
 
   /// Call this method when the collection view changes content, but
   /// does not provide per-item updates for the change. For example,
   /// when a collection reloads.
   @objc(collectionViewDidChangeVisibleContentAtIndexes:)
-  public func collectionViewDidChangeVisibleContent(atIndexes indexes: [IndexPath]) {
+  public func collectionViewDidChangeVisibleContent(_ contentArray: [Content]) {
     let now = clock.now
 
-    var newlyShownItems = [IndexPath]()
-    for item in indexes {
-      if impressionStarts[item] == nil {
-        newlyShownItems.append(item)
+    var newlyShownContent = [Content]()
+    for content in contentArray {
+      if impressionStarts[content] == nil {
+        newlyShownContent.append(content)
       }
     }
 
-    var newlyHiddenItems = [IndexPath]()
-    for item in impressionStarts.keys {
-      if !indexes.contains(item) {
-        newlyHiddenItems.append(item)
+    var newlyHiddenContent = [Content]()
+    for content in impressionStarts.keys {
+      if !contentArray.contains(content) {
+        newlyHiddenContent.append(content)
       }
     }
 
-    broadcastStartAndAddImpressions(indexes: newlyShownItems, now: now)
-    broadcastEndAndRemoveImpressions(indexes: newlyHiddenItems, now: now)
+    broadcastStartAndAddImpressions(contentArray: newlyShownContent, now: now)
+    broadcastEndAndRemoveImpressions(contentArray: newlyHiddenContent, now: now)
   }
 
   /// Call this method when the collection view hides.
   @objc public func collectionViewDidHideAllContent() {
-    let keys = [IndexPath](impressionStarts.keys)
-    broadcastEndAndRemoveImpressions(indexes: keys, now: clock.now)
+    let keys = [Content](impressionStarts.keys)
+    broadcastEndAndRemoveImpressions(contentArray: keys, now: clock.now)
   }
   
-  private func broadcastStartAndAddImpressions(indexes: [IndexPath], now: TimeInterval) {
-    guard !indexes.isEmpty else { return }
+  private func broadcastStartAndAddImpressions(contentArray: [Content], now: TimeInterval) {
+    guard !contentArray.isEmpty else { return }
     var impressions = [Impression]()
-    for index in indexes {
-      let impression = Impression(path: index, startTime: now)
+    for content in contentArray {
+      let impression = Impression(content: content, startTime: now)
       impressions.append(impression)
-      impressionStarts[index] = now
+      impressionStarts[content] = now
     }
     for impression in impressions {
-      if let content = dataSource.impressionLoggerContent(at: impression.path) {
-        metricsLogger.logImpression(content: content)
-      }
+      metricsLogger.logImpression(content: impression.content)
     }
     delegate?.impressionLogger(self, didStartImpressions: impressions)
   }
   
-  private func broadcastEndAndRemoveImpressions(indexes: [IndexPath], now: TimeInterval) {
-    guard !indexes.isEmpty else { return }
+  private func broadcastEndAndRemoveImpressions(contentArray: [Content], now: TimeInterval) {
+    guard !contentArray.isEmpty else { return }
     var impressions = [Impression]()
-    for index in indexes {
-      guard let start = impressionStarts.removeValue(forKey: index) else { continue }
-      let impression = Impression(path: index, startTime: start, endTime: now)
+    for content in contentArray {
+      guard let start = impressionStarts.removeValue(forKey: content) else { continue }
+      let impression = Impression(content: content, startTime: start, endTime: now)
       impressions.append(impression)
     }
     // Not calling `metricsLogger`. No logging end impressions for now.

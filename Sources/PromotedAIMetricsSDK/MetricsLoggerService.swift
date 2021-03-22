@@ -96,20 +96,11 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
     clientConfigService.fetchClientConfig()
   }
 
-  @objc public func impressionLogger(dataSource: ImpressionLoggerDataSource)
-      -> ImpressionLogger {
-    return ImpressionLogger(dataSource: dataSource,
-                            metricsLogger: self.metricsLogger,
+  @objc public func impressionLogger() -> ImpressionLogger {
+    return ImpressionLogger(metricsLogger: self.metricsLogger,
                             clock: self.clock)
   }
-  
-  @objc public func impressionLogger(sectionedContent: [[Content]])
-      -> ImpressionLogger {
-    return ImpressionLogger(sectionedContent: sectionedContent,
-                            metricsLogger: self.metricsLogger,
-                            clock: self.clock)
-  }
-  
+
   public func scrollTracker() -> ScrollTracker {
     return ScrollTracker(metricsLogger: self.metricsLogger, clock: self.clock)
   }

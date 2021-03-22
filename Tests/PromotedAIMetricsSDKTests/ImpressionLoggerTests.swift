@@ -29,17 +29,15 @@ final class ImpressionLoggerTests: XCTestCase {
     }
   }
   
-  class DataSource: ImpressionLoggerDataSource {
-    func impressionLoggerContent(at indexPath: IndexPath) -> Content? {
-      return nil
-    }
+  private func content(_ contentID: String) -> Content {
+    return Content(contentID: contentID)
   }
   
-  private func impression(_ item: IndexPath.Element,
+  private func impression(_ contentID: String,
                           _ startTime: TimeInterval,
                           _ endTime: TimeInterval = -1.0) -> ImpressionLogger.Impression {
-    let path = IndexPath(index: item)
-    return ImpressionLogger.Impression(path: path, startTime: startTime, endTime: endTime)
+    let content = Content(contentID: contentID)
+    return ImpressionLogger.Impression(content: content, startTime: startTime, endTime: endTime)
   }
 
   /** Asserts that list contents are equal regardless of order. */
@@ -49,7 +47,6 @@ final class ImpressionLoggerTests: XCTestCase {
   }
   
   private var clock: FakeClock?
-  private var dataSource: DataSource?
   private var delegate: Delegate?
   private var idMap: IDMap?
   private var metricsLogger: MetricsLogger?
@@ -58,7 +55,6 @@ final class ImpressionLoggerTests: XCTestCase {
   public override func setUp() {
     super.setUp()
     clock = FakeClock()
-    dataSource = DataSource()
     delegate = Delegate()
     idMap = SHA1IDMap.instance
     metricsLogger = MetricsLogger(clientConfig: ClientConfig(),
@@ -66,8 +62,7 @@ final class ImpressionLoggerTests: XCTestCase {
                                   connection: FakeNetworkConnection(),
                                   idMap: idMap!,
                                   store: FakePersistentStore())
-    impressionLogger = ImpressionLogger(dataSource: dataSource!,
-                                        metricsLogger: metricsLogger!,
+    impressionLogger = ImpressionLogger(metricsLogger: metricsLogger!,
                                         clock: clock!)
     impressionLogger!.delegate = delegate
   }
@@ -75,62 +70,70 @@ final class ImpressionLoggerTests: XCTestCase {
   func testStartImpressions() {
     clock!.advance(to: 123)
     
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(index: 0))
-    assertContentsEqual(delegate!.startImpressions, [impression(0, 123)])
+    impressionLogger!.collectionViewWillDisplay(content: content("jeff"))
+    assertContentsEqual(delegate!.startImpressions, [impression("jeff", 123)])
     
     delegate!.clear()
     clock!.now = 500
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(index: 0))
+    impressionLogger!.collectionViewWillDisplay(content: content("britta"))
     clock!.now = 501
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(index: 1))
+    impressionLogger!.collectionViewWillDisplay(content: content("troy"))
     clock!.now = 502
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(index: 2))
+    impressionLogger!.collectionViewWillDisplay(content: content("abed"))
     assertContentsEqual(delegate!.startImpressions,
-                        [impression(0, 500), impression(1, 501), impression(2, 502)])
+                        [impression("britta", 500),
+                         impression("troy", 501),
+                         impression("abed", 502)])
   }
   
   func testEndImpressions() {
     clock!.advance(to: 123)
     
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(index: 0))
+    impressionLogger!.collectionViewWillDisplay(content: content("annie"))
     clock!.now = 200
-    impressionLogger!.collectionViewDidHideContent(atIndex: IndexPath(index: 0))
-    assertContentsEqual(delegate!.endImpressions, [impression(0, 123, 200)])
+    impressionLogger!.collectionViewDidHide(content: content("annie"))
+    assertContentsEqual(delegate!.endImpressions, [impression("annie", 123, 200)])
   }
   
   func testDidChangeImpressions() {
     clock!.advance(to: 123)
     
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(index: 0))
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(index: 1))
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(index: 2))
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(index: 3))
+    impressionLogger!.collectionViewWillDisplay(content: content("shirley"))
+    impressionLogger!.collectionViewWillDisplay(content: content("pierce"))
+    impressionLogger!.collectionViewWillDisplay(content: content("ben"))
+    impressionLogger!.collectionViewWillDisplay(content: content("craig"))
     assertContentsEqual(delegate!.startImpressions,
-                        [impression(0, 123), impression(1, 123),
-                         impression(2, 123), impression(3, 123)])
+                        [impression("shirley", 123),
+                         impression("pierce", 123),
+                         impression("ben", 123),
+                         impression("craig", 123)])
 
     delegate!.clear()
-    let visibleItems = [IndexPath(index: 2), IndexPath(index: 3),
-                        IndexPath(index: 4), IndexPath(index: 5)]
+    let visibleContent = [content("shirley"),
+                          content("craig"),
+                          content("troy"),
+                          content("abed")]
     clock!.now = 200
     
-    impressionLogger!.collectionViewDidChangeVisibleContent(atIndexes: visibleItems)
+    impressionLogger!.collectionViewDidChangeVisibleContent(visibleContent)
     assertContentsEqual(delegate!.startImpressions,
-                        [impression(4, 200), impression(5, 200)])
+                        [impression("troy", 200), impression("abed", 200)])
     assertContentsEqual(delegate!.endImpressions,
-                        [impression(0, 123, 200), impression(1, 123, 200)])
+                        [impression("pierce", 123, 200), impression("ben", 123, 200)])
   }
   
   func testDidHideAllImpressions() {
     clock!.advance(to: 123)
     
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(index: 0))
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(index: 1))
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(index: 2))
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(index: 3))
+    impressionLogger!.collectionViewWillDisplay(content: content("jeff"))
+    impressionLogger!.collectionViewWillDisplay(content: content("britta"))
+    impressionLogger!.collectionViewWillDisplay(content: content("annie"))
+    impressionLogger!.collectionViewWillDisplay(content: content("troy"))
     assertContentsEqual(delegate!.startImpressions,
-                        [impression(0, 123), impression(1, 123),
-                         impression(2, 123), impression(3, 123)])
+                        [impression("jeff", 123),
+                         impression("britta", 123),
+                         impression("annie", 123),
+                         impression("troy", 123)])
 
     delegate!.clear()
     clock!.now = 200
@@ -138,42 +141,10 @@ final class ImpressionLoggerTests: XCTestCase {
     impressionLogger!.collectionViewDidHideAllContent()
     assertContentsEqual(delegate!.startImpressions, [])
     assertContentsEqual(delegate!.endImpressions,
-                        [impression(0, 123, 200), impression(1, 123, 200),
-                         impression(2, 123, 200), impression(3, 123, 200)])
-  }
-  
-  func testSingleSectionArrayDataSource() {
-    let array = [Content(contentID: "id0"), Content(contentID: "id1"), Content(contentID: "id2")]
-    impressionLogger = ImpressionLogger(sectionedContent: [array],
-                                        metricsLogger: metricsLogger!,
-                                        clock: clock!)
-    
-    clock!.advance(to: 123)
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(index: 0))
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(index: 1))
-
-    XCTAssertEqual(2, metricsLogger!.logMessages.count)
-    let impression0 = metricsLogger!.logMessages[0] as! Event_Impression
-    XCTAssertEqual(idMap!.impressionID(contentID: "id0"), impression0.impressionID)
-    let impression1 = metricsLogger!.logMessages[1] as! Event_Impression
-    XCTAssertEqual(idMap!.impressionID(contentID: "id1"), impression1.impressionID)
-  }
-  
-  func testMultiSectionArrayDataSource() {
-    let array = [[Content(contentID: "id0")], [Content(contentID: "id1"), Content(contentID: "id2")]]
-    impressionLogger = ImpressionLogger(sectionedContent: array,
-                                        metricsLogger: metricsLogger!,
-                                        clock: clock!)
-    
-    clock!.advance(to: 123)
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(indexes: [0, 0]))
-    impressionLogger!.collectionViewWillDisplayContent(atIndex: IndexPath(indexes: [1, 0]))
-
-    XCTAssertEqual(2, metricsLogger!.logMessages.count)
-    let impression0 = metricsLogger!.logMessages[0] as! Event_Impression
-    XCTAssertEqual(idMap!.impressionID(contentID: "id0"), impression0.impressionID)
-    let impression1 = metricsLogger!.logMessages[1] as! Event_Impression
-    XCTAssertEqual(idMap!.impressionID(contentID: "id1"), impression1.impressionID)
+                        [impression("jeff", 123, 200),
+                         impression("britta", 123, 200),
+                         impression("annie", 123, 200),
+                         impression("troy", 123, 200)])
   }
   
   static var allTests = [
@@ -181,7 +152,5 @@ final class ImpressionLoggerTests: XCTestCase {
     ("testEndImpressions", testEndImpressions),
     ("testDidChangeImpressions", testDidChangeImpressions),
     ("testDidHideAllImpressions", testDidHideAllImpressions),
-    ("testSingleSectionArrayDataSource", testSingleSectionArrayDataSource),
-    ("testMultiSectionArrayDataSource", testMultiSectionArrayDataSource),
   ]
 }
