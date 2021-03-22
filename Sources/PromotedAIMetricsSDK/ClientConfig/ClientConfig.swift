@@ -1,6 +1,7 @@
 import Foundation
 
-public struct ClientConfig {
+@objc(PROClientConfig)
+public class ClientConfig: NSObject {
   
   enum MetricsLoggingWireFormat {
     case json
@@ -9,13 +10,13 @@ public struct ClientConfig {
   
   var loggingEnabled: Bool = true
   
-  public var metricsLoggingURL: String = ""
+  @objc public var metricsLoggingURL: String = ""
   
-  public var metricsLoggingAPIKey: String = ""
+  @objc public var metricsLoggingAPIKey: String = ""
   
   var metricsLoggingWireFormat: MetricsLoggingWireFormat = .binary
   
   var loggingFlushInterval: TimeInterval = 10.0
   
-  public init() {}
+  @objc public override init() {}
 }
