@@ -1,36 +1,64 @@
 import Foundation
 
-protocol ClientConfigDefaultProvider: class {
-  var defaultConfig: ClientConfig { get }
+// MARK: - ClientConfigListener
+public protocol ClientConfigListener: class {
+  func clientConfigDidChange(_ config: ClientConfig)
 }
 
-class ClientConfigService: NSObject {
+// MARK: - ClientConfigService
+/**
+ Provides `ClientConfig` from some arbitrary source. The config
+ is always accessible during the service's lifetime, but may change
+ depending on when it is accessed.
+ */
+public protocol ClientConfigService {
+  var config: ClientConfig { get }
+  func addClientConfigListener(_ listener: ClientConfigListener)
+  func removeClientConfigListener(_ listener: ClientConfigListener)
+  func fetchClientConfig()
+}
 
-  private var cachedConfig: ClientConfig?
-  private weak var provider: ClientConfigDefaultProvider?
-  private weak var store: PersistentStore?
+// MARK: - ClientConfigService
+/** DO NOT INSTANTIATE. Base class for ClientConfigService. */
+open class AbstractClientConfigService: ClientConfigService {
 
-  /** Client configuration for this session. This will never change. */
-  var config: ClientConfig {
-    if let result = cachedConfig { return result }
-    return provider!.defaultConfig
+  public private(set) var config: ClientConfig
+  public let initialConfig: ClientConfig
+
+  private var listeners: [ClientConfigListener]
+
+  public init(initialConfig: ClientConfig) {
+    self.config = initialConfig
+    self.initialConfig = initialConfig
+    self.listeners = []
+  }
+  
+  public func addClientConfigListener(_ listener: ClientConfigListener) {
+    listeners.append(listener)
+  }
+  
+  public func removeClientConfigListener(_ listener: ClientConfigListener) {
+    listeners.removeAll(where: { $0 === listener })
   }
 
-  init(provider: ClientConfigDefaultProvider,
-       store: PersistentStore) {
-    super.init()
-    self.cachedConfig = nil
-    self.provider = provider
-    self.store = store
-    
-    // TODO: Stub always sets this to default config.
-    // When we persist to disk, the user defaults should be the
-    // first thing we try, then the default config.
-    self.cachedConfig = provider.defaultConfig
+  open func fetchClientConfig() {
+    assertionFailure("Don't instantiate ClientConfigService")
   }
+}
 
-  func fetchClientConfig() {
-    // No-op for this stub version.
-    // Make RPC call, then process config.
+// MARK: - Subclassing
+public extension AbstractClientConfigService {
+  func setClientConfigAndNotifyListeners(_ config: ClientConfig) {
+    self.config = config
+    for l in listeners {
+      l.clientConfigDidChange(config)
+    }
+  }
+}
+
+// MARK: - LocalClientConfigService
+public class LocalClientConfigService: AbstractClientConfigService {
+  public override func fetchClientConfig() {
+    // No-op for local config.
   }
 }
