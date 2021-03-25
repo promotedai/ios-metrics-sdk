@@ -13,7 +13,7 @@ public extension MetricsLogger {
   func logClickToLike(content: Content, didLike: Bool) {
     let actionName = didLike ? "like" : "unlike"
     logAction(name: actionName,
-              actionType: .like,
+              type: .like,
               contentID: content.contentID,
               insertionID: content.insertionID)
   }
@@ -47,7 +47,7 @@ public extension MetricsLogger {
 
   private func logClickToShow(name: String, optionalContent content: Content?) {
     logAction(name: name,
-              actionType: .click,
+              type: .click,
               contentID: content?.contentID,
               insertionID: content?.insertionID)
   }
@@ -55,7 +55,7 @@ public extension MetricsLogger {
   /// Logs a click to sign up as a new user.
   @objc func logClickToSignUp(userID: String) {
     logAction(name: "sign-up",
-              actionType: .click,
+              type: .click,
               contentID: userID,
               insertionID: nil)
   }
@@ -64,7 +64,7 @@ public extension MetricsLogger {
   @objc(logClickToPurchaseItem:)
   func logClickToPurchase(item: Item) {
     logAction(name: "purchase",
-              actionType: .purchase,
+              type: .purchase,
               contentID: item.contentID,
               insertionID: item.insertionID)
   }
@@ -72,7 +72,7 @@ public extension MetricsLogger {
   /// Logs a click for the given action name.
   @objc func logClick(actionName: String) {
     logAction(name: actionName,
-              actionType: .click,
+              type: .click,
               contentID: nil,
               insertionID: nil)
   }
@@ -80,7 +80,7 @@ public extension MetricsLogger {
   /// Logs a click for the given action name involving the given item.
   @objc func logClick(actionName: String, content: Content) {
     logAction(name: actionName,
-              actionType: .click,
+              type: .click,
               contentID: content.contentID,
               insertionID: content.insertionID)
   }

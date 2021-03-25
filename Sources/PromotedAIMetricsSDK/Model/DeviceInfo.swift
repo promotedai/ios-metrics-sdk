@@ -1,7 +1,7 @@
 import Foundation
 
 // MARK: - DeviceInfo
-public protocol DeviceInfo {
+protocol DeviceInfo {
   var deviceType: DeviceType { get }
   var brand: String { get }
   var deviceName: String { get }
@@ -10,7 +10,16 @@ public protocol DeviceInfo {
   var screenSizePts: (UInt32, UInt32) { get }
 }
 
-#if os(ios)
+func CurrentDeviceInfo() -> DeviceInfo {
+  #if os(iOS)
+    return IOSDeviceInfo()
+  #elseif os(macOS)
+    return MacOSDeviceInfo()
+  #endif
+}
+
+// MARK: - iOS
+#if os(iOS)
 import UIKit
 
 class IOSDeviceInfo: DeviceInfo {
@@ -38,7 +47,7 @@ class IOSDeviceInfo: DeviceInfo {
     return UIDevice.current.systemVersion
   }
   
-  lazy var model: String {
+  lazy var model: String = {
     var systemInfo = utsname()
     uname(&systemInfo)
     let machineMirror = Mirror(reflecting: systemInfo.machine)
@@ -55,7 +64,8 @@ class IOSDeviceInfo: DeviceInfo {
   }
 }
 
-#elseif os(mac)
+// MARK: - macOS
+#elseif os(macOS)
 
 class MacOSDeviceInfo: DeviceInfo {
 

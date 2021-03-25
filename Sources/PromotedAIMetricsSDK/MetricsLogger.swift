@@ -97,7 +97,7 @@ public class MetricsLogger: NSObject {
     return device
   } ()
 
-  public init(clientConfig: ClientConfig,
+  init(clientConfig: ClientConfig,
               clock: Clock,
               connection: NetworkConnection,
               deviceInfo: DeviceInfo,
