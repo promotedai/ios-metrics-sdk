@@ -8,7 +8,7 @@ public class FakeIDMap: AbstractIDMap {
   public override func logUserID(userID: String?) -> String {
     return deterministicUUIDString(value: userID)
   }
-  public override func clickID() -> String {
-    return "fake-click-id"
+  public override func actionID() -> String {
+    return "fake-action-id"
   }
 }

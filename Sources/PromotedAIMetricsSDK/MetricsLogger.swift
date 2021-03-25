@@ -60,6 +60,7 @@ public class MetricsLogger: NSObject {
   private let clock: Clock
   private let config: ClientConfig
   private let connection: NetworkConnection
+  private let deviceInfo: DeviceInfo
   private let idMap: IDMap
   private let store: PersistentStore
 
@@ -78,20 +79,40 @@ public class MetricsLogger: NSObject {
   /// `startSession(userID:)` or `startSessionSignedOut()` is
   /// called.
   /*visibleForTesting*/ private(set) var logUserID: String?
+  
+  private var sessionID: String?
+  
+  private lazy var deviceMessage: Event_Device = {
+    var device = Event_Device()
+    if let type = deviceInfo.deviceType.protoValue { device.deviceType = type }
+    device.brand = deviceInfo.brand
+    device.deviceName = deviceInfo.deviceName
+    device.display = deviceInfo.display
+    device.model = deviceInfo.model
+    let (width, height) = deviceInfo.screenSizePts
+    var size = Event_Size()
+    size.width = width
+    size.height = height
+    device.resolution = size
+    return device
+  } ()
 
   public init(clientConfig: ClientConfig,
               clock: Clock,
               connection: NetworkConnection,
+              deviceInfo: DeviceInfo,
               idMap: IDMap,
               store: PersistentStore) {
     self.clock = clock
     self.config = clientConfig
     self.connection = connection
+    self.deviceInfo = deviceInfo
     self.idMap = idMap
     self.store = store
     self.logMessages = []
     self.userID = nil
     self.logUserID = nil
+    self.sessionID = nil
     self.metricsLoggingURL = URL(string: config.metricsLoggingURL)
   }
   
@@ -103,6 +124,7 @@ public class MetricsLogger: NSObject {
   public func startSessionAndLogUser(userID: String) {
     startSession(userID: userID)
     logUser()
+    logSession()
   }
 
   /// Call when sign-in completes with no user.
@@ -111,6 +133,7 @@ public class MetricsLogger: NSObject {
   @objc public func startSessionAndLogSignedOutUser() {
     startSessionSignedOut()
     logUser()
+    logSession()
   }
 
   /// Starts a new session with the given `userID`.
@@ -141,6 +164,7 @@ public class MetricsLogger: NSObject {
   }
   
   private func startSessionAndUpdateUserIDs(userID: String?) {
+    self.sessionID = idMap.sessionID()
     self.userID = userID
     if let cachedLogUserID = store.logUserID {
       if userID == store.userID {
@@ -152,6 +176,31 @@ public class MetricsLogger: NSObject {
     let newLogUserID = idMap.logUserID(userID: userID)
     store.logUserID = newLogUserID
     self.logUserID = newLogUserID
+  }
+  
+  private func userInfoMessage() -> Event_UserInfo {
+    assert(logUserID != nil, "Call startSession* before any log* methods")
+    var userInfo = Event_UserInfo()
+    if let id = userID { userInfo.userID = id }
+    if let id = logUserID { userInfo.logUserID = id }
+    return userInfo
+  }
+
+  private static func customDataWrapperMessage(_ message: Message?)
+      -> Event_CustomData? {
+    do {
+      if let message = message {
+        var dataMessage = Event_CustomData()
+        try dataMessage.dataBytes = message.serializedData()
+        return dataMessage
+      }
+    } catch BinaryEncodingError.missingRequiredFields {
+      print("[MetricsLogger] Payload missing required fields: " +
+            String(describing: message))
+    } catch {
+      print("[MetricsLogger] Unknown error serializing data")
+    }
+    return nil
   }
 }
 
@@ -165,16 +214,26 @@ public extension MetricsLogger {
   /// - `clientLogTimestamp` from `clock.nowMillis`
   ///
   /// - Parameters:
-  ///   - payload: Client-specific message
-  func logUser(payload: Message? = nil) {
+  ///   - data: Client-specific message
+  func logUser(data: Message? = nil) {
     var user = Event_User()
-    if let id = userID { user.userID = id }
-    if let id = logUserID { user.logUserID = id }
-    user.clientLogTimestamp = clock.nowMillis
-    if let payload = Self.payloadWrapperMessage(payload) {
-      user.payload = payload
+    user.userInfo = userInfoMessage()
+    if let data = Self.customDataWrapperMessage(data) {
+      user.data = data
     }
     log(message: user)
+  }
+  
+  func logSession(data: Message? = nil) {
+    assert(sessionID != nil, "Call startSession* before any log* methods")
+    var session = Event_Session()
+    session.userInfo = userInfoMessage()
+    if let id = sessionID { session.sessionID = id }
+    session.startEpochMillis = clock.nowMillis
+    if let data = Self.customDataWrapperMessage(data) {
+      session.data = data
+    }
+    log(message: session)
   }
 
   /// Logs an impression event.
@@ -186,22 +245,21 @@ public extension MetricsLogger {
   /// - Parameters:
   ///   - contentID: Content ID from which to derive `impressionID`
   ///   - insertionID: Insertion ID as provided by Promoted
-  ///   - payload: Client-specific message
+  ///   - data: Client-specific message
   func logImpression(contentID: String,
                      insertionID: String? = nil,
                      requestID: String? = nil,
-                     sessionID: String? = nil,
                      viewID: String? = nil,
-                     payload: Message? = nil) {
+                     data: Message? = nil) {
     var impression = Event_Impression()
-    impression.clientLogTimestamp = clock.nowMillis
+    impression.userInfo = userInfoMessage()
     impression.impressionID = idMap.impressionID(contentID: contentID)
     if let id = insertionID { impression.insertionID = id }
     if let id = requestID { impression.requestID = id }
     if let id = sessionID { impression.sessionID = id }
     if let id = viewID { impression.viewID = id }
-    if let payload = Self.payloadWrapperMessage(payload) {
-      impression.payload = payload
+    if let data = Self.customDataWrapperMessage(data) {
+      impression.data = data
     }
     log(message: impression)
   }
@@ -217,35 +275,43 @@ public extension MetricsLogger {
   /// - If no `elementID` is provided, `elementID` is derived from `name`
   ///
   /// - Parameters:
-  ///   - actionName: Name for action to log, human readable
+  ///   - name: Name for action to log, human readable
   ///   - contentID: Content ID from which to derive `impressionID`
   ///   - insertionID: Insertion ID as provided by Promoted
-  ///   - payload: Client-specific message
-  func logClick(actionName: String,
-                contentID: String? = nil,
-                insertionID: String? = nil,
-                requestID: String? = nil,
-                sessionID: String? = nil,
-                viewID: String? = nil,
-                targetURL: String? = nil,
-                elementID: String? = nil,
-                payload: Message? = nil) {
-    var click = Event_Click()
-    click.clientLogTimestamp = clock.nowMillis
-    click.clickID = idMap.clickID()
+  ///   - data: Client-specific message
+  func logAction(name: String,
+                 type: ActionType,
+                 contentID: String? = nil,
+                 insertionID: String? = nil,
+                 requestID: String? = nil,
+                 viewID: String? = nil,
+                 targetURL: String? = nil,
+                 elementID: String? = nil,
+                 data: Message? = nil) {
+    var action = Event_Action()
+    action.userInfo = userInfoMessage()
+    action.actionID = idMap.actionID()
     let impressionID = idMap.impressionIDOrNil(contentID: contentID)
-    if let id = impressionID { click.impressionID = id }
-    if let id = insertionID { click.insertionID = id }
-    if let id = requestID { click.requestID = id }
-    if let id = sessionID { click.sessionID = id }
-    if let id = viewID { click.viewID = id }
-    click.name = actionName
-    click.targetURL = targetURL ?? "#" + actionName
-    click.elementID = actionName
-    if let payload = Self.payloadWrapperMessage(payload) {
-      click.payload = payload
+    if let id = impressionID { action.impressionID = id }
+    if let id = insertionID { action.insertionID = id }
+    if let id = requestID { action.requestID = id }
+    if let id = sessionID { action.sessionID = id }
+    if let id = viewID { action.viewID = id }
+    action.name = name
+    if let type = type.protoValue { action.actionType = type }
+    action.elementID = name
+    switch type {
+    case .click:
+      var click = Event_Click()
+      if let url = targetURL { click.targetURL = url }
+      action.click = click
+    default:
+      break
     }
-    log(message: click)
+    if let data = Self.customDataWrapperMessage(data) {
+      action.data = data
+    }
+    log(message: action)
   }
 
   /// Logs a view event.
@@ -259,40 +325,26 @@ public extension MetricsLogger {
   ///   - name: Name for view, human readable
   ///   - url: URL for the view, can contain options for the view
   ///   - useCase: Use case for view
-  ///   - payload: Client-specific message
+  ///   - data: Client-specific message
   func logView(name: String,
-               sessionID: String? = nil,
                url: String? = nil,
                useCase: Event_UseCase? = nil,
-               payload: Message? = nil) {
+               data: Message? = nil) {
     var view = Event_View()
-    view.clientLogTimestamp = clock.nowMillis
+    view.userInfo = userInfoMessage()
     view.viewID = idMap.viewID(viewName: name)
     if let id = sessionID { view.sessionID = id }
     view.name = name
     view.url = url ?? "#" + name
     if let use = useCase { view.useCase = use }
-    if let payload = Self.payloadWrapperMessage(payload) {
-      view.payload = payload
+    if let data = Self.customDataWrapperMessage(data) {
+      view.data = data
     }
+    view.device = deviceMessage
+    view.viewType = .appScreen
+    let appScreenView = Event_AppScreenView()
+    view.appScreenView = appScreenView
     log(message: view)
-  }
-  
-  private static func payloadWrapperMessage(_ message: Message?)
-      -> Event_Payload? {
-    do {
-      if let message = message {
-        var payloadMessage = Event_Payload()
-        try payloadMessage.payloadBytes = message.serializedData()
-        return payloadMessage
-      }
-    } catch BinaryEncodingError.missingRequiredFields {
-      print("[MetricsLogger] Payload missing required fields: " +
-            String(describing: message))
-    } catch {
-      print("[MetricsLogger] Unknown error serializing payload")
-    }
-    return nil
   }
 }
 
@@ -328,8 +380,7 @@ public extension MetricsLogger {
   
   private func logRequestMessage(events: [Message]) -> Event_LogRequest {
     var logRequest = Event_LogRequest()
-    if let id = userID { logRequest.userID = id }
-    if let id = logUserID { logRequest.logUserID = id }
+    logRequest.userInfo = userInfoMessage()
     for event in events {
       switch event {
       case let user as Event_User:
@@ -346,8 +397,8 @@ public extension MetricsLogger {
         logRequest.insertion.append(insertion)
       case let impression as Event_Impression:
         logRequest.impression.append(impression)
-      case let click as Event_Click:
-        logRequest.click.append(click)
+      case let action as Event_Action:
+        logRequest.action.append(action)
       default:
         print("Unknown event: \(event)")
       }

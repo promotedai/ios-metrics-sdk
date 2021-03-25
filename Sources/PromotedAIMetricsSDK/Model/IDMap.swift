@@ -16,13 +16,15 @@ public protocol IDMap {
   /// the underlying user ID.
   /// Returns the null UUID string when passed `nil`.
   func logUserID(userID: String?) -> String
+  
+  func sessionID() -> String
 
   /// Given a client-side ID, generate a server-side impression ID.
   /// Returns the null UUID string when passed `nil`.
   func impressionID(contentID: String?) -> String
   
   /// Generates a new click ID.
-  func clickID() -> String
+  func actionID() -> String
   
   /// Generates a new view ID.
   /// Returns the null UUID string when passed `nil`.
@@ -55,12 +57,16 @@ open class AbstractIDMap: IDMap {
   open func logUserID(userID: String?) -> String {
     return UUID().uuidString
   }
+  
+  open func sessionID() -> String {
+    return UUID().uuidString
+  }
 
   open func impressionID(contentID: String?) -> String {
     return deterministicUUIDString(value: contentID)
   }
   
-  open func clickID() -> String {
+  open func actionID() -> String {
     return UUID().uuidString
   }
   
