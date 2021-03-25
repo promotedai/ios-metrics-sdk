@@ -7,7 +7,8 @@ protocol DeviceInfo {
   var deviceName: String { get }
   var display: String { get }
   var model: String { get }
-  var screenSizePts: (UInt32, UInt32) { get }
+  var screenScale: Float { get }
+  var screenSizePx: (UInt32, UInt32) { get }
 }
 
 func CurrentDeviceInfo() -> DeviceInfo {
@@ -22,6 +23,7 @@ func CurrentDeviceInfo() -> DeviceInfo {
 #if os(iOS)
 import UIKit
 
+/** Device info for iPhones and iPads. */
 class IOSDeviceInfo: DeviceInfo {
 
   var deviceType: DeviceType {
@@ -57,9 +59,13 @@ class IOSDeviceInfo: DeviceInfo {
     }
     return identifier
   } ()
+  
+  var screenScale: Float {
+    return UIScreen.main.scale
+  }
 
-  var screenSizePts: (UInt32, UInt32) {
-    let bounds = UIScreen.main.bounds
+  var screenSizePx: (UInt32, UInt32) {
+    let bounds = UIScreen.main.nativeBounds
     return (UInt32(bounds.width), UInt32(bounds.height))
   }
 }
@@ -67,6 +73,7 @@ class IOSDeviceInfo: DeviceInfo {
 // MARK: - macOS
 #elseif os(macOS)
 
+/** This is only used in unit testing. */
 class MacOSDeviceInfo: DeviceInfo {
 
   var deviceType: DeviceType {
@@ -89,7 +96,11 @@ class MacOSDeviceInfo: DeviceInfo {
     return "Mac"
   }
 
-  var screenSizePts: (UInt32, UInt32) {
+  var screenScale: Float {
+    return 1.0
+  }
+
+  var screenSizePx: (UInt32, UInt32) {
     return (1024, 768)
   }
 }

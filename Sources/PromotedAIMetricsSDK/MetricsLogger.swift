@@ -98,11 +98,11 @@ public class MetricsLogger: NSObject {
   } ()
 
   init(clientConfig: ClientConfig,
-              clock: Clock,
-              connection: NetworkConnection,
-              deviceInfo: DeviceInfo,
-              idMap: IDMap,
-              store: PersistentStore) {
+       clock: Clock,
+       connection: NetworkConnection,
+       deviceInfo: DeviceInfo,
+       idMap: IDMap,
+       store: PersistentStore) {
     self.clock = clock
     self.config = clientConfig
     self.connection = connection
