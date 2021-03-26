@@ -35,8 +35,7 @@ func application(_ application: UIApplication,
   let config = ClientConfig()
   config.metricsLoggingURL = "..."
   config.metricsLoggingAPIKey = "..."
-  MetricsLoggingService.startServices(messageProvider: MyProvider(),
-                                      clientConfig: config)
+  MetricsLoggingService.startServices(initialConfig: config)
   let loggingService = MetricsLoggingService.sharedService
   self.logger = loggingService.metricsLogger
   return true
@@ -51,8 +50,7 @@ func application(_ application: UIApplication,
   let config = ClientConfig()
   config.metricsLoggingURL = "..."
   config.metricsLoggingAPIKey = "..."
-  self.service = MetricsLoggingService(messageProvider: MyProvider(),
-                                       clientConfig: config)
+  self.service = MetricsLoggingService(initialConfig: config)
   self.service.startLoggingServices()
   self.logger = service.metricsLogger
   return true
@@ -84,25 +82,29 @@ class MyViewController: UIViewController {
   var impressionLogger: ImpressionLogger
 
   func viewWillDisappear(_ animated: Bool) {
-    impressionLogger.collectionViewDidHideAllItems()
+    impressionLogger.collectionViewDidHideAllContent()
   }
 
   func collectionView(_ collectionView: UICollectionView,
                       willDisplay cell: UICollectionViewCell,
                       forItemAt indexPath: IndexPath) {
-    impressionLogger.collectionViewWillDisplayContent(atIndex: indexPath)
+    let content = contentFor(indexPath: indexPath)
+    impressionLogger.collectionViewWillDisplay(content: content)
   }
    
   func collectionView(_ collectionView: UICollectionView,
                       didEndDisplaying cell: UICollectionViewCell,
                       forItemAt indexPath: IndexPath) {
-    impressionLogger.collectionViewDidHideContent(atIndex: indexPath)
+    let content = contentFor(indexPath: indexPath)
+    impressionLogger.collectionViewDidHide(content: content)
   }
 
   func reloadCollectionView() {
     collectionView.reloadData()
-    let visibleItems = collectionView.indexPathsForVisibleItems
-    impressionLogger.collectionViewDidChangeVisibleContent(atIndexes: visibleItems)
+    let visibleContent = collectionView.indexPathsForVisibleItems.map {
+      contentFor(indexPath: $0)
+    }
+    impressionLogger.collectionViewDidChangeVisibleContent(visibleContent)
   }
 }
 ~~~
