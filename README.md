@@ -12,11 +12,11 @@ Our client library is built on a number of proven technologies:
 1. gRPC (roadmap): A high-performance RPC framework used by many Google iOS apps.
 
 ## Availability
-Our client library is available via the following channels. Access to this library is currently private. You will receive instructions on how to integrate via the channel you choose.
+Our client library is available via the following channels. You will receive instructions on how to integrate via the channel you choose.
 
 1. As a Swift Package.
 1. As a Cocoapod.
-1. As a framework.
+1. As an NPM package (React Native only). See [react-native-metrics](https://github.com/promotedai/react-native-metrics).
 
 ## Integration
 Your app controls the initialization and behavior of our client library through two main classes:
