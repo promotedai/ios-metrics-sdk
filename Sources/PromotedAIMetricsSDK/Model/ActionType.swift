@@ -5,7 +5,7 @@ import Foundation
 public enum ActionType: Int {
   case unknown = 0
   case custom = 1
-  case click = 2
+  case navigate = 2
   case purchase = 3
   case addToCart = 4
   case share = 5

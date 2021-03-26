@@ -298,10 +298,10 @@ public extension MetricsLogger {
     if let type = type.protoValue { action.actionType = type }
     action.elementID = name
     switch type {
-    case .click:
-      var click = Event_Click()
-      if let url = targetURL { click.targetURL = url }
-      action.click = click
+    case .navigate:
+      var navigateAction = Event_NavigateAction()
+      if let url = targetURL { navigateAction.targetURL = url }
+      action.navigateAction = navigateAction
     default:
       break
     }

@@ -208,11 +208,11 @@ final class MetricsLoggerTests: XCTestCase {
                    message as! Event_Impression)
   }
   
-  func testLogClickToShowViewController() {
+  func testLogNavigateAction() {
     metricsLogger!.startSession(userID: "foo")
     let viewController = FakeScreenViewController()
     let item = Item(contentID: "foobar")
-    metricsLogger!.logClickToShow(viewController: viewController, forContent: item)
+    metricsLogger!.logNavigateAction(viewController: viewController, forContent: item)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
@@ -221,37 +221,16 @@ final class MetricsLoggerTests: XCTestCase {
       "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
       "session_id": "fake-session-id",
       "name": "FakeScreen",
-      "action_type": "CLICK",
+      "action_type": "NAVIGATE",
       "element_id": "FakeScreen",
-      "click": {
+      "navigate_action": {
       }
     }
     """
     XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
                    message as! Event_Action)
   }
-  
-  func testLogClickToSignUp() {
-    metricsLogger!.startSession(userID: "foobar")
-    metricsLogger!.logClickToSignUp(userID: "foo")
-    let message = metricsLogger!.logMessages[0]
-    XCTAssertTrue(message is Event_Action)
-    let expectedJSON = """
-    {
-      "action_id": "fake-action-id",
-      "impression_id": "\(idMap!.impressionID(contentID: "foo"))",
-      "session_id": "fake-session-id",
-      "name": "sign-up",
-      "action_type": "CLICK",
-      "element_id": "sign-up",
-      "click": {
-      }
-    }
-    """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
-  }
-  
+    
   func testLogPurchaseAction() {
     metricsLogger!.startSession(userID: "foo")
     let item = Item(contentID: "foobar")
@@ -421,8 +400,7 @@ final class MetricsLoggerTests: XCTestCase {
     ("testCustomData", testCustomData),
     ("testLogUser", testLogUser),
     ("testLogImpression", testLogImpression),
-    ("testLogClickToShowViewController", testLogClickToShowViewController),
-    ("testLogClickToSignUp", testLogClickToSignUp),
+    ("testLogNavigateAction", testLogNavigateAction),
     ("testLogPurchaseAction", testLogPurchaseAction),
     ("testLogAddToCartAction", testLogAddToCartAction),
     ("testLogShareAction", testLogShareAction),
