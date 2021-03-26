@@ -99,10 +99,18 @@ public extension MetricsLogger {
               insertionID: nil)
   }
   
-  /// Logs an action with given name involving the given content.
-  @objc func logAction(name: String, content: Content) {
+  /// Logs an action with given name.
+  @objc func logAction(name: String, type: ActionType) {
     logAction(name: name,
-              type: .click,
+              type: type,
+              contentID: nil,
+              insertionID: nil)
+  }
+  
+  /// Logs an action with given name involving the given content.
+  @objc func logAction(name: String, type: ActionType, content: Content) {
+    logAction(name: name,
+              type: type,
               contentID: content.contentID,
               insertionID: content.insertionID)
   }
