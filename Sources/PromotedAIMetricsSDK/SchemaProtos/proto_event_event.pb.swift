@@ -2638,7 +2638,7 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
     10: .standard(proto: "search_query"),
     11: .same(proto: "data"),
     12: .same(proto: "device"),
-    13: .same(proto: "viewType"),
+    13: .standard(proto: "view_type"),
     14: .standard(proto: "web_page_view"),
     15: .standard(proto: "app_screen_view"),
   ]

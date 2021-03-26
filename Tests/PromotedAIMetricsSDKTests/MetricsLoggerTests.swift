@@ -342,7 +342,7 @@ final class MetricsLoggerTests: XCTestCase {
           "scale": 2.0
         }
       },
-      "viewType": "APP_SCREEN",
+      "view_type": "APP_SCREEN",
       "app_screen_view": {
       }
     }
