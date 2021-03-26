@@ -19,10 +19,11 @@ Our client library is available via the following channels. You will receive ins
 1. As an NPM package (React Native only). See [react-native-metrics](https://github.com/promotedai/react-native-metrics).
 
 ## Integration
-Your app controls the initialization and behavior of our client library through two main classes:
+Your app controls the initialization and behavior of our client library through the following classes:
 
-A LoggingService, which configures the behavior and initialization of the library. 
-A Logger, which accepts log messages to send to the server. 
+1. `MetricsLoggingService` configures the behavior and initialization of the library. 
+1. `MetricsLogger` accepts log messages to send to the server. 
+1. `ImpressionLogger` tracks impressions of content in a collection view.
 
 ### MetricsLoggerService
 Initialization of the library is lightweight and mostly occurs in the background, and does not impact app startup performance.
@@ -70,7 +71,7 @@ func userDidSignOut() {
 ~~~
 
 ### MetricsLogger
-Logger batches log messages to avoid wasteful network traffic that would affect battery life. It also provides hooks into the app’s life cycle to ensure delivery of client logs. The interface to Logger is minimally intrusive to your app’s code.
+`MetricsLogger` batches log messages to avoid wasteful network traffic that would affect battery life. It also provides hooks into the app’s life cycle to ensure delivery of client logs.
 
 ### ImpressionLogger
 For `UICollectionViews` and other scroll views, we can track the appearance and disappearance of individual cells for fine-grained impression logging. We provide `ImpressionLogger`, a solution that hooks into most `UICollectionView`s and `UIViewController`s easily.
