@@ -8,16 +8,6 @@ public extension MetricsLogger {
   }
 
   // MARK: - Click logging helper methods
-  /// Logs a click to like/unlike the given item.
-  @objc(logClickToLikeItem:didLike:)
-  func logClickToLike(content: Content, didLike: Bool) {
-    let actionName = didLike ? "like" : "unlike"
-    logAction(name: actionName,
-              type: .like,
-              contentID: content.contentID,
-              insertionID: content.insertionID)
-  }
-
   /// Logs a click to show the given view controller.
   @objc(logClickToShowViewController:)
   func logClickToShow(viewController: ViewControllerType) {
@@ -28,7 +18,7 @@ public extension MetricsLogger {
   /// Logs a click to show the given view controller.
   @objc(logClickToShowViewController:forItem:)
   func logClickToShow(viewController: ViewControllerType,
-                             forContent content: Content) {
+                      forContent content: Content) {
     logClickToShow(name: loggingNameFor(viewController: viewController),
                    optionalContent: content)
   }
@@ -60,26 +50,58 @@ public extension MetricsLogger {
               insertionID: nil)
   }
   
-  /// Logs a click to purchase the given item.
-  @objc(logClickToPurchaseItem:)
-  func logClickToPurchase(item: Item) {
+  /// Logs an action to purchase the given item.
+  @objc func logPurchaseAction(item: Item) {
     logAction(name: "purchase",
               type: .purchase,
               contentID: item.contentID,
               insertionID: item.insertionID)
   }
+
+  /// Logs an action to add the given item to cart.
+  @objc func logAddToCartAction(item: Item) {
+    logAction(name: "add-to-cart",
+              type: .addToCart,
+              contentID: item.contentID,
+              insertionID: item.insertionID)
+  }
+
+  /// Logs an action to share the given content.
+  @objc func logShareAction(content: Content) {
+    logAction(name: "share",
+              type: .share,
+              contentID: content.contentID,
+              insertionID: content.insertionID)
+  }
   
-  /// Logs a click for the given action name.
-  @objc func logClick(actionName: String) {
+  /// Logs an action to like/unlike the given content.
+  @objc func logLikeAction(content: Content, didLike: Bool) {
+    let actionName = didLike ? "like" : "unlike"
     logAction(name: actionName,
+              type: .like,
+              contentID: content.contentID,
+              insertionID: content.insertionID)
+  }
+
+  /// Logs an action to comment on the given content.
+  @objc func logCommentAction(content: Content) {
+    logAction(name: "comment",
+              type: .comment,
+              contentID: content.contentID,
+              insertionID: content.insertionID)
+  }
+
+  /// Logs an action with given name.
+  @objc func logAction(name: String) {
+    logAction(name: name,
               type: .click,
               contentID: nil,
               insertionID: nil)
   }
   
-  /// Logs a click for the given action name involving the given item.
-  @objc func logClick(actionName: String, content: Content) {
-    logAction(name: actionName,
+  /// Logs an action with given name involving the given content.
+  @objc func logAction(name: String, content: Content) {
+    logAction(name: name,
               type: .click,
               contentID: content.contentID,
               insertionID: content.insertionID)
