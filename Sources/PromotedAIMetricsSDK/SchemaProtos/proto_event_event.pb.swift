@@ -215,13 +215,25 @@ public enum Event_ActionType: SwiftProtobuf.Enum {
   public typealias RawValue = Int
   case unknownActionType // = 0
 
-  /// CodeReview - we could use 0 for this state too.  It'd be less work on clients.
+  /// Action that doesn't correspond to any of the below.
   case customActionType // = 1
-  case click // = 2
+
+  /// Navigating to details about content.
+  case navigate // = 2
+
+  /// Purchasing an item.
   case purchase // = 3
+
+  /// Adding an item to shopping cart.
   case addToCart // = 4
+
+  /// Sharing content.
   case share // = 5
+
+  /// Liking content.
   case like // = 6
+
+  /// Commenting on content.
   case comment // = 7
   case UNRECOGNIZED(Int)
 
@@ -233,7 +245,7 @@ public enum Event_ActionType: SwiftProtobuf.Enum {
     switch rawValue {
     case 0: self = .unknownActionType
     case 1: self = .customActionType
-    case 2: self = .click
+    case 2: self = .navigate
     case 3: self = .purchase
     case 4: self = .addToCart
     case 5: self = .share
@@ -247,7 +259,7 @@ public enum Event_ActionType: SwiftProtobuf.Enum {
     switch self {
     case .unknownActionType: return 0
     case .customActionType: return 1
-    case .click: return 2
+    case .navigate: return 2
     case .purchase: return 3
     case .addToCart: return 4
     case .share: return 5
@@ -266,7 +278,7 @@ extension Event_ActionType: CaseIterable {
   public static var allCases: [Event_ActionType] = [
     .unknownActionType,
     .customActionType,
-    .click,
+    .navigate,
     .purchase,
     .addToCart,
     .share,
@@ -422,9 +434,10 @@ public struct Event_User {
   // methods supported on all messages.
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.platform_id.
   public var platformID: UInt64 = 0
 
-  /// Required.
+  /// Optional.  Must be set on LogRequest or here.
   public var userInfo: Event_UserInfo {
     get {return _userInfo ?? Event_UserInfo()}
     set {_userInfo = newValue}
@@ -435,6 +448,7 @@ public struct Event_User {
   public mutating func clearUserInfo() {self._userInfo = nil}
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.timing.
   public var timing: Event_Timing {
     get {return _timing ?? Event_Timing()}
     set {_timing = newValue}
@@ -471,9 +485,10 @@ public struct Event_CohortMembership {
   // methods supported on all messages.
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.platform_id.
   public var platformID: UInt64 = 0
 
-  /// Required.
+  /// Optional.  Must be set on LogRequest or here.
   public var userInfo: Event_UserInfo {
     get {return _userInfo ?? Event_UserInfo()}
     set {_userInfo = newValue}
@@ -484,6 +499,7 @@ public struct Event_CohortMembership {
   public mutating func clearUserInfo() {self._userInfo = nil}
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.timing.
   public var timing: Event_Timing {
     get {return _timing ?? Event_Timing()}
     set {_timing = newValue}
@@ -742,9 +758,10 @@ public struct Event_SessionProfile {
   // methods supported on all messages.
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.platform_id.
   public var platformID: UInt64 = 0
 
-  /// Required.
+  /// Optional.  Must be set on LogRequest or here.
   public var userInfo: Event_UserInfo {
     get {return _userInfo ?? Event_UserInfo()}
     set {_userInfo = newValue}
@@ -755,6 +772,7 @@ public struct Event_SessionProfile {
   public mutating func clearUserInfo() {self._userInfo = nil}
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.timing.
   public var timing: Event_Timing {
     get {return _timing ?? Event_Timing()}
     set {_timing = newValue}
@@ -809,9 +827,10 @@ public struct Event_Session {
   // methods supported on all messages.
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.platform_id.
   public var platformID: UInt64 = 0
 
-  /// Required.
+  /// Optional.  Must be set on LogRequest or here.
   public var userInfo: Event_UserInfo {
     get {return _userInfo ?? Event_UserInfo()}
     set {_userInfo = newValue}
@@ -822,6 +841,7 @@ public struct Event_Session {
   public mutating func clearUserInfo() {self._userInfo = nil}
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.timing.
   public var timing: Event_Timing {
     get {return _timing ?? Event_Timing()}
     set {_timing = newValue}
@@ -919,12 +939,13 @@ public struct Event_View {
   // methods supported on all messages.
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.platform_id.
   public var platformID: UInt64 {
     get {return _storage._platformID}
     set {_uniqueStorage()._platformID = newValue}
   }
 
-  /// Required.
+  /// Optional.  Must be set on LogRequest or here.
   public var userInfo: Event_UserInfo {
     get {return _storage._userInfo ?? Event_UserInfo()}
     set {_uniqueStorage()._userInfo = newValue}
@@ -935,6 +956,7 @@ public struct Event_View {
   public mutating func clearUserInfo() {_uniqueStorage()._userInfo = nil}
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.timing.
   public var timing: Event_Timing {
     get {return _storage._timing ?? Event_Timing()}
     set {_uniqueStorage()._timing = newValue}
@@ -1109,9 +1131,10 @@ public struct Event_Request {
   // methods supported on all messages.
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.platform_id.
   public var platformID: UInt64 = 0
 
-  /// Required.
+  /// Optional.  Must be set on LogRequest or here.
   public var userInfo: Event_UserInfo {
     get {return _userInfo ?? Event_UserInfo()}
     set {_userInfo = newValue}
@@ -1122,6 +1145,7 @@ public struct Event_Request {
   public mutating func clearUserInfo() {self._userInfo = nil}
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.timing.
   public var timing: Event_Timing {
     get {return _timing ?? Event_Timing()}
     set {_timing = newValue}
@@ -1181,9 +1205,10 @@ public struct Event_Insertion {
   // methods supported on all messages.
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.platform_id.
   public var platformID: UInt64 = 0
 
-  /// Required.
+  /// Optional.  Must be set on LogRequest or here.
   public var userInfo: Event_UserInfo {
     get {return _userInfo ?? Event_UserInfo()}
     set {_userInfo = newValue}
@@ -1194,6 +1219,7 @@ public struct Event_Insertion {
   public mutating func clearUserInfo() {self._userInfo = nil}
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.timing.
   public var timing: Event_Timing {
     get {return _timing ?? Event_Timing()}
     set {_timing = newValue}
@@ -1249,9 +1275,10 @@ public struct Event_Impression {
   // methods supported on all messages.
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.platform_id.
   public var platformID: UInt64 = 0
 
-  /// Required.
+  /// Optional.  Must be set on LogRequest or here.
   public var userInfo: Event_UserInfo {
     get {return _userInfo ?? Event_UserInfo()}
     set {_userInfo = newValue}
@@ -1262,6 +1289,7 @@ public struct Event_Impression {
   public mutating func clearUserInfo() {self._userInfo = nil}
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.timing.
   public var timing: Event_Timing {
     get {return _timing ?? Event_Timing()}
     set {_timing = newValue}
@@ -1306,7 +1334,7 @@ public struct Event_Impression {
 }
 
 /// Next ID = 2.
-public struct Event_Click {
+public struct Event_NavigateAction {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1327,13 +1355,14 @@ public struct Event_Action {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  /// Read-only.  This is set by Event API.
+  /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.platform_id.
   public var platformID: UInt64 {
     get {return _storage._platformID}
     set {_uniqueStorage()._platformID = newValue}
   }
 
-  /// Required.
+  /// Optional.  Must be set on LogRequest or here.
   public var userInfo: Event_UserInfo {
     get {return _storage._userInfo ?? Event_UserInfo()}
     set {_uniqueStorage()._userInfo = newValue}
@@ -1344,6 +1373,7 @@ public struct Event_Action {
   public mutating func clearUserInfo() {_uniqueStorage()._userInfo = nil}
 
   /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses LogRequest.timing.
   public var timing: Event_Timing {
     get {return _storage._timing ?? Event_Timing()}
     set {_uniqueStorage()._timing = newValue}
@@ -1423,12 +1453,12 @@ public struct Event_Action {
   /// TODO - add SHARE details.
   /// TODO - add LIKE details.
   /// TODO - add COMMENT details.
-  public var click: Event_Click {
+  public var navigateAction: Event_NavigateAction {
     get {
-      if case .click(let v)? = _storage._action {return v}
-      return Event_Click()
+      if case .navigateAction(let v)? = _storage._action {return v}
+      return Event_NavigateAction()
     }
-    set {_uniqueStorage()._action = .click(newValue)}
+    set {_uniqueStorage()._action = .navigateAction(newValue)}
   }
 
   /// Optional.  Custom message per platform.
@@ -1449,7 +1479,7 @@ public struct Event_Action {
     /// TODO - add SHARE details.
     /// TODO - add LIKE details.
     /// TODO - add COMMENT details.
-    case click(Event_Click)
+    case navigateAction(Event_NavigateAction)
 
   #if !swift(>=4.1)
     public static func ==(lhs: Event_Action.OneOf_Action, rhs: Event_Action.OneOf_Action) -> Bool {
@@ -1457,8 +1487,8 @@ public struct Event_Action {
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch (lhs, rhs) {
-      case (.click, .click): return {
-        guard case .click(let l) = lhs, case .click(let r) = rhs else { preconditionFailure() }
+      case (.navigateAction, .navigateAction): return {
+        guard case .navigateAction(let l) = lhs, case .navigateAction(let r) = rhs else { preconditionFailure() }
         return l == r
       }()
       }
@@ -1525,8 +1555,11 @@ public struct Event_LogRequest {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
+  /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses the value set on each log record.
   public var platformID: UInt64 = 0
 
+  /// Optional.  Must be set on each child log record or here.
   public var userInfo: Event_UserInfo {
     get {return _userInfo ?? Event_UserInfo()}
     set {_userInfo = newValue}
@@ -1536,6 +1569,8 @@ public struct Event_LogRequest {
   /// Clears the value of `userInfo`. Subsequent reads from it will return its default value.
   public mutating func clearUserInfo() {self._userInfo = nil}
 
+  /// Optional.  If not set, set by API servers.
+  /// If not set, API server uses the value set on each log record.
   public var timing: Event_Timing {
     get {return _timing ?? Event_Timing()}
     set {_timing = newValue}
@@ -1721,7 +1756,7 @@ extension Event_ActionType: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     0: .same(proto: "UNKNOWN_ACTION_TYPE"),
     1: .same(proto: "CUSTOM_ACTION_TYPE"),
-    2: .same(proto: "CLICK"),
+    2: .same(proto: "NAVIGATE"),
     3: .same(proto: "PURCHASE"),
     4: .same(proto: "ADD_TO_CART"),
     5: .same(proto: "SHARE"),
@@ -3066,8 +3101,8 @@ extension Event_Impression: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
   }
 }
 
-extension Event_Click: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  public static let protoMessageName: String = _protobuf_package + ".Click"
+extension Event_NavigateAction: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".NavigateAction"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .standard(proto: "target_url"),
   ]
@@ -3091,7 +3126,7 @@ extension Event_Click: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementati
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  public static func ==(lhs: Event_Click, rhs: Event_Click) -> Bool {
+  public static func ==(lhs: Event_NavigateAction, rhs: Event_NavigateAction) -> Bool {
     if lhs.targetURL != rhs.targetURL {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
@@ -3114,7 +3149,7 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
     14: .standard(proto: "action_type"),
     15: .standard(proto: "custom_action_type"),
     17: .standard(proto: "element_id"),
-    18: .same(proto: "click"),
+    18: .standard(proto: "navigate_action"),
     20: .same(proto: "data"),
   ]
 
@@ -3187,13 +3222,13 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
         case 15: try { try decoder.decodeSingularStringField(value: &_storage._customActionType) }()
         case 17: try { try decoder.decodeSingularStringField(value: &_storage._elementID) }()
         case 18: try {
-          var v: Event_Click?
+          var v: Event_NavigateAction?
           if let current = _storage._action {
             try decoder.handleConflictingOneOf()
-            if case .click(let m) = current {v = m}
+            if case .navigateAction(let m) = current {v = m}
           }
           try decoder.decodeSingularMessageField(value: &v)
-          if let v = v {_storage._action = .click(v)}
+          if let v = v {_storage._action = .navigateAction(v)}
         }()
         case 20: try { try decoder.decodeSingularMessageField(value: &_storage._data) }()
         default: break
@@ -3243,7 +3278,7 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
       if !_storage._elementID.isEmpty {
         try visitor.visitSingularStringField(value: _storage._elementID, fieldNumber: 17)
       }
-      if case .click(let v)? = _storage._action {
+      if case .navigateAction(let v)? = _storage._action {
         try visitor.visitSingularMessageField(value: v, fieldNumber: 18)
       }
       if let v = _storage._data {
