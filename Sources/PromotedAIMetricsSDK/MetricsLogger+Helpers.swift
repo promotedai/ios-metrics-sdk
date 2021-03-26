@@ -12,8 +12,10 @@ public extension MetricsLogger {
   @objc(logClickToLikeItem:didLike:)
   func logClickToLike(content: Content, didLike: Bool) {
     let actionName = didLike ? "like" : "unlike"
-    logClick(actionName: actionName, contentID: content.contentID,
-             insertionID: content.insertionID)
+    logAction(name: actionName,
+              type: .like,
+              contentID: content.contentID,
+              insertionID: content.insertionID)
   }
 
   /// Logs a click to show the given view controller.
@@ -44,31 +46,43 @@ public extension MetricsLogger {
   }
 
   private func logClickToShow(name: String, optionalContent content: Content?) {
-    logClick(actionName: name, contentID: content?.contentID,
-             insertionID: content?.insertionID)
+    logAction(name: name,
+              type: .click,
+              contentID: content?.contentID,
+              insertionID: content?.insertionID)
   }
   
   /// Logs a click to sign up as a new user.
   @objc func logClickToSignUp(userID: String) {
-    logClick(actionName: "sign-up", contentID: userID, insertionID: nil)
+    logAction(name: "sign-up",
+              type: .click,
+              contentID: userID,
+              insertionID: nil)
   }
   
   /// Logs a click to purchase the given item.
   @objc(logClickToPurchaseItem:)
   func logClickToPurchase(item: Item) {
-    logClick(actionName: "purchase", contentID: item.contentID,
-             insertionID: item.insertionID)
+    logAction(name: "purchase",
+              type: .purchase,
+              contentID: item.contentID,
+              insertionID: item.insertionID)
   }
   
   /// Logs a click for the given action name.
   @objc func logClick(actionName: String) {
-    logClick(actionName: actionName, contentID: nil, insertionID: nil)
+    logAction(name: actionName,
+              type: .click,
+              contentID: nil,
+              insertionID: nil)
   }
   
   /// Logs a click for the given action name involving the given item.
   @objc func logClick(actionName: String, content: Content) {
-    logClick(actionName: actionName, contentID: content.contentID,
-             insertionID: content.insertionID)
+    logAction(name: actionName,
+              type: .click,
+              contentID: content.contentID,
+              insertionID: content.insertionID)
   }
 
   // MARK: - View logging helper methods

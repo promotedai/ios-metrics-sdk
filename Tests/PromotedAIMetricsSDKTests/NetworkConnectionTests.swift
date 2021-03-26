@@ -18,22 +18,22 @@ final class NetworkConnectionTests: XCTestCase {
   }
   
   func testBodyDataJSON() {
-    var message = Event_Click()
-    message.clickID = "foo"
+    var message = Event_Action()
+    message.actionID = "foo"
     
     do {
       config!.metricsLoggingWireFormat = .json
       let jsonData = try connection!.bodyData(message: message, clientConfig: config!)
       let jsonString = String(data: jsonData, encoding: .utf8)!
-      XCTAssertEqual("{\"clickId\":\"foo\"}", jsonString)
+      XCTAssertEqual("{\"actionId\":\"foo\"}", jsonString)
     } catch {
       XCTFail("JSON serialization threw an exception.")
     }
   }
   
   func testBodyDataBinary() {
-    var message = Event_Click()
-    message.clickID = "foo"
+    var message = Event_Action()
+    message.actionID = "foo"
     
     do {
       config!.metricsLoggingWireFormat = .binary

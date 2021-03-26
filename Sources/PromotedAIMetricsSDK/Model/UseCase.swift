@@ -3,6 +3,8 @@ import Foundation
 /** Use case for views. */
 @objc(PROUseCase)
 public enum UseCase: Int {
+  case unknown = 0
+  case custom = 1
   case search = 2
   case searchSuggestions = 3
   case feed = 4
