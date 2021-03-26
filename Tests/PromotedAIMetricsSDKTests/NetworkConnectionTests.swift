@@ -8,12 +8,12 @@ import XCTest
 
 final class NetworkConnectionTests: XCTestCase {
   
-  private var config: ClientConfig?
+  private var config: LocalClientConfig?
   private var connection: FakeNetworkConnection?
 
   public override func setUp() {
     super.setUp()
-    config = ClientConfig()
+    config = LocalClientConfig()
     connection = FakeNetworkConnection()
   }
   

@@ -16,7 +16,7 @@ final class ScrollTrackerTests: XCTestCase {
     super.setUp()
     clock = FakeClock()
     idMap = SHA1IDMap.instance
-    metricsLogger = MetricsLogger(clientConfig: ClientConfig(),
+    metricsLogger = MetricsLogger(clientConfig: LocalClientConfig(),
                                   clock: clock!,
                                   connection: FakeNetworkConnection(),
                                   deviceInfo: FakeDeviceInfo(),
