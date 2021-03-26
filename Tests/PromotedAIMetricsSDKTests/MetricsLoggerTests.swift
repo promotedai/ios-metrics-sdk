@@ -208,46 +208,6 @@ final class MetricsLoggerTests: XCTestCase {
                    message as! Event_Impression)
   }
   
-  func testLogClickToLike() {
-    metricsLogger!.startSession(userID: "foo")
-    let item = Item(contentID: "foobar")
-    metricsLogger!.logClickToLike(content: item, didLike: true)
-    let message = metricsLogger!.logMessages[0]
-    XCTAssertTrue(message is Event_Action)
-    let expectedJSON = """
-    {
-      "action_id": "fake-action-id",
-      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
-      "session_id": "fake-session-id",
-      "name": "like",
-      "action_type": "LIKE",
-      "element_id": "like"
-    }
-    """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
-  }
-
-  func testLogClickToUnlike() {
-    metricsLogger!.startSession(userID: "foo")
-    let item = Item(contentID: "foobar")
-    metricsLogger!.logClickToLike(content: item, didLike: false)
-    let message = metricsLogger!.logMessages[0]
-    XCTAssertTrue(message is Event_Action)
-    let expectedJSON = """
-    {
-      "action_id": "fake-action-id",
-      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
-      "session_id": "fake-session-id",
-      "name": "unlike",
-      "action_type": "LIKE",
-      "element_id": "unlike"
-    }
-    """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
-  }
-  
   func testLogClickToShowViewController() {
     metricsLogger!.startSession(userID: "foo")
     let viewController = FakeScreenViewController()
@@ -292,10 +252,10 @@ final class MetricsLoggerTests: XCTestCase {
                    message as! Event_Action)
   }
   
-  func testLogClickToPurchase() {
+  func testLogPurchaseAction() {
     metricsLogger!.startSession(userID: "foo")
     let item = Item(contentID: "foobar")
-    metricsLogger!.logClickToPurchase(item: item)
+    metricsLogger!.logPurchaseAction(item: item)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
@@ -312,6 +272,106 @@ final class MetricsLoggerTests: XCTestCase {
                    message as! Event_Action)
   }
   
+  func testLogAddToCartAction() {
+    metricsLogger!.startSession(userID: "foo")
+    let item = Item(contentID: "foobar")
+    metricsLogger!.logAddToCartAction(item: item)
+    let message = metricsLogger!.logMessages[0]
+    XCTAssertTrue(message is Event_Action)
+    let expectedJSON = """
+    {
+      "action_id": "fake-action-id",
+      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "session_id": "fake-session-id",
+      "name": "add-to-cart",
+      "action_type": "ADD_TO_CART",
+      "element_id": "add-to-cart"
+    }
+    """
+    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
+                   message as! Event_Action)
+  }
+  
+  func testLogShareAction() {
+    metricsLogger!.startSession(userID: "foo")
+    let item = Item(contentID: "foobar")
+    metricsLogger!.logShareAction(content: item)
+    let message = metricsLogger!.logMessages[0]
+    XCTAssertTrue(message is Event_Action)
+    let expectedJSON = """
+    {
+      "action_id": "fake-action-id",
+      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "session_id": "fake-session-id",
+      "name": "share",
+      "action_type": "SHARE",
+      "element_id": "share"
+    }
+    """
+    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
+                   message as! Event_Action)
+  }
+
+  func testLogLikeAction() {
+    metricsLogger!.startSession(userID: "foo")
+    let item = Item(contentID: "foobar")
+    metricsLogger!.logLikeAction(content: item, didLike: true)
+    let message = metricsLogger!.logMessages[0]
+    XCTAssertTrue(message is Event_Action)
+    let expectedJSON = """
+    {
+      "action_id": "fake-action-id",
+      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "session_id": "fake-session-id",
+      "name": "like",
+      "action_type": "LIKE",
+      "element_id": "like"
+    }
+    """
+    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
+                   message as! Event_Action)
+  }
+
+  func testLogUnlikeAction() {
+    metricsLogger!.startSession(userID: "foo")
+    let item = Item(contentID: "foobar")
+    metricsLogger!.logLikeAction(content: item, didLike: false)
+    let message = metricsLogger!.logMessages[0]
+    XCTAssertTrue(message is Event_Action)
+    let expectedJSON = """
+    {
+      "action_id": "fake-action-id",
+      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "session_id": "fake-session-id",
+      "name": "unlike",
+      "action_type": "LIKE",
+      "element_id": "unlike"
+    }
+    """
+    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
+                   message as! Event_Action)
+  }
+  
+  func testLogCommentAction() {
+    metricsLogger!.startSession(userID: "foo")
+    let item = Item(contentID: "foobar")
+    metricsLogger!.logCommentAction(content: item)
+    let message = metricsLogger!.logMessages[0]
+    XCTAssertTrue(message is Event_Action)
+    let expectedJSON = """
+    {
+      "action_id": "fake-action-id",
+      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "session_id": "fake-session-id",
+      "name": "comment",
+      "action_type": "COMMENT",
+      "element_id": "comment"
+    }
+    """
+    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
+                   message as! Event_Action)
+  }
+
   func testLogViewController() {
     metricsLogger!.startSession(userID: "foo")
     let viewController = FakeScreenViewController()
@@ -361,11 +421,14 @@ final class MetricsLoggerTests: XCTestCase {
     ("testCustomData", testCustomData),
     ("testLogUser", testLogUser),
     ("testLogImpression", testLogImpression),
-    ("testLogClickToLike", testLogClickToLike),
-    ("testLogClickToUnlike", testLogClickToUnlike),
     ("testLogClickToShowViewController", testLogClickToShowViewController),
     ("testLogClickToSignUp", testLogClickToSignUp),
-    ("testLogClickToPurchase", testLogClickToPurchase),
+    ("testLogPurchaseAction", testLogPurchaseAction),
+    ("testLogAddToCartAction", testLogAddToCartAction),
+    ("testLogShareAction", testLogShareAction),
+    ("testLogLikeAction", testLogLikeAction),
+    ("testLogUnlikeAction", testLogUnlikeAction),
+    ("testLogCommentAction", testLogCommentAction),
     ("testLogViewController", testLogViewController),
   ]
 }
