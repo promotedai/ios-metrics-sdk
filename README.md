@@ -28,7 +28,7 @@ A Logger, which accepts log messages to send to the server.
 Initialization of the library is lightweight and mostly occurs in the background, and does not impact app startup performance.
 
 Example usage (singleton):
-~~~
+~~~swift
 // In your AppDelegate:
 func application(_ application: UIApplication,
                  didFinishLaunchingWithOptions...) -> Bool {
@@ -44,7 +44,7 @@ func application(_ application: UIApplication,
 ~~~
 
 Example usage (dependency injection):
-~~~
+~~~swift
 // In your AppDelegate:
 func application(_ application: UIApplication,
                  didFinishLaunchingWithOptions...) -> Bool {
@@ -60,7 +60,7 @@ func application(_ application: UIApplication,
 ~~~
 
 Handling user sign-in:
-~~~
+~~~swift
 // Handling user sign-in/sign-out:
 func userDidSignInWithID(_ userID: String) {
   self.logger.startSessionAndLogUser(userID: userID);
@@ -78,7 +78,7 @@ Logger batches log messages to avoid wasteful network traffic that would affect 
 For `UICollectionViews` and other scroll views, we can track the appearance and disappearance of individual cells for fine-grained impression logging. We provide `ImpressionLogger`, a solution that hooks into most `UICollectionView`s and `UIViewController`s easily.
 
 Example usage with UICollectionView:
-~~~
+~~~swift
 class MyViewController: UIViewController {
   var collectionView: UICollectionView
   var impressionLogger: ImpressionLogger
