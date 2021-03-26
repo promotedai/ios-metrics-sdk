@@ -63,7 +63,7 @@ class IOSDeviceInfo: DeviceInfo {
   }
 
   var screenScale: Float {
-    return UIScreen.main.scale
+    return Float(UIScreen.main.scale)
   }
 
   var screenSizePx: (UInt32, UInt32) {
@@ -72,11 +72,11 @@ class IOSDeviceInfo: DeviceInfo {
   }
   
   var languageCode: String {
-    return Locale.current.languageCode
+    return Locale.current.languageCode ?? "unknown"
   }
   
   var regionCode: String {
-    return Locale.current.regionCode
+    return Locale.current.regionCode ?? "unknown"
   }
 }
 
