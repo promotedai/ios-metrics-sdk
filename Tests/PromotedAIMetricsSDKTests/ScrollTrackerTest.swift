@@ -19,8 +19,10 @@ final class ScrollTrackerTests: XCTestCase {
     metricsLogger = MetricsLogger(clientConfig: ClientConfig(),
                                   clock: clock!,
                                   connection: FakeNetworkConnection(),
+                                  deviceInfo: FakeDeviceInfo(),
                                   idMap: idMap!,
                                   store: FakePersistentStore())
+    metricsLogger!.startSession(userID: "foo")
     scrollTracker = ScrollTracker(metricsLogger: metricsLogger!,
                                   clock: clock!)
   }

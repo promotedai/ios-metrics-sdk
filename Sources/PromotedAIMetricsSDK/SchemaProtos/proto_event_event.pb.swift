@@ -521,7 +521,25 @@ public struct Event_CohortMembership {
   fileprivate var _data: Event_CustomData? = nil
 }
 
-/// Rectangle size
+/// Locale for session
+/// Next ID = 3.
+public struct Event_Locale {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// "en", "zh_Hant", "fr"
+  public var languageCode: String = String()
+
+  /// "US", "CA", "FR"
+  public var regionCode: String = String()
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// Rectangle size in pixels
 /// Next ID = 3.
 public struct Event_Size {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
@@ -537,8 +555,38 @@ public struct Event_Size {
   public init() {}
 }
 
+/// Device screen
+/// Next ID = 3.
+public struct Event_Screen {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// Android: DisplayMetrics.widthPixels/heightPixels
+  /// iOS: UIScreen.nativeBounds.width/height
+  public var size: Event_Size {
+    get {return _size ?? Event_Size()}
+    set {_size = newValue}
+  }
+  /// Returns true if `size` has been explicitly set.
+  public var hasSize: Bool {return self._size != nil}
+  /// Clears the value of `size`. Subsequent reads from it will return its default value.
+  public mutating func clearSize() {self._size = nil}
+
+  /// Natural scale factor.
+  /// Android: DisplayMetrics.density
+  /// iOS: UIScreen.scale
+  public var scale: Float = 0
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+
+  fileprivate var _size: Event_Size? = nil
+}
+
 /// A sub-message containing Device info.
-/// Next ID = 11.
+/// Next ID = 8.
 public struct Event_Device {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -546,32 +594,49 @@ public struct Event_Device {
 
   public var deviceType: Event_DeviceType = .unknownDeviceType
 
-  /// android.os.Build.BRAND
+  /// Android: android.os.Build.BRAND
+  ///          (eg. "google", "verizon", "tmobile", "Samsung")
+  /// iOS: "Apple"
   public var brand: String = String()
 
-  /// android.os.Build.DEVICE
-  public var deviceName: String = String()
+  /// Android: android.os.Build.MANUFACTURER
+  ///          (eg. "HTC", "Motorola", "HUAWEI")
+  /// iOS: "Apple"
+  public var manufacturer: String = String()
 
-  /// android.os.Build.DISPLAY
-  public var display: String = String()
+  /// Android: android.os.Build.MODEL
+  ///          (eg. "GT-S5830L", "MB860")
+  /// iOS: "iPhoneXX,YY" or "iPadXX,YY"
+  public var identifier: String = String()
 
-  /// android.os.Build.MODEL
-  public var model: String = String()
+  /// Android: android.os.Build.VERSION.RELEASE
+  /// iOS: "14.4.1"
+  public var osVersion: String = String()
 
-  public var resolution: Event_Size {
-    get {return _resolution ?? Event_Size()}
-    set {_resolution = newValue}
+  public var locale: Event_Locale {
+    get {return _locale ?? Event_Locale()}
+    set {_locale = newValue}
   }
-  /// Returns true if `resolution` has been explicitly set.
-  public var hasResolution: Bool {return self._resolution != nil}
-  /// Clears the value of `resolution`. Subsequent reads from it will return its default value.
-  public mutating func clearResolution() {self._resolution = nil}
+  /// Returns true if `locale` has been explicitly set.
+  public var hasLocale: Bool {return self._locale != nil}
+  /// Clears the value of `locale`. Subsequent reads from it will return its default value.
+  public mutating func clearLocale() {self._locale = nil}
+
+  public var screen: Event_Screen {
+    get {return _screen ?? Event_Screen()}
+    set {_screen = newValue}
+  }
+  /// Returns true if `screen` has been explicitly set.
+  public var hasScreen: Bool {return self._screen != nil}
+  /// Clears the value of `screen`. Subsequent reads from it will return its default value.
+  public mutating func clearScreen() {self._screen = nil}
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
 
-  fileprivate var _resolution: Event_Size? = nil
+  fileprivate var _locale: Event_Locale? = nil
+  fileprivate var _screen: Event_Screen? = nil
 }
 
 /// https://raw.githubusercontent.com/snowplow/iglu-central/master/schemas/org.ietf/http_client_hints/jsonschema/1-0-0
@@ -795,11 +860,14 @@ public struct Event_Session {
 }
 
 /// Submessage on View for Web page visits.
-/// Next ID = 4.
+/// Next ID = 5.
 public struct Event_WebPageView {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
+
+  /// Optional.  This is the url for the page.
+  public var url: String = String()
 
   /// Optional.
   public var browser: Event_Browser {
@@ -844,7 +912,7 @@ public struct Event_AppScreenView {
 }
 
 /// A view of a single page/screen (e.g. feed, search results, etc).
-/// Next ID = 17.
+/// Next ID = 16.
 public struct Event_View {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -892,13 +960,6 @@ public struct Event_View {
   public var name: String {
     get {return _storage._name}
     set {_uniqueStorage()._name = newValue}
-  }
-
-  /// Optional.  This is the url for the page.
-  /// Q - how should this work with experiments?  Should we handle experiments separately?
-  public var url: String {
-    get {return _storage._url}
-    set {_uniqueStorage()._url = newValue}
   }
 
   /// Optional.
@@ -1995,6 +2056,44 @@ extension Event_CohortMembership: SwiftProtobuf.Message, SwiftProtobuf._MessageI
   }
 }
 
+extension Event_Locale: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Locale"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "language_code"),
+    2: .standard(proto: "region_code"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.languageCode) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.regionCode) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.languageCode.isEmpty {
+      try visitor.visitSingularStringField(value: self.languageCode, fieldNumber: 1)
+    }
+    if !self.regionCode.isEmpty {
+      try visitor.visitSingularStringField(value: self.regionCode, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Event_Locale, rhs: Event_Locale) -> Bool {
+    if lhs.languageCode != rhs.languageCode {return false}
+    if lhs.regionCode != rhs.regionCode {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
 extension Event_Size: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Size"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -2033,15 +2132,54 @@ extension Event_Size: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
   }
 }
 
+extension Event_Screen: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Screen"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "size"),
+    2: .same(proto: "scale"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularMessageField(value: &self._size) }()
+      case 2: try { try decoder.decodeSingularFloatField(value: &self.scale) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if let v = self._size {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
+    }
+    if self.scale != 0 {
+      try visitor.visitSingularFloatField(value: self.scale, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Event_Screen, rhs: Event_Screen) -> Bool {
+    if lhs._size != rhs._size {return false}
+    if lhs.scale != rhs.scale {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
 extension Event_Device: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Device"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .standard(proto: "device_type"),
-    3: .same(proto: "brand"),
-    5: .standard(proto: "device_name"),
-    7: .same(proto: "display"),
-    9: .same(proto: "model"),
-    10: .same(proto: "resolution"),
+    2: .same(proto: "brand"),
+    3: .same(proto: "manufacturer"),
+    4: .same(proto: "identifier"),
+    5: .standard(proto: "os_version"),
+    6: .same(proto: "locale"),
+    7: .same(proto: "screen"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -2051,11 +2189,12 @@ extension Event_Device: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularEnumField(value: &self.deviceType) }()
-      case 3: try { try decoder.decodeSingularStringField(value: &self.brand) }()
-      case 5: try { try decoder.decodeSingularStringField(value: &self.deviceName) }()
-      case 7: try { try decoder.decodeSingularStringField(value: &self.display) }()
-      case 9: try { try decoder.decodeSingularStringField(value: &self.model) }()
-      case 10: try { try decoder.decodeSingularMessageField(value: &self._resolution) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.brand) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.manufacturer) }()
+      case 4: try { try decoder.decodeSingularStringField(value: &self.identifier) }()
+      case 5: try { try decoder.decodeSingularStringField(value: &self.osVersion) }()
+      case 6: try { try decoder.decodeSingularMessageField(value: &self._locale) }()
+      case 7: try { try decoder.decodeSingularMessageField(value: &self._screen) }()
       default: break
       }
     }
@@ -2066,19 +2205,22 @@ extension Event_Device: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
       try visitor.visitSingularEnumField(value: self.deviceType, fieldNumber: 1)
     }
     if !self.brand.isEmpty {
-      try visitor.visitSingularStringField(value: self.brand, fieldNumber: 3)
+      try visitor.visitSingularStringField(value: self.brand, fieldNumber: 2)
     }
-    if !self.deviceName.isEmpty {
-      try visitor.visitSingularStringField(value: self.deviceName, fieldNumber: 5)
+    if !self.manufacturer.isEmpty {
+      try visitor.visitSingularStringField(value: self.manufacturer, fieldNumber: 3)
     }
-    if !self.display.isEmpty {
-      try visitor.visitSingularStringField(value: self.display, fieldNumber: 7)
+    if !self.identifier.isEmpty {
+      try visitor.visitSingularStringField(value: self.identifier, fieldNumber: 4)
     }
-    if !self.model.isEmpty {
-      try visitor.visitSingularStringField(value: self.model, fieldNumber: 9)
+    if !self.osVersion.isEmpty {
+      try visitor.visitSingularStringField(value: self.osVersion, fieldNumber: 5)
     }
-    if let v = self._resolution {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 10)
+    if let v = self._locale {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 6)
+    }
+    if let v = self._screen {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 7)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -2086,10 +2228,11 @@ extension Event_Device: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
   public static func ==(lhs: Event_Device, rhs: Event_Device) -> Bool {
     if lhs.deviceType != rhs.deviceType {return false}
     if lhs.brand != rhs.brand {return false}
-    if lhs.deviceName != rhs.deviceName {return false}
-    if lhs.display != rhs.display {return false}
-    if lhs.model != rhs.model {return false}
-    if lhs._resolution != rhs._resolution {return false}
+    if lhs.manufacturer != rhs.manufacturer {return false}
+    if lhs.identifier != rhs.identifier {return false}
+    if lhs.osVersion != rhs.osVersion {return false}
+    if lhs._locale != rhs._locale {return false}
+    if lhs._screen != rhs._screen {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -2416,9 +2559,10 @@ extension Event_Session: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
 extension Event_WebPageView: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".WebPageView"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "browser"),
-    2: .same(proto: "referrer"),
-    3: .standard(proto: "document_size"),
+    1: .same(proto: "url"),
+    2: .same(proto: "browser"),
+    3: .same(proto: "referrer"),
+    4: .standard(proto: "document_size"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -2427,28 +2571,33 @@ extension Event_WebPageView: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularMessageField(value: &self._browser) }()
-      case 2: try { try decoder.decodeSingularStringField(value: &self.referrer) }()
-      case 3: try { try decoder.decodeSingularMessageField(value: &self._documentSize) }()
+      case 1: try { try decoder.decodeSingularStringField(value: &self.url) }()
+      case 2: try { try decoder.decodeSingularMessageField(value: &self._browser) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.referrer) }()
+      case 4: try { try decoder.decodeSingularMessageField(value: &self._documentSize) }()
       default: break
       }
     }
   }
 
   public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.url.isEmpty {
+      try visitor.visitSingularStringField(value: self.url, fieldNumber: 1)
+    }
     if let v = self._browser {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
     }
     if !self.referrer.isEmpty {
-      try visitor.visitSingularStringField(value: self.referrer, fieldNumber: 2)
+      try visitor.visitSingularStringField(value: self.referrer, fieldNumber: 3)
     }
     if let v = self._documentSize {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 4)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   public static func ==(lhs: Event_WebPageView, rhs: Event_WebPageView) -> Bool {
+    if lhs.url != rhs.url {return false}
     if lhs._browser != rhs._browser {return false}
     if lhs.referrer != rhs.referrer {return false}
     if lhs._documentSize != rhs._documentSize {return false}
@@ -2485,14 +2634,13 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
     6: .standard(proto: "view_id"),
     7: .standard(proto: "session_id"),
     8: .same(proto: "name"),
-    9: .same(proto: "url"),
-    10: .standard(proto: "use_case"),
-    11: .standard(proto: "search_query"),
-    12: .same(proto: "data"),
-    13: .same(proto: "device"),
-    14: .same(proto: "viewType"),
-    15: .standard(proto: "web_page_view"),
-    16: .standard(proto: "app_screen_view"),
+    9: .standard(proto: "use_case"),
+    10: .standard(proto: "search_query"),
+    11: .same(proto: "data"),
+    12: .same(proto: "device"),
+    13: .same(proto: "viewType"),
+    14: .standard(proto: "web_page_view"),
+    15: .standard(proto: "app_screen_view"),
   ]
 
   fileprivate class _StorageClass {
@@ -2502,7 +2650,6 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
     var _viewID: String = String()
     var _sessionID: String = String()
     var _name: String = String()
-    var _url: String = String()
     var _useCase: Event_UseCase = .unknownUseCase
     var _searchQuery: String = String()
     var _data: Event_CustomData? = nil
@@ -2521,7 +2668,6 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
       _viewID = source._viewID
       _sessionID = source._sessionID
       _name = source._name
-      _url = source._url
       _useCase = source._useCase
       _searchQuery = source._searchQuery
       _data = source._data
@@ -2552,13 +2698,12 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
         case 6: try { try decoder.decodeSingularStringField(value: &_storage._viewID) }()
         case 7: try { try decoder.decodeSingularStringField(value: &_storage._sessionID) }()
         case 8: try { try decoder.decodeSingularStringField(value: &_storage._name) }()
-        case 9: try { try decoder.decodeSingularStringField(value: &_storage._url) }()
-        case 10: try { try decoder.decodeSingularEnumField(value: &_storage._useCase) }()
-        case 11: try { try decoder.decodeSingularStringField(value: &_storage._searchQuery) }()
-        case 12: try { try decoder.decodeSingularMessageField(value: &_storage._data) }()
-        case 13: try { try decoder.decodeSingularMessageField(value: &_storage._device) }()
-        case 14: try { try decoder.decodeSingularEnumField(value: &_storage._viewType) }()
-        case 15: try {
+        case 9: try { try decoder.decodeSingularEnumField(value: &_storage._useCase) }()
+        case 10: try { try decoder.decodeSingularStringField(value: &_storage._searchQuery) }()
+        case 11: try { try decoder.decodeSingularMessageField(value: &_storage._data) }()
+        case 12: try { try decoder.decodeSingularMessageField(value: &_storage._device) }()
+        case 13: try { try decoder.decodeSingularEnumField(value: &_storage._viewType) }()
+        case 14: try {
           var v: Event_WebPageView?
           if let current = _storage._uiType {
             try decoder.handleConflictingOneOf()
@@ -2567,7 +2712,7 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
           try decoder.decodeSingularMessageField(value: &v)
           if let v = v {_storage._uiType = .webPageView(v)}
         }()
-        case 16: try {
+        case 15: try {
           var v: Event_AppScreenView?
           if let current = _storage._uiType {
             try decoder.handleConflictingOneOf()
@@ -2602,23 +2747,20 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
       if !_storage._name.isEmpty {
         try visitor.visitSingularStringField(value: _storage._name, fieldNumber: 8)
       }
-      if !_storage._url.isEmpty {
-        try visitor.visitSingularStringField(value: _storage._url, fieldNumber: 9)
-      }
       if _storage._useCase != .unknownUseCase {
-        try visitor.visitSingularEnumField(value: _storage._useCase, fieldNumber: 10)
+        try visitor.visitSingularEnumField(value: _storage._useCase, fieldNumber: 9)
       }
       if !_storage._searchQuery.isEmpty {
-        try visitor.visitSingularStringField(value: _storage._searchQuery, fieldNumber: 11)
+        try visitor.visitSingularStringField(value: _storage._searchQuery, fieldNumber: 10)
       }
       if let v = _storage._data {
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 12)
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 11)
       }
       if let v = _storage._device {
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 13)
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 12)
       }
       if _storage._viewType != .unknownViewType {
-        try visitor.visitSingularEnumField(value: _storage._viewType, fieldNumber: 14)
+        try visitor.visitSingularEnumField(value: _storage._viewType, fieldNumber: 13)
       }
       // The use of inline closures is to circumvent an issue where the compiler
       // allocates stack space for every case branch when no optimizations are
@@ -2626,11 +2768,11 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
       switch _storage._uiType {
       case .webPageView?: try {
         guard case .webPageView(let v)? = _storage._uiType else { preconditionFailure() }
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 15)
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 14)
       }()
       case .appScreenView?: try {
         guard case .appScreenView(let v)? = _storage._uiType else { preconditionFailure() }
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 16)
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 15)
       }()
       case nil: break
       }
@@ -2649,7 +2791,6 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
         if _storage._viewID != rhs_storage._viewID {return false}
         if _storage._sessionID != rhs_storage._sessionID {return false}
         if _storage._name != rhs_storage._name {return false}
-        if _storage._url != rhs_storage._url {return false}
         if _storage._useCase != rhs_storage._useCase {return false}
         if _storage._searchQuery != rhs_storage._searchQuery {return false}
         if _storage._data != rhs_storage._data {return false}

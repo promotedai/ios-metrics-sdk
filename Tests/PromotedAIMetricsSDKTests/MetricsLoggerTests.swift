@@ -34,6 +34,7 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger = MetricsLogger(clientConfig: config!,
                                   clock: clock!,
                                   connection: connection!,
+                                  deviceInfo: FakeDeviceInfo(),
                                   idMap: idMap!,
                                   store: store!)
   }
@@ -107,7 +108,7 @@ final class MetricsLoggerTests: XCTestCase {
   func testBatchFlush() {
     let flushInterval = config!.loggingFlushInterval
     metricsLogger!.startSession(userID: "foobar")
-    let e = Event_Click()
+    let e = Event_Action()
 
     clock!.advance(to: 0.0)
     metricsLogger!.log(message: e)
@@ -135,14 +136,15 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertEqual(0, connection!.messages.count)
   }
   
-  func testPayload() {
-    var payload = Event_Impression()
-    payload.impressionID = "foobar"
-    metricsLogger!.logUser(payload: payload)
+  func testCustomData() {
+    metricsLogger!.startSession(userID: "foobar")
+    var customData = Event_Impression()
+    customData.impressionID = "foobar"
+    metricsLogger!.logUser(data: customData)
     XCTAssertEqual(1, metricsLogger!.logMessages.count)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_User)
-    let payloadData = (message as! Event_User).payload.payloadBytes
+    let payloadData = (message as! Event_User).data.dataBytes
     do {
       let deserializedPayload = try Event_Impression(serializedData: payloadData)
       XCTAssertEqual("foobar", deserializedPayload.impressionID)
@@ -153,6 +155,7 @@ final class MetricsLoggerTests: XCTestCase {
   
   func testDisableLogging() {
     // Logging enabled.
+    metricsLogger!.startSession(userID: "foobar")
     metricsLogger!.logUser()
     XCTAssertEqual(1, metricsLogger!.logMessages.count)
     let message = metricsLogger!.logMessages[0]
@@ -166,8 +169,10 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger = MetricsLogger(clientConfig: config!,
                                   clock: clock!,
                                   connection: connection!,
+                                  deviceInfo: FakeDeviceInfo(),
                                   idMap: SHA1IDMap.instance,
                                   store: store!)
+    metricsLogger!.startSession(userID: "foobar")
     metricsLogger!.logUser()
     metricsLogger!.flush()
     XCTAssertEqual(0, connection!.messages.count)
@@ -181,8 +186,6 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertTrue(message is Event_User)
     let expectedJSON = """
     {
-      "log_user_id": "\(idMap!.logUserID(userID: "foo"))",
-      "user_id": "foo"
     }
     """
     XCTAssertEqual(try Event_User(jsonString: expectedJSON),
@@ -197,7 +200,8 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertTrue(message is Event_Impression)
     let expectedJSON = """
     {
-      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))"
+      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "session_id": "fake-session-id"
     }
     """
     XCTAssertEqual(try Event_Impression(jsonString: expectedJSON),
@@ -209,18 +213,19 @@ final class MetricsLoggerTests: XCTestCase {
     let item = Item(contentID: "foobar")
     metricsLogger!.logClickToLike(content: item, didLike: true)
     let message = metricsLogger!.logMessages[0]
-    XCTAssertTrue(message is Event_Click)
+    XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
+      "action_id": "fake-action-id",
       "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
-      "click_id": "fake-click-id",
+      "session_id": "fake-session-id",
       "name": "like",
-      "target_url": "#like",
+      "action_type": "LIKE",
       "element_id": "like"
     }
     """
-    XCTAssertEqual(try Event_Click(jsonString: expectedJSON),
-                   message as! Event_Click)
+    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
+                   message as! Event_Action)
   }
 
   func testLogClickToUnlike() {
@@ -228,18 +233,19 @@ final class MetricsLoggerTests: XCTestCase {
     let item = Item(contentID: "foobar")
     metricsLogger!.logClickToLike(content: item, didLike: false)
     let message = metricsLogger!.logMessages[0]
-    XCTAssertTrue(message is Event_Click)
+    XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
+      "action_id": "fake-action-id",
       "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
-      "click_id": "fake-click-id",
+      "session_id": "fake-session-id",
       "name": "unlike",
-      "target_url": "#unlike",
+      "action_type": "LIKE",
       "element_id": "unlike"
     }
     """
-    XCTAssertEqual(try Event_Click(jsonString: expectedJSON),
-                   message as! Event_Click)
+    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
+                   message as! Event_Action)
   }
   
   func testLogClickToShowViewController() {
@@ -248,35 +254,42 @@ final class MetricsLoggerTests: XCTestCase {
     let item = Item(contentID: "foobar")
     metricsLogger!.logClickToShow(viewController: viewController, forContent: item)
     let message = metricsLogger!.logMessages[0]
-    XCTAssertTrue(message is Event_Click)
+    XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
+      "action_id": "fake-action-id",
       "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
-      "click_id": "fake-click-id",
+      "session_id": "fake-session-id",
       "name": "FakeScreen",
-      "target_url": "#FakeScreen",
-      "element_id": "FakeScreen"
+      "action_type": "CLICK",
+      "element_id": "FakeScreen",
+      "click": {
+      }
     }
     """
-    XCTAssertEqual(try Event_Click(jsonString: expectedJSON),
-                   message as! Event_Click)
+    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
+                   message as! Event_Action)
   }
   
   func testLogClickToSignUp() {
+    metricsLogger!.startSession(userID: "foobar")
     metricsLogger!.logClickToSignUp(userID: "foo")
     let message = metricsLogger!.logMessages[0]
-    XCTAssertTrue(message is Event_Click)
+    XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
+      "action_id": "fake-action-id",
       "impression_id": "\(idMap!.impressionID(contentID: "foo"))",
-      "click_id": "fake-click-id",
+      "session_id": "fake-session-id",
       "name": "sign-up",
-      "target_url": "#sign-up",
-      "element_id": "sign-up"
+      "action_type": "CLICK",
+      "element_id": "sign-up",
+      "click": {
+      }
     }
     """
-    XCTAssertEqual(try Event_Click(jsonString: expectedJSON),
-                   message as! Event_Click)
+    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
+                   message as! Event_Action)
   }
   
   func testLogClickToPurchase() {
@@ -284,18 +297,19 @@ final class MetricsLoggerTests: XCTestCase {
     let item = Item(contentID: "foobar")
     metricsLogger!.logClickToPurchase(item: item)
     let message = metricsLogger!.logMessages[0]
-    XCTAssertTrue(message is Event_Click)
+    XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
+      "action_id": "fake-action-id",
       "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
-      "click_id": "fake-click-id",
+      "session_id": "fake-session-id",
       "name": "purchase",
-      "target_url": "#purchase",
+      "action_type": "PURCHASE",
       "element_id": "purchase"
     }
     """
-    XCTAssertEqual(try Event_Click(jsonString: expectedJSON),
-                   message as! Event_Click)
+    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
+                   message as! Event_Action)
   }
   
   func testLogViewController() {
@@ -307,9 +321,30 @@ final class MetricsLoggerTests: XCTestCase {
     let expectedJSON = """
     {
       "view_id": "\(idMap!.viewID(viewName: "FakeScreen"))",
+      "session_id": "fake-session-id",
       "name": "FakeScreen",
-      "url": "#FakeScreen",
-      "use_case": "SEARCH"
+      "use_case": "SEARCH",
+      "device": {
+        "device_type": "MOBILE",
+        "brand": "Apple",
+        "manufacturer": "Apple",
+        "identifier": "iPhone",
+        "os_version": "14.4.1",
+        "locale": {
+          "language_code": "en",
+          "region_code": "US"
+        },
+        "screen": {
+          "size": {
+            "width": 1024,
+            "height": 768
+          },
+          "scale": 2.0
+        }
+      },
+      "viewType": "APP_SCREEN",
+      "app_screen_view": {
+      }
     }
     """
     XCTAssertEqual(try Event_View(jsonString: expectedJSON),
@@ -323,6 +358,7 @@ final class MetricsLoggerTests: XCTestCase {
     ("testStartSessionSignInThenSignOut", testStartSessionSignInThenSignOut),
     ("testStartSessionSignOutThenSignIn", testStartSessionSignOutThenSignIn),
     ("testBatchFlush", testBatchFlush),
+    ("testCustomData", testCustomData),
     ("testLogUser", testLogUser),
     ("testLogImpression", testLogImpression),
     ("testLogClickToLike", testLogClickToLike),

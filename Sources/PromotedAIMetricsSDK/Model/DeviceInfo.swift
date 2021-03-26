@@ -1,14 +1,16 @@
 import Foundation
 
 // MARK: - DeviceInfo
-protocol DeviceInfo {
+public protocol DeviceInfo {
   var deviceType: DeviceType { get }
   var brand: String { get }
-  var deviceName: String { get }
-  var display: String { get }
-  var model: String { get }
+  var manufacturer: String { get }
+  var identifier: String { get }
+  var osVersion: String { get }
   var screenScale: Float { get }
   var screenSizePx: (UInt32, UInt32) { get }
+  var languageCode: String { get }
+  var regionCode: String { get }
 }
 
 func CurrentDeviceInfo() -> DeviceInfo {
@@ -40,16 +42,12 @@ class IOSDeviceInfo: DeviceInfo {
   var brand: String {
     return "Apple"
   }
-
-  var deviceName: String {
-    return UIDevice.current.model
+  
+  var manufacturer: String {
+    return "Apple"
   }
   
-  var display: String {
-    return UIDevice.current.systemVersion
-  }
-  
-  lazy var model: String = {
+  lazy var identifier: String = {
     var systemInfo = utsname()
     uname(&systemInfo)
     let machineMirror = Mirror(reflecting: systemInfo.machine)
@@ -60,6 +58,10 @@ class IOSDeviceInfo: DeviceInfo {
     return identifier
   } ()
   
+  var osVersion: String {
+    return UIDevice.current.systemVersion
+  }
+
   var screenScale: Float {
     return UIScreen.main.scale
   }
@@ -68,12 +70,20 @@ class IOSDeviceInfo: DeviceInfo {
     let bounds = UIScreen.main.nativeBounds
     return (UInt32(bounds.width), UInt32(bounds.height))
   }
+  
+  var languageCode: String {
+    return Locale.current.languageCode
+  }
+  
+  var regionCode: String {
+    return Locale.current.regionCode
+  }
 }
 
 // MARK: - macOS
 #elseif os(macOS)
 
-/** This is only used in unit testing. */
+/** This is only used to compile on macOS. */
 class MacOSDeviceInfo: DeviceInfo {
 
   var deviceType: DeviceType {
@@ -84,24 +94,32 @@ class MacOSDeviceInfo: DeviceInfo {
     return "Apple"
   }
 
-  var deviceName: String {
-    return "Mac"
+  var manufacturer: String {
+    return "Apple"
   }
   
-  var display: String {
-    return "11.1"
-  }
-  
-  var model: String {
+  var identifier: String {
     return "Mac"
   }
 
+  var osVersion: String {
+    return "10.15"
+  }
+  
   var screenScale: Float {
-    return 1.0
+    return 2.0
   }
 
   var screenSizePx: (UInt32, UInt32) {
     return (1024, 768)
+  }
+  
+  var languageCode: String {
+    return "en"
+  }
+  
+  var regionCode: String {
+    return "US"
   }
 }
 

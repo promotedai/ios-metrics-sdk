@@ -86,14 +86,15 @@ public class MetricsLogger: NSObject {
     var device = Event_Device()
     if let type = deviceInfo.deviceType.protoValue { device.deviceType = type }
     device.brand = deviceInfo.brand
-    device.deviceName = deviceInfo.deviceName
-    device.display = deviceInfo.display
-    device.model = deviceInfo.model
-    let (width, height) = deviceInfo.screenSizePts
-    var size = Event_Size()
-    size.width = width
-    size.height = height
-    device.resolution = size
+    device.manufacturer = deviceInfo.manufacturer
+    device.identifier = deviceInfo.identifier
+    device.osVersion = deviceInfo.osVersion
+    device.locale.languageCode = deviceInfo.languageCode
+    device.locale.regionCode = deviceInfo.regionCode
+    let (width, height) = deviceInfo.screenSizePx
+    device.screen.size.width = width
+    device.screen.size.height = height
+    device.screen.scale = deviceInfo.screenScale
     return device
   } ()
 
@@ -217,7 +218,6 @@ public extension MetricsLogger {
   ///   - data: Client-specific message
   func logUser(data: Message? = nil) {
     var user = Event_User()
-    user.userInfo = userInfoMessage()
     if let data = Self.customDataWrapperMessage(data) {
       user.data = data
     }
@@ -227,7 +227,6 @@ public extension MetricsLogger {
   func logSession(data: Message? = nil) {
     assert(sessionID != nil, "Call startSession* before any log* methods")
     var session = Event_Session()
-    session.userInfo = userInfoMessage()
     if let id = sessionID { session.sessionID = id }
     session.startEpochMillis = clock.nowMillis
     if let data = Self.customDataWrapperMessage(data) {
@@ -252,7 +251,6 @@ public extension MetricsLogger {
                      viewID: String? = nil,
                      data: Message? = nil) {
     var impression = Event_Impression()
-    impression.userInfo = userInfoMessage()
     impression.impressionID = idMap.impressionID(contentID: contentID)
     if let id = insertionID { impression.insertionID = id }
     if let id = requestID { impression.requestID = id }
@@ -289,7 +287,6 @@ public extension MetricsLogger {
                  elementID: String? = nil,
                  data: Message? = nil) {
     var action = Event_Action()
-    action.userInfo = userInfoMessage()
     action.actionID = idMap.actionID()
     let impressionID = idMap.impressionIDOrNil(contentID: contentID)
     if let id = impressionID { action.impressionID = id }
@@ -327,15 +324,12 @@ public extension MetricsLogger {
   ///   - useCase: Use case for view
   ///   - data: Client-specific message
   func logView(name: String,
-               url: String? = nil,
                useCase: Event_UseCase? = nil,
                data: Message? = nil) {
     var view = Event_View()
-    view.userInfo = userInfoMessage()
     view.viewID = idMap.viewID(viewName: name)
     if let id = sessionID { view.sessionID = id }
     view.name = name
-    view.url = url ?? "#" + name
     if let use = useCase { view.useCase = use }
     if let data = Self.customDataWrapperMessage(data) {
       view.data = data

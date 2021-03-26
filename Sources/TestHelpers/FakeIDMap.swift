@@ -11,4 +11,7 @@ public class FakeIDMap: AbstractIDMap {
   public override func actionID() -> String {
     return "fake-action-id"
   }
+  public override func sessionID() -> String {
+    return "fake-session-id"
+  }
 }
