@@ -48,6 +48,7 @@ public class MetricsLoggerService: NSObject {
     return MetricsLogger(clientConfig: self.config,
                          clock: self.clock,
                          connection: self.connection,
+                         deviceInfo: self.deviceInfo,
                          idMap: self.idMap,
                          store: self.store)
   } ()
@@ -59,6 +60,7 @@ public class MetricsLoggerService: NSObject {
   private var clientConfigService: ClientConfigService
   private let clock: Clock
   private let connection: NetworkConnection
+  private let deviceInfo: DeviceInfo
   private let idMap: IDMap
   private let store: PersistentStore
 
@@ -66,6 +68,7 @@ public class MetricsLoggerService: NSObject {
     self.init(clientConfigService: LocalClientConfigService(initialConfig: initialConfig),
               clock: SystemClock.instance,
               connection: GTMSessionFetcherConnection(),
+              deviceInfo: CurrentDeviceInfo(),
               idMap: SHA1IDMap.instance,
               store: UserDefaultsPersistentStore())
   }
@@ -74,6 +77,7 @@ public class MetricsLoggerService: NSObject {
     self.init(clientConfigService: clientConfigService,
               clock: SystemClock.instance,
               connection: GTMSessionFetcherConnection(),
+              deviceInfo: CurrentDeviceInfo(),
               idMap: SHA1IDMap.instance,
               store: UserDefaultsPersistentStore())
   }
@@ -81,11 +85,13 @@ public class MetricsLoggerService: NSObject {
   public init(clientConfigService: ClientConfigService,
               clock: Clock,
               connection: NetworkConnection,
+              deviceInfo: DeviceInfo,
               idMap: IDMap,
               store: PersistentStore) {
     self.clientConfigService = clientConfigService
     self.clock = clock
     self.connection = connection
+    self.deviceInfo = deviceInfo
     self.idMap = idMap
     self.store = store
   }

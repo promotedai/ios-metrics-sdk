@@ -12,31 +12,31 @@ Our client library is built on a number of proven technologies:
 1. gRPC (roadmap): A high-performance RPC framework used by many Google iOS apps.
 
 ## Availability
-Our client library is available via the following channels. Access to this library is currently private. You will receive instructions on how to integrate via the channel you choose.
+Our client library is available via the following channels. You will receive instructions on how to integrate via the channel you choose.
 
 1. As a Swift Package.
 1. As a Cocoapod.
-1. As a framework.
+1. As an NPM package (React Native only). See [react-native-metrics](https://github.com/promotedai/react-native-metrics).
 
 ## Integration
-Your app controls the initialization and behavior of our client library through two main classes:
+Your app controls the initialization and behavior of our client library through the following classes:
 
-A LoggingService, which configures the behavior and initialization of the library. 
-A Logger, which accepts log messages to send to the server. 
+1. `MetricsLoggingService` configures the behavior and initialization of the library. 
+1. `MetricsLogger` accepts log messages to send to the server. 
+1. `ImpressionLogger` tracks impressions of content in a collection view.
 
 ### MetricsLoggerService
 Initialization of the library is lightweight and mostly occurs in the background, and does not impact app startup performance.
 
 Example usage (singleton):
-~~~
+~~~swift
 // In your AppDelegate:
 func application(_ application: UIApplication,
                  didFinishLaunchingWithOptions...) -> Bool {
   let config = ClientConfig()
   config.metricsLoggingURL = "..."
   config.metricsLoggingAPIKey = "..."
-  MetricsLoggingService.startServices(messageProvider: MyProvider(),
-                                      clientConfig: config)
+  MetricsLoggingService.startServices(initialConfig: config)
   let loggingService = MetricsLoggingService.sharedService
   self.logger = loggingService.metricsLogger
   return true
@@ -44,15 +44,14 @@ func application(_ application: UIApplication,
 ~~~
 
 Example usage (dependency injection):
-~~~
+~~~swift
 // In your AppDelegate:
 func application(_ application: UIApplication,
                  didFinishLaunchingWithOptions...) -> Bool {
   let config = ClientConfig()
   config.metricsLoggingURL = "..."
   config.metricsLoggingAPIKey = "..."
-  self.service = MetricsLoggingService(messageProvider: MyProvider(),
-                                       clientConfig: config)
+  self.service = MetricsLoggingService(initialConfig: config)
   self.service.startLoggingServices()
   self.logger = service.metricsLogger
   return true
@@ -60,7 +59,7 @@ func application(_ application: UIApplication,
 ~~~
 
 Handling user sign-in:
-~~~
+~~~swift
 // Handling user sign-in/sign-out:
 func userDidSignInWithID(_ userID: String) {
   self.logger.startSessionAndLogUser(userID: userID);
@@ -72,37 +71,41 @@ func userDidSignOut() {
 ~~~
 
 ### MetricsLogger
-Logger batches log messages to avoid wasteful network traffic that would affect battery life. It also provides hooks into the app’s life cycle to ensure delivery of client logs. The interface to Logger is minimally intrusive to your app’s code.
+`MetricsLogger` batches log messages to avoid wasteful network traffic that would affect battery life. It also provides hooks into the app’s life cycle to ensure delivery of client logs.
 
 ### ImpressionLogger
 For `UICollectionViews` and other scroll views, we can track the appearance and disappearance of individual cells for fine-grained impression logging. We provide `ImpressionLogger`, a solution that hooks into most `UICollectionView`s and `UIViewController`s easily.
 
 Example usage with UICollectionView:
-~~~
+~~~swift
 class MyViewController: UIViewController {
   var collectionView: UICollectionView
   var impressionLogger: ImpressionLogger
 
   func viewWillDisappear(_ animated: Bool) {
-    impressionLogger.collectionViewDidHideAllItems()
+    impressionLogger.collectionViewDidHideAllContent()
   }
 
   func collectionView(_ collectionView: UICollectionView,
                       willDisplay cell: UICollectionViewCell,
                       forItemAt indexPath: IndexPath) {
-    impressionLogger.collectionViewWillDisplayContent(atIndex: indexPath)
+    let content = contentFor(indexPath: indexPath)
+    impressionLogger.collectionViewWillDisplay(content: content)
   }
    
   func collectionView(_ collectionView: UICollectionView,
                       didEndDisplaying cell: UICollectionViewCell,
                       forItemAt indexPath: IndexPath) {
-    impressionLogger.collectionViewDidHideContent(atIndex: indexPath)
+    let content = contentFor(indexPath: indexPath)
+    impressionLogger.collectionViewDidHide(content: content)
   }
 
   func reloadCollectionView() {
     collectionView.reloadData()
-    let visibleItems = collectionView.indexPathsForVisibleItems
-    impressionLogger.collectionViewDidChangeVisibleContent(atIndexes: visibleItems)
+    let visibleContent = collectionView.indexPathsForVisibleItems.map {
+      contentFor(indexPath: $0)
+    }
+    impressionLogger.collectionViewDidChangeVisibleContent(visibleContent)
   }
 }
 ~~~

@@ -8,67 +8,99 @@ public extension MetricsLogger {
   }
 
   // MARK: - Click logging helper methods
-  /// Logs a click to like/unlike the given item.
-  @objc(logClickToLikeItem:didLike:)
-  func logClickToLike(content: Content, didLike: Bool) {
-    let actionName = didLike ? "like" : "unlike"
-    logClick(actionName: actionName, contentID: content.contentID,
-             insertionID: content.insertionID)
+  /// Logs a click to show the given view controller.
+  @objc func logNavigateAction(viewController: ViewControllerType) {
+    logNavigateAction(name: loggingNameFor(viewController: viewController),
+                      optionalContent: nil)
   }
 
   /// Logs a click to show the given view controller.
-  @objc(logClickToShowViewController:)
-  func logClickToShow(viewController: ViewControllerType) {
-    logClickToShow(name: loggingNameFor(viewController: viewController),
-                   optionalContent: nil)
-  }
-
-  /// Logs a click to show the given view controller.
-  @objc(logClickToShowViewController:forItem:)
-  func logClickToShow(viewController: ViewControllerType,
-                             forContent content: Content) {
-    logClickToShow(name: loggingNameFor(viewController: viewController),
-                   optionalContent: content)
+  @objc func logNavigateAction(viewController: ViewControllerType,
+                               forContent content: Content) {
+    logNavigateAction(name: loggingNameFor(viewController: viewController),
+                      optionalContent: content)
   }
   
   /// Logs a click to show a screen with given name.
-  @objc(logClickToShowScreenName:)
-  func logClickToShow(screenName: String) {
-    logClickToShow(name: screenName, optionalContent: nil)
+  @objc func logNavigateAction(screenName: String) {
+    logNavigateAction(name: screenName, optionalContent: nil)
   }
   
   /// Logs a click to show a screen with given name for given item.
-  @objc(logClickToShowScreenName:forItem:)
-  func logClickToShow(screenName: String, forContent content: Content) {
-    logClickToShow(name: screenName, optionalContent: content)
+  @objc func logNavigateAction(screenName: String, forContent content: Content) {
+    logNavigateAction(name: screenName, optionalContent: content)
   }
 
-  private func logClickToShow(name: String, optionalContent content: Content?) {
-    logClick(actionName: name, contentID: content?.contentID,
-             insertionID: content?.insertionID)
+  private func logNavigateAction(name: String, optionalContent content: Content?) {
+    logAction(name: name,
+              type: .navigate,
+              contentID: content?.contentID,
+              insertionID: content?.insertionID)
+  }
+
+  /// Logs an action to purchase the given item.
+  @objc func logPurchaseAction(item: Item) {
+    logAction(name: "purchase",
+              type: .purchase,
+              contentID: item.contentID,
+              insertionID: item.insertionID)
+  }
+
+  /// Logs an action to add the given item to cart.
+  @objc func logAddToCartAction(item: Item) {
+    logAction(name: "add-to-cart",
+              type: .addToCart,
+              contentID: item.contentID,
+              insertionID: item.insertionID)
+  }
+
+  /// Logs an action to share the given content.
+  @objc func logShareAction(content: Content) {
+    logAction(name: "share",
+              type: .share,
+              contentID: content.contentID,
+              insertionID: content.insertionID)
   }
   
-  /// Logs a click to sign up as a new user.
-  @objc func logClickToSignUp(userID: String) {
-    logClick(actionName: "sign-up", contentID: userID, insertionID: nil)
+  /// Logs an action to like/unlike the given content.
+  @objc func logLikeAction(content: Content, didLike: Bool) {
+    let actionName = didLike ? "like" : "unlike"
+    logAction(name: actionName,
+              type: .like,
+              contentID: content.contentID,
+              insertionID: content.insertionID)
+  }
+
+  /// Logs an action to comment on the given content.
+  @objc func logCommentAction(content: Content) {
+    logAction(name: "comment",
+              type: .comment,
+              contentID: content.contentID,
+              insertionID: content.insertionID)
+  }
+
+  /// Logs an action with given name and type `.custom`.
+  @objc func logAction(name: String) {
+    logAction(name: name,
+              type: .custom,
+              contentID: nil,
+              insertionID: nil)
   }
   
-  /// Logs a click to purchase the given item.
-  @objc(logClickToPurchaseItem:)
-  func logClickToPurchase(item: Item) {
-    logClick(actionName: "purchase", contentID: item.contentID,
-             insertionID: item.insertionID)
+  /// Logs an action with given name.
+  @objc func logAction(name: String, type: ActionType) {
+    logAction(name: name,
+              type: type,
+              contentID: nil,
+              insertionID: nil)
   }
   
-  /// Logs a click for the given action name.
-  @objc func logClick(actionName: String) {
-    logClick(actionName: actionName, contentID: nil, insertionID: nil)
-  }
-  
-  /// Logs a click for the given action name involving the given item.
-  @objc func logClick(actionName: String, content: Content) {
-    logClick(actionName: actionName, contentID: content.contentID,
-             insertionID: content.insertionID)
+  /// Logs an action with given name, type, and content.
+  @objc func logAction(name: String, type: ActionType, content: Content) {
+    logAction(name: name,
+              type: type,
+              contentID: content.contentID,
+              insertionID: content.insertionID)
   }
 
   // MARK: - View logging helper methods
