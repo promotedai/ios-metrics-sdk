@@ -425,8 +425,10 @@ final class MetricsLoggerTests: XCTestCase {
     ("testLogClickToSignUp", testLogClickToSignUp),
     ("testLogPurchaseAction", testLogPurchaseAction),
     ("testLogAddToCartAction", testLogAddToCartAction),
+    ("testLogShareAction", testLogShareAction),
     ("testLogLikeAction", testLogLikeAction),
     ("testLogUnlikeAction", testLogUnlikeAction),
+    ("testLogCommentAction", testLogCommentAction),
     ("testLogViewController", testLogViewController),
   ]
 }
