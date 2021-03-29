@@ -20,7 +20,7 @@ final class MetricsLoggerTests: XCTestCase {
   private var idMap: FakeIDMap?
   private var store: FakePersistentStore?
   private var metricsLogger: MetricsLogger?
-
+  
   public override func setUp() {
     super.setUp()
     config = LocalClientConfig()

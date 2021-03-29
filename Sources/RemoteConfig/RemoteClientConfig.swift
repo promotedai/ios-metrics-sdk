@@ -6,24 +6,24 @@ import PromotedAIMetricsSDK
 public class RemoteClientConfig: NSObject, ClientConfig {
   
   public var loggingEnabled: Bool {
-    return firebaseConfig["loggingEnabled"].boolValue
+    return firebaseConfig[#function].boolValue
   }
   
   @objc public var metricsLoggingURL: String {
-    return firebaseConfig["metricsLoggingURL"].stringValue ?? ""
+    return firebaseConfig[#function].stringValue ?? ""
   }
   
   @objc public var metricsLoggingAPIKey: String {
-    return firebaseConfig["metricsLoggingAPIKey"].stringValue ?? ""
+    return firebaseConfig[#function].stringValue ?? ""
   }
   
   public var metricsLoggingWireFormat: MetricsLoggingWireFormat {
-    let n = firebaseConfig["metricsLoggingWireFormat"].numberValue
+    let n = firebaseConfig[#function].numberValue
     return MetricsLoggingWireFormat(rawValue: n.intValue) ?? .binary
   }
   
   public var loggingFlushInterval: TimeInterval {
-    return firebaseConfig["loggingFlushInterval"].numberValue.doubleValue
+    return firebaseConfig[#function].numberValue.doubleValue
   }
 
   private let firebaseConfig: RemoteConfig

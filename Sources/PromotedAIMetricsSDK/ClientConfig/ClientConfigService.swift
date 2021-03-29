@@ -1,5 +1,17 @@
 import Foundation
 
+// MARK: - ClientConfigReference
+/**
+ Allows for keypath access to all of a client config's fields.
+ Clients can save a reference to this object and its properties
+ will automatically update when the `ClientConfigService`'s
+ `config` updates.
+ */
+public class ClientConfigReference {
+  fileprivate var wrappedConfig: ClientConfig
+  
+}
+
 // MARK: - ClientConfigListener
 public protocol ClientConfigListener: class {
   func clientConfigDidChange(_ config: ClientConfig)
@@ -7,11 +19,25 @@ public protocol ClientConfigListener: class {
 
 // MARK: - ClientConfigService
 /**
- Provides `ClientConfig` from some arbitrary source. The config
- is always accessible during the service's lifetime, but may change
- depending on when it is accessed.
+ Provides `ClientConfig` from some arbitrary source.
+ 
+ The config is always accessible during the service's lifetime,
+ but may change depending on when it is accessed. Such changes
+ may occur only in the following situations, and there will be at
+ most 2 changes:
+ 
+ 1. The locally cached configuration is loaded from disk, or
+ 2. The remote configuration is fetched.
+ 
+ Use `addClientConfigListener` to receive updates when client config
+ changes. If you don't need to react immediately to changes, you can
+ simply read from the `ClientConfig` object each time you need to access
+ a config property. `ClientConfig` objects 
  */
 public protocol ClientConfigService {
+  
+  /// The current config for the session. May change when different
+  /// configs load.
   var config: ClientConfig { get }
   func addClientConfigListener(_ listener: ClientConfigListener)
   func removeClientConfigListener(_ listener: ClientConfigListener)
@@ -57,6 +83,7 @@ public extension AbstractClientConfigService {
 }
 
 // MARK: - LocalClientConfigService
+/** Loads from local device. */
 public class LocalClientConfigService: AbstractClientConfigService {
   public override func fetchClientConfig() {
     // No-op for local config.
