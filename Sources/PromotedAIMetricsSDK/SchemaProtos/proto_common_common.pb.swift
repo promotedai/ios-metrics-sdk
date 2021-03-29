@@ -158,6 +158,111 @@ public struct Common_EntityPath {
   public init() {}
 }
 
+/// Common submessage that scopes helps scope a request/log to a user.
+///
+/// Next ID = 3.
+public struct Common_UserInfo {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// Optional.  The Platform's actual user ID.
+  /// This field will be cleared from our transaction logs.
+  public var userID: String = String()
+
+  /// Optional.  This is a user UUID that is different from user_id and
+  /// can quickly be disassociated from the actual user ID.  This is useful:
+  /// 1. in case the user wants to be forgotten.
+  /// 2. logging unauthenticated users.
+  /// The user UUID is in a different ID space than user_id.
+  public var logUserID: String = String()
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// A message containing timing information.
+///
+/// We can add common timing info to this message.  Down the road, we might
+/// make more specific Timing messages (e.g. MetricsTiming).  We can reuse
+/// the field numbers.
+///
+/// Next ID = 3.
+public struct Common_Timing {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// Optional.  Client timestamp when event was created.
+  public var clientLogTimestamp: UInt64 = 0
+
+  /// Read-only.  This is set in the Event API.
+  public var eventApiTimestamp: UInt64 = 0
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// Supports custom properties per platform.
+/// Next ID = 3.
+public struct Common_Properties {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var structField: Common_Properties.OneOf_StructField? = nil
+
+  /// Optional.  Contains protobuf serialized bytes.
+  public var structBytes: Data {
+    get {
+      if case .structBytes(let v)? = structField {return v}
+      return Data()
+    }
+    set {structField = .structBytes(newValue)}
+  }
+
+  /// Optional.  Can be converted to/from JSON.
+  public var `struct`: SwiftProtobuf.Google_Protobuf_Struct {
+    get {
+      if case .struct(let v)? = structField {return v}
+      return SwiftProtobuf.Google_Protobuf_Struct()
+    }
+    set {structField = .struct(newValue)}
+  }
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public enum OneOf_StructField: Equatable {
+    /// Optional.  Contains protobuf serialized bytes.
+    case structBytes(Data)
+    /// Optional.  Can be converted to/from JSON.
+    case `struct`(SwiftProtobuf.Google_Protobuf_Struct)
+
+  #if !swift(>=4.1)
+    public static func ==(lhs: Common_Properties.OneOf_StructField, rhs: Common_Properties.OneOf_StructField) -> Bool {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch (lhs, rhs) {
+      case (.structBytes, .structBytes): return {
+        guard case .structBytes(let l) = lhs, case .structBytes(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.struct, .struct): return {
+        guard case .struct(let l) = lhs, case .struct(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      default: return false
+      }
+    }
+  #endif
+  }
+
+  public init() {}
+}
+
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
 fileprivate let _protobuf_package = "common"
@@ -245,6 +350,140 @@ extension Common_EntityPath: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
     if lhs.campaignID != rhs.campaignID {return false}
     if lhs.promotionID != rhs.promotionID {return false}
     if lhs.contentID != rhs.contentID {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Common_UserInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".UserInfo"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "user_id"),
+    2: .standard(proto: "log_user_id"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.userID) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.logUserID) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.userID.isEmpty {
+      try visitor.visitSingularStringField(value: self.userID, fieldNumber: 1)
+    }
+    if !self.logUserID.isEmpty {
+      try visitor.visitSingularStringField(value: self.logUserID, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Common_UserInfo, rhs: Common_UserInfo) -> Bool {
+    if lhs.userID != rhs.userID {return false}
+    if lhs.logUserID != rhs.logUserID {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Common_Timing: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Timing"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "client_log_timestamp"),
+    2: .standard(proto: "event_api_timestamp"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularUInt64Field(value: &self.clientLogTimestamp) }()
+      case 2: try { try decoder.decodeSingularUInt64Field(value: &self.eventApiTimestamp) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.clientLogTimestamp != 0 {
+      try visitor.visitSingularUInt64Field(value: self.clientLogTimestamp, fieldNumber: 1)
+    }
+    if self.eventApiTimestamp != 0 {
+      try visitor.visitSingularUInt64Field(value: self.eventApiTimestamp, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Common_Timing, rhs: Common_Timing) -> Bool {
+    if lhs.clientLogTimestamp != rhs.clientLogTimestamp {return false}
+    if lhs.eventApiTimestamp != rhs.eventApiTimestamp {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Common_Properties: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Properties"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "struct_bytes"),
+    2: .same(proto: "struct"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try {
+        if self.structField != nil {try decoder.handleConflictingOneOf()}
+        var v: Data?
+        try decoder.decodeSingularBytesField(value: &v)
+        if let v = v {self.structField = .structBytes(v)}
+      }()
+      case 2: try {
+        var v: SwiftProtobuf.Google_Protobuf_Struct?
+        if let current = self.structField {
+          try decoder.handleConflictingOneOf()
+          if case .struct(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {self.structField = .struct(v)}
+      }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every case branch when no optimizations are
+    // enabled. https://github.com/apple/swift-protobuf/issues/1034
+    switch self.structField {
+    case .structBytes?: try {
+      guard case .structBytes(let v)? = self.structField else { preconditionFailure() }
+      try visitor.visitSingularBytesField(value: v, fieldNumber: 1)
+    }()
+    case .struct?: try {
+      guard case .struct(let v)? = self.structField else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
+    }()
+    case nil: break
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Common_Properties, rhs: Common_Properties) -> Bool {
+    if lhs.structField != rhs.structField {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

@@ -15,7 +15,7 @@ public enum UseCase: Int {
   case savedContent = 9
   case sellerContent = 10
   
-  var protoValue: Event_UseCase? {
-    return Event_UseCase(rawValue: self.rawValue)
+  var protoValue: Delivery_UseCase? {
+    return Delivery_UseCase(rawValue: self.rawValue)
   }
 }

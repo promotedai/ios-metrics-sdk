@@ -114,7 +114,7 @@ public extension MetricsLogger {
   @objc func logView(viewController: ViewControllerType,
                      useCase: UseCase) {
     let name = loggingNameFor(viewController: viewController)
-    self.logView(name: name, useCase: useCase.protoValue)
+    self.logView(name: name, useCase: useCase)
   }
 
   /// Logs a view of a screen with the given name (React Native).
@@ -125,6 +125,6 @@ public extension MetricsLogger {
   /// Logs a view of a screen with the given name (React Native)
   /// and use case.
   @objc func logView(screenName: String, useCase: UseCase) {
-    self.logView(name: screenName, useCase: useCase.protoValue)
+    self.logView(name: screenName, useCase: useCase)
   }
 }
