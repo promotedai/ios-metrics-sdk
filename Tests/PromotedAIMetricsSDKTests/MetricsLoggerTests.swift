@@ -136,18 +136,18 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertEqual(0, connection!.messages.count)
   }
   
-  func testCustomData() {
+  func testProperties() {
     metricsLogger!.startSession(userID: "foobar")
-    var customData = Event_Impression()
-    customData.impressionID = "foobar"
-    metricsLogger!.logUser(data: customData)
+    var properties = Event_Impression()
+    properties.impressionID = "foobar"
+    metricsLogger!.logUser(properties: properties)
     XCTAssertEqual(1, metricsLogger!.logMessages.count)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_User)
-    let payloadData = (message as! Event_User).data.dataBytes
+    let propertiesData = (message as! Event_User).properties.structBytes
     do {
-      let deserializedPayload = try Event_Impression(serializedData: payloadData)
-      XCTAssertEqual("foobar", deserializedPayload.impressionID)
+      let deserializedProps = try Event_Impression(serializedData: propertiesData)
+      XCTAssertEqual("foobar", deserializedProps.impressionID)
     } catch {
       XCTFail("Exception when deserializing payload")
     }
@@ -397,7 +397,7 @@ final class MetricsLoggerTests: XCTestCase {
     ("testStartSessionSignInThenSignOut", testStartSessionSignInThenSignOut),
     ("testStartSessionSignOutThenSignIn", testStartSessionSignOutThenSignIn),
     ("testBatchFlush", testBatchFlush),
-    ("testCustomData", testCustomData),
+    ("testProperties", testProperties),
     ("testLogUser", testLogUser),
     ("testLogImpression", testLogImpression),
     ("testLogNavigateAction", testLogNavigateAction),

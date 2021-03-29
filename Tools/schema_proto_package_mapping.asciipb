@@ -1,7 +1,7 @@
 mapping {
   module_name: "PromotedAIMetricsSDK"
   proto_file_path: "proto/common/common.proto"
+  proto_file_path: "proto/delivery/delivery.proto"
   proto_file_path: "proto/event/event.proto"
-  proto_file_path: "proto/pacing/pacing.proto"
   proto_file_path: "proto/promotion/promotion.proto"
 }

@@ -179,20 +179,20 @@ public class MetricsLogger: NSObject {
     self.logUserID = newLogUserID
   }
   
-  private func userInfoMessage() -> Event_UserInfo {
+  private func userInfoMessage() -> Common_UserInfo {
     assert(logUserID != nil, "Call startSession* before any log* methods")
-    var userInfo = Event_UserInfo()
+    var userInfo = Common_UserInfo()
     if let id = userID { userInfo.userID = id }
     if let id = logUserID { userInfo.logUserID = id }
     return userInfo
   }
 
-  private static func customDataWrapperMessage(_ message: Message?)
-      -> Event_CustomData? {
+  private static func propertiesWrapperMessage(_ message: Message?)
+      -> Common_Properties? {
     do {
       if let message = message {
-        var dataMessage = Event_CustomData()
-        try dataMessage.dataBytes = message.serializedData()
+        var dataMessage = Common_Properties()
+        try dataMessage.structBytes = message.serializedData()
         return dataMessage
       }
     } catch BinaryEncodingError.missingRequiredFields {
@@ -216,21 +216,21 @@ public extension MetricsLogger {
   ///
   /// - Parameters:
   ///   - data: Client-specific message
-  func logUser(data: Message? = nil) {
+  func logUser(properties: Message? = nil) {
     var user = Event_User()
-    if let data = Self.customDataWrapperMessage(data) {
-      user.data = data
+    if let properties = Self.propertiesWrapperMessage(properties) {
+      user.properties = properties
     }
     log(message: user)
   }
   
-  func logSession(data: Message? = nil) {
+  func logSession(properties: Message? = nil) {
     assert(sessionID != nil, "Call startSession* before any log* methods")
     var session = Event_Session()
     if let id = sessionID { session.sessionID = id }
     session.startEpochMillis = clock.nowMillis
-    if let data = Self.customDataWrapperMessage(data) {
-      session.data = data
+    if let properties = Self.propertiesWrapperMessage(properties) {
+      session.properties = properties
     }
     log(message: session)
   }
@@ -249,15 +249,15 @@ public extension MetricsLogger {
                      insertionID: String? = nil,
                      requestID: String? = nil,
                      viewID: String? = nil,
-                     data: Message? = nil) {
+                     properties: Message? = nil) {
     var impression = Event_Impression()
     impression.impressionID = idMap.impressionID(contentID: contentID)
     if let id = insertionID { impression.insertionID = id }
     if let id = requestID { impression.requestID = id }
     if let id = sessionID { impression.sessionID = id }
     if let id = viewID { impression.viewID = id }
-    if let data = Self.customDataWrapperMessage(data) {
-      impression.data = data
+    if let properties = Self.propertiesWrapperMessage(properties) {
+      impression.properties = properties
     }
     log(message: impression)
   }
@@ -285,7 +285,7 @@ public extension MetricsLogger {
                  viewID: String? = nil,
                  targetURL: String? = nil,
                  elementID: String? = nil,
-                 data: Message? = nil) {
+                 properties: Message? = nil) {
     var action = Event_Action()
     action.actionID = idMap.actionID()
     let impressionID = idMap.impressionIDOrNil(contentID: contentID)
@@ -305,8 +305,8 @@ public extension MetricsLogger {
     default:
       break
     }
-    if let data = Self.customDataWrapperMessage(data) {
-      action.data = data
+    if let properties = Self.propertiesWrapperMessage(properties) {
+      action.properties = properties
     }
     log(message: action)
   }
@@ -324,15 +324,15 @@ public extension MetricsLogger {
   ///   - useCase: Use case for view
   ///   - data: Client-specific message
   func logView(name: String,
-               useCase: Event_UseCase? = nil,
-               data: Message? = nil) {
+               useCase: UseCase? = nil,
+               properties: Message? = nil) {
     var view = Event_View()
     view.viewID = idMap.viewID(viewName: name)
     if let id = sessionID { view.sessionID = id }
     view.name = name
-    if let use = useCase { view.useCase = use }
-    if let data = Self.customDataWrapperMessage(data) {
-      view.data = data
+    if let use = useCase?.protoValue { view.useCase = use }
+    if let properties = Self.propertiesWrapperMessage(properties) {
+      view.properties = properties
     }
     view.device = deviceMessage
     view.viewType = .appScreen
@@ -385,9 +385,9 @@ public extension MetricsLogger {
         logRequest.session.append(session)
       case let view as Event_View:
         logRequest.view.append(view)
-      case let request as Event_Request:
+      case let request as Delivery_Request:
         logRequest.request.append(request)
-      case let insertion as Event_Insertion:
+      case let insertion as Delivery_Insertion:
         logRequest.insertion.append(insertion)
       case let impression as Event_Impression:
         logRequest.impression.append(impression)
