@@ -187,7 +187,7 @@ public class MetricsLogger: NSObject {
     return userInfo
   }
 
-  private static func customDataWrapperMessage(_ message: Message?)
+  private static func propertiesWrapperMessage(_ message: Message?)
       -> Common_Properties? {
     do {
       if let message = message {
@@ -218,7 +218,7 @@ public extension MetricsLogger {
   ///   - data: Client-specific message
   func logUser(properties: Message? = nil) {
     var user = Event_User()
-    if let properties = Self.customDataWrapperMessage(properties) {
+    if let properties = Self.propertiesWrapperMessage(properties) {
       user.properties = properties
     }
     log(message: user)
@@ -229,7 +229,7 @@ public extension MetricsLogger {
     var session = Event_Session()
     if let id = sessionID { session.sessionID = id }
     session.startEpochMillis = clock.nowMillis
-    if let properties = Self.customDataWrapperMessage(properties) {
+    if let properties = Self.propertiesWrapperMessage(properties) {
       session.properties = properties
     }
     log(message: session)
@@ -256,7 +256,7 @@ public extension MetricsLogger {
     if let id = requestID { impression.requestID = id }
     if let id = sessionID { impression.sessionID = id }
     if let id = viewID { impression.viewID = id }
-    if let properties = Self.customDataWrapperMessage(properties) {
+    if let properties = Self.propertiesWrapperMessage(properties) {
       impression.properties = properties
     }
     log(message: impression)
@@ -305,7 +305,7 @@ public extension MetricsLogger {
     default:
       break
     }
-    if let properties = Self.customDataWrapperMessage(properties) {
+    if let properties = Self.propertiesWrapperMessage(properties) {
       action.properties = properties
     }
     log(message: action)
@@ -331,7 +331,7 @@ public extension MetricsLogger {
     if let id = sessionID { view.sessionID = id }
     view.name = name
     if let use = useCase?.protoValue { view.useCase = use }
-    if let properties = Self.customDataWrapperMessage(properties) {
+    if let properties = Self.propertiesWrapperMessage(properties) {
       view.properties = properties
     }
     view.device = deviceMessage
