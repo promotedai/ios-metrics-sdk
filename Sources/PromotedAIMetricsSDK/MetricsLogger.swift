@@ -251,11 +251,13 @@ public extension MetricsLogger {
                      viewID: String? = nil,
                      properties: Message? = nil) {
     var impression = Event_Impression()
-    impression.impressionID = idMap.impressionID(contentID: contentID)
+    let mappedContentID = idMap.impressionID(contentID: contentID)
+    impression.impressionID = mappedContentID
     if let id = insertionID { impression.insertionID = id }
     if let id = requestID { impression.requestID = id }
     if let id = sessionID { impression.sessionID = id }
     if let id = viewID { impression.viewID = id }
+    impression.contentID = mappedContentID
     if let properties = Self.propertiesWrapperMessage(properties) {
       impression.properties = properties
     }

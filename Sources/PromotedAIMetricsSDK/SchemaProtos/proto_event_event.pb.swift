@@ -131,7 +131,7 @@ extension Event_DeviceType: CaseIterable {
 
 /// The action that user wants to perform.
 ///
-/// Next ID = 8.
+/// Next ID = 16.
 public enum Event_ActionType: SwiftProtobuf.Enum {
   public typealias RawValue = Int
   case unknownActionType // = 0
@@ -142,11 +142,17 @@ public enum Event_ActionType: SwiftProtobuf.Enum {
   /// Navigating to details about content.
   case navigate // = 2
 
-  /// Purchasing an item.
-  case purchase // = 3
-
   /// Adding an item to shopping cart.
   case addToCart // = 4
+
+  /// Remove an item from shopping cart.
+  case removeFromCart // = 10
+
+  /// Going to checkout.
+  case checkout // = 8
+
+  /// Purchasing an item.
+  case purchase // = 3
 
   /// Sharing content.
   case share // = 5
@@ -154,8 +160,28 @@ public enum Event_ActionType: SwiftProtobuf.Enum {
   /// Liking content.
   case like // = 6
 
+  /// Un-liking content.
+  case unlike // = 9
+
   /// Commenting on content.
   case comment // = 7
+
+  /// Making an offer on content.
+  case makeOffer // = 11
+
+  /// Asking a question about content.
+  case askQuestion // = 12
+
+  /// Answering a question about content.
+  case answerQuestion // = 13
+
+  /// Complete sign-in.
+  /// No content_id needed.  If set, set it to the Content's ID (not User).
+  case completeSignIn // = 14
+
+  /// Complete sign-up.
+  /// No content_id needed.  If set, set it to the Content's ID (not User).
+  case completeSignUp // = 15
   case UNRECOGNIZED(Int)
 
   public init() {
@@ -172,6 +198,14 @@ public enum Event_ActionType: SwiftProtobuf.Enum {
     case 5: self = .share
     case 6: self = .like
     case 7: self = .comment
+    case 8: self = .checkout
+    case 9: self = .unlike
+    case 10: self = .removeFromCart
+    case 11: self = .makeOffer
+    case 12: self = .askQuestion
+    case 13: self = .answerQuestion
+    case 14: self = .completeSignIn
+    case 15: self = .completeSignUp
     default: self = .UNRECOGNIZED(rawValue)
     }
   }
@@ -186,6 +220,14 @@ public enum Event_ActionType: SwiftProtobuf.Enum {
     case .share: return 5
     case .like: return 6
     case .comment: return 7
+    case .checkout: return 8
+    case .unlike: return 9
+    case .removeFromCart: return 10
+    case .makeOffer: return 11
+    case .askQuestion: return 12
+    case .answerQuestion: return 13
+    case .completeSignIn: return 14
+    case .completeSignUp: return 15
     case .UNRECOGNIZED(let i): return i
     }
   }
@@ -200,11 +242,19 @@ extension Event_ActionType: CaseIterable {
     .unknownActionType,
     .customActionType,
     .navigate,
-    .purchase,
     .addToCart,
+    .removeFromCart,
+    .checkout,
+    .purchase,
     .share,
     .like,
+    .unlike,
     .comment,
+    .makeOffer,
+    .askQuestion,
+    .answerQuestion,
+    .completeSignIn,
+    .completeSignUp,
   ]
 }
 
@@ -940,7 +990,7 @@ extension Event_View.ViewType: CaseIterable {
 
 /// When an Insertion (instance of Content) is shown to a user.
 /// Impressions are immutable.
-/// Next ID = 12.
+/// Next ID = 13.
 public struct Event_Impression {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -985,6 +1035,10 @@ public struct Event_Impression {
 
   /// Optional.
   public var sessionID: String = String()
+
+  /// Optional. content_id is used as a hint when insertion_id is not set.
+  /// For more accurate results, set insertion_id.
+  public var contentID: String = String()
 
   /// Optional.  Custom properties per platform.
   public var properties: Common_Properties {
@@ -1418,6 +1472,14 @@ extension Event_ActionType: SwiftProtobuf._ProtoNameProviding {
     5: .same(proto: "SHARE"),
     6: .same(proto: "LIKE"),
     7: .same(proto: "COMMENT"),
+    8: .same(proto: "CHECKOUT"),
+    9: .same(proto: "UNLIKE"),
+    10: .same(proto: "REMOVE_FROM_CART"),
+    11: .same(proto: "MAKE_OFFER"),
+    12: .same(proto: "ASK_QUESTION"),
+    13: .same(proto: "ANSWER_QUESTION"),
+    14: .same(proto: "COMPLETE_SIGN_IN"),
+    15: .same(proto: "COMPLETE_SIGN_UP"),
   ]
 }
 
@@ -2382,6 +2444,7 @@ extension Event_Impression: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     8: .standard(proto: "request_id"),
     10: .standard(proto: "view_id"),
     9: .standard(proto: "session_id"),
+    12: .standard(proto: "content_id"),
     11: .same(proto: "properties"),
   ]
 
@@ -2400,6 +2463,7 @@ extension Event_Impression: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       case 9: try { try decoder.decodeSingularStringField(value: &self.sessionID) }()
       case 10: try { try decoder.decodeSingularStringField(value: &self.viewID) }()
       case 11: try { try decoder.decodeSingularMessageField(value: &self._properties) }()
+      case 12: try { try decoder.decodeSingularStringField(value: &self.contentID) }()
       default: break
       }
     }
@@ -2433,6 +2497,9 @@ extension Event_Impression: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     if let v = self._properties {
       try visitor.visitSingularMessageField(value: v, fieldNumber: 11)
     }
+    if !self.contentID.isEmpty {
+      try visitor.visitSingularStringField(value: self.contentID, fieldNumber: 12)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -2445,6 +2512,7 @@ extension Event_Impression: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     if lhs.requestID != rhs.requestID {return false}
     if lhs.viewID != rhs.viewID {return false}
     if lhs.sessionID != rhs.sessionID {return false}
+    if lhs.contentID != rhs.contentID {return false}
     if lhs._properties != rhs._properties {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
