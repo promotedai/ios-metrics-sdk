@@ -119,7 +119,7 @@ public extension MetricsLoggerService {
 
   static var initialConfig: ClientConfig?
   
-  static func startServices(initialConfig: ClientConfig) {
+  @objc static func startServices(initialConfig: ClientConfig) {
     self.initialConfig = initialConfig
     self.sharedService.startLoggingServices()
   }
