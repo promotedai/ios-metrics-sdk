@@ -133,7 +133,7 @@ public class ImpressionLogger: NSObject {
   }
 
   /// Call this method when new items are displayed.
-  @objc(collectionViewWillDisplayContentAtIndex:)
+  @objc(collectionViewWillDisplayContent:)
   public func collectionViewWillDisplay(content: Content) {
     broadcastStartAndAddImpressions(contentArray: [content], now: clock.now)
   }
@@ -141,7 +141,7 @@ public class ImpressionLogger: NSObject {
   /// Call this method when previously displayed items are hidden.
   /// If an item is reported as hidden that had not previously
   /// been displayed, the impression for that item will be ignored.
-  @objc(collectionViewDidHideContentAtIndex:)
+  @objc(collectionViewDidHideContent:)
   public func collectionViewDidHide(content: Content) {
     broadcastEndAndRemoveImpressions(contentArray: [content], now: clock.now)
   }
@@ -149,7 +149,7 @@ public class ImpressionLogger: NSObject {
   /// Call this method when the collection view changes content, but
   /// does not provide per-item updates for the change. For example,
   /// when a collection reloads.
-  @objc(collectionViewDidChangeVisibleContentAtIndexes:)
+  @objc(collectionViewDidChangeVisibleContent:)
   public func collectionViewDidChangeVisibleContent(_ contentArray: [Content]) {
     let now = clock.now
 
