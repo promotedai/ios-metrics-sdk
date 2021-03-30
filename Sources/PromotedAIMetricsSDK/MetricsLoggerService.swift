@@ -44,7 +44,7 @@ import Foundation
 @objc(PROMetricsLoggerService)
 public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
 
-  public private(set) lazy var metricsLogger: MetricsLogger = {
+  @objc public private(set) lazy var metricsLogger: MetricsLogger = {
     // Reading `self.config` initializes clientConfigService.
     return MetricsLogger(clientConfig: self.config,
                          clock: self.clock,
@@ -119,7 +119,7 @@ public extension MetricsLoggerService {
 
   static var initialConfig: ClientConfig?
   
-  static func startServices(initialConfig: ClientConfig) {
+  @objc static func startServices(initialConfig: ClientConfig) {
     self.initialConfig = initialConfig
     self.sharedService.startLoggingServices()
   }
