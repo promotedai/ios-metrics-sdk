@@ -16,7 +16,7 @@ public class ScrollTracker: NSObject {
   private var timer: ScheduledTimer?
   
   #if canImport(UIKit)
-  @objc public unowned var scrollView: UIScrollView?
+  private unowned var collectionView: UICollectionView?
   #endif
   
   /// Viewport of scroll view, based on scroll view's coord system.
@@ -75,16 +75,15 @@ public extension ScrollTracker {
   @objc(setFramesFromCollectionView:dataSource:)
   func setFramesFrom(collectionView: UICollectionView, dataSource: IndexPathDataSource) {
     guard collectionView.window != nil else { return }
-    guard let scrollView = self.scrollView else { return }
+    self.collectionView = collectionView
     contentToFrame.removeAll()
-    let offset = collectionView.convert(CGPoint.zero, to: scrollView)
     let layout = collectionView.collectionViewLayout
     for section in 0 ..< collectionView.numberOfSections {
       for item in 0 ..< collectionView.numberOfItems(inSection: section) {
         let path = IndexPath(item: item, section: section)
         guard let attrs = layout.layoutAttributesForItem(at: path) else { continue }
         guard let content = dataSource.contentFor(indexPath: path) else { continue }
-        let frame = attrs.frame.offsetBy(dx: offset.x, dy: offset.y)
+        let frame = attrs.frame
         guard frame.area > 0 else { continue }
         setFrame(frame, forContent: content)
       }
@@ -92,8 +91,10 @@ public extension ScrollTracker {
   }
 
   @objc func scrollViewDidScroll(_ scrollView: UIScrollView) {
-    let origin = scrollView.contentOffset
-    let size = scrollView.contentSize
+    guard scrollView.window != nil else { return }
+    guard let collectionView = collectionView else { return }
+    let origin = scrollView.convert(scrollView.contentOffset, to: collectionView);
+    let size = scrollView.frame.size
     viewport = CGRect(origin: origin, size: size)
   }
 }

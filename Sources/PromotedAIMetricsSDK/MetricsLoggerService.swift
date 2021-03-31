@@ -118,14 +118,6 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
   @objc public func scrollTracker() -> ScrollTracker {
     return ScrollTracker(metricsLogger: self.metricsLogger, clock: self.clock)
   }
-
-  #if canImport(UIKit)
-  @objc public func scrollTracker(scrollView: UIScrollView) -> ScrollTracker {
-    let scrollTracker = self.scrollTracker()
-    scrollTracker.scrollView = scrollView
-    return scrollTracker
-  }
-  #endif
 }
 
 // MARK: - Singleton support for `MetricsLoggingService`
