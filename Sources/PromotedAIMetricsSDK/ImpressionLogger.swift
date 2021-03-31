@@ -17,18 +17,6 @@ public protocol ImpressionLoggerDelegate: class {
 
 // MARK: -
 /**
- Convenience protocol to interoperate with `UICollectionView` and other
- UIKit classes that use `IndexPath`s.
- */
-@objc(PROImpressionLoggerDataSource)
-public protocol ImpressionLoggerDataSource {
-  /// Returns content for given index path.
-  /// If `nil`, does not log given content.
-  func contentFor(indexPath: IndexPath) -> Content?;
-}
-
-// MARK: -
-/**
  Tracks impressions across scrolling collection views, such as
  `UICollectionView` or `UITableView`. Works best with views that
  can provide fine-grained updates of visible cells, but can also
@@ -136,7 +124,7 @@ public class ImpressionLogger: NSObject {
   private var impressionStarts: [Content: TimeInterval]
 
   public weak var delegate: ImpressionLoggerDelegate?
-  public weak var dataSource: ImpressionLoggerDataSource?
+  public weak var dataSource: IndexPathDataSource?
 
   init(metricsLogger: MetricsLogger,
        clock: Clock) {

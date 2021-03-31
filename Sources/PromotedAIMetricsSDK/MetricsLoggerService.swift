@@ -109,16 +109,23 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
                             clock: self.clock)
   }
   
-  @objc public func impressionLogger(dataSource: ImpressionLoggerDataSource)
-      -> ImpressionLogger {
+  @objc public func impressionLogger(dataSource: IndexPathDataSource) -> ImpressionLogger {
     let impressionLogger = self.impressionLogger()
     impressionLogger.dataSource = dataSource
     return impressionLogger
   }
 
-  public func scrollTracker() -> ScrollTracker {
+  @objc public func scrollTracker() -> ScrollTracker {
     return ScrollTracker(metricsLogger: self.metricsLogger, clock: self.clock)
   }
+
+  #if canImport(UIKit)
+  @objc public func scrollTracker(scrollView: UIScrollView) -> ScrollTracker {
+    let scrollTracker = self.scrollTracker()
+    scrollTracker.scrollView = scrollView
+    return scrollTracker
+  }
+  #endif
 }
 
 // MARK: - Singleton support for `MetricsLoggingService`

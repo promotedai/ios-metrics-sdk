@@ -1,7 +1,9 @@
 import CoreGraphics
 import Foundation
 
-public class ScrollTracker {
+// MARK: -
+@objc(PROScrollTracker)
+public class ScrollTracker: NSObject {
   
   private static let visibilityThreshold: Float = 0.5
   private static let updateThreshold: TimeInterval = 0.5
@@ -12,6 +14,10 @@ public class ScrollTracker {
   private var impressionLogger: ImpressionLogger
   /*visibleForTesting*/ private(set) var contentToFrame: [Content: CGRect]
   private var timer: ScheduledTimer?
+  
+  #if canImport(UIKit)
+  @objc public unowned var scrollView: UIScrollView?
+  #endif
   
   /// Viewport of scroll view, based on scroll view's coord system.
   /// Under UIKit and React Native, this corresponds to the viewport
@@ -61,6 +67,39 @@ public class ScrollTracker {
   }
 }
 
+// MARK: - UIKit: UICollectionView/UIScrollView
+#if canImport(UIKit)
+import UIKit
+
+public extension ScrollTracker {
+  @objc(setFramesFromCollectionView:dataSource:)
+  func setFramesFrom(collectionView: UICollectionView, dataSource: IndexPathDataSource) {
+    guard collectionView.window != nil else { return }
+    guard let scrollView = self.scrollView else { return }
+    contentToFrame.removeAll()
+    let offset = collectionView.convert(CGPoint.zero, to: scrollView)
+    let layout = collectionView.collectionViewLayout
+    for section in 0 ..< collectionView.numberOfSections {
+      for item in 0 ..< collectionView.numberOfItems(inSection: section) {
+        let path = IndexPath(item: item, section: section)
+        guard let attrs = layout.layoutAttributesForItem(at: path) else { continue }
+        guard let content = dataSource.contentFor(indexPath: path) else { continue }
+        let frame = attrs.frame.offsetBy(dx: offset.x, dy: offset.y)
+        guard frame.area > 0 else { continue }
+        setFrame(frame, forContent: content)
+      }
+    }
+  }
+
+  @objc func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    let origin = scrollView.contentOffset
+    let size = scrollView.contentSize
+    viewport = CGRect(origin: origin, size: size)
+  }
+}
+#endif
+
+// MARK: -
 extension CGRect {
   var area: Float {
     return Float(width * height)
