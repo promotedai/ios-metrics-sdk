@@ -108,6 +108,13 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
     return ImpressionLogger(metricsLogger: self.metricsLogger,
                             clock: self.clock)
   }
+  
+  @objc public func impressionLogger(dataSource: ImpressionLoggerDataSource)
+      -> ImpressionLogger {
+    let impressionLogger = self.impressionLogger()
+    impressionLogger.dataSource = dataSource
+    return impressionLogger
+  }
 
   public func scrollTracker() -> ScrollTracker {
     return ScrollTracker(metricsLogger: self.metricsLogger, clock: self.clock)

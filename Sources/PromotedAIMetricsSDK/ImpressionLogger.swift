@@ -17,6 +17,18 @@ public protocol ImpressionLoggerDelegate: class {
 
 // MARK: -
 /**
+ Convenience protocol to interoperate with `UICollectionView` and other
+ UIKit classes that use `IndexPath`s.
+ */
+@objc(PROImpressionLoggerDataSource)
+public protocol ImpressionLoggerDataSource {
+  /// Returns content for given index path.
+  /// If `nil`, does not log given content.
+  func contentFor(indexPath: IndexPath) -> Content?;
+}
+
+// MARK: -
+/**
  Tracks impressions across scrolling collection views, such as
  `UICollectionView` or `UITableView`. Works best with views that
  can provide fine-grained updates of visible cells, but can also
@@ -124,6 +136,7 @@ public class ImpressionLogger: NSObject {
   private var impressionStarts: [Content: TimeInterval]
 
   public weak var delegate: ImpressionLoggerDelegate?
+  public weak var dataSource: ImpressionLoggerDataSource?
 
   init(metricsLogger: MetricsLogger,
        clock: Clock) {
@@ -201,5 +214,38 @@ public class ImpressionLogger: NSObject {
     }
     // Not calling `metricsLogger`. No logging end impressions for now.
     delegate?.impressionLogger(self, didEndImpressions: impressions)
+  }
+}
+
+// MARK: - IndexPath/DataSource methods
+public extension ImpressionLogger {
+  /// Call this method when new items are displayed.
+  @objc(collectionViewWillDisplayIndexPath:)
+  func collectionViewWillDisplay(indexPath: IndexPath) {
+    assert(dataSource != nil, "dataSource must be set to use IndexPath")
+    if let content = dataSource!.contentFor(indexPath: indexPath) {
+      collectionViewWillDisplay(content: content)
+    }
+  }
+
+  /// Call this method when previously displayed items are hidden.
+  /// If an item is reported as hidden that had not previously
+  /// been displayed, the impression for that item will be ignored.
+  @objc(collectionViewDidHideIndexPath:)
+  func collectionViewDidHide(indexPath: IndexPath) {
+    assert(dataSource != nil, "dataSource must be set to use IndexPath")
+    if let content = dataSource!.contentFor(indexPath: indexPath) {
+      collectionViewDidHide(content: content)
+    }
+  }
+
+  /// Call this method when the collection view changes content, but
+  /// does not provide per-item updates for the change. For example,
+  /// when a collection reloads.
+  @objc(collectionViewDidChangeVisibleIndexPaths:)
+  func collectionViewDidChangeVisibleIndexPaths(_ indexPathArray: [IndexPath]) {
+    assert(dataSource != nil, "dataSource must be set to use IndexPath")
+    let contentArray = indexPathArray.compactMap { dataSource!.contentFor(indexPath:$0) }
+    collectionViewDidChangeVisibleContent(contentArray)
   }
 }
