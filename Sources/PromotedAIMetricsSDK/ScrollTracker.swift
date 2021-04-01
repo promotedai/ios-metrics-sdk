@@ -16,7 +16,16 @@ public class ScrollTracker: NSObject {
   private var timer: ScheduledTimer?
   
   #if canImport(UIKit)
-  private unowned var collectionView: UICollectionView?
+  public unowned var scrollView: UIScrollView? {
+    didSet {
+      contentOffsetObservation = scrollView?.observe(\.contentOffset) { [weak self] _, _ in
+        self?.scrollViewDidScroll()
+      }
+    }
+  }
+  public unowned var collectionView: UICollectionView?
+  private var contentSizeObservation: NSKeyValueObservation?
+  private var contentOffsetObservation: NSKeyValueObservation?
   #endif
   
   /// Viewport of scroll view, based on scroll view's coord system.
@@ -25,12 +34,32 @@ public class ScrollTracker: NSObject {
   public var viewport: CGRect {
     didSet { maybeScheduleUpdateVisibilityTimer() }
   }
+  
+  #if canImport(UIKit)
+  convenience init(metricsLogger: MetricsLogger,
+                   clock: Clock,
+                   collectionView: UICollectionView) {
+    self.init(metricsLogger: metricsLogger, clock: clock)
+    set(scrollView: collectionView, collectionView: collectionView)
+  }
+  
+  convenience init(metricsLogger: MetricsLogger,
+                   clock: Clock,
+                   scrollView: UIScrollView) {
+    self.init(metricsLogger: metricsLogger, clock: clock)
+    set(scrollView: scrollView, collectionView: nil)
+  }
+
+  private func set(scrollView: UIScrollView, collectionView: UICollectionView?) {
+    self.scrollView = scrollView
+    self.collectionView = collectionView
+  }
+  #endif
 
   init(metricsLogger: MetricsLogger, clock: Clock) {
     self.clock = clock
     self.metricsLogger = metricsLogger
-    self.impressionLogger = ImpressionLogger(metricsLogger: metricsLogger,
-                                             clock: clock)
+    self.impressionLogger = ImpressionLogger(metricsLogger: metricsLogger, clock: clock)
     self.contentToFrame = [:]
     self.timer = nil
     self.viewport = CGRect.zero
@@ -76,25 +105,41 @@ public class ScrollTracker: NSObject {
 import UIKit
 
 public extension ScrollTracker {
+
   @objc(setFramesFromCollectionView:dataSource:)
   func setFramesFrom(collectionView: UICollectionView, dataSource: IndexPathDataSource) {
-    setFramesFrom(collectionView: collectionView) { path in
-      dataSource.contentFor(indexPath: path)
+    self.collectionView = collectionView
+    setFramesFrom(dataSource: dataSource)
+  }
+
+  @objc(setFramesFromDataSource:)
+  func setFramesFrom(dataSource: IndexPathDataSource) {
+    self.contentSizeObservation = collectionView?.observe(\.contentSize) { [weak self] _, _ in
+      guard let strongSelf = self else { return }
+      strongSelf.contentSizeObservation = nil
+      strongSelf.setFrames { path in dataSource.contentFor(indexPath: path) }
     }
   }
   
   @objc(setFramesFromCollectionView:content:)
   func setFramesFrom(collectionView: UICollectionView, content: [Content]) {
-    assert(collectionView.numberOfSections == 1)
-    setFramesFrom(collectionView: collectionView) { path in
-      path.item < content.count ? content[path.item] : nil
+    self.collectionView = collectionView
+    setFramesFrom(content: content)
+  }
+
+  @objc(setFramesFromContent:)
+  func setFramesFrom(content: [Content]) {
+    assert(collectionView?.numberOfSections == 1)
+    self.contentSizeObservation = collectionView?.observe(\.contentSize) { [weak self] _, _ in
+      guard let strongSelf = self else { return }
+      strongSelf.contentSizeObservation = nil
+      strongSelf.setFrames { path in path.item < content.count ? content[path.item] : nil }
     }
   }
   
-  private func setFramesFrom(collectionView: UICollectionView,
-                             dataProducer: @escaping (IndexPath) -> Content?) {
+  private func setFrames(dataProducer: @escaping (IndexPath) -> Content?) {
+    guard let collectionView = collectionView else { return }
     guard collectionView.window != nil else { return }
-    self.collectionView = collectionView
     contentToFrame.removeAll()
     let layout = collectionView.collectionViewLayout
     for section in 0 ..< collectionView.numberOfSections {
@@ -107,18 +152,21 @@ public extension ScrollTracker {
         setFrame(frame, forContent: content)
       }
     }
+    // This should happen after layout is complete. Log initial viewport.
+    scrollViewDidChangeVisibleContent()
   }
 
-  @objc func scrollViewDidScroll(_ scrollView: UIScrollView) {
-    guard scrollView.window != nil else { return }
+  @objc func scrollViewDidScroll() {
+    guard let scrollView = scrollView else { return }
     guard let collectionView = collectionView else { return }
+    guard scrollView.window != nil && collectionView.window != nil else { return }
     let origin = scrollView.convert(scrollView.contentOffset, to: collectionView);
     let size = scrollView.frame.size
     viewport = CGRect(origin: origin, size: size)
   }
   
-  @objc func scrollViewDidChangeVisibleContent(_ scrollView: UIScrollView) {
-    scrollViewDidScroll(scrollView)
+  @objc func scrollViewDidChangeVisibleContent() {
+    scrollViewDidScroll()
   }
 }
 #endif
