@@ -36,12 +36,16 @@ public class ScrollTracker: NSObject {
     self.viewport = CGRect.zero
   }
   
-  public func clearContent() {
+  @objc public func clearContent() {
     contentToFrame.removeAll()
   }
   
-  public func setFrame(_ frame: CGRect, forContent content: Content) {
+  @objc public func setFrame(_ frame: CGRect, forContent content: Content) {
     contentToFrame[content] = frame
+  }
+
+  @objc public func scrollViewDidHideAllContent() {
+    impressionLogger.collectionViewDidHideAllContent()
   }
 
   private func maybeScheduleUpdateVisibilityTimer() {
@@ -74,6 +78,21 @@ import UIKit
 public extension ScrollTracker {
   @objc(setFramesFromCollectionView:dataSource:)
   func setFramesFrom(collectionView: UICollectionView, dataSource: IndexPathDataSource) {
+    setFramesFrom(collectionView: collectionView) { path in
+      dataSource.contentFor(indexPath: path)
+    }
+  }
+  
+  @objc(setFramesFromCollectionView:content:)
+  func setFramesFrom(collectionView: UICollectionView, content: [Content]) {
+    assert(collectionView.numberOfSections == 1)
+    setFramesFrom(collectionView: collectionView) { path in
+      path.item < content.count ? content[path.item] : nil
+    }
+  }
+  
+  private func setFramesFrom(collectionView: UICollectionView,
+                             dataProducer: @escaping (IndexPath) -> Content?) {
     guard collectionView.window != nil else { return }
     self.collectionView = collectionView
     contentToFrame.removeAll()
@@ -82,7 +101,7 @@ public extension ScrollTracker {
       for item in 0 ..< collectionView.numberOfItems(inSection: section) {
         let path = IndexPath(item: item, section: section)
         guard let attrs = layout.layoutAttributesForItem(at: path) else { continue }
-        guard let content = dataSource.contentFor(indexPath: path) else { continue }
+        guard let content = dataProducer(path) else { continue }
         let frame = attrs.frame
         guard frame.area > 0 else { continue }
         setFrame(frame, forContent: content)
@@ -96,6 +115,10 @@ public extension ScrollTracker {
     let origin = scrollView.convert(scrollView.contentOffset, to: collectionView);
     let size = scrollView.frame.size
     viewport = CGRect(origin: origin, size: size)
+  }
+  
+  @objc func scrollViewDidChangeVisibleContent(_ scrollView: UIScrollView) {
+    scrollViewDidScroll(scrollView)
   }
 }
 #endif
