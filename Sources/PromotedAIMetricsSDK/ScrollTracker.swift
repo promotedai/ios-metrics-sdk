@@ -18,14 +18,16 @@ public class ScrollTracker: NSObject {
   #if canImport(UIKit)
   public unowned var scrollView: UIScrollView? {
     didSet {
-      contentOffsetObservation = scrollView?.observe(\.contentOffset) { [weak self] _, _ in
+      scrollViewOffsetObservation = scrollView?.observe(\.contentOffset) { [weak self] _, _ in
         self?.scrollViewDidScroll()
       }
     }
   }
-  public unowned var collectionView: UICollectionView?
-  private var contentSizeObservation: NSKeyValueObservation?
-  private var contentOffsetObservation: NSKeyValueObservation?
+  public unowned var collectionView: UICollectionView? {
+    didSet { collectionViewLayoutObservation = nil }
+  }
+  private var collectionViewLayoutObservation: NSKeyValueObservation?
+  private var scrollViewOffsetObservation: NSKeyValueObservation?
   #endif
   
   /// Viewport of scroll view, based on scroll view's coord system.
@@ -114,11 +116,8 @@ public extension ScrollTracker {
 
   @objc(setFramesFromDataSource:)
   func setFramesFrom(dataSource: IndexPathDataSource) {
-    self.contentSizeObservation = collectionView?.observe(\.contentSize) { [weak self] _, _ in
-      guard let strongSelf = self else { return }
-      strongSelf.contentSizeObservation = nil
-      strongSelf.setFrames { path in dataSource.contentFor(indexPath: path) }
-    }
+    assert(collectionView != nil)
+    setFramesOnCollectionViewLayout { dataSource.contentFor(indexPath: $0) }
   }
   
   @objc(setFramesFromCollectionView:content:)
@@ -130,10 +129,14 @@ public extension ScrollTracker {
   @objc(setFramesFromContent:)
   func setFramesFrom(content: [Content]) {
     assert(collectionView?.numberOfSections == 1)
-    self.contentSizeObservation = collectionView?.observe(\.contentSize) { [weak self] _, _ in
+    setFramesOnCollectionViewLayout { $0.item < content.count ? content[$0.item] : nil }
+  }
+  
+  private func setFramesOnCollectionViewLayout(dataProducer: @escaping (IndexPath) -> Content?) {
+    collectionViewLayoutObservation = collectionView?.observe(\.contentSize) { [weak self] _, _ in
       guard let strongSelf = self else { return }
-      strongSelf.contentSizeObservation = nil
-      strongSelf.setFrames { path in path.item < content.count ? content[path.item] : nil }
+      strongSelf.collectionViewLayoutObservation = nil
+      strongSelf.setFrames(dataProducer: dataProducer)
     }
   }
   
@@ -157,16 +160,16 @@ public extension ScrollTracker {
   }
 
   @objc func scrollViewDidScroll() {
+    scrollViewDidChangeVisibleContent()
+  }
+  
+  @objc func scrollViewDidChangeVisibleContent() {
     guard let scrollView = scrollView else { return }
     guard let collectionView = collectionView else { return }
     guard scrollView.window != nil && collectionView.window != nil else { return }
     let origin = scrollView.convert(scrollView.contentOffset, to: collectionView);
     let size = scrollView.frame.size
     viewport = CGRect(origin: origin, size: size)
-  }
-  
-  @objc func scrollViewDidChangeVisibleContent() {
-    scrollViewDidScroll()
   }
 }
 #endif
