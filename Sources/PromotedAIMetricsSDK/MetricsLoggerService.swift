@@ -115,6 +115,10 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
     return impressionLogger
   }
 
+  @objc public func scrollTracker() -> ScrollTracker {
+    return ScrollTracker(metricsLogger: self.metricsLogger, clock: self.clock)
+  }
+
   #if canImport(UIKit)
   @objc public func scrollTracker(scrollView: UIScrollView) -> ScrollTracker {
     return ScrollTracker(metricsLogger: self.metricsLogger,

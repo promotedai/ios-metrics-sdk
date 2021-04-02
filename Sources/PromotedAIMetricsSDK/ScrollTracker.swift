@@ -12,7 +12,7 @@ public class ScrollTracker: NSObject {
   private let metricsLogger: MetricsLogger
   
   private var impressionLogger: ImpressionLogger
-  /*visibleForTesting*/ private(set) var contentToFrame: [Content: CGRect]
+  /*visibleForTesting*/ private(set) var content: [(CGRect, Content)]
   private var timer: ScheduledTimer?
   
   #if canImport(UIKit)
@@ -62,17 +62,17 @@ public class ScrollTracker: NSObject {
     self.clock = clock
     self.metricsLogger = metricsLogger
     self.impressionLogger = ImpressionLogger(metricsLogger: metricsLogger, clock: clock)
-    self.contentToFrame = [:]
+    self.content = []
     self.timer = nil
     self.viewport = CGRect.zero
   }
   
   @objc public func clearContent() {
-    contentToFrame.removeAll()
+    content.removeAll()
   }
   
   @objc public func setFrame(_ frame: CGRect, forContent content: Content) {
-    contentToFrame[content] = frame
+    self.content.append((frame, content))
   }
 
   @objc public func scrollViewDidHideAllContent() {
@@ -92,7 +92,7 @@ public class ScrollTracker: NSObject {
     var visibleContent = [Content]()
     // TODO(yu-hong): Replace linear search with binary/interpolation search
     // for larger inputs. Need a secondary data structure to sort frames.
-    for (content, frame) in contentToFrame {
+    for (frame, content) in content {
       let overlapRatio = frame.overlapRatio(viewport)
       if overlapRatio >= Self.visibilityThreshold {
         visibleContent.append(content)
@@ -143,7 +143,7 @@ public extension ScrollTracker {
   private func setFrames(dataProducer: @escaping (IndexPath) -> Content?) {
     guard let collectionView = collectionView else { return }
     guard collectionView.window != nil else { return }
-    contentToFrame.removeAll()
+    content.removeAll()
     let layout = collectionView.collectionViewLayout
     for section in 0 ..< collectionView.numberOfSections {
       for item in 0 ..< collectionView.numberOfItems(inSection: section) {
