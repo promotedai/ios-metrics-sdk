@@ -66,7 +66,6 @@ public class MetricsLogger: NSObject {
 
   /*visibleForTesting*/ private(set) var logMessages: [Message]
   
-  private let metricsLoggingURL: URL?
   /// Timer for pending batched log request.
   private var batchLoggingTimer: ScheduledTimer?
 
@@ -114,7 +113,6 @@ public class MetricsLogger: NSObject {
     self.userID = nil
     self.logUserID = nil
     self.sessionID = nil
-    self.metricsLoggingURL = URL(string: config.metricsLoggingURL)
   }
   
   // MARK: - Starting new sessions
@@ -418,15 +416,14 @@ public extension MetricsLogger {
     let eventsCopy = logMessages
     logMessages.removeAll()
     let request = logRequestMessage(events: eventsCopy)
-    guard let url = metricsLoggingURL else { return }
     do {
-      try connection.sendMessage(request, url: url, clientConfig: config) {
+      try connection.sendMessage(request, clientConfig: config) {
           [weak self] (data, error) in
         if let e = error  {
           self?.handleSendMessageError(e)
           return
         }
-        print("[MetricsLogger] Fetch finished.")
+        print("[MetricsLogger] Logging finished.")
       }
     } catch NetworkConnectionError.messageSerializationError(let message) {
       print("[MetricsLogger] \(message)")
