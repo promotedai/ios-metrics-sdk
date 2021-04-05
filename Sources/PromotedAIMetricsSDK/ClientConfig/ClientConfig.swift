@@ -21,5 +21,9 @@ public class ClientConfig: NSObject {
   
   var loggingFlushInterval: TimeInterval = 10.0
   
+  var scrollTrackerVisibilityThreshold: Float = 0.5
+  var scrollTrackerDurationThreshold: TimeInterval = 1.0
+  var scrollTrackerUpdateFrequency: TimeInterval = 0.5
+  
   @objc public override init() {}
 }

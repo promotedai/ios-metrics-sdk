@@ -8,6 +8,7 @@ import XCTest
 final class ScrollTrackerTests: XCTestCase {
   
   private var clock: FakeClock?
+  private var config: ClientConfig?
   private var idMap: IDMap?
   private var metricsLogger: MetricsLogger?
   private var scrollTracker: ScrollTracker?
@@ -15,8 +16,9 @@ final class ScrollTrackerTests: XCTestCase {
   public override func setUp() {
     super.setUp()
     clock = FakeClock()
+    config = ClientConfig()
     idMap = SHA1IDMap.instance
-    metricsLogger = MetricsLogger(clientConfig: ClientConfig(),
+    metricsLogger = MetricsLogger(clientConfig: config!,
                                   clock: clock!,
                                   connection: FakeNetworkConnection(),
                                   deviceInfo: FakeDeviceInfo(),
@@ -24,6 +26,7 @@ final class ScrollTrackerTests: XCTestCase {
                                   store: FakePersistentStore())
     metricsLogger!.startSession(userID: "foo")
     scrollTracker = ScrollTracker(metricsLogger: metricsLogger!,
+                                  clientConfig: config!,
                                   clock: clock!)
   }
 

@@ -117,7 +117,7 @@ public class ImpressionLogger: NSObject {
               (abs(lhs.endTime - rhs.endTime) < 0.01))
     }
   }
-  
+
   // MARK: -
   private unowned let metricsLogger: MetricsLogger
   private let clock: Clock
