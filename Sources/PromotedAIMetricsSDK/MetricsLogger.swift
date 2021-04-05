@@ -77,9 +77,12 @@ public class MetricsLogger: NSObject {
   /// Log user ID for this session. Will be updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
   /// called.
-  /*visibleForTesting*/ private(set) var logUserID: String?
+  public private(set) var logUserID: String?
   
-  private var sessionID: String?
+  /// Session ID for this session. Will be updated when
+  /// `startSession(userID:)` or `startSessionSignedOut()` is
+  /// called.
+  public private(set) var sessionID: String?
   
   private lazy var deviceMessage: Event_Device = {
     var device = Event_Device()
