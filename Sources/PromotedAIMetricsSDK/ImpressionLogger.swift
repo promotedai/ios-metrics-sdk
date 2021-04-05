@@ -117,14 +117,13 @@ public class ImpressionLogger: NSObject {
               (abs(lhs.endTime - rhs.endTime) < 0.01))
     }
   }
-  
+
   // MARK: -
   private unowned let metricsLogger: MetricsLogger
   private let clock: Clock
   private var impressionStarts: [Content: TimeInterval]
 
   public weak var delegate: ImpressionLoggerDelegate?
-  public weak var dataSource: IndexPathDataSource?
 
   init(metricsLogger: MetricsLogger,
        clock: Clock) {
@@ -202,38 +201,5 @@ public class ImpressionLogger: NSObject {
     }
     // Not calling `metricsLogger`. No logging end impressions for now.
     delegate?.impressionLogger(self, didEndImpressions: impressions)
-  }
-}
-
-// MARK: - IndexPath/DataSource methods
-public extension ImpressionLogger {
-  /// Call this method when new items are displayed.
-  @objc(collectionViewWillDisplayIndexPath:)
-  func collectionViewWillDisplay(indexPath: IndexPath) {
-    assert(dataSource != nil, "dataSource must be set to use IndexPath")
-    if let content = dataSource!.contentFor(indexPath: indexPath) {
-      collectionViewWillDisplay(content: content)
-    }
-  }
-
-  /// Call this method when previously displayed items are hidden.
-  /// If an item is reported as hidden that had not previously
-  /// been displayed, the impression for that item will be ignored.
-  @objc(collectionViewDidHideIndexPath:)
-  func collectionViewDidHide(indexPath: IndexPath) {
-    assert(dataSource != nil, "dataSource must be set to use IndexPath")
-    if let content = dataSource!.contentFor(indexPath: indexPath) {
-      collectionViewDidHide(content: content)
-    }
-  }
-
-  /// Call this method when the collection view changes content, but
-  /// does not provide per-item updates for the change. For example,
-  /// when a collection reloads.
-  @objc(collectionViewDidChangeVisibleIndexPaths:)
-  func collectionViewDidChangeVisibleIndexPaths(_ indexPathArray: [IndexPath]) {
-    assert(dataSource != nil, "dataSource must be set to use IndexPath")
-    let contentArray = indexPathArray.compactMap { dataSource!.contentFor(indexPath:$0) }
-    collectionViewDidChangeVisibleContent(contentArray)
   }
 }
