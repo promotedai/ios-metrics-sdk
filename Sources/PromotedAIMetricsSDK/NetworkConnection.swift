@@ -24,8 +24,7 @@ public protocol NetworkConnection {
   ///   - message: Payload to deliver. Depending on the
   ///     `metricsLoggingWireFormat` property of `clientConfig`, may
   ///     be serialized as JSON or binary format.
-  ///   - url: Destination URL.
-  ///   - clientConfig: Configuration of send format.
+  ///   - clientConfig: Configuration to use to send message.
   ///   - callback: Invoked on completion of the network op.
   ///     `NetworkConnection`s should manage their own retry logic, so
   ///     if `callback` is invoked with an error, that error indicates
@@ -34,12 +33,25 @@ public protocol NetworkConnection {
   ///   any errors that occurred in protobuf serialization *prior to*
   ///   the network operation. Errors resulting from the network operation
   ///   are passed through `callback`.
-  func sendMessage(_ message: Message, url: URL, clientConfig: ClientConfig,
+  func sendMessage(_ message: Message, clientConfig: ClientConfig,
                    callback: Callback?) throws
 }
 
 // MARK: -
 extension NetworkConnection {
+  func metricsLoggingURL(clientConfig: ClientConfig) throws -> URL {
+    #if DEBUG
+    let urlString = clientConfig.devMetricsLoggingURL
+    #else
+    let urlString = clientConfig.metricsLoggingURL
+    #endif
+
+    guard let url = URL(string: urlString) else {
+      throw NetworkConnectionError.invalidURLError(urlString: urlString)
+    }
+    return url
+  }
+  
   func bodyData(message: Message, clientConfig: ClientConfig) throws -> Data {
     switch clientConfig.metricsLoggingWireFormat {
     case .binary:
@@ -51,7 +63,13 @@ extension NetworkConnection {
 
   func urlRequest(url: URL, data: Data, clientConfig: ClientConfig) -> URLRequest {
     var request = URLRequest(url: url)
-    request.addValue(clientConfig.metricsLoggingAPIKey, forHTTPHeaderField: "x-api-key")
+    #if DEBUG
+    let apiKey = clientConfig.devMetricsLoggingAPIKey
+    #else
+    let apiKey = clientConfig.metricsLoggingAPIKey
+    #endif
+
+    request.addValue(apiKey, forHTTPHeaderField: "x-api-key")
     if clientConfig.metricsLoggingWireFormat == .binary {
       request.addValue("application/protobuf", forHTTPHeaderField: "content-type")
     }
@@ -69,9 +87,10 @@ class GTMSessionFetcherConnection: NetworkConnection {
     fetcherService = GTMSessionFetcherService()
   }
   
-  func sendMessage(_ message: Message, url: URL, clientConfig: ClientConfig,
+  func sendMessage(_ message: Message, clientConfig: ClientConfig,
                    callback: Callback?) throws {
     do {
+      let url = try metricsLoggingURL(clientConfig: clientConfig)
       let messageData = try bodyData(message: message, clientConfig: clientConfig)
       let request = urlRequest(url: url, data: messageData, clientConfig: clientConfig)
       let fetcher = fetcherService.fetcher(with: request)
@@ -108,6 +127,9 @@ enum NetworkConnectionError: Error {
   
   /// Indicates an error from the network operation after completion.
   case networkSendError(domain: String, code: Int, errorString: String)
+  
+  /// Indicates an invalid URL string was provided.
+  case invalidURLError(urlString: String)
   
   /// Indicates an error that is not one of the above cases.
   case unknownError
