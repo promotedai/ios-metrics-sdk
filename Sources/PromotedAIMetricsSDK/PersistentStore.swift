@@ -15,27 +15,14 @@ public protocol PersistentStore: class {
 /** Stores information in the app's `UserDefaults`. */
 class UserDefaultsPersistentStore: PersistentStore {
   
-  enum UserDefaultKey: String {
-    case userIDString
-    case logUserIDString
-  }
-  
   var userID: String? {
-    get {
-      return stringValue(forKey: .userIDString)
-    }
-    set(value) {
-      setStringValue(value, forKey: .userIDString)
-    }
+    get { return stringValue(forKey: #function) }
+    set(value) { setStringValue(value, forKey: #function) }
   }
 
   var logUserID: String? {
-    get {
-      return stringValue(forKey: .logUserIDString)
-    }
-    set(value) {
-      setStringValue(value, forKey: .logUserIDString)
-    }
+    get { return stringValue(forKey: #function) }
+    set(value) { setStringValue(value, forKey: #function) }
   }
 
   private let defaults: UserDefaults
@@ -44,11 +31,11 @@ class UserDefaultsPersistentStore: PersistentStore {
     self.defaults = userDefaults
   }
   
-  private func stringValue(forKey key: UserDefaultKey) -> String? {
-    return defaults.string(forKey: "ai.promoted." + key.rawValue)
+  private func stringValue(forKey key: String) -> String? {
+    return defaults.string(forKey: "ai.promoted." + key)
   }
   
-  private func setStringValue(_ value: String?, forKey key: UserDefaultKey) {
-    defaults.setValue(value, forKey: "ai.promoted." + key.rawValue)
+  private func setStringValue(_ value: String?, forKey key: String) {
+    defaults.setValue(value, forKey: "ai.promoted." + key)
   }
 }
