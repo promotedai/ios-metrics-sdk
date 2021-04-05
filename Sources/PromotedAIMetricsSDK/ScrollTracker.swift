@@ -1,6 +1,10 @@
 import CoreGraphics
 import Foundation
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
 // MARK: - ScrollTracker
 /**
  Tracks scrolling behavior in client apps to deliver accurate impression
@@ -172,8 +176,6 @@ public class ScrollTracker: NSObject {
 
 // MARK: - UIKit: UICollectionView/UIScrollView
 #if canImport(UIKit)
-import UIKit
-
 public extension ScrollTracker {
 
   convenience init(metricsLogger: MetricsLogger,
