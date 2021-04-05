@@ -6,7 +6,6 @@ public class FakeNetworkConnection: NetworkConnection {
   
   public struct SendMessageArguments {
     public let message: Message?
-    public let url: URL?
     public let callback: Callback?
   }
   
@@ -16,8 +15,8 @@ public class FakeNetworkConnection: NetworkConnection {
     messages = []
   }
   
-  public func sendMessage(_ message: Message, url: URL, clientConfig: ClientConfig,
+  public func sendMessage(_ message: Message, clientConfig: ClientConfig,
                           callback: Callback?) throws {
-    messages.append(SendMessageArguments(message: message, url: url, callback: callback))
+    messages.append(SendMessageArguments(message: message, callback: callback))
   }
 }
