@@ -16,6 +16,7 @@ public protocol IDMap {
   /// the underlying user ID.
   func logUserID() -> String
   
+  /// Generates a new session ID.
   func sessionID() -> String
 
   /// Given possible input sources, generate a server-side impression ID.
