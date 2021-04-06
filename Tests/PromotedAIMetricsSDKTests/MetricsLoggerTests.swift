@@ -121,54 +121,78 @@ final class MetricsLoggerTests: XCTestCase {
     assertLoggerAndStoreInSync()
   }
   
-  func testReadLogUserIDBeforeStartSessionWithUserID() {
+  func testReadIDsBeforeStartSessionWithUserID() {
     store!.userID = "foobar"
     store!.logUserID = "fake-initial-id"
     idMap!.incrementCounts = true
     let initialLogUserID = metricsLogger!.logUserID
     XCTAssertEqual("fake-initial-id", initialLogUserID)
+    let initialSessionID = metricsLogger!.sessionID
+    XCTAssertEqual("fake-session-id-1", initialSessionID)
+
     metricsLogger!.startSessionForTesting(userID: "foobar")
     XCTAssertEqual(initialLogUserID, metricsLogger!.logUserID)
+    XCTAssertEqual(initialSessionID, metricsLogger!.sessionID)
+
     metricsLogger!.startSessionForTesting(userID: "batman")
     XCTAssertNotEqual(initialLogUserID, metricsLogger!.logUserID)
+    XCTAssertNotEqual(initialSessionID, metricsLogger!.sessionID)
   }
   
-  func testReadLogUserIDBeforeStartSessionSignedOut() {
+  func testReadIDsBeforeStartSessionSignedOut() {
     store!.userID = "foobar"
     store!.logUserID = "fake-initial-id"
     idMap!.incrementCounts = true
     let initialLogUserID = metricsLogger!.logUserID
     XCTAssertEqual("fake-initial-id", initialLogUserID)
+    let initialSessionID = metricsLogger!.sessionID
+    XCTAssertEqual("fake-session-id-1", initialSessionID)
+
     metricsLogger!.startSessionSignedOutForTesting()
     XCTAssertEqual(initialLogUserID, metricsLogger!.logUserID)
+    XCTAssertEqual(initialSessionID, metricsLogger!.sessionID)
+
     metricsLogger!.startSessionForTesting(userID: "batman")
     XCTAssertNotEqual(initialLogUserID, metricsLogger!.logUserID)
+    XCTAssertNotEqual(initialSessionID, metricsLogger!.sessionID)
   }
   
-  func testReadLogUserIDBeforeStartSessionSignedOutNoPreviousLogUserID() {
+  func testReadIDsBeforeStartSessionSignedOutNoPreviousLogUserID() {
     store!.userID = nil
     store!.logUserID = nil
     idMap!.incrementCounts = true
     // This should generate a new, non-nil logUserID.
     let initialLogUserID = metricsLogger!.logUserID
     XCTAssertEqual("fake-log-user-id-1", initialLogUserID)
+    let initialSessionID = metricsLogger!.sessionID
+    XCTAssertEqual("fake-session-id-1", initialSessionID)
+
     metricsLogger!.startSessionSignedOutForTesting()
     XCTAssertEqual(initialLogUserID, metricsLogger!.logUserID)
+    XCTAssertEqual(initialSessionID, metricsLogger!.sessionID)
+
     metricsLogger!.startSessionForTesting(userID: "batman")
     XCTAssertNotEqual(initialLogUserID, metricsLogger!.logUserID)
+    XCTAssertNotEqual(initialSessionID, metricsLogger!.sessionID)
   }
   
-  func testReadLogUserIDBeforeStartSessionSignedOutStaySignedOut() {
+  func testReadIDsBeforeStartSessionSignedOutStaySignedOut() {
     store!.userID = nil
     store!.logUserID = nil
     idMap!.incrementCounts = true
     // This should generate a new, non-nil logUserID.
     let initialLogUserID = metricsLogger!.logUserID
     XCTAssertEqual("fake-log-user-id-1", initialLogUserID)
+    let initialSessionID = metricsLogger!.sessionID
+    XCTAssertEqual("fake-session-id-1", initialSessionID)
+
     metricsLogger!.startSessionSignedOutForTesting()
     XCTAssertEqual(initialLogUserID, metricsLogger!.logUserID)
+    XCTAssertEqual(initialSessionID, metricsLogger!.sessionID)
+
     metricsLogger!.startSessionSignedOutForTesting()
     XCTAssertNotEqual(initialLogUserID, metricsLogger!.logUserID)
+    XCTAssertNotEqual(initialSessionID, metricsLogger!.sessionID)
   }
 
   func testBatchFlush() {
@@ -278,7 +302,8 @@ final class MetricsLoggerTests: XCTestCase {
       "impression_id": "\(impressionID)",
       "insertion_id": "insertion!",
       "content_id": "\(idMap!.contentID(clientID: "foobar"))",
-      "session_id": "fake-session-id"
+      "session_id": "fake-session-id",
+      "view_id": "fake-view-id"
     }
     """
     XCTAssertEqual(try Event_Impression(jsonString: expectedJSON),
@@ -301,7 +326,8 @@ final class MetricsLoggerTests: XCTestCase {
       },
       "impression_id": "\(impressionID)",
       "content_id": "\(idMap!.contentID(clientID: "foobar"))",
-      "session_id": "fake-session-id"
+      "session_id": "fake-session-id",
+      "view_id": "fake-view-id"
     }
     """
     XCTAssertEqual(try Event_Impression(jsonString: expectedJSON),
@@ -326,6 +352,7 @@ final class MetricsLoggerTests: XCTestCase {
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
+      "view_id": "fake-view-id",
       "name": "FakeScreen",
       "action_type": "NAVIGATE",
       "element_id": "FakeScreen",
@@ -354,6 +381,7 @@ final class MetricsLoggerTests: XCTestCase {
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
+      "view_id": "fake-view-id",
       "name": "add-to-cart",
       "action_type": "ADD_TO_CART",
       "element_id": "add-to-cart"
@@ -380,6 +408,7 @@ final class MetricsLoggerTests: XCTestCase {
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
+      "view_id": "fake-view-id",
       "name": "remove-from-cart",
       "action_type": "REMOVE_FROM_CART",
       "element_id": "remove-from-cart"
@@ -401,6 +430,7 @@ final class MetricsLoggerTests: XCTestCase {
       },
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
+      "view_id": "fake-view-id",
       "name": "checkout",
       "action_type": "CHECKOUT",
       "element_id": "checkout"
@@ -427,6 +457,7 @@ final class MetricsLoggerTests: XCTestCase {
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
+      "view_id": "fake-view-id",
       "name": "purchase",
       "action_type": "PURCHASE",
       "element_id": "purchase"
@@ -453,6 +484,7 @@ final class MetricsLoggerTests: XCTestCase {
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
+      "view_id": "fake-view-id",
       "name": "share",
       "action_type": "SHARE",
       "element_id": "share"
@@ -479,6 +511,7 @@ final class MetricsLoggerTests: XCTestCase {
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
+      "view_id": "fake-view-id",
       "name": "like",
       "action_type": "LIKE",
       "element_id": "like"
@@ -505,6 +538,7 @@ final class MetricsLoggerTests: XCTestCase {
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
+      "view_id": "fake-view-id",
       "name": "unlike",
       "action_type": "UNLIKE",
       "element_id": "unlike"
@@ -531,6 +565,7 @@ final class MetricsLoggerTests: XCTestCase {
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
+      "view_id": "fake-view-id",
       "name": "comment",
       "action_type": "COMMENT",
       "element_id": "comment"
@@ -557,6 +592,7 @@ final class MetricsLoggerTests: XCTestCase {
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
+      "view_id": "fake-view-id",
       "name": "make-offer",
       "action_type": "MAKE_OFFER",
       "element_id": "make-offer"
@@ -583,6 +619,7 @@ final class MetricsLoggerTests: XCTestCase {
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
+      "view_id": "fake-view-id",
       "name": "ask-question",
       "action_type": "ASK_QUESTION",
       "element_id": "ask-question"
@@ -609,6 +646,7 @@ final class MetricsLoggerTests: XCTestCase {
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
+      "view_id": "fake-view-id",
       "name": "answer-question",
       "action_type": "ANSWER_QUESTION",
       "element_id": "answer-question"
@@ -630,6 +668,7 @@ final class MetricsLoggerTests: XCTestCase {
       },
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
+      "view_id": "fake-view-id",
       "name": "sign-in",
       "action_type": "COMPLETE_SIGN_IN",
       "element_id": "sign-in"
@@ -651,6 +690,7 @@ final class MetricsLoggerTests: XCTestCase {
       },
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
+      "view_id": "fake-view-id",
       "name": "sign-up",
       "action_type": "COMPLETE_SIGN_UP",
       "element_id": "sign-up"
@@ -701,6 +741,20 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertEqual(try Event_View(jsonString: expectedJSON),
                    message as! Event_View)
   }
+  
+  func testReadViewIDBeforeLogView() {
+    idMap!.incrementCounts = true
+    let initialViewID = metricsLogger!.viewID
+    XCTAssertEqual("fake-view-id-1", initialViewID)
+    metricsLogger!.startSessionForTesting(userID: "foo")
+    
+    let viewController = FakeScreenViewController()
+    metricsLogger!.logView(viewController: viewController, useCase: .search)
+    XCTAssertEqual(initialViewID, metricsLogger!.viewID)
+    
+    metricsLogger!.logView(viewController: viewController, useCase: .search)
+    XCTAssertNotEqual(initialViewID, metricsLogger!.viewID)
+  }
 
   static var allTests = [
     ("testStartSession", testStartSession),
@@ -708,10 +762,10 @@ final class MetricsLoggerTests: XCTestCase {
     ("testStartSessionSignedOut", testStartSessionSignedOut),
     ("testStartSessionSignInThenSignOut", testStartSessionSignInThenSignOut),
     ("testStartSessionSignOutThenSignIn", testStartSessionSignOutThenSignIn),
-    ("testReadLogUserIDBeforeStartSessionWithUserID", testReadLogUserIDBeforeStartSessionWithUserID),
-    ("testReadLogUserIDBeforeStartSessionSignedOut", testReadLogUserIDBeforeStartSessionSignedOut),
-    ("testReadLogUserIDBeforeStartSessionSignedOutNoPreviousLogUserID", testReadLogUserIDBeforeStartSessionSignedOutNoPreviousLogUserID),
-    ("testReadLogUserIDBeforeStartSessionSignedOutStaySignedOut", testReadLogUserIDBeforeStartSessionSignedOutStaySignedOut),
+    ("testReadIDsBeforeStartSessionWithUserID", testReadIDsBeforeStartSessionWithUserID),
+    ("testReadIDsBeforeStartSessionSignedOut", testReadIDsBeforeStartSessionSignedOut),
+    ("testReadIDsBeforeStartSessionSignedOutNoPreviousLogUserID", testReadIDsBeforeStartSessionSignedOutNoPreviousLogUserID),
+    ("testReadIDsBeforeStartSessionSignedOutStaySignedOut", testReadIDsBeforeStartSessionSignedOutStaySignedOut),
     ("testBatchFlush", testBatchFlush),
     ("testProperties", testProperties),
     ("testLogUser", testLogUser),
@@ -732,5 +786,6 @@ final class MetricsLoggerTests: XCTestCase {
     ("testLogCompleteSignInAction", testLogCompleteSignInAction),
     ("testLogCompleteSignUpAction", testLogCompleteSignUpAction),
     ("testLogViewController", testLogViewController),
+    ("testReadViewIDBeforeLogView", testReadViewIDBeforeLogView),
   ]
 }

@@ -66,7 +66,7 @@ public class MetricsLogger: NSObject {
     private let initialValueProducer: Producer
     private let nextValueProducer: Producer
     private var hasAdvancedFromInitialValue: Bool
-    private lazy var cachedCurrentValue: T = { initialValueProducer() } ()
+    lazy var currentValue: T = { initialValueProducer() } ()
     
     convenience init(producer: @escaping Producer) {
       self.init(initialValueProducer: producer,
@@ -79,18 +79,14 @@ public class MetricsLogger: NSObject {
       self.nextValueProducer = nextValueProducer
       self.hasAdvancedFromInitialValue = false
     }
-    
-    func currentValue() -> T {
-      return cachedCurrentValue
-    }
-    
+
     @discardableResult func nextValue() -> T {
       if !hasAdvancedFromInitialValue {
         hasAdvancedFromInitialValue = true
-        return currentValue()
+        return currentValue
       }
-      cachedCurrentValue = nextValueProducer()
-      return cachedCurrentValue
+      currentValue = nextValueProducer()
+      return currentValue
     }
   }
 
@@ -114,9 +110,10 @@ public class MetricsLogger: NSObject {
   /// Log user ID for this session. Updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
   /// called. If read before the first call to `startSession*`,
-  /// returns the cached ID from the previous session.
+  /// returns the cached ID from the previous session from
+  /// `PeristentStore`.
   public var logUserID: String? {
-    return logUserIDProducer.currentValue()
+    return logUserIDProducer.currentValue
   }
   private let logUserIDProducer: IDProducer<String?>
   
@@ -125,7 +122,7 @@ public class MetricsLogger: NSObject {
   /// called. If read before the first call to `startSession*`,
   /// returns an ID that will be used for the first session.
   public var sessionID: String {
-    return sessionIDProducer.currentValue()
+    return sessionIDProducer.currentValue
   }
   private let sessionIDProducer: IDProducer<String>
   
@@ -133,10 +130,10 @@ public class MetricsLogger: NSObject {
   /// called. If read before the first call to `logView()`,
   /// returns an ID that will be used for the first view.
   public var viewID: String {
-    return viewIDProducer.currentValue()
+    return viewIDProducer.currentValue
   }
   private let viewIDProducer: IDProducer<String>
-  
+
   private lazy var deviceMessage: Event_Device = {
     var device = Event_Device()
     if let type = deviceInfo.deviceType.protoValue { device.deviceType = type }
@@ -167,15 +164,15 @@ public class MetricsLogger: NSObject {
     self.store = store
     self.logMessages = []
     self.userID = nil
-    self.logUserIDProducer = IDProducer {
+    self.logUserIDProducer = IDProducer(initialValueProducer: {
       return store.logUserID ?? idMap.logUserID()
-    } nextValueProducer: {
+    }, nextValueProducer: {
       return idMap.logUserID()
-    }
+    })
     self.sessionIDProducer = IDProducer { return idMap.sessionID() }
     self.viewIDProducer = IDProducer { return idMap.viewID() }
   }
-  
+
   // MARK: - Starting new sessions
   /// Call when sign-in completes with specified user ID.
   /// Starts logging session with the provided user and logs a
@@ -199,7 +196,7 @@ public class MetricsLogger: NSObject {
   /// Starts a new session with the given `userID`.
   /// If the `userID` has changed from the last value written to
   /// persistent store, regenrates `logUserID` and caches the new
-  /// values of both to persistent store.
+  /// values of both to persistent store. Also creates new `sessionID`.
   ///
   /// You can call this method multiple times, whenever the user's
   /// sign-in state changes.
@@ -213,6 +210,7 @@ public class MetricsLogger: NSObject {
   /// Starts a new session with signed-out user.
   /// Updates `userID` to `nil` and generates a new `logUserID`
   /// for the session. Writes the new values to persistent store.
+  /// Also creates new `sessionID`.
   ///
   /// You can call this method multiple times, whenever the user's
   /// sign-in state changes.
@@ -233,7 +231,7 @@ public class MetricsLogger: NSObject {
     // Reads logUserID from store for initial value, if available.
     let logUserID = logUserIDProducer.nextValue()
 
-    // Write to store if necessary.
+    // Write to store if current values differ.
     if userID != store.userID || logUserID != store.logUserID {
       store.userID = userID
       store.logUserID = logUserID
@@ -276,12 +274,10 @@ public extension MetricsLogger {
   /// Logs a user event.
   ///
   /// Autogenerates the following fields:
-  /// - `userID` from the state in this object
-  /// - `logUserID` from the state in this object
-  /// - `clientLogTimestamp` from `clock.nowMillis`
+  /// - `timing` from `clock.nowMillis`
   ///
   /// - Parameters:
-  ///   - data: Client-specific message
+  ///   - properties: Client-specific message
   func logUser(properties: Message? = nil) {
     var user = Event_User()
     user.timing = timingMessage()
@@ -291,6 +287,15 @@ public extension MetricsLogger {
     log(message: user)
   }
   
+  /// Logs a session event.
+  ///
+  /// Autogenerates the following fields:
+  /// - `timing` from `clock.nowMillis`
+  /// - `sessionID` from state in this logger
+  /// - `startEpochMillis` from `clock.nowMillis`
+  ///
+  /// - Parameters:
+  ///   - properties: Client-specific message
   func logSession(properties: Message? = nil) {
     var session = Event_Session()
     session.timing = timingMessage()
@@ -305,17 +310,19 @@ public extension MetricsLogger {
   /// Logs an impression event.
   ///
   /// Autogenerates the following fields:
-  /// - `clientLogTimestamp` from `clock.nowMillis`
-  /// - `impressionID` from `contentID`
+  /// - `timing` from `clock.nowMillis`
+  /// - `impressionID` from a combination of `insertionID`,
+  ///    `contentID`, and `logUserID`
+  /// - `sessionID` from state in this logger
+  /// - `viewID` from state in this logger
   ///
   /// - Parameters:
   ///   - contentID: Content ID from which to derive `impressionID`
   ///   - insertionID: Insertion ID as provided by Promoted
-  ///   - data: Client-specific message
+  ///   - properties: Client-specific message
   func logImpression(contentID: String? = nil,
                      insertionID: String? = nil,
                      requestID: String? = nil,
-                     viewID: String? = nil,
                      properties: Message? = nil) {
     let optionalID = idMap.impressionIDOrNil(insertionID: insertionID,
                                              contentID: contentID,
@@ -327,7 +334,7 @@ public extension MetricsLogger {
     if let id = insertionID { impression.insertionID = id }
     if let id = requestID { impression.requestID = id }
     impression.sessionID = sessionID
-    if let id = viewID { impression.viewID = id }
+    impression.viewID = viewID
     if let id = contentID { impression.contentID = idMap.contentID(clientID: id) }
     if let properties = Self.propertiesWrapperMessage(properties) {
       impression.properties = properties
@@ -335,27 +342,28 @@ public extension MetricsLogger {
     log(message: impression)
   }
   
-  /// Logs a click event.
+  /// Logs a user action event.
   ///
   /// Autogenerates the following fields:
-  /// - `clientLogTimestamp` from `clock.nowMillis`
-  /// - `clickID` as a UUID
-  /// - `impressionID` from `contentID`
+  /// - `timing` from `clock.nowMillis`
+  /// - `actionID` as a UUID
+  /// - `impressionID` from a combination of `insertionID`,
+  ///    `contentID`, and `logUserID`
+  /// - `sessionID` from state in this logger
+  /// - `viewID` from state in this logger
   /// - `name` from `actionName`
-  /// - If no `targetURL` is provided, `targetURL` is derived from `name`
   /// - If no `elementID` is provided, `elementID` is derived from `name`
   ///
   /// - Parameters:
   ///   - name: Name for action to log, human readable
   ///   - contentID: Content ID from which to derive `impressionID`
   ///   - insertionID: Insertion ID as provided by Promoted
-  ///   - data: Client-specific message
+  ///   - properties: Client-specific message
   func logAction(name: String,
                  type: ActionType,
                  contentID: String? = nil,
                  insertionID: String? = nil,
                  requestID: String? = nil,
-                 viewID: String? = nil,
                  targetURL: String? = nil,
                  elementID: String? = nil,
                  properties: Message? = nil) {
@@ -369,10 +377,10 @@ public extension MetricsLogger {
     if let id = insertionID { action.insertionID = id }
     if let id = requestID { action.requestID = id }
     action.sessionID = sessionID
-    if let id = viewID { action.viewID = id }
+    action.viewID = viewID
     action.name = name
     if let type = type.protoValue { action.actionType = type }
-    action.elementID = name
+    action.elementID = elementID ?? name
     switch type {
     case .navigate:
       var navigateAction = Event_NavigateAction()
@@ -390,15 +398,15 @@ public extension MetricsLogger {
   /// Logs a view event.
   ///
   /// Autogenerates the following fields:
-  /// - `clientLogTimestamp` from `clock.nowMillis`
-  /// - `viewID` from `name`
-  /// - If no `url` is provided, `url` is derived from `name`
+  /// - `timing` from `clock.nowMillis`
+  /// - `viewID` as a UUID
+  /// - `sessionID` from state in this logger
+  /// - `device` from `DeviceInfo` on current system
   ///
   /// - Parameters:
   ///   - name: Name for view, human readable
-  ///   - url: URL for the view, can contain options for the view
   ///   - useCase: Use case for view
-  ///   - data: Client-specific message
+  ///   - properties: Client-specific message
   func logView(name: String,
                useCase: UseCase? = nil,
                properties: Message? = nil) {
