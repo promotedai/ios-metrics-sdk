@@ -56,7 +56,41 @@ public class MetricsLogger: NSObject {
   #else
   public typealias ViewControllerType = AnyObject
   #endif
-  
+
+  private class IDProducer<T> {
+    typealias Producer = () -> T
+    
+    private let initialValueProducer: Producer
+    private let nextValueProducer: Producer
+    private var hasAdvancedFromInitialValue: Bool
+    private lazy var cachedCurrentValue: T = { initialValueProducer() } ()
+    
+    convenience init(producer: @escaping Producer) {
+      self.init(initialValueProducer: producer,
+                nextValueProducer: producer)
+    }
+    
+    init(initialValueProducer: @escaping Producer,
+         nextValueProducer: @escaping Producer) {
+      self.initialValueProducer = initialValueProducer
+      self.nextValueProducer = nextValueProducer
+      self.hasAdvancedFromInitialValue = false
+    }
+    
+    func currentValue() -> T {
+      return cachedCurrentValue
+    }
+    
+    @discardableResult func nextValue() -> T {
+      if !hasAdvancedFromInitialValue {
+        hasAdvancedFromInitialValue = true
+        return currentValue()
+      }
+      cachedCurrentValue = nextValueProducer()
+      return cachedCurrentValue
+    }
+  }
+
   private let clock: Clock
   private let config: ClientConfig
   private let connection: NetworkConnection
@@ -64,7 +98,7 @@ public class MetricsLogger: NSObject {
   private let idMap: IDMap
   private let store: PersistentStore
 
-  /*visibleForTesting*/ private(set) var logMessages: [Message]
+  private var logMessages: [Message]
   
   /// Timer for pending batched log request.
   private var batchLoggingTimer: ScheduledTimer?
@@ -72,17 +106,33 @@ public class MetricsLogger: NSObject {
   /// User ID for this session. Will be updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
   /// called.
-  /*visibleForTesting*/ private(set) var userID: String?
+  private var userID: String?
   
-  /// Log user ID for this session. Will be updated when
+  /// Log user ID for this session. Updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
-  /// called.
-  public private(set) var logUserID: String?
+  /// called. If read before the first call to `startSession*`,
+  /// returns the cached ID from the previous session.
+  public var logUserID: String? {
+    return logUserIDProducer.currentValue()
+  }
+  private let logUserIDProducer: IDProducer<String?>
   
-  /// Session ID for this session. Will be updated when
+  /// Session ID for this session. Updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
-  /// called.
-  public private(set) var sessionID: String?
+  /// called. If read before the first call to `startSession*`,
+  /// returns an ID that will be used for the first session.
+  public var sessionID: String {
+    return sessionIDProducer.currentValue()
+  }
+  private let sessionIDProducer: IDProducer<String>
+  
+  /// View ID for current view. Updated when `logView()` is
+  /// called. If read before the first call to `logView()`,
+  /// returns an ID that will be used for the first view.
+  public var viewID: String {
+    return viewIDProducer.currentValue()
+  }
+  private let viewIDProducer: IDProducer<String>
   
   private lazy var deviceMessage: Event_Device = {
     var device = Event_Device()
@@ -114,8 +164,13 @@ public class MetricsLogger: NSObject {
     self.store = store
     self.logMessages = []
     self.userID = nil
-    self.logUserID = nil
-    self.sessionID = nil
+    self.logUserIDProducer = IDProducer {
+      return store.logUserID ?? idMap.logUserID()
+    } nextValueProducer: {
+      return idMap.logUserID()
+    }
+    self.sessionIDProducer = IDProducer { return idMap.sessionID() }
+    self.viewIDProducer = IDProducer { return idMap.viewID() }
   }
   
   // MARK: - Starting new sessions
@@ -148,7 +203,7 @@ public class MetricsLogger: NSObject {
   ///
   /// Either this method or `startSessionSignedOut()` should be
   /// called before logging any events.
-  /*visibleForTesting*/ func startSession(userID: String) {
+  private func startSession(userID: String) {
     startSessionAndUpdateUserIDs(userID: userID)
   }
   
@@ -161,27 +216,28 @@ public class MetricsLogger: NSObject {
   ///
   /// Either this method or `startSession(userID:)` should be
   /// called before logging any events.
-  /*visibleForTesting*/ func startSessionSignedOut() {
+  private func startSessionSignedOut() {
     startSessionAndUpdateUserIDs(userID: nil)
   }
   
   private func startSessionAndUpdateUserIDs(userID: String?) {
-    self.sessionID = idMap.sessionID()
+    sessionIDProducer.nextValue()
+
+    // New session with same user should not regenerate logUserID.
+    if (self.userID != nil) && (self.userID == userID) { return }
+
     self.userID = userID
-    if let cachedLogUserID = store.logUserID {
-      if userID == store.userID {
-        self.logUserID = cachedLogUserID
-        return
-      }
+    // Reads logUserID from store for initial value, if available.
+    let logUserID = logUserIDProducer.nextValue()
+
+    // Write to store if necessary.
+    if userID != store.userID || logUserID != store.logUserID {
+      store.userID = userID
+      store.logUserID = logUserID
     }
-    store.userID = userID
-    let newLogUserID = idMap.logUserID()
-    store.logUserID = newLogUserID
-    self.logUserID = newLogUserID
   }
   
   private func userInfoMessage() -> Common_UserInfo {
-    assert(logUserID != nil, "Call startSession* before any log* methods")
     var userInfo = Common_UserInfo()
     if let id = userID { userInfo.userID = id }
     if let id = logUserID { userInfo.logUserID = id }
@@ -233,10 +289,9 @@ public extension MetricsLogger {
   }
   
   func logSession(properties: Message? = nil) {
-    assert(sessionID != nil, "Call startSession* before any log* methods")
     var session = Event_Session()
     session.timing = timingMessage()
-    if let id = sessionID { session.sessionID = id }
+    session.sessionID = sessionID
     session.startEpochMillis = clock.nowMillis
     if let properties = Self.propertiesWrapperMessage(properties) {
       session.properties = properties
@@ -268,7 +323,7 @@ public extension MetricsLogger {
     impression.impressionID = impressionID
     if let id = insertionID { impression.insertionID = id }
     if let id = requestID { impression.requestID = id }
-    if let id = sessionID { impression.sessionID = id }
+    impression.sessionID = sessionID
     if let id = viewID { impression.viewID = id }
     if let id = contentID { impression.contentID = idMap.contentID(clientID: id) }
     if let properties = Self.propertiesWrapperMessage(properties) {
@@ -310,7 +365,7 @@ public extension MetricsLogger {
     if let id = impressionID { action.impressionID = id }
     if let id = insertionID { action.insertionID = id }
     if let id = requestID { action.requestID = id }
-    if let id = sessionID { action.sessionID = id }
+    action.sessionID = sessionID
     if let id = viewID { action.viewID = id }
     action.name = name
     if let type = type.protoValue { action.actionType = type }
@@ -346,8 +401,8 @@ public extension MetricsLogger {
                properties: Message? = nil) {
     var view = Event_View()
     view.timing = timingMessage()
-    view.viewID = idMap.viewID()
-    if let id = sessionID { view.sessionID = id }
+    view.viewID = viewIDProducer.nextValue()
+    view.sessionID = sessionID
     view.name = name
     if let use = useCase?.protoValue { view.useCase = use }
     if let properties = Self.propertiesWrapperMessage(properties) {
@@ -470,5 +525,19 @@ extension MetricsLogger {
     let loggingName = className.replacingOccurrences(of:"ViewController", with: "")
     if loggingName.isEmpty { return "Unnamed" }
     return loggingName
+  }
+}
+
+// MARK: - Testing
+extension MetricsLogger {
+  var logMessagesForTesting: [Message] { return logMessages }
+  var userIDForTesting: String? { return userID }
+  
+  func startSessionForTesting(userID: String) {
+    startSession(userID: userID)
+  }
+  
+  func startSessionSignedOutForTesting() {
+    startSessionSignedOut()
   }
 }
