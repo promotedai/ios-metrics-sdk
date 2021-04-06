@@ -19,8 +19,10 @@ public protocol IDMap {
   func sessionID() -> String
 
   /// Given possible input sources, generate a server-side impression ID.
-  /// Returns `nil` if no impression ID is generated from inputs.
-  ///
+  /// If `insertionID` is not `nil`, then generates an impression ID based
+  /// on `insertionID`. If `contentID` and `logUserID` are both not `nil`,
+  /// then generates an impression ID based on a combination of those two
+  /// IDs. Otherwise, returns `nil`.
   func impressionIDOrNil(insertionID: String?,
                          contentID: String?,
                          logUserID: String?) -> String?

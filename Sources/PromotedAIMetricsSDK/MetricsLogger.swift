@@ -294,8 +294,8 @@ public extension MetricsLogger {
     var action = Event_Action()
     action.actionID = idMap.actionID()
     let impressionID = idMap.impressionIDOrNil(insertionID: insertionID,
-                                                  contentID: contentID,
-                                                  logUserID: logUserID)
+                                               contentID: contentID,
+                                               logUserID: logUserID)
     if let id = impressionID { action.impressionID = id }
     if let id = insertionID { action.insertionID = id }
     if let id = requestID { action.requestID = id }
