@@ -4,7 +4,7 @@ public extension MetricsLogger {
   // MARK: - Impression logging helper methods
   /// Logs an impression for the given content.
   @objc func logImpression(content: Content) {
-    if let id = content.contentID { logImpression(contentID: id) }
+    logImpression(contentID: content.contentID, insertionID: content.insertionID)
   }
 
   // MARK: - Action logging helper methods

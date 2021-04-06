@@ -27,6 +27,7 @@ final class MetricsLoggerTests: XCTestCase {
     config!.metricsLoggingURL = "http://fake.promoted.ai/metrics"
     connection = FakeNetworkConnection()
     clock = FakeClock()
+    clock!.advance(to: 123)
     idMap = FakeIDMap()
     store = FakePersistentStore()
     store!.userID = nil
@@ -45,6 +46,7 @@ final class MetricsLoggerTests: XCTestCase {
   }
   
   func testStartSession() {
+    idMap!.incrementCounts = true
     metricsLogger!.startSession(userID: "foobar")
     XCTAssertEqual("foobar", store!.userID)
     XCTAssertNotNil(store!.logUserID)
@@ -52,6 +54,7 @@ final class MetricsLoggerTests: XCTestCase {
   }
   
   func testStartSessionMultiple() {
+    idMap!.incrementCounts = true
     metricsLogger!.startSession(userID: "foobar")
     XCTAssertEqual("foobar", store!.userID)
     XCTAssertNotNil(store!.logUserID)
@@ -71,6 +74,7 @@ final class MetricsLoggerTests: XCTestCase {
   }
   
   func testStartSessionSignedOut() {
+    idMap!.incrementCounts = true
     metricsLogger!.startSessionSignedOut()
     XCTAssertNil(store!.userID)
     XCTAssertNotNil(store!.logUserID)
@@ -78,6 +82,7 @@ final class MetricsLoggerTests: XCTestCase {
   }
   
   func testStartSessionSignInThenSignOut() {
+    idMap!.incrementCounts = true
     metricsLogger!.startSession(userID: "foobar")
     XCTAssertEqual("foobar", store!.userID)
     XCTAssertNotNil(store!.logUserID)
@@ -92,6 +97,7 @@ final class MetricsLoggerTests: XCTestCase {
   }
   
   func testStartSessionSignOutThenSignIn() {
+    idMap!.incrementCounts = true
     metricsLogger!.startSessionSignedOut()
     XCTAssertNil(store!.userID)
     XCTAssertNotNil(store!.logUserID)
@@ -186,22 +192,55 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertTrue(message is Event_User)
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      }
     }
     """
     XCTAssertEqual(try Event_User(jsonString: expectedJSON),
                    message as! Event_User)
   }
   
-  func testLogImpression() {
+  func testLogImpressionInsertionID() {
+    metricsLogger!.startSession(userID: "foo")
+    let item = Item(contentID: "foobar", insertionID: "insertion!")
+    metricsLogger!.logImpression(content: item)
+    let message = metricsLogger!.logMessages[0]
+    XCTAssertTrue(message is Event_Impression)
+    let impressionID = idMap!.impressionIDOrNil(insertionID: "insertion!",
+                                                contentID: "foobar",
+                                                logUserID: "fake-log-user-id")!
+    let expectedJSON = """
+    {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
+      "impression_id": "\(impressionID)",
+      "insertion_id": "insertion!",
+      "content_id": "\(idMap!.contentID(clientID: "foobar"))",
+      "session_id": "fake-session-id"
+    }
+    """
+    XCTAssertEqual(try Event_Impression(jsonString: expectedJSON),
+                   message as! Event_Impression)
+  }
+  
+  func testLogImpressionNoInsertionID() {
     metricsLogger!.startSession(userID: "foo")
     let item = Item(contentID: "foobar")
     metricsLogger!.logImpression(content: item)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_Impression)
+    let impressionID = idMap!.impressionIDOrNil(insertionID: nil,
+                                                contentID: "foobar",
+                                                logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
-      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
-      "content_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "timing": {
+        "client_log_timestamp": 123000
+      },
+      "impression_id": "\(impressionID)",
+      "content_id": "\(idMap!.contentID(clientID: "foobar"))",
       "session_id": "fake-session-id"
     }
     """
@@ -216,10 +255,16 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger!.logNavigateAction(viewController: viewController, forContent: item)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_Action)
+    let impressionID = idMap!.impressionIDOrNil(insertionID: nil,
+                                                contentID: "foobar",
+                                                logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
-      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "name": "FakeScreen",
       "action_type": "NAVIGATE",
@@ -238,10 +283,16 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger!.logAddToCartAction(item: item)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_Action)
+    let impressionID = idMap!.impressionIDOrNil(insertionID: nil,
+                                                contentID: "foobar",
+                                                logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
-      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "name": "add-to-cart",
       "action_type": "ADD_TO_CART",
@@ -258,10 +309,16 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger!.logRemoveFromCartAction(item: item)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_Action)
+    let impressionID = idMap!.impressionIDOrNil(insertionID: nil,
+                                                contentID: "foobar",
+                                                logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
-      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "name": "remove-from-cart",
       "action_type": "REMOVE_FROM_CART",
@@ -279,6 +336,9 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "name": "checkout",
@@ -296,10 +356,16 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger!.logPurchaseAction(item: item)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_Action)
+    let impressionID = idMap!.impressionIDOrNil(insertionID: nil,
+                                                contentID: "foobar",
+                                                logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
-      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "name": "purchase",
       "action_type": "PURCHASE",
@@ -316,10 +382,16 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger!.logShareAction(content: item)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_Action)
+    let impressionID = idMap!.impressionIDOrNil(insertionID: nil,
+                                                contentID: "foobar",
+                                                logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
-      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "name": "share",
       "action_type": "SHARE",
@@ -336,10 +408,16 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger!.logLikeAction(content: item)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_Action)
+    let impressionID = idMap!.impressionIDOrNil(insertionID: nil,
+                                                contentID: "foobar",
+                                                logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
-      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "name": "like",
       "action_type": "LIKE",
@@ -356,10 +434,16 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger!.logUnlikeAction(content: item)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_Action)
+    let impressionID = idMap!.impressionIDOrNil(insertionID: nil,
+                                                contentID: "foobar",
+                                                logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
-      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "name": "unlike",
       "action_type": "UNLIKE",
@@ -376,10 +460,16 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger!.logCommentAction(content: item)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_Action)
+    let impressionID = idMap!.impressionIDOrNil(insertionID: nil,
+                                                contentID: "foobar",
+                                                logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
-      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "name": "comment",
       "action_type": "COMMENT",
@@ -396,10 +486,16 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger!.logMakeOfferAction(item: item)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_Action)
+    let impressionID = idMap!.impressionIDOrNil(insertionID: nil,
+                                                contentID: "foobar",
+                                                logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
-      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "name": "make-offer",
       "action_type": "MAKE_OFFER",
@@ -416,10 +512,16 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger!.logAskQuestionAction(content: item)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_Action)
+    let impressionID = idMap!.impressionIDOrNil(insertionID: nil,
+                                                contentID: "foobar",
+                                                logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
-      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "name": "ask-question",
       "action_type": "ASK_QUESTION",
@@ -436,10 +538,16 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger!.logAnswerQuestionAction(content: item)
     let message = metricsLogger!.logMessages[0]
     XCTAssertTrue(message is Event_Action)
+    let impressionID = idMap!.impressionIDOrNil(insertionID: nil,
+                                                contentID: "foobar",
+                                                logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
-      "impression_id": "\(idMap!.impressionID(contentID: "foobar"))",
+      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "name": "answer-question",
       "action_type": "ANSWER_QUESTION",
@@ -457,6 +565,9 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "name": "sign-in",
@@ -475,6 +586,9 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "name": "sign-up",
@@ -494,7 +608,10 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertTrue(message is Event_View)
     let expectedJSON = """
     {
-      "view_id": "\(idMap!.viewID(viewName: "FakeScreen"))",
+      "timing": {
+        "client_log_timestamp": 123000
+      },
+      "view_id": "\(idMap!.viewID())",
       "session_id": "fake-session-id",
       "name": "FakeScreen",
       "use_case": "SEARCH",
@@ -534,7 +651,8 @@ final class MetricsLoggerTests: XCTestCase {
     ("testBatchFlush", testBatchFlush),
     ("testProperties", testProperties),
     ("testLogUser", testLogUser),
-    ("testLogImpression", testLogImpression),
+    ("testLogImpressionInsertionID", testLogImpressionInsertionID),
+    ("testLogImpressionNoInsertionID", testLogImpressionNoInsertionID),
     ("testLogNavigateAction", testLogNavigateAction),
     ("testLogAddToCartAction", testLogAddToCartAction),
     ("testLogRemoveFromCartAction", testLogRemoveFromCartAction),

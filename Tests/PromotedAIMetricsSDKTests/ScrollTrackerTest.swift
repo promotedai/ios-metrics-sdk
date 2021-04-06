@@ -9,7 +9,7 @@ final class ScrollTrackerTests: XCTestCase {
   
   private var clock: FakeClock?
   private var config: ClientConfig?
-  private var idMap: IDMap?
+  private var idMap: FakeIDMap?
   private var metricsLogger: MetricsLogger?
   private var scrollTracker: ScrollTracker?
   
@@ -17,7 +17,7 @@ final class ScrollTrackerTests: XCTestCase {
     super.setUp()
     clock = FakeClock()
     config = ClientConfig()
-    idMap = SHA1IDMap.instance
+    idMap = FakeIDMap()
     metricsLogger = MetricsLogger(clientConfig: config!,
                                   clock: clock!,
                                   connection: FakeNetworkConnection(),
@@ -45,8 +45,13 @@ final class ScrollTrackerTests: XCTestCase {
     let impression0 = metricsLogger!.logMessages[0] as! Event_Impression
     let impression1 = metricsLogger!.logMessages[1] as! Event_Impression
     let actualSet = Set(arrayLiteral: impression0.impressionID, impression1.impressionID)
-    let expectedSet = Set(arrayLiteral: idMap!.impressionID(contentID: "id0"),
-                          idMap!.impressionID(contentID: "id1"))
+    let expectedSet = Set(arrayLiteral:
+        idMap!.impressionIDOrNil(insertionID: nil,
+                                 contentID: "id0",
+                                 logUserID: "fake-log-user-id"),
+        idMap!.impressionIDOrNil(insertionID: nil,
+                                 contentID: "id1",
+                                 logUserID: "fake-log-user-id"))
     XCTAssertEqual(expectedSet, actualSet)
 
     // Reset viewport to force all views visible on next pass.
@@ -59,7 +64,10 @@ final class ScrollTrackerTests: XCTestCase {
     clock!.advance(to: 3)
     XCTAssertEqual(1, metricsLogger!.logMessages.count)
     let impression = metricsLogger!.logMessages[0] as! Event_Impression
-    XCTAssertEqual(idMap?.impressionID(contentID: "id1"), impression.impressionID)
+    XCTAssertEqual(idMap?.impressionIDOrNil(insertionID: nil,
+                                            contentID: "id1",
+                                            logUserID: "fake-log-user-id"),
+                   impression.impressionID)
   }
   
   func testSetViewportItemNotOnScreen() {
@@ -75,7 +83,10 @@ final class ScrollTrackerTests: XCTestCase {
     clock!.advance(to: 1)
     XCTAssertEqual(1, metricsLogger!.logMessages.count)
     let impression0 = metricsLogger!.logMessages[0] as! Event_Impression
-    XCTAssertEqual(idMap?.impressionID(contentID: "id0"), impression0.impressionID)
+    XCTAssertEqual(idMap?.impressionIDOrNil(insertionID: nil,
+                                            contentID: "id0",
+                                            logUserID: "fake-log-user-id"),
+                   impression0.impressionID)
   }
   
   /// Make sure that frames with 0 area don't cause division by 0.
