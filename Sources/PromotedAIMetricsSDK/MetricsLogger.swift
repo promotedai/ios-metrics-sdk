@@ -60,13 +60,13 @@ public class MetricsLogger: NSObject {
   /// Allows us to read values for session IDs before starting
   /// a session and keep those IDs consistent when the session
   /// does start.
-  private class IDProducer<T> {
-    typealias Producer = () -> T
+  private class IDProducer {
+    typealias Producer = () -> String
     
     private let initialValueProducer: Producer
     private let nextValueProducer: Producer
     private var hasAdvancedFromInitialValue: Bool
-    lazy var currentValue: T = { initialValueProducer() } ()
+    lazy var currentValue: String = { initialValueProducer() } ()
     
     convenience init(producer: @escaping Producer) {
       self.init(initialValueProducer: producer,
@@ -80,7 +80,7 @@ public class MetricsLogger: NSObject {
       self.hasAdvancedFromInitialValue = false
     }
 
-    @discardableResult func nextValue() -> T {
+    @discardableResult func nextValue() -> String {
       if !hasAdvancedFromInitialValue {
         hasAdvancedFromInitialValue = true
         return currentValue
@@ -112,10 +112,10 @@ public class MetricsLogger: NSObject {
   /// called. If read before the first call to `startSession*`,
   /// returns the cached ID from the previous session from
   /// `PeristentStore`.
-  public var logUserID: String? {
+  public var logUserID: String {
     return logUserIDProducer.currentValue
   }
-  private let logUserIDProducer: IDProducer<String?>
+  private let logUserIDProducer: IDProducer
   
   /// Session ID for this session. Updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
@@ -124,7 +124,7 @@ public class MetricsLogger: NSObject {
   public var sessionID: String {
     return sessionIDProducer.currentValue
   }
-  private let sessionIDProducer: IDProducer<String>
+  private let sessionIDProducer: IDProducer
   
   /// View ID for current view. Updated when `logView()` is
   /// called. If read before the first call to `logView()`,
@@ -132,7 +132,7 @@ public class MetricsLogger: NSObject {
   public var viewID: String {
     return viewIDProducer.currentValue
   }
-  private let viewIDProducer: IDProducer<String>
+  private let viewIDProducer: IDProducer
 
   private lazy var deviceMessage: Event_Device = {
     var device = Event_Device()
@@ -238,7 +238,7 @@ public class MetricsLogger: NSObject {
   private func userInfoMessage() -> Common_UserInfo {
     var userInfo = Common_UserInfo()
     if let id = userID { userInfo.userID = id }
-    if let id = logUserID { userInfo.logUserID = id }
+    userInfo.logUserID = logUserID
     return userInfo
   }
   
