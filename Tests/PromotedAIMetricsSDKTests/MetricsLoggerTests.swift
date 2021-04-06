@@ -133,6 +133,18 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertNotEqual(initialLogUserID, metricsLogger!.logUserID)
   }
   
+  func testReadLogUserIDBeforeStartSessionSignedOut() {
+    store!.userID = "foobar"
+    store!.logUserID = "fake-initial-id"
+    idMap!.incrementCounts = true
+    let initialLogUserID = metricsLogger!.logUserID
+    XCTAssertEqual("fake-initial-id", initialLogUserID)
+    metricsLogger!.startSessionSignedOutForTesting()
+    XCTAssertEqual(initialLogUserID, metricsLogger!.logUserID)
+    metricsLogger!.startSessionForTesting(userID: "batman")
+    XCTAssertNotEqual(initialLogUserID, metricsLogger!.logUserID)
+  }
+
   func testBatchFlush() {
     let flushInterval = config!.loggingFlushInterval
     metricsLogger!.startSessionForTesting(userID: "foobar")
@@ -671,6 +683,7 @@ final class MetricsLoggerTests: XCTestCase {
     ("testStartSessionSignInThenSignOut", testStartSessionSignInThenSignOut),
     ("testStartSessionSignOutThenSignIn", testStartSessionSignOutThenSignIn),
     ("testReadLogUserIDBeforeStartSessionWithUserID", testReadLogUserIDBeforeStartSessionWithUserID),
+    ("testReadLogUserIDBeforeStartSessionSignedOut", testReadLogUserIDBeforeStartSessionSignedOut),
     ("testBatchFlush", testBatchFlush),
     ("testProperties", testProperties),
     ("testLogUser", testLogUser),
