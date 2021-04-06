@@ -231,11 +231,8 @@ public class MetricsLogger: NSObject {
     // Reads logUserID from store for initial value, if available.
     let logUserID = logUserIDProducer.nextValue()
 
-    // Write to store if current values differ.
-    if userID != store.userID || logUserID != store.logUserID {
-      store.userID = userID
-      store.logUserID = logUserID
-    }
+    if userID != store.userID { store.userID = userID }
+    if logUserID != store.logUserID { store.logUserID = logUserID }
   }
   
   private func userInfoMessage() -> Common_UserInfo {
