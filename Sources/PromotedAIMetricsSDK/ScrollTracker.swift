@@ -182,7 +182,7 @@ public extension ScrollTracker {
                    clientConfig: ClientConfig,
                    clock: Clock,
                    collectionView: UICollectionView) {
-    self.init(metricsLogger: metricsLogger, clock: clock)
+    self.init(metricsLogger: metricsLogger, clientConfig: clientConfig, clock: clock)
     set(scrollView: collectionView, collectionView: collectionView)
   }
   
@@ -190,7 +190,7 @@ public extension ScrollTracker {
                    clientConfig: ClientConfig,
                    clock: Clock,
                    scrollView: UIScrollView) {
-    self.init(metricsLogger: metricsLogger, clock: clock)
+    self.init(metricsLogger: metricsLogger, clientConfig: clientConfig, clock: clock)
     set(scrollView: scrollView, collectionView: nil)
   }
 
