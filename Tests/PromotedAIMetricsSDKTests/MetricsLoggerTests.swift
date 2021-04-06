@@ -144,6 +144,32 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger!.startSessionForTesting(userID: "batman")
     XCTAssertNotEqual(initialLogUserID, metricsLogger!.logUserID)
   }
+  
+  func testReadLogUserIDBeforeStartSessionSignedOutNoPreviousLogUserID() {
+    store!.userID = nil
+    store!.logUserID = nil
+    idMap!.incrementCounts = true
+    // This should generate a new, non-nil logUserID.
+    let initialLogUserID = metricsLogger!.logUserID
+    XCTAssertEqual("fake-log-user-id-1", initialLogUserID)
+    metricsLogger!.startSessionSignedOutForTesting()
+    XCTAssertEqual(initialLogUserID, metricsLogger!.logUserID)
+    metricsLogger!.startSessionForTesting(userID: "batman")
+    XCTAssertNotEqual(initialLogUserID, metricsLogger!.logUserID)
+  }
+  
+  func testReadLogUserIDBeforeStartSessionSignedOutStaySignedOut() {
+    store!.userID = nil
+    store!.logUserID = nil
+    idMap!.incrementCounts = true
+    // This should generate a new, non-nil logUserID.
+    let initialLogUserID = metricsLogger!.logUserID
+    XCTAssertEqual("fake-log-user-id-1", initialLogUserID)
+    metricsLogger!.startSessionSignedOutForTesting()
+    XCTAssertEqual(initialLogUserID, metricsLogger!.logUserID)
+    metricsLogger!.startSessionSignedOutForTesting()
+    XCTAssertNotEqual(initialLogUserID, metricsLogger!.logUserID)
+  }
 
   func testBatchFlush() {
     let flushInterval = config!.loggingFlushInterval
@@ -684,6 +710,8 @@ final class MetricsLoggerTests: XCTestCase {
     ("testStartSessionSignOutThenSignIn", testStartSessionSignOutThenSignIn),
     ("testReadLogUserIDBeforeStartSessionWithUserID", testReadLogUserIDBeforeStartSessionWithUserID),
     ("testReadLogUserIDBeforeStartSessionSignedOut", testReadLogUserIDBeforeStartSessionSignedOut),
+    ("testReadLogUserIDBeforeStartSessionSignedOutNoPreviousLogUserID", testReadLogUserIDBeforeStartSessionSignedOutNoPreviousLogUserID),
+    ("testReadLogUserIDBeforeStartSessionSignedOutStaySignedOut", testReadLogUserIDBeforeStartSessionSignedOutStaySignedOut),
     ("testBatchFlush", testBatchFlush),
     ("testProperties", testProperties),
     ("testLogUser", testLogUser),

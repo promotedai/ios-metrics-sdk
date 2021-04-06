@@ -57,6 +57,9 @@ public class MetricsLogger: NSObject {
   public typealias ViewControllerType = AnyObject
   #endif
 
+  /// Allows us to read values for session IDs before starting
+  /// a session and keep those IDs consistent when the session
+  /// does start.
   private class IDProducer<T> {
     typealias Producer = () -> T
     
