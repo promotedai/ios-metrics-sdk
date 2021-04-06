@@ -14,29 +14,26 @@ public protocol IDMap {
   /// Given a client-side user ID, generate a log user ID which
   /// is used to track the the current session without exposing
   /// the underlying user ID.
-  /// Returns the null UUID string when passed `nil`.
-  func logUserID(userID: String?) -> String
+  func logUserID() -> String
   
   func sessionID() -> String
 
-  /// Given a client-side ID, generate a server-side impression ID.
-  /// Returns the null UUID string when passed `nil`.
-  func impressionID(contentID: String?) -> String
-  
+  /// Given possible input sources, generate a server-side impression ID.
+  /// Returns `nil` if no impression ID is generated from inputs.
+  ///
+  func impressionIDOrNil(insertionID: String?,
+                         contentID: String?,
+                         logUserID: String?) -> String?
+
+  /// Given a client's content ID, generates a content ID to log.
+  func contentID(clientID: String) -> String
+
   /// Generates a new click ID.
   func actionID() -> String
   
   /// Generates a new view ID.
   /// Returns the null UUID string when passed `nil`.
-  func viewID(viewName: String?) -> String
-}
-
-public extension IDMap {
-  /// Same as `impressionID(clientID:)`, but returns `nil` on `nil` input.
-  func impressionIDOrNil(contentID: String?) -> String? {
-    if let contentID = contentID { return impressionID(contentID: contentID) }
-    return nil
-  }
+  func viewID() -> String
 }
 
 // MARK: -
@@ -54,7 +51,7 @@ open class AbstractIDMap: IDMap {
     return ""
   }
 
-  open func logUserID(userID: String?) -> String {
+  open func logUserID() -> String {
     return UUID().uuidString
   }
   
@@ -62,16 +59,29 @@ open class AbstractIDMap: IDMap {
     return UUID().uuidString
   }
 
-  open func impressionID(contentID: String?) -> String {
-    return deterministicUUIDString(value: contentID)
+  open func impressionIDOrNil(insertionID: String?,
+                              contentID: String?,
+                              logUserID: String?) -> String? {
+    if let insertionID = insertionID {
+      return deterministicUUIDString(value: insertionID)
+    }
+    if let contentID = contentID, let logUserID = logUserID {
+      let combined = contentID + logUserID
+      return deterministicUUIDString(value: combined)
+    }
+    return nil
+  }
+  
+  open func contentID(clientID: String) -> String {
+    return deterministicUUIDString(value: clientID)
   }
   
   open func actionID() -> String {
     return UUID().uuidString
   }
   
-  open func viewID(viewName: String?) -> String {
-    return deterministicUUIDString(value: viewName)
+  open func viewID() -> String {
+    return UUID().uuidString
   }
 }
 

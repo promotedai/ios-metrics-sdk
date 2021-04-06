@@ -175,7 +175,7 @@ public class MetricsLogger: NSObject {
       }
     }
     store.userID = userID
-    let newLogUserID = idMap.logUserID(userID: userID)
+    let newLogUserID = idMap.logUserID()
     store.logUserID = newLogUserID
     self.logUserID = newLogUserID
   }
@@ -252,13 +252,15 @@ public extension MetricsLogger {
                      viewID: String? = nil,
                      properties: Message? = nil) {
     var impression = Event_Impression()
-    let mappedContentID = idMap.impressionID(contentID: contentID)
-    impression.impressionID = mappedContentID
+    let mappedContentID = idMap.impressionIDOrNil(insertionID: insertionID,
+                                                  contentID: contentID,
+                                                  logUserID: logUserID)
+    if let id = mappedContentID { impression.impressionID = id }
     if let id = insertionID { impression.insertionID = id }
     if let id = requestID { impression.requestID = id }
     if let id = sessionID { impression.sessionID = id }
     if let id = viewID { impression.viewID = id }
-    impression.contentID = mappedContentID
+    impression.contentID = idMap.contentID(clientID: contentID)
     if let properties = Self.propertiesWrapperMessage(properties) {
       impression.properties = properties
     }
@@ -291,7 +293,9 @@ public extension MetricsLogger {
                  properties: Message? = nil) {
     var action = Event_Action()
     action.actionID = idMap.actionID()
-    let impressionID = idMap.impressionIDOrNil(contentID: contentID)
+    let impressionID = idMap.impressionIDOrNil(insertionID: insertionID,
+                                                  contentID: contentID,
+                                                  logUserID: logUserID)
     if let id = impressionID { action.impressionID = id }
     if let id = insertionID { action.insertionID = id }
     if let id = requestID { action.requestID = id }
@@ -330,7 +334,7 @@ public extension MetricsLogger {
                useCase: UseCase? = nil,
                properties: Message? = nil) {
     var view = Event_View()
-    view.viewID = idMap.viewID(viewName: name)
+    view.viewID = idMap.viewID()
     if let id = sessionID { view.sessionID = id }
     view.name = name
     if let use = useCase?.protoValue { view.useCase = use }
