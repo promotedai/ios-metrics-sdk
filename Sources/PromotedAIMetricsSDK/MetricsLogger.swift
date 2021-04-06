@@ -187,6 +187,12 @@ public class MetricsLogger: NSObject {
     if let id = logUserID { userInfo.logUserID = id }
     return userInfo
   }
+  
+  private func timingMessage() -> Common_Timing {
+    var timing = Common_Timing()
+    timing.clientLogTimestamp = clock.nowMillis
+    return timing
+  }
 
   private static func propertiesWrapperMessage(_ message: Message?)
       -> Common_Properties? {
@@ -219,6 +225,7 @@ public extension MetricsLogger {
   ///   - data: Client-specific message
   func logUser(properties: Message? = nil) {
     var user = Event_User()
+    user.timing = timingMessage()
     if let properties = Self.propertiesWrapperMessage(properties) {
       user.properties = properties
     }
@@ -228,6 +235,7 @@ public extension MetricsLogger {
   func logSession(properties: Message? = nil) {
     assert(sessionID != nil, "Call startSession* before any log* methods")
     var session = Event_Session()
+    session.timing = timingMessage()
     if let id = sessionID { session.sessionID = id }
     session.startEpochMillis = clock.nowMillis
     if let properties = Self.propertiesWrapperMessage(properties) {
@@ -246,21 +254,23 @@ public extension MetricsLogger {
   ///   - contentID: Content ID from which to derive `impressionID`
   ///   - insertionID: Insertion ID as provided by Promoted
   ///   - data: Client-specific message
-  func logImpression(contentID: String,
+  func logImpression(contentID: String? = nil,
                      insertionID: String? = nil,
                      requestID: String? = nil,
                      viewID: String? = nil,
                      properties: Message? = nil) {
+    let optionalID = idMap.impressionIDOrNil(insertionID: insertionID,
+                                             contentID: contentID,
+                                             logUserID: logUserID)
+    guard let impressionID = optionalID else { return }
     var impression = Event_Impression()
-    let mappedContentID = idMap.impressionIDOrNil(insertionID: insertionID,
-                                                  contentID: contentID,
-                                                  logUserID: logUserID)
-    if let id = mappedContentID { impression.impressionID = id }
+    impression.timing = timingMessage()
+    impression.impressionID = impressionID
     if let id = insertionID { impression.insertionID = id }
     if let id = requestID { impression.requestID = id }
     if let id = sessionID { impression.sessionID = id }
     if let id = viewID { impression.viewID = id }
-    impression.contentID = idMap.contentID(clientID: contentID)
+    if let id = contentID { impression.contentID = idMap.contentID(clientID: id) }
     if let properties = Self.propertiesWrapperMessage(properties) {
       impression.properties = properties
     }
@@ -292,6 +302,7 @@ public extension MetricsLogger {
                  elementID: String? = nil,
                  properties: Message? = nil) {
     var action = Event_Action()
+    action.timing = timingMessage()
     action.actionID = idMap.actionID()
     let impressionID = idMap.impressionIDOrNil(insertionID: insertionID,
                                                contentID: contentID,
@@ -334,6 +345,7 @@ public extension MetricsLogger {
                useCase: UseCase? = nil,
                properties: Message? = nil) {
     var view = Event_View()
+    view.timing = timingMessage()
     view.viewID = idMap.viewID()
     if let id = sessionID { view.sessionID = id }
     view.name = name

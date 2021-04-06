@@ -27,6 +27,7 @@ final class MetricsLoggerTests: XCTestCase {
     config!.metricsLoggingURL = "http://fake.promoted.ai/metrics"
     connection = FakeNetworkConnection()
     clock = FakeClock()
+    clock!.advance(to: 123)
     idMap = FakeIDMap()
     store = FakePersistentStore()
     store!.userID = nil
@@ -191,6 +192,9 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertTrue(message is Event_User)
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      }
     }
     """
     XCTAssertEqual(try Event_User(jsonString: expectedJSON),
@@ -208,6 +212,9 @@ final class MetricsLoggerTests: XCTestCase {
                                                 logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "impression_id": "\(impressionID)",
       "insertion_id": "insertion!",
       "content_id": "\(idMap!.contentID(clientID: "foobar"))",
@@ -229,6 +236,9 @@ final class MetricsLoggerTests: XCTestCase {
                                                 logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "impression_id": "\(impressionID)",
       "content_id": "\(idMap!.contentID(clientID: "foobar"))",
       "session_id": "fake-session-id"
@@ -250,6 +260,9 @@ final class MetricsLoggerTests: XCTestCase {
                                                 logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
@@ -275,6 +288,9 @@ final class MetricsLoggerTests: XCTestCase {
                                                 logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
@@ -298,6 +314,9 @@ final class MetricsLoggerTests: XCTestCase {
                                                 logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
@@ -317,6 +336,9 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "name": "checkout",
@@ -339,6 +361,9 @@ final class MetricsLoggerTests: XCTestCase {
                                                 logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
@@ -362,6 +387,9 @@ final class MetricsLoggerTests: XCTestCase {
                                                 logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
@@ -385,6 +413,9 @@ final class MetricsLoggerTests: XCTestCase {
                                                 logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
@@ -408,6 +439,9 @@ final class MetricsLoggerTests: XCTestCase {
                                                 logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
@@ -431,6 +465,9 @@ final class MetricsLoggerTests: XCTestCase {
                                                 logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
@@ -454,6 +491,9 @@ final class MetricsLoggerTests: XCTestCase {
                                                 logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
@@ -477,6 +517,9 @@ final class MetricsLoggerTests: XCTestCase {
                                                 logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
@@ -500,6 +543,9 @@ final class MetricsLoggerTests: XCTestCase {
                                                 logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
@@ -519,6 +565,9 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "name": "sign-in",
@@ -537,6 +586,9 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "name": "sign-up",
@@ -556,6 +608,9 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertTrue(message is Event_View)
     let expectedJSON = """
     {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
       "view_id": "\(idMap!.viewID())",
       "session_id": "fake-session-id",
       "name": "FakeScreen",
