@@ -45,7 +45,8 @@ final class NetworkConnectionTests: XCTestCase {
   }
     
   func testURLRequestAPIKey() {
-    config!.metricsLoggingAPIKey = "key!"
+    config!.devMetricsLoggingAPIKey = "key!"
+    config!.metricsLoggingAPIKey = config!.devMetricsLoggingAPIKey
     let url = URL(string: "http://promoted.ai")!
     let data = "foobar".data(using: .utf8)!
     let request = connection?.urlRequest(url: url, data: data, clientConfig: config!)
