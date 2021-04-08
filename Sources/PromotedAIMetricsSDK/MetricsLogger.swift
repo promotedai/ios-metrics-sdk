@@ -164,10 +164,6 @@ public class MetricsLogger: NSObject {
     self.store = store
     self.logMessages = []
     self.userID = nil
-<<<<<<< HEAD
-    self.logUserID = nil
-    self.sessionID = nil
-=======
     self.logUserIDProducer = IDProducer(initialValueProducer: {
       return store.logUserID ?? idMap.logUserID()
     }, nextValueProducer: {
@@ -175,7 +171,6 @@ public class MetricsLogger: NSObject {
     })
     self.sessionIDProducer = IDProducer { return idMap.sessionID() }
     self.viewIDProducer = IDProducer { return idMap.viewID() }
->>>>>>> main
   }
 
   // MARK: - Starting new sessions
@@ -503,10 +498,6 @@ public extension MetricsLogger {
     let eventsCopy = logMessages
     logMessages.removeAll()
     let request = logRequestMessage(events: eventsCopy)
-<<<<<<< HEAD
-    guard let url = URL(string: config.metricsLoggingURL) else { return }
-=======
->>>>>>> main
     do {
       try connection.sendMessage(request, clientConfig: config) {
           [weak self] (data, error) in

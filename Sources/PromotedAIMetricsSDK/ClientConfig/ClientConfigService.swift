@@ -1,17 +1,5 @@
 import Foundation
 
-// MARK: - ClientConfigReference
-/**
- Allows for keypath access to all of a client config's fields.
- Clients can save a reference to this object and its properties
- will automatically update when the `ClientConfigService`'s
- `config` updates.
- */
-public class ClientConfigReference {
-  fileprivate var wrappedConfig: ClientConfig
-  
-}
-
 // MARK: - ClientConfigListener
 public protocol ClientConfigListener: class {
   func clientConfigDidChange(_ config: ClientConfig)

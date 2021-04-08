@@ -19,12 +19,6 @@ public protocol IDMap {
   /// Generates a new session ID.
   func sessionID() -> String
 
-<<<<<<< HEAD
-  /// Given a client-side ID, generates a server-side impression ID.
-  /// Returns the null UUID string when passed `nil`.
-  func impressionID(contentID: String?) -> String
-  
-=======
   /// Given possible input sources, generate a server-side impression ID.
   /// If `insertionID` is not `nil`, then generates an impression ID based
   /// on `insertionID`. If `contentID` and `logUserID` are both not `nil`,
@@ -37,7 +31,6 @@ public protocol IDMap {
   /// Given a client's content ID, generates a content ID to log.
   func contentID(clientID: String) -> String
 
->>>>>>> main
   /// Generates a new click ID.
   func actionID() -> String
   

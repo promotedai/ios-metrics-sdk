@@ -17,17 +17,12 @@ final class ScrollTrackerTests: XCTestCase {
   public override func setUp() {
     super.setUp()
     clock = FakeClock()
-<<<<<<< HEAD
-    idMap = SHA1IDMap.instance
-    metricsLogger = MetricsLogger(clientConfig: LocalClientConfig(),
-=======
-    config = ClientConfig()
+    config = LocalClientConfig()
     idMap = FakeIDMap()
     store = FakePersistentStore()
     store!.userID = "foobar"
     store!.logUserID = "fake-log-user-id"
     metricsLogger = MetricsLogger(clientConfig: config!,
->>>>>>> main
                                   clock: clock!,
                                   connection: FakeNetworkConnection(),
                                   deviceInfo: FakeDeviceInfo(),
