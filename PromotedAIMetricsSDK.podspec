@@ -23,7 +23,6 @@ Pod::Spec.new do |s|
   s.source_files = ['Sources/PromotedAIMetricsSDK/**/*.{h,m,swift}']
   s.swift_version = '5.2'
 
-  s.dependency 'Firebase/RemoteConfig', '~> 7.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.5.0'
   s.dependency 'SwiftProtobuf', '~> 1.15.0'
 end
