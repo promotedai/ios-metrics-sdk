@@ -57,7 +57,7 @@ final class ImpressionLoggerTests: XCTestCase {
     clock = FakeClock()
     delegate = Delegate()
     idMap = SHA1IDMap.instance
-    metricsLogger = MetricsLogger(clientConfig: LocalClientConfig(),
+    metricsLogger = MetricsLogger(clientConfig: ClientConfig(),
                                   clock: clock!,
                                   connection: FakeNetworkConnection(),
                                   deviceInfo: FakeDeviceInfo(),

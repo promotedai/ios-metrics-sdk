@@ -17,7 +17,7 @@ final class ScrollTrackerTests: XCTestCase {
   public override func setUp() {
     super.setUp()
     clock = FakeClock()
-    config = LocalClientConfig()
+    config = ClientConfig()
     idMap = FakeIDMap()
     store = FakePersistentStore()
     store!.userID = "foobar"

@@ -51,14 +51,14 @@ public class ClientConfig: NSObject {
   /// Used when the app is running in debug configuration.
   @objc public var devMetricsLoggingAPIKey: String = ""
 
+  /// Format to use when sending protobuf log messages over network.
   public enum MetricsLoggingWireFormat: Int {
+    /// https://developers.google.com/protocol-buffers/docs/proto3#json
     case json = 1
+    /// https://developers.google.com/protocol-buffers/docs/encoding
     case binary = 2
   }
   /// Format to use when sending protobuf log messages over network.
-  ///
-  /// - https://developers.google.com/protocol-buffers/docs/encoding
-  /// - https://developers.google.com/protocol-buffers/docs/proto3#json
   public var metricsLoggingWireFormat: MetricsLoggingWireFormat = .binary
   
   /// Interval at which log messages are sent over the network.

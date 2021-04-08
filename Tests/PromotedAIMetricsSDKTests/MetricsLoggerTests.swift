@@ -14,7 +14,7 @@ final class MetricsLoggerTests: XCTestCase {
   private class FakeScreenViewController {}
   #endif
   
-  private var config: LocalClientConfig?
+  private var config: ClientConfig?
   private var connection: FakeNetworkConnection?
   private var clock: FakeClock?
   private var idMap: FakeIDMap?
@@ -23,7 +23,7 @@ final class MetricsLoggerTests: XCTestCase {
   
   public override func setUp() {
     super.setUp()
-    config = LocalClientConfig()
+    config = ClientConfig()
     config!.metricsLoggingURL = "http://fake.promoted.ai/metrics"
     connection = FakeNetworkConnection()
     clock = FakeClock()
