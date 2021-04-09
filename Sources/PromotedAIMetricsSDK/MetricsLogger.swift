@@ -1,10 +1,6 @@
 import Foundation
 import SwiftProtobuf
 
-#if canImport(UIKit)
-import UIKit
-#endif
-
 // MARK: -
 /**
  Promoted event logging interface. Use instances of `MetricsLogger`
@@ -50,45 +46,6 @@ import UIKit
  */
 @objc(PROMetricsLogger)
 public class MetricsLogger: NSObject {
-
-  #if canImport(UIKit)
-  public typealias ViewControllerType = UIViewController
-  #else
-  public typealias ViewControllerType = AnyObject
-  #endif
-
-  /// Allows us to read values for session IDs before starting
-  /// a session and keep those IDs consistent when the session
-  /// does start.
-  private class IDProducer {
-    typealias Producer = () -> String
-    
-    private let initialValueProducer: Producer
-    private let nextValueProducer: Producer
-    private var hasAdvancedFromInitialValue: Bool
-    lazy var currentValue: String = { initialValueProducer() } ()
-    
-    convenience init(producer: @escaping Producer) {
-      self.init(initialValueProducer: producer,
-                nextValueProducer: producer)
-    }
-    
-    init(initialValueProducer: @escaping Producer,
-         nextValueProducer: @escaping Producer) {
-      self.initialValueProducer = initialValueProducer
-      self.nextValueProducer = nextValueProducer
-      self.hasAdvancedFromInitialValue = false
-    }
-
-    @discardableResult func nextValue() -> String {
-      if !hasAdvancedFromInitialValue {
-        hasAdvancedFromInitialValue = true
-        return currentValue
-      }
-      currentValue = nextValueProducer()
-      return currentValue
-    }
-  }
 
   private let clock: Clock
   private let config: ClientConfig
@@ -191,6 +148,13 @@ public class MetricsLogger: NSObject {
     startSessionSignedOut()
     logUser()
     logSession()
+  }
+  
+  /// Groups a series of log messages with the same view, session,
+  /// and user context. Avoids doing multiple checks for this
+  /// context when logging a large number of events.
+  func batchLog(_ block: () -> Void) {
+    block()
   }
 
   /// Starts a new session with the given `userID`.
@@ -404,9 +368,11 @@ public extension MetricsLogger {
   ///   - name: Name for view, human readable
   ///   - useCase: Use case for view
   ///   - properties: Client-specific message
-  func logView(name: String,
-               useCase: UseCase? = nil,
-               properties: Message? = nil) {
+  internal func logView(name: String,
+                        useCase: UseCase? = nil,
+                        properties: Message? = nil,
+                        trackerKey: ViewTracker.Key) {
+    // viewTracker.trackView(key: trackerKey)
     var view = Event_View()
     view.timing = timingMessage()
     view.viewID = viewIDProducer.nextValue()
