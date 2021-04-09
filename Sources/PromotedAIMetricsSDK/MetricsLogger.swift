@@ -383,6 +383,7 @@ public extension MetricsLogger {
     view.device = deviceMessage
     view.viewType = .appScreen
     let appScreenView = Event_AppScreenView()
+    // TODO(yu-hong): Fill out AppScreenView.
     view.appScreenView = appScreenView
     log(message: view)
   }
