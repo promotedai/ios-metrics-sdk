@@ -8,12 +8,12 @@ public extension UIViewController {
   
   /// Returns the shared `MetricsLogger`.
   @objc var promotedLogger: MetricsLogger {
-    return MetricsLoggerService.sharedService.metricsLogger
+    return MetricsLoggerService.shared.metricsLogger
   }
   
   /// Returns the shared `MetricsLoggerService`.
   @objc var promotedLoggerService: MetricsLoggerService {
-    return MetricsLoggerService.sharedService
+    return MetricsLoggerService.shared
   }
   
   /// Logs a view for self as a view controller.
