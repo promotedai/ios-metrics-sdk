@@ -14,7 +14,6 @@ public class ViewTracker {
   public enum Key: Equatable {
     case uiKit(viewController: ViewControllerType, useCase: UseCase? = nil)
     case reactNative(name: String, key: String? = nil, useCase: UseCase? = nil)
-    case pending
   }
   
   /// Current state of view stack that can be translated to a View event.
@@ -31,9 +30,6 @@ public class ViewTracker {
       case .reactNative(let name, _, let useCase):
         self.name = name
         self.useCase = useCase
-      case .pending:
-        self.name = "Unnamed"
-        self.useCase = nil
       }
       self.viewID = stackEntry.viewID
     }
@@ -50,21 +46,23 @@ public class ViewTracker {
   fileprivate var viewStack: Stack
   
   var viewID: String {
-    return viewStack.last!.viewID
+    return viewStack.top?.viewID ?? viewIDProducer.currentValue
   }
   
   init(viewIDProducer: IDProducer) {
     self.viewIDProducer = viewIDProducer
-    let entry = StackEntry(viewKey: .pending, viewID: viewIDProducer.currentValue)
-    self.viewStack = [entry]
+    self.viewStack = []
   }
 
+  /// Manually tracks a view, then returns a `State` if this call
+  /// caused the state of the view stack to change since the last
+  /// call to `trackView(key:)` or `updateState()`.
   func trackView(key: Key) -> State? {
-    if key == viewStack.top.viewKey {
+    if key == viewStack.top?.viewKey {
       return nil
     }
     if viewStack.popTo(key: key) {
-      return State(stackEntry: viewStack.top)
+      return State(stackEntry: viewStack.top!)
     }
     let top = StackEntry(viewKey: key, viewID: viewIDProducer.nextValue())
     viewStack.push(top)
@@ -72,26 +70,24 @@ public class ViewTracker {
   }
 
   /// Returns `State` if it has changed since the last call to
-  /// `trackView(key:)` or `updatedState()`.
-  func updatedState() -> State? {
+  /// `trackView(key:)` or `updateState()`.
+  func updateState() -> State? {
     let previousStack = viewStack
     viewStack = updatedViewStack(previousStack: previousStack)
-    let newTop = viewStack.top
-    if previousStack.top != newTop {
-      return State(stackEntry: newTop)
-    }
-    return nil
+    guard let newTop = viewStack.top else { return nil }
+    if previousStack.top == newTop { return nil }
+    return State(stackEntry: newTop)
   }
 
   fileprivate func updatedViewStack(previousStack: Stack) -> Stack {
-    assertionFailure("Do not instantiate ViewTracker")
+    assertionFailure("Don't instantiate ViewTracker")
     return previousStack
   }
 }
 
 // MARK: - Stack
 fileprivate extension ViewTracker.Stack {
-  var top: ViewTracker.StackEntry { return last! }
+  var top: ViewTracker.StackEntry? { return last }
   
   mutating func push(_ entry: ViewTracker.StackEntry) {
     append(entry)
@@ -122,9 +118,12 @@ fileprivate extension ViewTracker.Stack {
     }
   }
 
+  /// Pops off the stack until given index is at the top.
+  ///
+  /// - Postcondition: !isEmpty
   mutating func popTo(index: Int) -> Bool {
     let removalCount = count - 1 - index
-    guard removalCount > 0 else { return false }
+    guard (removalCount > 0) && (removalCount < count) else { return false }
     removeLast(removalCount)
     return true
   }
@@ -149,8 +148,6 @@ fileprivate extension ViewTracker.Stack {
       return popTo(viewController: viewController)
     case .reactNative(_, let reactNativeKey, _):
       if let k = reactNativeKey { return popTo(reactNativeKey: k) }
-    case .pending:
-      return false
     }
     return false
   }
@@ -179,6 +176,7 @@ public class UIKitViewTracker: ViewTracker {
         vc = tc.selectedViewController
       } else {
         stack.append(viewController)
+        break
       }
     }
     #endif

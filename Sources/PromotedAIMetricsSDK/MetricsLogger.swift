@@ -357,7 +357,8 @@ public extension MetricsLogger {
     log(message: action)
   }
 
-  /// Logs a view event if the given key is .
+  /// Logs a view event if the given key causes a state change in
+  /// the `ViewTracker`.
   ///
   /// Autogenerates the following fields:
   /// - `timing` from `clock.nowMillis`
@@ -370,13 +371,18 @@ public extension MetricsLogger {
   ///   - trackerKey: ViewTracker.Key that specifies view.
   ///   - properties: Client-specific message
   internal func logView(trackerKey: ViewTracker.Key, properties: Message? = nil) {
-    guard let state = viewTracker.trackView(key: trackerKey) else { return }
+    if let state = viewTracker.trackView(key: trackerKey) {
+      logView(trackerState: state, properties: properties)
+    }
+  }
+
+  private func logView(trackerState: ViewTracker.State, properties: Message? = nil) {
     var view = Event_View()
     view.timing = timingMessage()
-    view.viewID = state.viewID
+    view.viewID = trackerState.viewID
     view.sessionID = sessionID
-    view.name = state.name
-    if let use = state.useCase?.protoValue { view.useCase = use }
+    view.name = trackerState.name
+    if let use = trackerState.useCase?.protoValue { view.useCase = use }
     if let properties = Self.propertiesWrapperMessage(properties) {
       view.properties = properties
     }
@@ -386,6 +392,12 @@ public extension MetricsLogger {
     // TODO(yu-hong): Fill out AppScreenView.
     view.appScreenView = appScreenView
     log(message: view)
+  }
+  
+  private func ensureViewStateInSync() {
+    if let state = viewTracker.updateState() {
+      logView(trackerState: state)
+    }
   }
 }
 
