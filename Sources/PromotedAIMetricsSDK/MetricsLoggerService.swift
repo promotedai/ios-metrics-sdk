@@ -1,5 +1,9 @@
 import Foundation
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
 // MARK: -
 /**
  Configures a logging session and its associated `MetricsLogger`.
