@@ -32,11 +32,11 @@ import Foundation
  let impressionLogger = service.impressionLogger()
  ~~~
  
- ## Example (using sharedService):
+ ## Example (using shared service):
  ~~~
  // Call this first before accessing the instance.
  MetricsLoggerService.startServices(initialConfig: ...)
- let service = MetricsLoggerService.sharedService
+ let service = MetricsLoggerService.shared
  let logger = service.metricsLogger
  let impressionLogger = service.impressionLogger()
  ~~~
@@ -135,14 +135,14 @@ public class MetricsLoggerService: NSObject {
 // MARK: - Singleton support for `MetricsLoggingService`
 public extension MetricsLoggerService {
 
-  static var clientConfigService: ClientConfigService?
+  private static var clientConfigService: ClientConfigService?
   
   /// Call this to start logging services, prior to accessing `sharedService`.
   ///
   /// - SeeAlso: `startLoggingServices()`
   @objc static func startServices(initialConfig: ClientConfig) {
     self.clientConfigService = LocalClientConfigService(initialConfig: initialConfig)
-    self.sharedService.startLoggingServices()
+    self.shared.startLoggingServices()
   }
   
   /// Call this to start logging services, prior to accessing `sharedService`.
@@ -150,12 +150,13 @@ public extension MetricsLoggerService {
   /// - SeeAlso: `startLoggingServices()`
   static func startServices(clientConfigService: ClientConfigService) {
     self.clientConfigService = clientConfigService
-    self.sharedService.startLoggingServices()
+    self.shared.startLoggingServices()
   }
 
   /// Returns the shared logger. Causes error if `startServices` was not called.
-  @objc static let sharedService: MetricsLoggerService = {
-    assert(clientConfigService != nil, "Call startServices() before accessing sharedService")
+  @objc(sharedService)
+  static let shared: MetricsLoggerService = {
+    assert(clientConfigService != nil, "Call startServices() before accessing shared service")
     return MetricsLoggerService(clientConfigService: clientConfigService!)
   } ()
 }
