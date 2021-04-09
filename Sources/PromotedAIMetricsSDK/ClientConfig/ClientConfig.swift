@@ -3,10 +3,13 @@ import Foundation
 /**
  Configuration for Promoted logging library internal behavior.
  
- Properties on this object can change when `ClientConfigService`
- loads from asynchronous sources. For this reason, users
- should only cache instances of the `ClientConfig` from the
- active `ClientConfigService`, and not any other instances.
+ Properties on the instance of `ClientConfig` obtained from
+ `ClientConfigService` can change when the service loads from
+ asynchronous sources. Users of this class may cache instances
+ of the `ClientConfig` from the active `ClientConfigService`
+ and repeatedly read values from the `ClientConfig`, and the
+ values read will always be up to date.
+ 
  Users should also be careful to read and cache values from
  this class in a way that takes into account the dynamic nature
  of these properties. Use KVO to listen for changes to any
@@ -79,13 +82,4 @@ public class ClientConfig: NSObject {
   public var scrollTrackerUpdateFrequency: TimeInterval = 0.5
   
   @objc public override init() {}
-  
-  func copyFrom(_ other: ClientConfig) {
-    let mirror = Mirror(reflecting: other)
-    for (label, value) in mirror.children {
-      if let label = label {
-        self.setValue(value, forKey: label)
-      }
-    }
-  }
 }

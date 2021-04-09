@@ -186,7 +186,6 @@ public class ImpressionLogger: NSObject {
       impressionStarts[content] = now
     }
     for impression in impressions {
-      print("***** Impression: \(impression.content)")
       metricsLogger.logImpression(content: impression.content)
     }
     delegate?.impressionLogger(self, didStartImpressions: impressions)
