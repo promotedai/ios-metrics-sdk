@@ -87,9 +87,9 @@ public class MetricsLogger: NSObject {
   /// called. If read before the first call to `logView()`,
   /// returns an ID that will be used for the first view.
   public var viewID: String {
-    return viewIDProducer.currentValue
+    return viewTracker.viewID
   }
-  private let viewIDProducer: IDProducer
+  private let viewTracker: ViewTracker
 
   private lazy var deviceMessage: Event_Device = {
     var device = Event_Device()
@@ -127,7 +127,8 @@ public class MetricsLogger: NSObject {
       return idMap.logUserID()
     })
     self.sessionIDProducer = IDProducer { return idMap.sessionID() }
-    self.viewIDProducer = IDProducer { return idMap.viewID() }
+    let viewIDProducer = IDProducer { return idMap.viewID() }
+    self.viewTracker = ViewTracker(viewIDProducer: viewIDProducer)
   }
 
   // MARK: - Starting new sessions
@@ -356,29 +357,26 @@ public extension MetricsLogger {
     log(message: action)
   }
 
-  /// Logs a view event.
+  /// Logs a view event if the given key is .
   ///
   /// Autogenerates the following fields:
   /// - `timing` from `clock.nowMillis`
-  /// - `viewID` as a UUID
+  /// - `viewID` as a UUID when a new view is logged, re-used from
+  ///    previous state when the key already exists
   /// - `sessionID` from state in this logger
   /// - `device` from `DeviceInfo` on current system
   ///
   /// - Parameters:
-  ///   - name: Name for view, human readable
-  ///   - useCase: Use case for view
+  ///   - trackerKey: ViewTracker.Key that specifies view.
   ///   - properties: Client-specific message
-  internal func logView(name: String,
-                        useCase: UseCase? = nil,
-                        properties: Message? = nil,
-                        trackerKey: ViewTracker.Key) {
-    // viewTracker.trackView(key: trackerKey)
+  internal func logView(trackerKey: ViewTracker.Key, properties: Message? = nil) {
+    guard let state = viewTracker.trackView(key: trackerKey) else { return }
     var view = Event_View()
     view.timing = timingMessage()
-    view.viewID = viewIDProducer.nextValue()
+    view.viewID = state.viewID
     view.sessionID = sessionID
-    view.name = name
-    if let use = useCase?.protoValue { view.useCase = use }
+    view.name = state.name
+    if let use = state.useCase?.protoValue { view.useCase = use }
     if let properties = Self.propertiesWrapperMessage(properties) {
       view.properties = properties
     }

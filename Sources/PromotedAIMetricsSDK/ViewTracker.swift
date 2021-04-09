@@ -36,7 +36,7 @@ class ViewTracker {
     self.viewStack = [entry]
   }
 
-  func trackView(key: Key) {
+  func trackView(key: Key) -> State? {
     switch key {
     case .uiKit(let viewController, let useCase):
       break
@@ -45,6 +45,7 @@ class ViewTracker {
     case .pending:
       assertionFailure("Don't log a key of type pending")
     }
+    return nil
   }
   
   func state() -> State? {
@@ -75,6 +76,67 @@ class ViewTracker {
     let loggingName = className.replacingOccurrences(of:"ViewController", with: "")
     if loggingName.isEmpty { return "Unnamed" }
     return loggingName
+  }
+}
+
+fileprivate extension ViewTracker.Stack {
+
+  func first(matching viewController: ViewControllerType) -> ViewTracker.StackEntry? {
+    if let index = self.firstIndex(matching: viewController) {
+      return self[index]
+    }
+    return nil
+  }
+
+  func firstIndex(matching viewController: ViewControllerType) -> Int? {
+    return self.firstIndex { e in
+      if case ViewTracker.Key.uiKit(let vc, _) = e.viewKey {
+        return viewController == vc
+      }
+      return false
+    }
+  }
+
+  func firstIndex(matching key: String) -> Int? {
+    return self.firstIndex { e in
+      if case ViewTracker.Key.reactNative(_, let k, _) = e.viewKey {
+        return k == key
+      }
+      return false
+    }
+  }
+
+  mutating func popTo(index: Int) -> Bool {
+    let removalCount = count - 1 - index
+    guard removalCount > 0 else { return false }
+    removeLast(removalCount)
+    return true
+  }
+
+  mutating func popTo(reactNativeKey: String) -> Bool {
+    if let index = firstIndex(matching: reactNativeKey) {
+      return popTo(index: index)
+    }
+    return false
+  }
+
+  mutating func popTo(viewController: ViewControllerType) -> Bool {
+    if let index = firstIndex(matching: viewController) {
+      return popTo(index: index)
+    }
+    return false
+  }
+  
+  mutating func popTo(key: ViewTracker.Key) -> Bool {
+    switch key {
+    case .uiKit(let viewController, _):
+      return popTo(viewController: viewController)
+    case .reactNative(_, let reactNativeKey, _):
+      if let k = reactNativeKey { return popTo(reactNativeKey: k) }
+    case .pending:
+      return false
+    }
+    return false
   }
 }
 
@@ -110,11 +172,9 @@ class UIKitViewTracker: ViewTracker {
   fileprivate override func updatedViewStack(previousStack: Stack) -> Stack {
     let viewControllerStack = Self.viewControllerStack()
     let newStack = viewControllerStack.map { vc -> StackEntry in
-      let entry = previousStack.first { e in
-        if case Key.uiKit(let stackVC, _) = e.viewKey { return vc === stackVC }
-        return false
+      if let entry = previousStack.first(matching: vc) {
+        return entry
       }
-      if let entry = entry { return entry }
       return StackEntry(viewID: viewIDProducer.nextValue(),
                         viewKey: .uiKit(viewController: vc))
     }
@@ -123,20 +183,14 @@ class UIKitViewTracker: ViewTracker {
 }
 
 // MARK: - React Native
-public class ReactNativeViewTracker {
+class ReactNativeViewTracker: ViewTracker {
 
   public func routeDidChange(name: String, key: String, useCase: UseCase? = nil) {
-    if let index = routeKeyStack.firstIndex(of: key) {
-      let removalCount = routeKeyStack.count - 1 - index
-      guard removalCount > 0 else {
-        assertionFailure("New route key identical to previous: \(key)")
-        return
-      }
-      routeNameStack.removeLast(removalCount)
-      routeKeyStack.removeLast(removalCount)
-    } else {
-      routeNameStack.append(name)
-      routeKeyStack.append(key)
+    if viewStack.popTo(reactNativeKey: key) {
+      return
     }
+    let key = Key.reactNative(name: name, key: key, useCase: useCase)
+    let entry = StackEntry(viewID: viewIDProducer.nextValue(), viewKey: key)
+    viewStack.append(entry)
   }
 }
