@@ -11,7 +11,7 @@ public protocol IDMap {
   /// not necessarily cryptographically secure.
   func deterministicUUIDString(value: String?) -> String
 
-  /// Given a client-side user ID, generate a log user ID which
+  /// Given a client-side user ID, generates a log user ID which
   /// is used to track the the current session without exposing
   /// the underlying user ID.
   func logUserID() -> String
@@ -51,6 +51,7 @@ open class AbstractIDMap: IDMap {
   public init() {}
 
   open func deterministicUUIDString(value: String?) -> String {
+    assertionFailure("Don't instantiate AbstractIDMap")
     return ""
   }
 

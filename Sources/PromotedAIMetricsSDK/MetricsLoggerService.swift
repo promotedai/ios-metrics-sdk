@@ -29,7 +29,7 @@ import Foundation
  let service = MetricsLoggingService(initialConfig: ...)
  service.startLoggingServices()
  let logger = service.metricsLogger
- let impressionLogger = service.impressionLogger(dataSource: ...)
+ let impressionLogger = service.impressionLogger()
  ~~~
  
  ## Example (using sharedService):
@@ -38,11 +38,11 @@ import Foundation
  MetricsLoggerService.startServices(initialConfig: ...)
  let service = MetricsLoggerService.sharedService
  let logger = service.metricsLogger
- let impressionLogger = service.impressionLogger(dataSource: ...)
+ let impressionLogger = service.impressionLogger()
  ~~~
  */
 @objc(PROMetricsLoggerService)
-public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
+public class MetricsLoggerService: NSObject {
 
   @objc public private(set) lazy var metricsLogger: MetricsLogger = {
     // Reading `self.config` initializes clientConfigService.
@@ -54,49 +54,50 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
                          store: self.store)
   } ()
 
-  private lazy var clientConfigService: ClientConfigService = {
-    return ClientConfigService(provider: self, store: store)
-  } ()
-
-  public var config: ClientConfig {
+  var config: ClientConfig {
     return clientConfigService.config
   }
 
-  var defaultConfig: ClientConfig {
-    return initialConfig
-  }
-
-  public let clock: Clock
+  private var clientConfigService: ClientConfigService
+  private let clock: Clock
   private let connection: NetworkConnection
   private let deviceInfo: DeviceInfo
-  private let initialConfig: ClientConfig
   private let idMap: IDMap
   private let store: PersistentStore
 
-  @objc public init(initialConfig: ClientConfig) {
-    self.clock = SystemClock.instance
-    self.connection = GTMSessionFetcherConnection()
-    self.deviceInfo = CurrentDeviceInfo()
-    self.idMap = SHA1IDMap.instance
-    self.initialConfig = initialConfig
-    self.store = UserDefaultsPersistentStore()
+  @objc public convenience init(initialConfig: ClientConfig) {
+    self.init(clientConfigService: LocalClientConfigService(initialConfig: initialConfig),
+              clock: SystemClock.instance,
+              connection: GTMSessionFetcherConnection(),
+              deviceInfo: CurrentDeviceInfo(),
+              idMap: SHA1IDMap.instance,
+              store: UserDefaultsPersistentStore())
   }
   
-  init(clock: Clock,
-       connection: NetworkConnection,
-       deviceInfo: DeviceInfo,
-       idMap: IDMap,
-       initialConfig: ClientConfig,
-       store: PersistentStore) {
+  public convenience init(clientConfigService: ClientConfigService) {
+    self.init(clientConfigService: clientConfigService,
+              clock: SystemClock.instance,
+              connection: GTMSessionFetcherConnection(),
+              deviceInfo: CurrentDeviceInfo(),
+              idMap: SHA1IDMap.instance,
+              store: UserDefaultsPersistentStore())
+  }
+
+  public init(clientConfigService: ClientConfigService,
+              clock: Clock,
+              connection: NetworkConnection,
+              deviceInfo: DeviceInfo,
+              idMap: IDMap,
+              store: PersistentStore) {
+    self.clientConfigService = clientConfigService
     self.clock = clock
     self.connection = connection
     self.deviceInfo = deviceInfo
     self.idMap = idMap
-    self.initialConfig = initialConfig
     self.store = store
   }
 
-  /// Call this to start logging services, prior to accessing the logger.
+  /// Call this to start logging services, prior to accessing `logger`.
   /// Initialization is asynchronous, so this can be called from app
   /// startup without performance penalty. For example, in
   /// `application(_:didFinishLaunchingWithOptions:)`.
@@ -105,8 +106,7 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
   }
 
   @objc public func impressionLogger() -> ImpressionLogger {
-    return ImpressionLogger(metricsLogger: self.metricsLogger,
-                            clock: self.clock)
+    return ImpressionLogger(metricsLogger: self.metricsLogger, clock: self.clock)
   }
 
   @objc public func scrollTracker() -> ScrollTracker {
@@ -135,14 +135,27 @@ public class MetricsLoggerService: NSObject, ClientConfigDefaultProvider {
 // MARK: - Singleton support for `MetricsLoggingService`
 public extension MetricsLoggerService {
 
-  static var initialConfig: ClientConfig?
+  static var clientConfigService: ClientConfigService?
   
+  /// Call this to start logging services, prior to accessing `sharedService`.
+  ///
+  /// - SeeAlso: `startLoggingServices()`
   @objc static func startServices(initialConfig: ClientConfig) {
-    self.initialConfig = initialConfig
+    self.clientConfigService = LocalClientConfigService(initialConfig: initialConfig)
+    self.sharedService.startLoggingServices()
+  }
+  
+  /// Call this to start logging services, prior to accessing `sharedService`.
+  ///
+  /// - SeeAlso: `startLoggingServices()`
+  static func startServices(clientConfigService: ClientConfigService) {
+    self.clientConfigService = clientConfigService
     self.sharedService.startLoggingServices()
   }
 
-  /// Returns the shared logger. Causes error if `messageProvider` is not set.
-  @objc static let sharedService =
-      MetricsLoggerService(initialConfig: initialConfig!)
+  /// Returns the shared logger. Causes error if `startServices` was not called.
+  @objc static let sharedService: MetricsLoggerService = {
+    assert(clientConfigService != nil, "Call startServices() before accessing sharedService")
+    return MetricsLoggerService(clientConfigService: clientConfigService!)
+  } ()
 }
