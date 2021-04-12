@@ -109,16 +109,16 @@ public class MetricsLoggerService: NSObject {
   @objc public func impressionLogger() -> ImpressionLogger {
     return ImpressionLogger(metricsLogger: self.metricsLogger, clock: self.clock)
   }
-}
 
-// MARK: - UIKit support
-public extension MetricsLoggerService {
   @objc func scrollTracker() -> ScrollTracker {
     return ScrollTracker(metricsLogger: self.metricsLogger,
                          clientConfig: self.config,
                          clock: self.clock)
   }
+}
 
+// MARK: - UIKit support
+public extension MetricsLoggerService {
   @objc func scrollTracker(scrollView: UIScrollView) -> ScrollTracker {
     return ScrollTracker(metricsLogger: self.metricsLogger,
                          clientConfig: self.config,
