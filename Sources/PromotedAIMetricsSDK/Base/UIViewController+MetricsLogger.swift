@@ -1,6 +1,4 @@
 import Foundation
-
-#if canImport(UIKit)
 import UIKit
 
 /** Convenience methods for view controllers. */
@@ -26,4 +24,3 @@ public extension UIViewController {
     self.promotedLogger.logView(viewController: self, useCase: useCase)
   }
 }
-#endif
