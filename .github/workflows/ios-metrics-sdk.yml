@@ -22,6 +22,6 @@ jobs:
       with:
         xcode-version: ${{ matrix.xcode }}
     - name: Build
-      run: swift build -v
+      run: xcodebuild -scheme PromotedAIMetricsSDK-Package build -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11'
     - name: Test
-      run: swift test -v
+      run: xcodebuild -scheme PromotedAIMetricsSDK-Package test -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11'
