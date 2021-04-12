@@ -1,9 +1,6 @@
 import CoreGraphics
 import Foundation
-
-#if canImport(UIKit)
 import UIKit
-#endif
 
 // MARK: - ScrollTracker
 /**
@@ -98,7 +95,6 @@ public class ScrollTracker: NSObject {
   /*visibleForTesting*/ private(set) var content: [(CGRect, Content)]
   private var timer: ScheduledTimer?
   
-  #if canImport(UIKit)
   /// Scroll view that user interacts with.
   public unowned var scrollView: UIScrollView? {
     didSet {
@@ -117,7 +113,6 @@ public class ScrollTracker: NSObject {
 
   private var collectionViewLayoutObservation: NSKeyValueObservation?
   private var scrollViewOffsetObservation: NSKeyValueObservation?
-  #endif
   
   /// Viewport of scroll view, based on scroll view's coord system.
   /// Under UIKit and React Native, this corresponds to the viewport
@@ -175,7 +170,6 @@ public class ScrollTracker: NSObject {
 }
 
 // MARK: - UIKit: UICollectionView/UIScrollView
-#if canImport(UIKit)
 public extension ScrollTracker {
 
   convenience init(metricsLogger: MetricsLogger,
@@ -265,7 +259,6 @@ public extension ScrollTracker {
     viewport = CGRect(origin: origin, size: size)
   }
 }
-#endif
 
 // MARK: - CGRect extension
 extension CGRect {
