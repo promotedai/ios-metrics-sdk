@@ -1,19 +1,13 @@
 import Foundation
-
-func LoggingNameFor(viewController: ViewControllerType) -> String {
-  let className = String(describing: type(of: viewController))
-  let loggingName = className.replacingOccurrences(of:"ViewController", with: "")
-  if loggingName.isEmpty { return "Unnamed" }
-  return loggingName
-}
+import UIKit
 
 // MARK: - ViewTracker
 class ViewTracker {
 
   /// Representation of an entry in the view stack.
   enum Key: Equatable {
-    case uiKit(viewController: ViewControllerType)
-    case reactNative(name: String, key: String)
+    case uiKit(viewController: UIViewController)
+    case reactNative(routeName: String, routeKey: String)
   }
   
   /// Current state of view stack that can be translated to a View event.
@@ -25,7 +19,7 @@ class ViewTracker {
     var name: String {
       switch viewKey {
       case .uiKit(let viewController):
-        return LoggingNameFor(viewController: viewController)
+        return viewController.promotedViewLoggingName
       case .reactNative(let name, _):
         return name
       }
@@ -113,14 +107,14 @@ fileprivate extension ViewTracker.Stack {
     append(entry)
   }
 
-  func first(matching viewController: ViewControllerType) -> ViewTracker.State? {
+  func first(matching viewController: UIViewController) -> ViewTracker.State? {
     if let index = self.firstIndex(matching: viewController) {
       return self[index]
     }
     return nil
   }
 
-  func firstIndex(matching viewController: ViewControllerType) -> Int? {
+  func firstIndex(matching viewController: UIViewController) -> Int? {
     return self.firstIndex { e in
       if case ViewTracker.Key.uiKit(let vc) = e.viewKey {
         return viewController == vc
@@ -129,10 +123,10 @@ fileprivate extension ViewTracker.Stack {
     }
   }
 
-  func firstIndex(matching key: String) -> Int? {
+  func firstIndex(matching routeKey: String) -> Int? {
     return self.firstIndex { e in
       if case ViewTracker.Key.reactNative(_, let k) = e.viewKey {
-        return k == key
+        return k == routeKey
       }
       return false
     }
@@ -148,14 +142,14 @@ fileprivate extension ViewTracker.Stack {
     return true
   }
 
-  mutating func popTo(reactNativeKey: String) -> Bool {
-    if let index = firstIndex(matching: reactNativeKey) {
+  mutating func popTo(routeKey: String) -> Bool {
+    if let index = firstIndex(matching: routeKey) {
       return popTo(index: index)
     }
     return false
   }
 
-  mutating func popTo(viewController: ViewControllerType) -> Bool {
+  mutating func popTo(viewController: UIViewController) -> Bool {
     if let index = firstIndex(matching: viewController) {
       return popTo(index: index)
     }
@@ -166,25 +160,20 @@ fileprivate extension ViewTracker.Stack {
     switch key {
     case .uiKit(let viewController):
       return popTo(viewController: viewController)
-    case .reactNative(_, let reactNativeKey):
-      return popTo(reactNativeKey: reactNativeKey)
+    case .reactNative(_, let routeKey):
+      return popTo(routeKey: routeKey)
     }
   }
 }
 
 // MARK: - UIKit
-#if canImport(UIKit)
-import UIKit
-#endif
-
 protocol ViewControllerStackProvider: class {
-  func viewControllerStack() -> [ViewControllerType]
+  func viewControllerStack() -> [UIViewController]
 }
 
 class UIKitViewControllerStackProvider: ViewControllerStackProvider {
-  func viewControllerStack() -> [ViewControllerType] {
-    var stack = [ViewControllerType]()
-    #if canImport(UIKit)
+  func viewControllerStack() -> [UIViewController] {
+    var stack = [UIViewController]()
     var vc = UIApplication.shared.keyWindow?.rootViewController
     while let viewController = vc {
       if let presented = viewController.presentedViewController {
@@ -201,7 +190,6 @@ class UIKitViewControllerStackProvider: ViewControllerStackProvider {
         break
       }
     }
-    #endif
     return stack
   }
 }
