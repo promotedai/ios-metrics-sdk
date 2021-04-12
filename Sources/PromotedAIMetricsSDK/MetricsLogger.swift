@@ -112,13 +112,16 @@ public class MetricsLogger: NSObject {
        connection: NetworkConnection,
        deviceInfo: DeviceInfo,
        idMap: IDMap,
-       store: PersistentStore) {
+       store: PersistentStore,
+       viewTracker: ViewTracker) {
     self.clock = clock
     self.config = clientConfig
     self.connection = connection
     self.deviceInfo = deviceInfo
     self.idMap = idMap
     self.store = store
+    self.viewTracker = viewTracker
+
     self.logMessages = []
     self.userID = nil
     self.logUserIDProducer = IDProducer(initialValueProducer: {
@@ -127,8 +130,6 @@ public class MetricsLogger: NSObject {
       return idMap.logUserID()
     })
     self.sessionIDProducer = IDProducer { return idMap.sessionID() }
-    let viewIDProducer = IDProducer { return idMap.viewID() }
-    self.viewTracker = ViewTracker(viewIDProducer: viewIDProducer)
   }
 
   // MARK: - Starting new sessions
@@ -500,16 +501,6 @@ public extension MetricsLogger {
     default:
       print("[MetricsLogger] ERROR: \(error.localizedDescription)")
     }
-  }
-}
-
-// MARK: - View controller logging
-extension MetricsLogger {
-  func loggingNameFor(viewController: ViewControllerType) -> String {
-    let className = String(describing: type(of: viewController))
-    let loggingName = className.replacingOccurrences(of:"ViewController", with: "")
-    if loggingName.isEmpty { return "Unnamed" }
-    return loggingName
   }
 }
 

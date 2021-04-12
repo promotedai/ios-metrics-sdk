@@ -10,14 +10,14 @@ public extension MetricsLogger {
   // MARK: - Action logging helper methods
   /// Logs a navigate action to the given view controller.
   @objc func logNavigateAction(viewController: ViewControllerType) {
-    logNavigateAction(name: loggingNameFor(viewController: viewController),
+    logNavigateAction(name: LoggingNameFor(viewController: viewController),
                       optionalContent: nil)
   }
 
   /// Logs a navigate action to the given view controller for given content.
   @objc func logNavigateAction(viewController: ViewControllerType,
                                forContent content: Content) {
-    logNavigateAction(name: loggingNameFor(viewController: viewController),
+    logNavigateAction(name: LoggingNameFor(viewController: viewController),
                       optionalContent: content)
   }
   
@@ -170,27 +170,23 @@ public extension MetricsLogger {
   // MARK: - View logging helper methods
   /// Logs a view of the given `UIViewController`.
   @objc func logView(viewController: ViewControllerType) {
-    let name = loggingNameFor(viewController: viewController)
-    self.logView(name: name, trackerKey: .uiKit(viewController: viewController))
+    self.logView(trackerKey: .uiKit(viewController: viewController))
   }
   
   /// Logs a view of the given `UIViewController` and use case.
   @objc func logView(viewController: ViewControllerType,
                      useCase: UseCase) {
-    let name = loggingNameFor(viewController: viewController)
-    self.logView(name: name, useCase: useCase,
-                 trackerKey: .uiKit(viewController: viewController, useCase: useCase))
+    self.logView(trackerKey: .uiKit(viewController: viewController, useCase: useCase))
   }
 
   /// Logs a view of a screen with the given name (React Native).
   @objc func logView(screenName: String, key: String) {
-    self.logView(name: screenName, trackerKey: .reactNative(name: screenName, key: key))
+    self.logView(trackerKey: .reactNative(name: screenName, key: key))
   }
   
   /// Logs a view of a screen with the given name (React Native)
   /// and use case.
   @objc func logView(screenName: String, key: String, useCase: UseCase) {
-    self.logView(name: screenName, useCase: useCase,
-                 trackerKey: .reactNative(name: screenName, key: key, useCase: useCase))
+    self.logView(trackerKey: .reactNative(name: screenName, key: key, useCase: useCase))
   }
 }

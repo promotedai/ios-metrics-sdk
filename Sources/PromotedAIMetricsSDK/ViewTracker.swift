@@ -1,6 +1,6 @@
 import Foundation
 
-fileprivate func LoggingNameFor(viewController: ViewControllerType) -> String {
+func LoggingNameFor(viewController: ViewControllerType) -> String {
   let className = String(describing: type(of: viewController))
   let loggingName = className.replacingOccurrences(of:"ViewController", with: "")
   if loggingName.isEmpty { return "Unnamed" }
@@ -8,16 +8,16 @@ fileprivate func LoggingNameFor(viewController: ViewControllerType) -> String {
 }
 
 // MARK: - ViewTracker
-public class ViewTracker {
+class ViewTracker {
 
   /// Representation of an entry in the view stack.
-  public enum Key: Equatable {
+  enum Key: Equatable {
     case uiKit(viewController: ViewControllerType, useCase: UseCase? = nil)
     case reactNative(name: String, key: String? = nil, useCase: UseCase? = nil)
   }
   
   /// Current state of view stack that can be translated to a View event.
-  public struct State {
+  struct State {
     let name: String
     let useCase: UseCase?
     let viewID: String
@@ -42,16 +42,18 @@ public class ViewTracker {
   
   fileprivate typealias Stack = [StackEntry]
 
-  fileprivate let viewIDProducer: IDProducer
-  fileprivate var viewStack: Stack
+  private let viewIDProducer: IDProducer
+  private var viewStack: Stack
+  private let stackProvider: ViewControllerStackProvider
   
   var viewID: String {
     return viewStack.top?.viewID ?? viewIDProducer.currentValue
   }
   
-  init(viewIDProducer: IDProducer) {
-    self.viewIDProducer = viewIDProducer
+  init(idMap: IDMap, stackProvider: ViewControllerStackProvider = UIKitViewControllerStackProvider()) {
+    self.viewIDProducer = IDProducer { idMap.viewID() }
     self.viewStack = []
+    self.stackProvider = stackProvider
   }
 
   /// Manually tracks a view, then returns a `State` if this call
@@ -79,9 +81,24 @@ public class ViewTracker {
     return State(stackEntry: newTop)
   }
 
-  fileprivate func updatedViewStack(previousStack: Stack) -> Stack {
-    assertionFailure("Don't instantiate ViewTracker")
-    return previousStack
+  private func updatedViewStack(previousStack: Stack) -> Stack {
+    // Bail on empty stack or React Native stack.
+    guard !viewStack.isEmpty else { return previousStack }
+    if let key = viewStack.top?.viewKey, case Key.reactNative(_, _, _) = key {
+      return previousStack
+    }
+
+    // Regenerate stack and try again.
+    let viewControllerStack = stackProvider.viewControllerStack()
+    let newStack = viewControllerStack.map { vc -> StackEntry in
+      if let entry = previousStack.first(matching: vc) {
+        return entry
+      }
+      let viewKey = Key.uiKit(viewController: vc)
+      let viewID = viewIDProducer.nextValue()
+      return StackEntry(viewKey: viewKey, viewID: viewID)
+    }
+    return newStack
   }
 }
 
@@ -153,14 +170,17 @@ fileprivate extension ViewTracker.Stack {
   }
 }
 
+// MARK: - UIKit
 #if canImport(UIKit)
 import UIKit
 #endif
 
-// MARK: - UIKit
-public class UIKitViewTracker: ViewTracker {
+protocol ViewControllerStackProvider: class {
+  func viewControllerStack() -> [ViewControllerType]
+}
 
-  private static func viewControllerStack() -> [ViewControllerType] {
+class UIKitViewControllerStackProvider: ViewControllerStackProvider {
+  func viewControllerStack() -> [ViewControllerType] {
     var stack = [ViewControllerType]()
     #if canImport(UIKit)
     var vc = UIApplication.shared.keyWindow?.rootViewController
@@ -181,34 +201,5 @@ public class UIKitViewTracker: ViewTracker {
     }
     #endif
     return stack
-  }
-
-  fileprivate override func updatedViewStack(previousStack: Stack) -> Stack {
-    let viewControllerStack = Self.viewControllerStack()
-    let newStack = viewControllerStack.map { vc -> StackEntry in
-      if let entry = previousStack.first(matching: vc) {
-        return entry
-      }
-      return StackEntry(viewKey: .uiKit(viewController: vc),
-                        viewID: viewIDProducer.nextValue())
-    }
-    return newStack
-  }
-}
-
-// MARK: - React Native
-public class ReactNativeViewTracker: ViewTracker {
-
-  public func routeDidChange(name: String, key: String, useCase: UseCase? = nil) {
-    if viewStack.popTo(reactNativeKey: key) {
-      return
-    }
-    let key = Key.reactNative(name: name, key: key, useCase: useCase)
-    let entry = StackEntry(viewKey: key, viewID: viewIDProducer.nextValue())
-    viewStack.push(entry)
-  }
-  
-  fileprivate override func updatedViewStack(previousStack: Stack) -> Stack {
-    return previousStack
   }
 }
