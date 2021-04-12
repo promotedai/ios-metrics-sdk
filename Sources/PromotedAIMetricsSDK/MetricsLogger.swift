@@ -371,8 +371,10 @@ public extension MetricsLogger {
   /// - Parameters:
   ///   - trackerKey: ViewTracker.Key that specifies view.
   ///   - properties: Client-specific message
-  internal func logView(trackerKey: ViewTracker.Key, properties: Message? = nil) {
-    if let state = viewTracker.trackView(key: trackerKey) {
+  internal func logView(trackerKey: ViewTracker.Key,
+                        useCase: UseCase? = nil,
+                        properties: Message? = nil) {
+    if let state = viewTracker.trackView(key: trackerKey, useCase: useCase) {
       logView(trackerState: state, properties: properties)
     }
   }

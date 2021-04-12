@@ -12,63 +12,59 @@ class ViewTracker {
 
   /// Representation of an entry in the view stack.
   enum Key: Equatable {
-    case uiKit(viewController: ViewControllerType, useCase: UseCase? = nil)
-    case reactNative(name: String, key: String? = nil, useCase: UseCase? = nil)
+    case uiKit(viewController: ViewControllerType)
+    case reactNative(name: String, key: String)
   }
   
   /// Current state of view stack that can be translated to a View event.
-  struct State {
-    let name: String
+  struct State: Equatable {
+    let viewKey: Key
     let useCase: UseCase?
     let viewID: String
     
-    fileprivate init(stackEntry: StackEntry) {
-      switch stackEntry.viewKey {
-      case .uiKit(let viewController, let useCase):
-        self.name = LoggingNameFor(viewController: viewController)
-        self.useCase = useCase
-      case .reactNative(let name, _, let useCase):
-        self.name = name
-        self.useCase = useCase
+    var name: String {
+      switch viewKey {
+      case .uiKit(let viewController):
+        return LoggingNameFor(viewController: viewController)
+      case .reactNative(let name, _):
+        return name
       }
-      self.viewID = stackEntry.viewID
     }
   }
-
-  fileprivate struct StackEntry: Equatable {
-    let viewKey: Key
-    let viewID: String
-  }
   
-  fileprivate typealias Stack = [StackEntry]
+  fileprivate typealias Stack = [State]
 
   private let viewIDProducer: IDProducer
   private var viewStack: Stack
   private let stackProvider: ViewControllerStackProvider
+  private let isReactNativeHint: Bool
   
   var viewID: String {
     return viewStack.top?.viewID ?? viewIDProducer.currentValue
   }
   
-  init(idMap: IDMap, stackProvider: ViewControllerStackProvider = UIKitViewControllerStackProvider()) {
+  init(idMap: IDMap,
+       stackProvider: ViewControllerStackProvider = UIKitViewControllerStackProvider()) {
     self.viewIDProducer = IDProducer { idMap.viewID() }
     self.viewStack = []
     self.stackProvider = stackProvider
+    self.isReactNativeHint = (NSClassFromString("PromotedMetricsModule") != nil)
   }
 
   /// Manually tracks a view, then returns a `State` if this call
   /// caused the state of the view stack to change since the last
   /// call to `trackView(key:)` or `updateState()`.
-  func trackView(key: Key) -> State? {
+  func trackView(key: Key, useCase: UseCase? = nil) -> State? {
     if key == viewStack.top?.viewKey {
       return nil
     }
     if viewStack.popTo(key: key) {
-      return State(stackEntry: viewStack.top!)
+      return viewStack.top!
     }
-    let top = StackEntry(viewKey: key, viewID: viewIDProducer.nextValue())
+    let viewID = viewIDProducer.nextValue()
+    let top = State(viewKey: key, useCase: useCase, viewID: viewID)
     viewStack.push(top)
-    return State(stackEntry: top)
+    return top
   }
 
   /// Returns `State` if it has changed since the last call to
@@ -76,27 +72,30 @@ class ViewTracker {
   func updateState() -> State? {
     let previousStack = viewStack
     viewStack = updatedViewStack(previousStack: previousStack)
-    guard let newTop = viewStack.top else { return nil }
+    let newTop = viewStack.top
     if previousStack.top == newTop { return nil }
-    return State(stackEntry: newTop)
+    return newTop
   }
 
   private func updatedViewStack(previousStack: Stack) -> Stack {
-    // Bail on empty stack or React Native stack.
-    guard !viewStack.isEmpty else { return previousStack }
-    if let key = viewStack.top?.viewKey, case Key.reactNative(_, _, _) = key {
+    if isReactNativeHint { return previousStack }
+
+    // Must have UIKit view key at stack top.
+    guard let key = viewStack.top?.viewKey, case Key.uiKit(_) = key else {
       return previousStack
     }
 
-    // Regenerate stack and try again.
+    // Regenerate stack, joining against the previous stack.
     let viewControllerStack = stackProvider.viewControllerStack()
-    let newStack = viewControllerStack.map { vc -> StackEntry in
+    let newStack = viewControllerStack.map { vc -> State in
       if let entry = previousStack.first(matching: vc) {
         return entry
       }
+      // No entry in previous stack. We've never seen this VC before.
+      // Don't know the use case for it.
       let viewKey = Key.uiKit(viewController: vc)
       let viewID = viewIDProducer.nextValue()
-      return StackEntry(viewKey: viewKey, viewID: viewID)
+      return State(viewKey: viewKey, useCase: nil, viewID: viewID)
     }
     return newStack
   }
@@ -104,13 +103,13 @@ class ViewTracker {
 
 // MARK: - Stack
 fileprivate extension ViewTracker.Stack {
-  var top: ViewTracker.StackEntry? { return last }
+  var top: ViewTracker.State? { return last }
   
-  mutating func push(_ entry: ViewTracker.StackEntry) {
+  mutating func push(_ entry: ViewTracker.State) {
     append(entry)
   }
 
-  func first(matching viewController: ViewControllerType) -> ViewTracker.StackEntry? {
+  func first(matching viewController: ViewControllerType) -> ViewTracker.State? {
     if let index = self.firstIndex(matching: viewController) {
       return self[index]
     }
@@ -119,7 +118,7 @@ fileprivate extension ViewTracker.Stack {
 
   func firstIndex(matching viewController: ViewControllerType) -> Int? {
     return self.firstIndex { e in
-      if case ViewTracker.Key.uiKit(let vc, _) = e.viewKey {
+      if case ViewTracker.Key.uiKit(let vc) = e.viewKey {
         return viewController == vc
       }
       return false
@@ -128,7 +127,7 @@ fileprivate extension ViewTracker.Stack {
 
   func firstIndex(matching key: String) -> Int? {
     return self.firstIndex { e in
-      if case ViewTracker.Key.reactNative(_, let k, _) = e.viewKey {
+      if case ViewTracker.Key.reactNative(_, let k) = e.viewKey {
         return k == key
       }
       return false
@@ -161,12 +160,11 @@ fileprivate extension ViewTracker.Stack {
   
   mutating func popTo(key: ViewTracker.Key) -> Bool {
     switch key {
-    case .uiKit(let viewController, _):
+    case .uiKit(let viewController):
       return popTo(viewController: viewController)
-    case .reactNative(_, let reactNativeKey, _):
-      if let k = reactNativeKey { return popTo(reactNativeKey: k) }
+    case .reactNative(_, let reactNativeKey):
+      return popTo(reactNativeKey: reactNativeKey)
     }
-    return false
   }
 }
 

@@ -176,7 +176,7 @@ public extension MetricsLogger {
   /// Logs a view of the given `UIViewController` and use case.
   @objc func logView(viewController: ViewControllerType,
                      useCase: UseCase) {
-    self.logView(trackerKey: .uiKit(viewController: viewController, useCase: useCase))
+    self.logView(trackerKey: .uiKit(viewController: viewController), useCase: useCase)
   }
 
   /// Logs a view of a screen with the given name (React Native).
@@ -187,6 +187,6 @@ public extension MetricsLogger {
   /// Logs a view of a screen with the given name (React Native)
   /// and use case.
   @objc func logView(screenName: String, key: String, useCase: UseCase) {
-    self.logView(trackerKey: .reactNative(name: screenName, key: key, useCase: useCase))
+    self.logView(trackerKey: .reactNative(name: screenName, key: key), useCase: useCase)
   }
 }
