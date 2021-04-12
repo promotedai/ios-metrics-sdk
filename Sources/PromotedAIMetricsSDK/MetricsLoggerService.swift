@@ -70,7 +70,7 @@ public class MetricsLoggerService: NSObject {
     self.init(clientConfigService: LocalClientConfigService(initialConfig: initialConfig),
               clock: SystemClock.instance,
               connection: GTMSessionFetcherConnection(),
-              deviceInfo: CurrentDeviceInfo(),
+              deviceInfo: IOSDeviceInfo(),
               idMap: SHA1IDMap.instance,
               store: UserDefaultsPersistentStore())
   }
@@ -79,7 +79,7 @@ public class MetricsLoggerService: NSObject {
     self.init(clientConfigService: clientConfigService,
               clock: SystemClock.instance,
               connection: GTMSessionFetcherConnection(),
-              deviceInfo: CurrentDeviceInfo(),
+              deviceInfo: IOSDeviceInfo(),
               idMap: SHA1IDMap.instance,
               store: UserDefaultsPersistentStore())
   }
