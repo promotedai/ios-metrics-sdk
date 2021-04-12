@@ -1,8 +1,5 @@
 import Foundation
-
-#if canImport(UIKit)
 import UIKit
-#endif
 
 // MARK: -
 /**
@@ -73,7 +70,7 @@ public class MetricsLoggerService: NSObject {
     self.init(clientConfigService: LocalClientConfigService(initialConfig: initialConfig),
               clock: SystemClock.instance,
               connection: GTMSessionFetcherConnection(),
-              deviceInfo: CurrentDeviceInfo(),
+              deviceInfo: IOSDeviceInfo(),
               idMap: SHA1IDMap.instance,
               store: UserDefaultsPersistentStore())
   }
@@ -82,7 +79,7 @@ public class MetricsLoggerService: NSObject {
     self.init(clientConfigService: clientConfigService,
               clock: SystemClock.instance,
               connection: GTMSessionFetcherConnection(),
-              deviceInfo: CurrentDeviceInfo(),
+              deviceInfo: IOSDeviceInfo(),
               idMap: SHA1IDMap.instance,
               store: UserDefaultsPersistentStore())
   }
@@ -113,27 +110,28 @@ public class MetricsLoggerService: NSObject {
     return ImpressionLogger(metricsLogger: self.metricsLogger, clock: self.clock)
   }
 
-  @objc public func scrollTracker() -> ScrollTracker {
+  @objc func scrollTracker() -> ScrollTracker {
     return ScrollTracker(metricsLogger: self.metricsLogger,
                          clientConfig: self.config,
                          clock: self.clock)
   }
+}
 
-  #if canImport(UIKit)
-  @objc public func scrollTracker(scrollView: UIScrollView) -> ScrollTracker {
+// MARK: - UIKit support
+public extension MetricsLoggerService {
+  @objc func scrollTracker(scrollView: UIScrollView) -> ScrollTracker {
     return ScrollTracker(metricsLogger: self.metricsLogger,
                          clientConfig: self.config,
                          clock: self.clock,
                          scrollView: scrollView)
   }
   
-  @objc public func scrollTracker(collectionView: UICollectionView) -> ScrollTracker {
+  @objc func scrollTracker(collectionView: UICollectionView) -> ScrollTracker {
     return ScrollTracker(metricsLogger: self.metricsLogger,
                          clientConfig: self.config,
                          clock: self.clock,
                          collectionView: collectionView)
   }
-  #endif
 }
 
 // MARK: - Singleton support for `MetricsLoggingService`

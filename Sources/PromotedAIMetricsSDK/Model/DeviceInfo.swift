@@ -13,16 +13,7 @@ public protocol DeviceInfo {
   var regionCode: String { get }
 }
 
-func CurrentDeviceInfo() -> DeviceInfo {
-  #if os(iOS)
-    return IOSDeviceInfo()
-  #elseif os(macOS)
-    return MacOSDeviceInfo()
-  #endif
-}
-
 // MARK: - iOS
-#if os(iOS)
 import UIKit
 
 /** Device info for iPhones and iPads. */
@@ -79,48 +70,3 @@ class IOSDeviceInfo: DeviceInfo {
     return Locale.current.regionCode ?? "unknown"
   }
 }
-
-// MARK: - macOS
-#elseif os(macOS)
-
-/** This is only used to compile on macOS. */
-class MacOSDeviceInfo: DeviceInfo {
-
-  var deviceType: DeviceType {
-    return .desktop
-  }
-
-  var brand: String {
-    return "Apple"
-  }
-
-  var manufacturer: String {
-    return "Apple"
-  }
-  
-  var identifier: String {
-    return "Mac"
-  }
-
-  var osVersion: String {
-    return "10.15"
-  }
-  
-  var screenScale: Float {
-    return 2.0
-  }
-
-  var screenSizePx: (UInt32, UInt32) {
-    return (1024, 768)
-  }
-  
-  var languageCode: String {
-    return "en"
-  }
-  
-  var regionCode: String {
-    return "US"
-  }
-}
-
-#endif
