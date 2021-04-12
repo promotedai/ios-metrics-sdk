@@ -78,7 +78,11 @@ class ViewTracker {
   }
 
   private func updatedViewStack(previousStack: Stack) -> Stack {
-    if isReactNativeHint { return previousStack }
+    // Use `isReactNativeHint` only to break ties in the case
+    // where the stack is empty.
+    if viewStack.isEmpty && isReactNativeHint {
+      return previousStack
+    }
 
     // Must have UIKit view key at stack top.
     guard let key = viewStack.top?.viewKey, case Key.uiKit(_) = key else {
