@@ -747,12 +747,13 @@ final class MetricsLoggerTests: XCTestCase {
     let initialViewID = metricsLogger!.viewID
     XCTAssertEqual("fake-view-id-1", initialViewID)
     metricsLogger!.startSessionForTesting(userID: "foo")
-    
+
     let viewController = FakeScreenViewController()
     metricsLogger!.logView(viewController: viewController, useCase: .search)
     XCTAssertEqual(initialViewID, metricsLogger!.viewID)
-    
-    metricsLogger!.logView(viewController: viewController, useCase: .search)
+  
+    let viewController2 = FakeScreenViewController()
+    metricsLogger!.logView(viewController: viewController2, useCase: .search)
     XCTAssertNotEqual(initialViewID, metricsLogger!.viewID)
   }
 

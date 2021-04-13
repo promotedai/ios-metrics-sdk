@@ -89,7 +89,7 @@ public class MetricsLogger: NSObject {
   public var viewID: String {
     return viewTracker.viewID
   }
-  private let viewTracker: ViewTracker
+  let viewTracker: ViewTracker
 
   private lazy var deviceMessage: Event_Device = {
     var device = Event_Device()
@@ -112,15 +112,13 @@ public class MetricsLogger: NSObject {
        connection: NetworkConnection,
        deviceInfo: DeviceInfo,
        idMap: IDMap,
-       store: PersistentStore,
-       viewTracker: ViewTracker) {
+       store: PersistentStore) {
     self.clock = clock
     self.config = clientConfig
     self.connection = connection
     self.deviceInfo = deviceInfo
     self.idMap = idMap
     self.store = store
-    self.viewTracker = viewTracker
 
     self.logMessages = []
     self.userID = nil
@@ -130,6 +128,7 @@ public class MetricsLogger: NSObject {
       return idMap.logUserID()
     })
     self.sessionIDProducer = IDProducer { return idMap.sessionID() }
+    self.viewTracker = ViewTracker(idMap: idMap)
   }
 
   // MARK: - Starting new sessions
@@ -193,7 +192,7 @@ public class MetricsLogger: NSObject {
     store.userID = userID
     store.logUserID = logUserID
   }
-  
+
   // MARK: - Internal methods
   
   /// Groups a series of log messages with the same view, session,
@@ -237,8 +236,7 @@ public class MetricsLogger: NSObject {
     return timing
   }
 
-  private func propertiesMessage(_ message: Message?)
-      -> Common_Properties? {
+  private func propertiesMessage(_ message: Message?) -> Common_Properties? {
     do {
       if let message = message {
         var dataMessage = Common_Properties()
@@ -268,9 +266,7 @@ public extension MetricsLogger {
     executeInViewLoggingContext {
       var user = Event_User()
       user.timing = timingMessage()
-      if let properties = propertiesMessage(properties) {
-        user.properties = properties
-      }
+      if let p = propertiesMessage(properties) { user.properties = p }
       log(message: user)
     }
   }
@@ -290,9 +286,7 @@ public extension MetricsLogger {
       session.timing = timingMessage()
       session.sessionID = sessionID
       session.startEpochMillis = clock.nowMillis
-      if let properties = propertiesMessage(properties) {
-        session.properties = properties
-      }
+      if let p = propertiesMessage(properties) { session.properties = p }
       log(message: session)
     }
   }
@@ -327,9 +321,7 @@ public extension MetricsLogger {
       impression.sessionID = sessionID
       impression.viewID = viewID
       if let id = contentID { impression.contentID = idMap.contentID(clientID: id) }
-      if let properties = propertiesMessage(properties) {
-        impression.properties = properties
-      }
+      if let p = propertiesMessage(properties) { impression.properties = p }
       log(message: impression)
     }
   }
@@ -382,9 +374,7 @@ public extension MetricsLogger {
       default:
         break
       }
-      if let properties = propertiesMessage(properties) {
-        action.properties = properties
-      }
+      if let p = propertiesMessage(properties) { action.properties = p }
       log(message: action)
     }
   }
@@ -419,9 +409,7 @@ public extension MetricsLogger {
     view.sessionID = sessionID
     view.name = trackerState.name
     if let use = trackerState.useCase?.protoValue { view.useCase = use }
-    if let properties = propertiesMessage(properties) {
-      view.properties = properties
-    }
+    if let p = propertiesMessage(properties) { view.properties = p }
     view.device = deviceMessage
     view.viewType = .appScreen
     let appScreenView = Event_AppScreenView()
@@ -506,13 +494,16 @@ public extension MetricsLogger {
     logMessages.removeAll()
     let request = logRequestMessage(events: eventsCopy)
     do {
+      let before = clock.now
       try connection.sendMessage(request, clientConfig: config) {
           [weak self] (data, error) in
         if let e = error  {
           self?.handleSendMessageError(e)
           return
         }
-        print("[MetricsLogger] Logging finished.")
+        if let after = self?.clock.now {
+          print("[MetricsLogger] Logging finished (\(after - before) sec).")
+        }
       }
     } catch NetworkConnectionError.messageSerializationError(let message) {
       print("[MetricsLogger] \(message)")

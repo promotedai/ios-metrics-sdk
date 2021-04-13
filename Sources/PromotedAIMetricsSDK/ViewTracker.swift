@@ -49,6 +49,7 @@ class ViewTracker {
   /// caused the state of the view stack to change since the last
   /// call to `trackView(key:)` or `updateState()`.
   func trackView(key: Key, useCase: UseCase? = nil) -> State? {
+    defer { print("\(viewStack)") }
     if key == viewStack.top?.viewKey {
       return nil
     }
@@ -69,6 +70,11 @@ class ViewTracker {
     let newTop = viewStack.top
     if previousStack.top == newTop { return nil }
     return newTop
+  }
+
+  /// Removes all tracked views and resets to original state.
+  func reset() {
+    viewStack.removeAll()
   }
 
   private func updatedViewStack(previousStack: Stack) -> Stack {

@@ -171,23 +171,25 @@ public extension MetricsLogger {
   // MARK: - View logging helper methods
   /// Logs a view of the given `UIViewController`.
   @objc func logView(viewController: UIViewController) {
-    self.logView(trackerKey: .uiKit(viewController: viewController))
+    logView(trackerKey: .uiKit(viewController: viewController))
   }
   
   /// Logs a view of the given `UIViewController` and use case.
   @objc func logView(viewController: UIViewController,
                      useCase: UseCase) {
-    self.logView(trackerKey: .uiKit(viewController: viewController), useCase: useCase)
+    logView(trackerKey: .uiKit(viewController: viewController), useCase: useCase)
   }
 
   /// Logs a view with the given route name and key (React Native).
-  @objc func logView(routeName: String, routeKey: String) {
-    self.logView(trackerKey: .reactNative(routeName: routeName, routeKey: routeKey))
+  func logViewReady(routeName: String, routeKey: String, useCase: UseCase? = nil) {
+    viewTracker.reset()
+    logView(trackerKey: .reactNative(routeName: routeName, routeKey: routeKey),
+            useCase: useCase)
   }
   
-  /// Logs a view with the given route name, key (React Native),
-  /// and use case.
-  @objc func logView(routeName: String, routeKey: String, useCase: UseCase) {
-    self.logView(trackerKey: .reactNative(routeName: routeName, routeKey: routeKey), useCase: useCase)
+  /// Logs a view with the given route name and key (React Native).
+  func logViewChange(routeName: String, routeKey: String, useCase: UseCase? = nil) {
+    logView(trackerKey: .reactNative(routeName: routeName, routeKey: routeKey),
+            useCase: useCase)
   }
 }
