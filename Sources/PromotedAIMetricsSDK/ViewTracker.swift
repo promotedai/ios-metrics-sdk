@@ -49,7 +49,7 @@ class ViewTracker {
   /// caused the state of the view stack to change since the last
   /// call to `trackView(key:)` or `updateState()`.
   func trackView(key: Key, useCase: UseCase? = nil) -> State? {
-    defer { print("\(viewStack)") }
+    defer { print("***** track \(viewStack)") }
     if key == viewStack.top?.viewKey {
       return nil
     }
@@ -65,6 +65,7 @@ class ViewTracker {
   /// Returns `State` if it has changed since the last call to
   /// `trackView(key:)` or `updateState()`.
   func updateState() -> State? {
+    defer { print("***** update \(viewStack)") }
     let previousStack = viewStack
     viewStack = updatedViewStack(previousStack: previousStack)
     let newTop = viewStack.top
@@ -102,6 +103,23 @@ class ViewTracker {
       return State(viewKey: viewKey, useCase: nil, viewID: viewID)
     }
     return newStack
+  }
+}
+
+extension ViewTracker.Key: CustomDebugStringConvertible {
+  var debugDescription: String {
+    switch self {
+    case .uiKit(let viewController):
+      return "UIKit(\(viewController.promotedViewLoggingName))"
+    case .reactNative(let routeName, _):
+      return "ReactNative(\(routeName))"
+    }
+  }
+}
+
+extension ViewTracker.State: CustomDebugStringConvertible {
+  var debugDescription: String {
+    return "\(viewKey.debugDescription)-\(viewID.suffix(5))"
   }
 }
 
@@ -177,23 +195,37 @@ protocol ViewControllerStackProvider: class {
   func viewControllerStack() -> [UIViewController]
 }
 
+@objc protocol ContainerViewController: class {
+  @objc optional func promotedContentViewController() -> UIViewController?
+}
+
 class UIKitViewControllerStackProvider: ViewControllerStackProvider {
   func viewControllerStack() -> [UIViewController] {
+    let contentSelector = #selector(ContainerViewController.promotedContentViewController)
     var stack = [UIViewController]()
-    var vc = UIApplication.shared.keyWindow?.rootViewController
-    while let viewController = vc {
-      if let presented = viewController.presentedViewController {
-        stack.append(viewController)
-        vc = presented
-      } else if let nc = vc as? UINavigationController {
-        stack.append(contentsOf: nc.viewControllers)
-        vc = nc.topViewController
-      } else if let tc = vc as? UITabBarController {
-        stack.append(viewController)
-        vc = tc.selectedViewController
-      } else {
-        stack.append(viewController)
-        break
+    var optionalVC = UIApplication.shared.keyWindow?.rootViewController
+    while let vc = optionalVC {
+      stack.append(vc)
+      // Check for composite VCs and append their content.
+      optionalVC = nil
+      if let nc = vc as? UINavigationController {
+        // Last one is handled on next iteration.
+        stack.append(contentsOf: nc.viewControllers.dropLast())
+        optionalVC = nc.topViewController
+      } else if let tc = vc as? UITabBarController,
+                let selectedViewController = tc.selectedViewController {
+        optionalVC = selectedViewController
+      } else if vc.responds(to: contentSelector) {
+        let unmanaged = vc.perform(contentSelector)
+        if let contentVC = unmanaged?.takeUnretainedValue() as? UIViewController {
+          optionalVC = contentVC
+        }
+      }
+      if let presented = vc.presentedViewController {
+        if let intermediary = optionalVC {
+          stack.append(intermediary)
+        }
+        optionalVC = presented
       }
     }
     return stack
