@@ -195,17 +195,13 @@ protocol ViewControllerStackProvider: class {
   func viewControllerStack() -> [UIViewController]
 }
 
-@objc protocol ContainerViewController: class {
-  @objc optional func promotedContentViewController() -> UIViewController?
-}
-
 class UIKitViewControllerStackProvider: ViewControllerStackProvider {
   func viewControllerStack() -> [UIViewController] {
-    let contentSelector = #selector(ContainerViewController.promotedContentViewController)
     var stack = [UIViewController]()
     var optionalVC = UIApplication.shared.keyWindow?.rootViewController
     while let vc = optionalVC {
       stack.append(vc)
+
       // Check for composite VCs and append their content.
       optionalVC = nil
       if let nc = vc as? UINavigationController {
@@ -215,10 +211,14 @@ class UIKitViewControllerStackProvider: ViewControllerStackProvider {
       } else if let tc = vc as? UITabBarController,
                 let selectedViewController = tc.selectedViewController {
         optionalVC = selectedViewController
-      } else if vc.responds(to: contentSelector) {
-        let unmanaged = vc.perform(contentSelector)
-        if let contentVC = unmanaged?.takeUnretainedValue() as? UIViewController {
-          optionalVC = contentVC
+      } else {
+        let children = vc.children
+        stack.append(contentsOf: children)
+        for child in children {
+          if let presented = child.presentedViewController {
+            optionalVC = presented
+            break
+          }
         }
       }
       if let presented = vc.presentedViewController {
