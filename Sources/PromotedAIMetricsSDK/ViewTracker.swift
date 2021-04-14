@@ -90,17 +90,14 @@ class ViewTracker {
       return previousStack
     }
 
-    // Regenerate stack, joining against the previous stack.
+    // Regenerate stack, including only VCs present in the previous stack.
+    // This includes only VCs that were explicitly logged.
     let viewControllerStack = stackProvider.viewControllerStack()
-    let newStack = viewControllerStack.map { vc -> State in
+    let newStack = viewControllerStack.compactMap { vc -> State? in
       if let entry = previousStack.first(matching: vc) {
         return entry
       }
-      // No entry in previous stack. We've never seen this VC before.
-      // Don't know the use case for it.
-      let viewKey = Key.uiKit(viewController: vc)
-      let viewID = viewIDProducer.nextValue()
-      return State(viewKey: viewKey, useCase: nil, viewID: viewID)
+      return nil
     }
     return newStack
   }
@@ -198,34 +195,34 @@ protocol ViewControllerStackProvider: class {
 class UIKitViewControllerStackProvider: ViewControllerStackProvider {
   func viewControllerStack() -> [UIViewController] {
     var stack = [UIViewController]()
-    var optionalVC = UIApplication.shared.keyWindow?.rootViewController
-    while let vc = optionalVC {
+    var searchQueue = [UIViewController]()
+    var presentedViewController: UIViewController? = nil
+    if let root = UIApplication.shared.keyWindow?.rootViewController {
+      searchQueue.append(root)
+    }
+    while !searchQueue.isEmpty {
+      let vc = searchQueue.removeFirst()
       stack.append(vc)
-
-      // Check for composite VCs and append their content.
-      optionalVC = nil
       if let nc = vc as? UINavigationController {
         // Last one is handled on next iteration.
         stack.append(contentsOf: nc.viewControllers.dropLast())
-        optionalVC = nc.topViewController
+        if let top = nc.topViewController {
+          searchQueue.append(top)
+        }
       } else if let tc = vc as? UITabBarController,
                 let selectedViewController = tc.selectedViewController {
-        optionalVC = selectedViewController
+        searchQueue.append(selectedViewController)
       } else {
-        let children = vc.children
-        stack.append(contentsOf: children)
-        for child in children {
-          if let presented = child.presentedViewController {
-            optionalVC = presented
-            break
-          }
-        }
+        searchQueue.append(contentsOf: vc.children)
       }
+      // Presented VCs should appear at top of the stack, so put
+      // them at the end of the search queue.
       if let presented = vc.presentedViewController {
-        if let intermediary = optionalVC {
-          stack.append(intermediary)
-        }
-        optionalVC = presented
+        presentedViewController = presented
+      }
+      if searchQueue.isEmpty && presentedViewController != nil {
+        searchQueue.append(presentedViewController!)
+        presentedViewController = nil
       }
     }
     return stack
