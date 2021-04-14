@@ -1,10 +1,6 @@
 import Foundation
 import SwiftProtobuf
 
-#if canImport(UIKit)
-import UIKit
-#endif
-
 // MARK: -
 /**
  Promoted event logging interface. Use instances of `MetricsLogger`
@@ -51,45 +47,6 @@ import UIKit
 @objc(PROMetricsLogger)
 public class MetricsLogger: NSObject {
 
-  #if canImport(UIKit)
-  public typealias ViewControllerType = UIViewController
-  #else
-  public typealias ViewControllerType = AnyObject
-  #endif
-
-  /// Allows us to read values for session IDs before starting
-  /// a session and keep those IDs consistent when the session
-  /// does start.
-  private class IDProducer {
-    typealias Producer = () -> String
-    
-    private let initialValueProducer: Producer
-    private let nextValueProducer: Producer
-    private var hasAdvancedFromInitialValue: Bool
-    lazy var currentValue: String = { initialValueProducer() } ()
-    
-    convenience init(producer: @escaping Producer) {
-      self.init(initialValueProducer: producer,
-                nextValueProducer: producer)
-    }
-    
-    init(initialValueProducer: @escaping Producer,
-         nextValueProducer: @escaping Producer) {
-      self.initialValueProducer = initialValueProducer
-      self.nextValueProducer = nextValueProducer
-      self.hasAdvancedFromInitialValue = false
-    }
-
-    @discardableResult func nextValue() -> String {
-      if !hasAdvancedFromInitialValue {
-        hasAdvancedFromInitialValue = true
-        return currentValue
-      }
-      currentValue = nextValueProducer()
-      return currentValue
-    }
-  }
-
   private let clock: Clock
   private let config: ClientConfig
   private let connection: NetworkConnection
@@ -130,9 +87,9 @@ public class MetricsLogger: NSObject {
   /// called. If read before the first call to `logView()`,
   /// returns an ID that will be used for the first view.
   public var viewID: String {
-    return viewIDProducer.currentValue
+    return viewTracker.viewID
   }
-  private let viewIDProducer: IDProducer
+  let viewTracker: ViewTracker
 
   private lazy var deviceMessage: Event_Device = {
     var device = Event_Device()
@@ -155,13 +112,15 @@ public class MetricsLogger: NSObject {
        connection: NetworkConnection,
        deviceInfo: DeviceInfo,
        idMap: IDMap,
-       store: PersistentStore) {
+       store: PersistentStore,
+       viewTracker: ViewTracker? = nil) {
     self.clock = clock
     self.config = clientConfig
     self.connection = connection
     self.deviceInfo = deviceInfo
     self.idMap = idMap
     self.store = store
+
     self.logMessages = []
     self.userID = nil
     self.logUserIDProducer = IDProducer(initialValueProducer: {
@@ -170,7 +129,7 @@ public class MetricsLogger: NSObject {
       return idMap.logUserID()
     })
     self.sessionIDProducer = IDProducer { return idMap.sessionID() }
-    self.viewIDProducer = IDProducer { return idMap.viewID() }
+    self.viewTracker = viewTracker ?? ViewTracker(idMap: idMap)
   }
 
   // MARK: - Starting new sessions
@@ -234,7 +193,37 @@ public class MetricsLogger: NSObject {
     store.userID = userID
     store.logUserID = logUserID
   }
+
+  // MARK: - Internal methods
   
+  /// Groups a series of log messages with the same view, session,
+  /// and user context. Avoids doing multiple checks for this
+  /// context when logging a large number of events.
+  func batchLog(_ block: () -> Void) {
+    executeInViewLoggingContext(block)
+  }
+  
+  private var loggingContextDepth = 0
+  
+  /// Ensures that the view ID is correct for the logging that
+  /// occurs within the given block. When called re-entrantly,
+  /// only the first (outermost) call performs the view state
+  /// checking, since that checking is potentially expensive.
+  private func executeInViewLoggingContext(_ block: () -> Void) {
+    if loggingContextDepth == 0 {
+      ensureViewStateInSync()
+    }
+    loggingContextDepth += 1
+    defer { loggingContextDepth -= 1 }
+    block()
+  }
+  
+  private func ensureViewStateInSync() {
+    if let state = viewTracker.updateState() {
+      logView(trackerState: state)
+    }
+  }
+
   private func userInfoMessage() -> Common_UserInfo {
     var userInfo = Common_UserInfo()
     if let id = userID { userInfo.userID = id }
@@ -248,12 +237,11 @@ public class MetricsLogger: NSObject {
     return timing
   }
 
-  private static func propertiesWrapperMessage(_ message: Message?)
-      -> Common_Properties? {
+  private func propertiesMessage(_ message: Message?) -> Common_Properties? {
     do {
       if let message = message {
         var dataMessage = Common_Properties()
-        try dataMessage.structBytes = message.serializedData()
+        dataMessage.structBytes = try message.serializedData()
         return dataMessage
       }
     } catch BinaryEncodingError.missingRequiredFields {
@@ -276,12 +264,12 @@ public extension MetricsLogger {
   /// - Parameters:
   ///   - properties: Client-specific message
   func logUser(properties: Message? = nil) {
-    var user = Event_User()
-    user.timing = timingMessage()
-    if let properties = Self.propertiesWrapperMessage(properties) {
-      user.properties = properties
+    executeInViewLoggingContext {
+      var user = Event_User()
+      user.timing = timingMessage()
+      if let p = propertiesMessage(properties) { user.properties = p }
+      log(message: user)
     }
-    log(message: user)
   }
   
   /// Logs a session event.
@@ -294,14 +282,14 @@ public extension MetricsLogger {
   /// - Parameters:
   ///   - properties: Client-specific message
   func logSession(properties: Message? = nil) {
-    var session = Event_Session()
-    session.timing = timingMessage()
-    session.sessionID = sessionID
-    session.startEpochMillis = clock.nowMillis
-    if let properties = Self.propertiesWrapperMessage(properties) {
-      session.properties = properties
+    executeInViewLoggingContext {
+      var session = Event_Session()
+      session.timing = timingMessage()
+      session.sessionID = sessionID
+      session.startEpochMillis = clock.nowMillis
+      if let p = propertiesMessage(properties) { session.properties = p }
+      log(message: session)
     }
-    log(message: session)
   }
 
   /// Logs an impression event.
@@ -321,22 +309,22 @@ public extension MetricsLogger {
                      insertionID: String? = nil,
                      requestID: String? = nil,
                      properties: Message? = nil) {
-    let optionalID = idMap.impressionIDOrNil(insertionID: insertionID,
-                                             contentID: contentID,
-                                             logUserID: logUserID)
-    guard let impressionID = optionalID else { return }
-    var impression = Event_Impression()
-    impression.timing = timingMessage()
-    impression.impressionID = impressionID
-    if let id = insertionID { impression.insertionID = id }
-    if let id = requestID { impression.requestID = id }
-    impression.sessionID = sessionID
-    impression.viewID = viewID
-    if let id = contentID { impression.contentID = idMap.contentID(clientID: id) }
-    if let properties = Self.propertiesWrapperMessage(properties) {
-      impression.properties = properties
+    executeInViewLoggingContext {
+      let optionalID = idMap.impressionIDOrNil(insertionID: insertionID,
+                                               contentID: contentID,
+                                               logUserID: logUserID)
+      guard let impressionID = optionalID else { return }
+      var impression = Event_Impression()
+      impression.timing = timingMessage()
+      impression.impressionID = impressionID
+      if let id = insertionID { impression.insertionID = id }
+      if let id = requestID { impression.requestID = id }
+      impression.sessionID = sessionID
+      impression.viewID = viewID
+      if let id = contentID { impression.contentID = idMap.contentID(clientID: id) }
+      if let p = propertiesMessage(properties) { impression.properties = p }
+      log(message: impression)
     }
-    log(message: impression)
   }
   
   /// Logs a user action event.
@@ -364,61 +352,69 @@ public extension MetricsLogger {
                  targetURL: String? = nil,
                  elementID: String? = nil,
                  properties: Message? = nil) {
-    var action = Event_Action()
-    action.timing = timingMessage()
-    action.actionID = idMap.actionID()
-    let impressionID = idMap.impressionIDOrNil(insertionID: insertionID,
-                                               contentID: contentID,
-                                               logUserID: logUserID)
-    if let id = impressionID { action.impressionID = id }
-    if let id = insertionID { action.insertionID = id }
-    if let id = requestID { action.requestID = id }
-    action.sessionID = sessionID
-    action.viewID = viewID
-    action.name = name
-    if let type = type.protoValue { action.actionType = type }
-    action.elementID = elementID ?? name
-    switch type {
-    case .navigate:
-      var navigateAction = Event_NavigateAction()
-      if let url = targetURL { navigateAction.targetURL = url }
-      action.navigateAction = navigateAction
-    default:
-      break
+    executeInViewLoggingContext {
+      var action = Event_Action()
+      action.timing = timingMessage()
+      action.actionID = idMap.actionID()
+      let impressionID = idMap.impressionIDOrNil(insertionID: insertionID,
+                                                 contentID: contentID,
+                                                 logUserID: logUserID)
+      if let id = impressionID { action.impressionID = id }
+      if let id = insertionID { action.insertionID = id }
+      if let id = requestID { action.requestID = id }
+      action.sessionID = sessionID
+      action.viewID = viewID
+      action.name = name
+      if let type = type.protoValue { action.actionType = type }
+      action.elementID = elementID ?? name
+      switch type {
+      case .navigate:
+        var navigateAction = Event_NavigateAction()
+        if let url = targetURL { navigateAction.targetURL = url }
+        action.navigateAction = navigateAction
+      default:
+        break
+      }
+      if let p = propertiesMessage(properties) { action.properties = p }
+      log(message: action)
     }
-    if let properties = Self.propertiesWrapperMessage(properties) {
-      action.properties = properties
-    }
-    log(message: action)
   }
 
-  /// Logs a view event.
+  /// Logs a view event if the given key causes a state change in
+  /// the `ViewTracker`.
   ///
   /// Autogenerates the following fields:
   /// - `timing` from `clock.nowMillis`
-  /// - `viewID` as a UUID
+  /// - `viewID` as a UUID when a new view is logged, re-used from
+  ///    previous state when the key already exists
   /// - `sessionID` from state in this logger
   /// - `device` from `DeviceInfo` on current system
   ///
   /// - Parameters:
-  ///   - name: Name for view, human readable
-  ///   - useCase: Use case for view
+  ///   - trackerKey: ViewTracker.Key that specifies view.
   ///   - properties: Client-specific message
-  func logView(name: String,
-               useCase: UseCase? = nil,
-               properties: Message? = nil) {
+  internal func logView(trackerKey: ViewTracker.Key,
+                        useCase: UseCase? = nil,
+                        properties: Message? = nil) {
+    if let state = viewTracker.trackView(key: trackerKey, useCase: useCase) {
+      logView(trackerState: state, properties: properties)
+    }
+  }
+
+  private func logView(trackerState: ViewTracker.State, properties: Message? = nil) {
+    // Explicit calls to `logView` don't need to be wrapped in
+    // `executeInViewLoggingContext`.
     var view = Event_View()
     view.timing = timingMessage()
-    view.viewID = viewIDProducer.nextValue()
+    view.viewID = trackerState.viewID
     view.sessionID = sessionID
-    view.name = name
-    if let use = useCase?.protoValue { view.useCase = use }
-    if let properties = Self.propertiesWrapperMessage(properties) {
-      view.properties = properties
-    }
+    view.name = trackerState.name
+    if let use = trackerState.useCase?.protoValue { view.useCase = use }
+    if let p = propertiesMessage(properties) { view.properties = p }
     view.device = deviceMessage
     view.viewType = .appScreen
     let appScreenView = Event_AppScreenView()
+    // TODO(yu-hong): Fill out AppScreenView.
     view.appScreenView = appScreenView
     log(message: view)
   }
@@ -523,16 +519,6 @@ public extension MetricsLogger {
     default:
       print("[MetricsLogger] ERROR: \(error.localizedDescription)")
     }
-  }
-}
-
-// MARK: - View controller logging
-extension MetricsLogger {
-  func loggingNameFor(viewController: ViewControllerType) -> String {
-    let className = String(describing: type(of: viewController))
-    let loggingName = className.replacingOccurrences(of:"ViewController", with: "")
-    if loggingName.isEmpty { return "Unnamed" }
-    return loggingName
   }
 }
 

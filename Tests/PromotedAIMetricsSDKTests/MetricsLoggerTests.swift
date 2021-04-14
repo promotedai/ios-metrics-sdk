@@ -19,6 +19,7 @@ final class MetricsLoggerTests: XCTestCase {
   private var clock: FakeClock?
   private var idMap: FakeIDMap?
   private var store: FakePersistentStore?
+  private var viewStackProvider: FakeViewControllerStackProvider?
   private var metricsLogger: MetricsLogger?
 
   public override func setUp() {
@@ -32,12 +33,15 @@ final class MetricsLoggerTests: XCTestCase {
     store = FakePersistentStore()
     store!.userID = "foobar"
     store!.logUserID = "fake-log-user-id"
+    viewStackProvider = FakeViewControllerStackProvider()
+    let viewTracker = ViewTracker(idMap: idMap!, stackProvider: viewStackProvider!)
     metricsLogger = MetricsLogger(clientConfig: config!,
                                   clock: clock!,
                                   connection: connection!,
                                   deviceInfo: FakeDeviceInfo(),
                                   idMap: idMap!,
-                                  store: store!)
+                                  store: store!,
+                                  viewTracker: viewTracker)
   }
   
   private func assertLoggerAndStoreInSync() {
@@ -195,7 +199,7 @@ final class MetricsLoggerTests: XCTestCase {
     XCTAssertNotEqual(initialSessionID, metricsLogger!.sessionID)
   }
 
-  func testBatchFlush() {
+  func testFlush() {
     let flushInterval = config!.loggingFlushInterval
     metricsLogger!.startSessionForTesting(userID: "foobar")
     let e = Event_Action()
@@ -747,12 +751,51 @@ final class MetricsLoggerTests: XCTestCase {
     let initialViewID = metricsLogger!.viewID
     XCTAssertEqual("fake-view-id-1", initialViewID)
     metricsLogger!.startSessionForTesting(userID: "foo")
-    
+
     let viewController = FakeScreenViewController()
     metricsLogger!.logView(viewController: viewController, useCase: .search)
     XCTAssertEqual(initialViewID, metricsLogger!.viewID)
-    
-    metricsLogger!.logView(viewController: viewController, useCase: .search)
+  
+    let viewController2 = FakeScreenViewController()
+    metricsLogger!.logView(viewController: viewController2, useCase: .search)
     XCTAssertNotEqual(initialViewID, metricsLogger!.viewID)
+  }
+  
+  func testViewLoggingChangeScreens() {
+    idMap!.incrementCounts = true
+    let initialViewID = metricsLogger!.viewID
+    metricsLogger!.startSessionForTesting(userID: "foo")
+
+    let vc1 = FakeScreenViewController()
+    metricsLogger!.logView(viewController: vc1, useCase: .search)
+
+    let vc2 = FakeScreenViewController()
+    metricsLogger!.logView(viewController: vc2, useCase: .search)
+    XCTAssertNotEqual(initialViewID, metricsLogger!.viewID)
+
+    metricsLogger!.flush()
+
+    viewStackProvider!.viewControllers = [vc1, vc2]
+    metricsLogger!.logAction(name: "hello")
+
+    viewStackProvider!.viewControllers = [vc1]
+    metricsLogger!.logAction(name: "goodbye")
+
+    // First action should be logged against vc2.
+    XCTAssertEqual(3, metricsLogger!.logMessagesForTesting.count)
+    let message1 = metricsLogger!.logMessagesForTesting[0]
+    guard let action1 = message1 as? Event_Action else { XCTFail(); return }
+    XCTAssertEqual("fake-view-id-2", action1.viewID)
+
+    // Logger should notice vc2 was popped off stack and log a
+    // synthetic view event for vc1
+    let message2 = metricsLogger!.logMessagesForTesting[1]
+    guard let view = message2 as? Event_View else { XCTFail(); return }
+    XCTAssertEqual("fake-view-id-1", view.viewID)
+
+    // Second action should be logged against vc1.
+    let message3 = metricsLogger!.logMessagesForTesting[2]
+    guard let action2 = message3 as? Event_Action else { XCTFail(); return }
+    XCTAssertEqual("fake-view-id-1", action2.viewID)
   }
 }

@@ -24,3 +24,13 @@ public extension UIViewController {
     self.promotedLogger.logView(viewController: self, useCase: useCase)
   }
 }
+
+extension UIViewController {
+  /// Returns name used for logging views.
+  var promotedViewLoggingName: String {
+    let className = String(describing: type(of: self))
+    let loggingName = className.replacingOccurrences(of: "ViewController", with: "")
+    if loggingName.isEmpty { return "Unnamed" }
+    return loggingName
+  }
+}

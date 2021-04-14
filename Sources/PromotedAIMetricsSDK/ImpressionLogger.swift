@@ -185,8 +185,10 @@ public class ImpressionLogger: NSObject {
       impressions.append(impression)
       impressionStarts[content] = now
     }
-    for impression in impressions {
-      metricsLogger.logImpression(content: impression.content)
+    metricsLogger.batchLog {
+      for impression in impressions {
+        metricsLogger.logImpression(content: impression.content)
+      }
     }
     delegate?.impressionLogger(self, didStartImpressions: impressions)
   }

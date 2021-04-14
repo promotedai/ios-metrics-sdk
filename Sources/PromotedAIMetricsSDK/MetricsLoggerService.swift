@@ -46,7 +46,6 @@ import UIKit
 public class MetricsLoggerService: NSObject {
 
   @objc public private(set) lazy var metricsLogger: MetricsLogger = {
-    // Reading `self.config` initializes clientConfigService.
     return MetricsLogger(clientConfig: self.config,
                          clock: self.clock,
                          connection: self.connection,
@@ -59,7 +58,7 @@ public class MetricsLoggerService: NSObject {
     return clientConfigService.config
   }
 
-  private var clientConfigService: ClientConfigService
+  private let clientConfigService: ClientConfigService
   private let clock: Clock
   private let connection: NetworkConnection
   private let deviceInfo: DeviceInfo
@@ -74,7 +73,7 @@ public class MetricsLoggerService: NSObject {
               idMap: SHA1IDMap.instance,
               store: UserDefaultsPersistentStore())
   }
-  
+
   public convenience init(clientConfigService: ClientConfigService) {
     self.init(clientConfigService: clientConfigService,
               clock: SystemClock.instance,

@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 public extension MetricsLogger {
   // MARK: - Impression logging helper methods
@@ -9,23 +10,23 @@ public extension MetricsLogger {
 
   // MARK: - Action logging helper methods
   /// Logs a navigate action to the given view controller.
-  @objc func logNavigateAction(viewController: ViewControllerType) {
-    logNavigateAction(name: loggingNameFor(viewController: viewController),
+  @objc func logNavigateAction(viewController: UIViewController) {
+    logNavigateAction(name: viewController.promotedViewLoggingName,
                       optionalContent: nil)
   }
 
   /// Logs a navigate action to the given view controller for given content.
-  @objc func logNavigateAction(viewController: ViewControllerType,
+  @objc func logNavigateAction(viewController: UIViewController,
                                forContent content: Content) {
-    logNavigateAction(name: loggingNameFor(viewController: viewController),
+    logNavigateAction(name: viewController.promotedViewLoggingName,
                       optionalContent: content)
   }
-  
+
   /// Logs a navigate action to a screen with given name.
   @objc func logNavigateAction(screenName: String) {
     logNavigateAction(name: screenName, optionalContent: nil)
   }
-  
+
   /// Logs a navigate action to a screen with given name for given content.
   @objc func logNavigateAction(screenName: String, forContent content: Content) {
     logNavigateAction(name: screenName, optionalContent: content)
@@ -169,26 +170,26 @@ public extension MetricsLogger {
 
   // MARK: - View logging helper methods
   /// Logs a view of the given `UIViewController`.
-  @objc func logView(viewController: ViewControllerType) {
-    let name = loggingNameFor(viewController: viewController)
-    self.logView(name: name, useCase: nil)
+  @objc func logView(viewController: UIViewController) {
+    logView(trackerKey: .uiKit(viewController: viewController))
   }
   
   /// Logs a view of the given `UIViewController` and use case.
-  @objc func logView(viewController: ViewControllerType,
+  @objc func logView(viewController: UIViewController,
                      useCase: UseCase) {
-    let name = loggingNameFor(viewController: viewController)
-    self.logView(name: name, useCase: useCase)
+    logView(trackerKey: .uiKit(viewController: viewController), useCase: useCase)
   }
 
-  /// Logs a view of a screen with the given name (React Native).
-  @objc func logView(screenName: String) {
-    self.logView(name: screenName, useCase: nil)
+  /// Logs a view with the given route name and key (React Native).
+  func logViewReady(routeName: String, routeKey: String, useCase: UseCase? = nil) {
+    viewTracker.reset()
+    logView(trackerKey: .reactNative(routeName: routeName, routeKey: routeKey),
+            useCase: useCase)
   }
   
-  /// Logs a view of a screen with the given name (React Native)
-  /// and use case.
-  @objc func logView(screenName: String, useCase: UseCase) {
-    self.logView(name: screenName, useCase: useCase)
+  /// Logs a view with the given route name and key (React Native).
+  func logViewChange(routeName: String, routeKey: String, useCase: UseCase? = nil) {
+    logView(trackerKey: .reactNative(routeName: routeName, routeKey: routeKey),
+            useCase: useCase)
   }
 }
