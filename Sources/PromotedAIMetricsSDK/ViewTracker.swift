@@ -74,6 +74,7 @@ class ViewTracker {
   /// Removes all tracked views and resets to original state.
   func reset() {
     viewStack.removeAll()
+    viewIDProducer.nextValue()
   }
 
   private func updatedViewStack(previousStack: Stack) -> Stack {

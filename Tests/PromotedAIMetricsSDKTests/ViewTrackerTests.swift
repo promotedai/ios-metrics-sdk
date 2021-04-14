@@ -137,7 +137,7 @@ class ViewTrackerTests: XCTestCase {
     XCTAssertEqual(viewIDBefore, state!.viewID)
   }
   
-  func testTrackViewReactnativeMultiplePopToPreviousTracked() {
+  func testTrackViewReactNativeMultiplePopToPreviousTracked() {
     let key1 = ViewTracker.Key.reactNative(routeName: "foo", routeKey: "bar")
     let state1 = viewTracker.trackView(key: key1)
     XCTAssertNotNil(state1)
@@ -152,5 +152,22 @@ class ViewTrackerTests: XCTestCase {
     
     let finalState = viewTracker.trackView(key: key1)
     XCTAssertEqual(state1, finalState)
+  }
+  
+  func testTrackViewReactNativeReset() {
+    let key1 = ViewTracker.Key.reactNative(routeName: "foo", routeKey: "bar")
+    let state1 = viewTracker.trackView(key: key1)
+    XCTAssertNotNil(state1)
+
+    let key2 = ViewTracker.Key.reactNative(routeName: "batman", routeKey: "robin")
+    let state2 = viewTracker.trackView(key: key2)
+    XCTAssertNotNil(state2)
+
+    viewTracker.reset()
+    XCTAssertNotEqual(viewTracker.viewID, state2!.viewID)
+
+    let state3 = viewTracker.trackView(key: key1)
+    XCTAssertNotNil(state3)
+    XCTAssertNotEqual(state1!.viewID, state3!.viewID)
   }
 }
