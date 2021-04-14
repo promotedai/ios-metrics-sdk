@@ -27,11 +27,23 @@ final class UIKitViewControllerStackProviderTests: XCTestCase {
   
   func testNavigationController() {
     let nc = UINavigationController()
-    let vc = UIViewController()
-    
-    nc.pushViewController(vc, animated: false)
+    let vc1 = UIViewController()
+    let vc2 = UIViewController()
+    nc.pushViewController(vc1, animated: false)
+    nc.pushViewController(vc2, animated: false)
     let actual = UIKitViewControllerStackProvider.viewControllerStack(root: nc)
-    XCTAssertEqual([nc, vc], actual)
+    XCTAssertEqual([nc, vc1, vc2], actual)
+  }
+  
+  func testTabBarController() {
+    let tc = UITabBarController()
+    let vc1 = UIViewController()
+    let vc2 = UIViewController()
+    let vc3 = UIViewController()
+    tc.viewControllers = [vc1, vc2, vc3]
+    tc.selectedViewController = vc3
+    let actual = UIKitViewControllerStackProvider.viewControllerStack(root: tc)
+    XCTAssertEqual([tc, vc3], actual)
   }
   
   func testPresentedViewController() {
