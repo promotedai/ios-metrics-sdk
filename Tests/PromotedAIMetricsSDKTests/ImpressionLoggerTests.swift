@@ -148,11 +148,4 @@ final class ImpressionLoggerTests: XCTestCase {
                          impression("annie", 123, 200),
                          impression("troy", 123, 200)])
   }
-  
-  static var allTests = [
-    ("testStartImpressions", testStartImpressions),
-    ("testEndImpressions", testEndImpressions),
-    ("testDidChangeImpressions", testDidChangeImpressions),
-    ("testDidHideAllImpressions", testDidHideAllImpressions),
-  ]
 }

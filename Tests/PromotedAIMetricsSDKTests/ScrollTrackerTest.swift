@@ -113,10 +113,4 @@ final class ScrollTrackerTests: XCTestCase {
     clock!.advance(to: 1)
     XCTAssertEqual(0, metricsLogger!.logMessagesForTesting.count)
   }
-  
-  static var allTests = [
-    ("testSetViewport", testSetViewport),
-    ("testSetViewportItemNotOnScreen", testSetViewportItemNotOnScreen),
-    ("testZeroAreaFrame", testZeroAreaFrame),
-  ]
 }

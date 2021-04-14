@@ -756,37 +756,4 @@ final class MetricsLoggerTests: XCTestCase {
     metricsLogger!.logView(viewController: viewController2, useCase: .search)
     XCTAssertNotEqual(initialViewID, metricsLogger!.viewID)
   }
-
-  static var allTests = [
-    ("testStartSession", testStartSession),
-    ("testStartSessionMultiple", testStartSessionMultiple),
-    ("testStartSessionSignedOut", testStartSessionSignedOut),
-    ("testStartSessionSignInThenSignOut", testStartSessionSignInThenSignOut),
-    ("testStartSessionSignOutThenSignIn", testStartSessionSignOutThenSignIn),
-    ("testReadIDsBeforeStartSessionWithUserID", testReadIDsBeforeStartSessionWithUserID),
-    ("testReadIDsBeforeStartSessionSignedOut", testReadIDsBeforeStartSessionSignedOut),
-    ("testReadIDsBeforeStartSessionSignedOutNoPreviousLogUserID", testReadIDsBeforeStartSessionSignedOutNoPreviousLogUserID),
-    ("testReadIDsBeforeStartSessionSignedOutStaySignedOut", testReadIDsBeforeStartSessionSignedOutStaySignedOut),
-    ("testBatchFlush", testBatchFlush),
-    ("testProperties", testProperties),
-    ("testLogUser", testLogUser),
-    ("testLogImpressionInsertionID", testLogImpressionInsertionID),
-    ("testLogImpressionNoInsertionID", testLogImpressionNoInsertionID),
-    ("testLogNavigateAction", testLogNavigateAction),
-    ("testLogAddToCartAction", testLogAddToCartAction),
-    ("testLogRemoveFromCartAction", testLogRemoveFromCartAction),
-    ("testLogCheckoutAction", testLogCheckoutAction),
-    ("testLogPurchaseAction", testLogPurchaseAction),
-    ("testLogShareAction", testLogShareAction),
-    ("testLogLikeAction", testLogLikeAction),
-    ("testLogUnlikeAction", testLogUnlikeAction),
-    ("testLogCommentAction", testLogCommentAction),
-    ("testLogMakeOfferAction", testLogMakeOfferAction),
-    ("testLogAskQuestionAction", testLogAskQuestionAction),
-    ("testLogAnswerQuestionAction", testLogAnswerQuestionAction),
-    ("testLogCompleteSignInAction", testLogCompleteSignInAction),
-    ("testLogCompleteSignUpAction", testLogCompleteSignUpAction),
-    ("testLogViewController", testLogViewController),
-    ("testReadViewIDBeforeLogView", testReadViewIDBeforeLogView),
-  ]
 }
