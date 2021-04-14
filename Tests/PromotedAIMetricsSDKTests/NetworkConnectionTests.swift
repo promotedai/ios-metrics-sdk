@@ -52,10 +52,4 @@ final class NetworkConnectionTests: XCTestCase {
     let request = connection?.urlRequest(url: url, data: data, clientConfig: config!)
     XCTAssertEqual("key!", request!.allHTTPHeaderFields!["x-api-key"]!)
   }
-  
-  static var allTests = [
-    ("testBodyDataJSON", testBodyDataJSON),
-    ("testBodyDataBinary", testBodyDataBinary),
-    ("testURLRequestAPIKey", testURLRequestAPIKey),
-  ]
 }
