@@ -90,8 +90,8 @@ class ViewTracker {
       return previousStack
     }
 
-    // Regenerate stack, including only VCs present in the previous stack.
-    // This includes only VCs that were explicitly logged.
+    // Regenerate stack, including only VCs that were explicitly
+    // logged. These are the VCs in the previous stack.
     let viewControllerStack = stackProvider.viewControllerStack()
     let newStack = viewControllerStack.compactMap { vc -> State? in
       if let entry = previousStack.first(matching: vc) {
@@ -204,22 +204,25 @@ class UIKitViewControllerStackProvider: ViewControllerStackProvider {
       let vc = searchQueue.removeFirst()
       stack.append(vc)
       if let nc = vc as? UINavigationController {
-        // Last one is handled on next iteration.
+        // Last VC is handled on next iteration.
         stack.append(contentsOf: nc.viewControllers.dropLast())
         if let top = nc.topViewController {
           searchQueue.append(top)
         }
       } else if let tc = vc as? UITabBarController,
-                let selectedViewController = tc.selectedViewController {
-        searchQueue.append(selectedViewController)
+                let selected = tc.selectedViewController {
+        searchQueue.append(selected)
       } else {
         searchQueue.append(contentsOf: vc.children)
       }
-      // Presented VCs should appear at top of the stack, so put
-      // them at the end of the search queue.
+      // Parents and children share the same value for
+      // presentedViewController, and there can only be one
+      // presentedViewController in a single presented batch.
       if let presented = vc.presentedViewController {
         presentedViewController = presented
       }
+      // Presented VCs should appear at top of the stack, so put
+      // them at the end of the search queue.
       if searchQueue.isEmpty && presentedViewController != nil {
         searchQueue.append(presentedViewController!)
         presentedViewController = nil
