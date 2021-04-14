@@ -8,6 +8,7 @@ public func allTests() -> [XCTestCaseEntry] {
     testCase(NetworkConnectionTests.allTests),
     testCase(ScrollTrackerTests.allTests),
     testCase(SHA1IDMapTests.allTests),
+    testCase(UIKitViewControllerStackProviderTests.allTests),
   ]
 }
 #endif

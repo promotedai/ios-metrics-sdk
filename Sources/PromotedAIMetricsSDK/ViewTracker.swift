@@ -49,7 +49,6 @@ class ViewTracker {
   /// caused the state of the view stack to change since the last
   /// call to `trackView(key:)` or `updateState()`.
   func trackView(key: Key, useCase: UseCase? = nil) -> State? {
-    defer { print("***** track \(viewStack)") }
     if key == viewStack.top?.viewKey {
       return nil
     }
@@ -65,7 +64,6 @@ class ViewTracker {
   /// Returns `State` if it has changed since the last call to
   /// `trackView(key:)` or `updateState()`.
   func updateState() -> State? {
-    defer { print("***** update \(viewStack)") }
     let previousStack = viewStack
     viewStack = updatedViewStack(previousStack: previousStack)
     let newTop = viewStack.top
@@ -193,13 +191,19 @@ protocol ViewControllerStackProvider: class {
 }
 
 class UIKitViewControllerStackProvider: ViewControllerStackProvider {
+  
   func viewControllerStack() -> [UIViewController] {
+    if let root = UIApplication.shared.keyWindow?.rootViewController {
+      return Self.viewControllerStack(root: root)
+    }
+    return []
+  }
+
+  static func viewControllerStack(root: UIViewController) -> [UIViewController] {
     var stack = [UIViewController]()
     var searchQueue = [UIViewController]()
     var presentedViewController: UIViewController? = nil
-    if let root = UIApplication.shared.keyWindow?.rootViewController {
-      searchQueue.append(root)
-    }
+    searchQueue.append(root)
     while !searchQueue.isEmpty {
       let vc = searchQueue.removeFirst()
       stack.append(vc)
