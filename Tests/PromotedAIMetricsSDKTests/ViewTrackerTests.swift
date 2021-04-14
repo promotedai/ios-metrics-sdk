@@ -126,6 +126,24 @@ class ViewTrackerTests: XCTestCase {
     XCTAssertEqual(state1, finalState)
   }
   
+  func testTrackViewUIKitRegenerate() {
+    let vc1 = UIViewController()
+    let state1 = viewTracker.trackView(key: .uiKit(viewController: vc1), useCase: .feed)
+    XCTAssertNotNil(state1)
+    
+    let vc2 = UIViewController()  // Don't log vc2.
+    
+    let vc3 = UIViewController()
+    let state3 = viewTracker.trackView(key: .uiKit(viewController: vc3), useCase: .custom)
+    XCTAssertNotNil(state3)
+
+    // vc2 shouldn't appear in the stack.
+    stackProvider.viewControllers = [vc1, vc2, vc3]
+    _ = viewTracker.updateState()
+    let stack = viewTracker.viewStackForTesting
+    XCTAssertEqual([state1, state3], stack)
+  }
+  
   func testTrackViewReactNative() {
     let viewIDBefore = viewTracker.viewID
     let key = ViewTracker.Key.reactNative(routeName: "foo", routeKey: "bar")

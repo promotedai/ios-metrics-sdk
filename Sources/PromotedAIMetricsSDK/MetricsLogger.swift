@@ -112,7 +112,8 @@ public class MetricsLogger: NSObject {
        connection: NetworkConnection,
        deviceInfo: DeviceInfo,
        idMap: IDMap,
-       store: PersistentStore) {
+       store: PersistentStore,
+       viewTracker: ViewTracker? = nil) {
     self.clock = clock
     self.config = clientConfig
     self.connection = connection
@@ -128,7 +129,7 @@ public class MetricsLogger: NSObject {
       return idMap.logUserID()
     })
     self.sessionIDProducer = IDProducer { return idMap.sessionID() }
-    self.viewTracker = ViewTracker(idMap: idMap)
+    self.viewTracker = viewTracker ?? ViewTracker(idMap: idMap)
   }
 
   // MARK: - Starting new sessions

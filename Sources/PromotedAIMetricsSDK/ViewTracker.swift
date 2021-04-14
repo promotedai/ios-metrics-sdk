@@ -65,7 +65,7 @@ class ViewTracker {
   /// `trackView(key:)` or `updateState()`.
   func updateState() -> State? {
     let previousStack = viewStack
-    viewStack = updatedViewStack(previousStack: previousStack)
+    viewStack = updateViewStack(previousStack: previousStack)
     let newTop = viewStack.top
     if previousStack.top == newTop { return nil }
     return newTop
@@ -77,7 +77,7 @@ class ViewTracker {
     viewIDProducer.nextValue()
   }
 
-  private func updatedViewStack(previousStack: Stack) -> Stack {
+  private func updateViewStack(previousStack: Stack) -> Stack {
     // Use `isReactNativeHint` only to break ties in the case
     // where the stack is empty.
     if viewStack.isEmpty && isReactNativeHint {
@@ -100,6 +100,10 @@ class ViewTracker {
     }
     return newStack
   }
+}
+
+extension ViewTracker {
+  var viewStackForTesting: [State] { return viewStack }
 }
 
 extension ViewTracker.Key: CustomDebugStringConvertible {
@@ -194,10 +198,10 @@ protocol ViewControllerStackProvider: class {
 class UIKitViewControllerStackProvider: ViewControllerStackProvider {
   
   func viewControllerStack() -> [UIViewController] {
-    if let root = UIApplication.shared.keyWindow?.rootViewController {
-      return Self.viewControllerStack(root: root)
+    guard let root = UIApplication.shared.keyWindow?.rootViewController else {
+      return []
     }
-    return []
+    return Self.viewControllerStack(root: root)
   }
 
   static func viewControllerStack(root: UIViewController) -> [UIViewController] {
