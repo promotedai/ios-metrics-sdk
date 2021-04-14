@@ -787,7 +787,7 @@ final class MetricsLoggerTests: XCTestCase {
     guard let action1 = message1 as? Event_Action else { XCTFail(); return }
     XCTAssertEqual("fake-view-id-2", action1.viewID)
 
-    // Logger should notice vc1 was popped off stack and log a
+    // Logger should notice vc2 was popped off stack and log a
     // synthetic view event for vc1
     let message2 = metricsLogger!.logMessagesForTesting[1]
     guard let view = message2 as? Event_View else { XCTFail(); return }

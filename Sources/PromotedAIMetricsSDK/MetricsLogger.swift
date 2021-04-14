@@ -495,16 +495,13 @@ public extension MetricsLogger {
     logMessages.removeAll()
     let request = logRequestMessage(events: eventsCopy)
     do {
-      let before = clock.now
       try connection.sendMessage(request, clientConfig: config) {
           [weak self] (data, error) in
         if let e = error  {
           self?.handleSendMessageError(e)
           return
         }
-        if let after = self?.clock.now {
-          print("[MetricsLogger] Logging finished (\(after - before) sec).")
-        }
+        print("[MetricsLogger] Logging finished.")
       }
     } catch NetworkConnectionError.messageSerializationError(let message) {
       print("[MetricsLogger] \(message)")
