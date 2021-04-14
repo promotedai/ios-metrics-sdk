@@ -1,5 +1,4 @@
 import Foundation
-import TestHelpers
 import UIKit
 import XCTest
 
@@ -7,7 +6,7 @@ import XCTest
 
 final class UIKitViewControllerStackProviderTests: XCTestCase {
   
-  class FakePresentingViewController: UIViewController {
+  private class FakePresentingViewController: UIViewController {
     private var fakePresented: UIViewController? = nil
     override var presentedViewController: UIViewController? {
       return fakePresented

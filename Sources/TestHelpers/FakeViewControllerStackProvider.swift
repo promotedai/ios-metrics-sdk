@@ -8,4 +8,5 @@ public class FakeViewControllerStackProvider: ViewControllerStackProvider {
   public func viewControllerStack() -> [UIViewController] {
     return viewControllers
   }
+  public init() {}
 }
