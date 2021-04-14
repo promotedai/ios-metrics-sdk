@@ -45,9 +45,4 @@ final class SHA1IDMapTests: XCTestCase {
       XCTAssertEqual(id, seenID, "Hash for \(str) was not unique: \(id) vs \(seenID)")
     }
   }
-  
-  static var allTests = [
-    ("testUniqueness", testUniqueness),
-    ("testDeterminism", testDeterminism),
-  ]
 }
