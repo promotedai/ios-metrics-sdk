@@ -221,10 +221,10 @@ public class MetricsLogger: NSObject {
                                 needsViewStateSync: Bool,
                                 _ block: () -> Void) {
     if loggingContextDepth == 0 {
+      xray?.metricsLoggerCallWillStart(context: context)
       if needsViewStateSync {
         ensureViewStateInSync()
       }
-      xray?.metricsLoggerCallWillStart(context: context)
     }
     loggingContextDepth += 1
     defer {

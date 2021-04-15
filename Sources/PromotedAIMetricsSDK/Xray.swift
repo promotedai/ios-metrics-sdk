@@ -3,14 +3,14 @@ import SwiftProtobuf
 
 /**
  Exposes internals of PromotedAIMetricsSDK workings so that clients
- can inspect. Includes time profile, network activity, and contents
- of log messages sent to the server.
+ can inspect time profiles, network activity, and contents of log
+ messages sent to the server.
  
  Set `xrayEnabled` on the initial `ClientConfig` to enable this
  profiling for the session. Access the `xray` property on
  `MetricsLoggerService`.
  
- Like all profiling mechanisms, `Xray` incurs a performance and memory
+ Like all profiling mechanisms, `Xray` incurs performance and memory
  overhead, so use in production should be judicious. `Xray` makes
  best effort to exclude its own overhead from its reports.
  
@@ -239,6 +239,8 @@ public class Xray: NSObject {
     let call = MetricsLoggerCall()
     call.context = context
     #if DEBUG
+    // Thread.callStackSymbols is slow.
+    // Make sure startTime measurement comes after this.
     call.callStack = Thread.callStackSymbols
     #endif
     call.startTime = clock.nowMillis
@@ -258,7 +260,7 @@ public class Xray: NSObject {
   // MARK: - Batch
   func metricsLoggerBatchWillStart() {
     if let leftoverBatch = pendingBatch {
-      // Might be leftover if previous batch didn't make
+      // Might be left over if previous batch didn't make
       // any network calls.
       add(batch: leftoverBatch)
     }
