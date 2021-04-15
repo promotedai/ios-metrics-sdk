@@ -193,7 +193,7 @@ public class ImpressionLogger: NSObject {
       impressions.append(impression)
       impressionStarts[content] = now
     }
-    // Context is unspecified because caller should have already started.
+    // Context is unspecified because caller specifies it.
     metricsLogger.execute(context: .unspecified) {
       for impression in impressions {
         metricsLogger.logImpression(content: impression.content)
