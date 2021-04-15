@@ -86,10 +86,20 @@ public class MetricsLogger: NSObject {
   /// View ID for current view. Updated when `logView()` is
   /// called. If read before the first call to `logView()`,
   /// returns an ID that will be used for the first view.
+  ///
+  /// When called internally by `MetricsLogger`, may cause
+  /// a View event to be logged.
   public var viewID: String {
+    if needsViewStateCheck {
+      needsViewStateCheck = false
+      if let state = viewTracker.updateState() {
+        logView(trackerState: state)
+      }
+    }
     return viewTracker.viewID
   }
   let viewTracker: ViewTracker
+  private var needsViewStateCheck: Bool
   
   private let xray: Xray?
 
@@ -133,6 +143,7 @@ public class MetricsLogger: NSObject {
     })
     self.sessionIDProducer = IDProducer { return idMap.sessionID() }
     self.viewTracker = viewTracker ?? ViewTracker(idMap: idMap)
+    self.needsViewStateCheck = false
     self.xray = xray
   }
 
@@ -142,7 +153,7 @@ public class MetricsLogger: NSObject {
   /// user event.
   @objc(startSessionAndLogUserWithID:)
   public func startSessionAndLogUser(userID: String) {
-    executeInContext(context: .startSession, needsViewStateSync: false) {
+    executeInContext(context: .startSession) {
       startSession(userID: userID)
       logUser()
       logSession()
@@ -153,7 +164,7 @@ public class MetricsLogger: NSObject {
   /// Starts logging session with signed-out user and logs a
   /// user event.
   @objc public func startSessionAndLogSignedOutUser() {
-    executeInContext(context: .startSession, needsViewStateSync: false) {
+    executeInContext(context: .startSession) {
       startSessionSignedOut()
       logUser()
       logSession()
@@ -209,27 +220,23 @@ public class MetricsLogger: NSObject {
   /// Groups a series of log messages with the same view, session,
   /// and user context. Avoids doing multiple checks for this
   /// context when logging a large number of events.
-  func executeInContext(context: Xray.Context, _ block: () -> Void) {
-    executeInContext(context: context, needsViewStateSync: true, block)
-  }
-
+  ///
   /// Ensures that the view ID is correct for the logging that
-  /// occurs within the given block. When called re-entrantly,
-  /// only the first (outermost) call performs the view state
-  /// checking, since that checking is potentially expensive.
-  private func executeInContext(context: Xray.Context,
-                                needsViewStateSync: Bool,
-                                _ block: () -> Void) {
+  /// occurs within the given block. This may involve a check that
+  /// iterates through the UIView stack. This check occurs lazily
+  /// on the first access of the `viewID` property. When called
+  /// re-entrantly, only the first (outermost) call causes this
+  /// view state check, since that check is relatively expensive.
+  func executeInContext(context: Xray.Context, _ block: () -> Void) {
     if loggingContextDepth == 0 {
       xray?.metricsLoggerCallWillStart(context: context)
-      if needsViewStateSync {
-        ensureViewStateInSync()
-      }
+      needsViewStateCheck = true
     }
     loggingContextDepth += 1
     defer {
       loggingContextDepth -= 1
       if loggingContextDepth == 0 {
+        needsViewStateCheck = false
         xray?.metricsLoggerCallDidComplete()
       }
     }
@@ -420,7 +427,7 @@ public extension MetricsLogger {
   }
 
   private func logView(trackerState: ViewTracker.State, properties: Message? = nil) {
-    executeInContext(context: .logView, needsViewStateSync: false) {
+    executeInContext(context: .logView) {
       var view = Event_View()
       view.timing = timingMessage()
       view.viewID = trackerState.viewID
@@ -455,7 +462,7 @@ public extension MetricsLogger {
     if batchLoggingTimer != nil { return }
     let interval = config.loggingFlushInterval
     batchLoggingTimer = clock.schedule(timeInterval: interval) {
-        [weak self] clock in
+      [weak self] clock in
       guard let strongSelf = self else { return }
       strongSelf.batchLoggingTimer = nil
       strongSelf.flush()

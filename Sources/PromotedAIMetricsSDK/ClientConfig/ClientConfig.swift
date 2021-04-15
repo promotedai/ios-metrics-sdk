@@ -29,8 +29,6 @@ public class ClientConfig: NSObject {
   /// from being sent, but these messages may still be collected
   /// at runtime and stored in memory.
   @objc public var loggingEnabled: Bool = true
-  
-  @objc public var xrayEnabled: Bool = false
 
   /// URL for logging endpoint as used by `NetworkConnection`.
   /// Implementations of `NetworkConnection` from Promoted will
@@ -83,5 +81,12 @@ public class ClientConfig: NSObject {
   /// processing that `ScrollTracker` performs.
   public var scrollTrackerUpdateFrequency: TimeInterval = 0.5
   
+  /// Whether to enable Xray profiling for this session.
+  @objc public var xrayEnabled: Bool = false
+
+  /// Whether to include call stacks on Xray profiles.
+  /// Call stacks are expensive to compute.
+  @objc public var xrayExpensiveThreadCallStacksEnabled: Bool = false
+
   @objc public override init() {}
 }

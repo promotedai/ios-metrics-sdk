@@ -221,9 +221,11 @@ public class Xray: NSObject {
   private var pendingBatch: NetworkBatch?
   
   private let clock: Clock
+  private let callStacksEnabled: Bool
 
-  init(clock: Clock) {
+  init(clock: Clock, config: ClientConfig) {
     self.clock = clock
+    self.callStacksEnabled = config.xrayExpensiveThreadCallStacksEnabled
 
     self.networkBatchWindowSize = 10
     self.totalBytesSent = 0
@@ -238,11 +240,11 @@ public class Xray: NSObject {
   func metricsLoggerCallWillStart(context: Context) {
     let call = MetricsLoggerCall()
     call.context = context
-    #if DEBUG
-    // Thread.callStackSymbols is slow.
-    // Make sure startTime measurement comes after this.
-    call.callStack = Thread.callStackSymbols
-    #endif
+    if callStacksEnabled {
+      // Thread.callStackSymbols is slow.
+      // Make sure startTime measurement comes after this.
+      call.callStack = Thread.callStackSymbols
+    }
     call.startTime = clock.nowMillis
     pendingCalls.append(call)
   }
