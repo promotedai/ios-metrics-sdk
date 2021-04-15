@@ -4,7 +4,7 @@ import Foundation
 /** Opaque type returned by `Clock.schedule()` to use when canceling. */
 public protocol ScheduledTimer {}
 
-typealias TimeIntervalMillis = UInt64
+public typealias TimeIntervalMillis = Int64
 
 // MARK: -
 /** Represents a way to get time and perform scheduling of tasks. */

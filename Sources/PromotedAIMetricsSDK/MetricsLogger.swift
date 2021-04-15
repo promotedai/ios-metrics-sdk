@@ -251,7 +251,7 @@ public class MetricsLogger: NSObject {
   
   private func timingMessage() -> Common_Timing {
     var timing = Common_Timing()
-    timing.clientLogTimestamp = clock.nowMillis
+    timing.clientLogTimestamp = UInt64(clock.nowMillis)
     return timing
   }
 
@@ -304,7 +304,7 @@ public extension MetricsLogger {
       var session = Event_Session()
       session.timing = timingMessage()
       session.sessionID = sessionID
-      session.startEpochMillis = clock.nowMillis
+      session.startEpochMillis = UInt64(clock.nowMillis)
       if let p = propertiesMessage(properties) { session.properties = p }
       log(message: session)
     }
@@ -518,14 +518,19 @@ public extension MetricsLogger {
     xray?.metricsLoggerBatchWillSend(message: request)
     do {
       try connection.sendMessage(request, clientConfig: config) {
-          [weak self] (data, error) in
-        guard let strongSelf = self else { return }
+        [weak self] (data, error) in
+        print("[MetricsLogger] Logging finished.")
+        guard let xray = self?.xray else { return }
+        guard let batch = xray.networkBatches.last else { return }
         if let e = error  {
-          strongSelf.xray?.metricsLoggerBatchResponseDidError(e)
+          xray.metricsLoggerBatchResponseDidError(e)
           return
         }
-        strongSelf.xray?.metricsLoggerBatchResponseDidComplete()
-        print("[MetricsLogger] Logging finished.")
+        xray.metricsLoggerBatchResponseDidComplete()
+        print("[MetricsLogger] Spent \(batch.timeSpentAcrossCalls) ms " +
+              "for \(batch.messageSizeBytes) bytes.")
+        print("[MetricsLogger] TOTAL \(xray.totalTimeSpent) ms " +
+              "for \(xray.totalBytesSent) bytes.")
       }
     } catch {
       xray?.metricsLoggerBatchDidError(error)
