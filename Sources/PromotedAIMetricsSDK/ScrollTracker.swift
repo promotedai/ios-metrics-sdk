@@ -91,7 +91,7 @@ public class ScrollTracker: NSObject {
   private let clock: Clock
   private let metricsLogger: MetricsLogger
   
-  private var impressionLogger: ImpressionLogger
+  private let impressionLogger: ImpressionLogger
   /*visibleForTesting*/ private(set) var content: [(CGRect, Content)]
   private var timer: ScheduledTimer?
   
