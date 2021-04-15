@@ -153,7 +153,7 @@ public class MetricsLogger: NSObject {
   /// user event.
   @objc(startSessionAndLogUserWithID:)
   public func startSessionAndLogUser(userID: String) {
-    executeInContext(context: .startSession) {
+    execute(context: .startSession) {
       startSession(userID: userID)
       logUser()
       logSession()
@@ -164,7 +164,7 @@ public class MetricsLogger: NSObject {
   /// Starts logging session with signed-out user and logs a
   /// user event.
   @objc public func startSessionAndLogSignedOutUser() {
-    executeInContext(context: .startSession) {
+    execute(context: .startSession) {
       startSessionSignedOut()
       logUser()
       logSession()
@@ -221,15 +221,20 @@ public class MetricsLogger: NSObject {
   /// and user context. Avoids doing multiple checks for this
   /// context when logging a large number of events.
   ///
+  /// Also generates Xray profiling data for the provided block,
+  /// if needed. Due to this, blocks sent to `execute(context::)`
+  /// might not perform any logging. (In future versions of the
+  /// library, we may move this profiling out of `MetricsLogger`.)
+  ///
   /// Ensures that the view ID is correct for the logging that
   /// occurs within the given block. This may involve a check that
   /// iterates through the UIView stack. This check occurs lazily
   /// on the first access of the `viewID` property. When called
   /// re-entrantly, only the first (outermost) call causes this
   /// view state check, since that check is relatively expensive.
-  func executeInContext(context: Xray.Context, _ block: () -> Void) {
+  func execute(context: Xray.Context, _ block: () -> Void) {
     if loggingContextDepth == 0 {
-      xray?.metricsLoggerCallWillStart(context: context)
+      xray?.callWillStart(context: context)
       needsViewStateCheck = true
     }
     loggingContextDepth += 1
@@ -237,16 +242,10 @@ public class MetricsLogger: NSObject {
       loggingContextDepth -= 1
       if loggingContextDepth == 0 {
         needsViewStateCheck = false
-        xray?.metricsLoggerCallDidComplete()
+        xray?.callDidComplete()
       }
     }
     block()
-  }
-  
-  private func ensureViewStateInSync() {
-    if let state = viewTracker.updateState() {
-      logView(trackerState: state)
-    }
   }
 
   private func userInfoMessage() -> Common_UserInfo {
@@ -289,7 +288,7 @@ public extension MetricsLogger {
   /// - Parameters:
   ///   - properties: Client-specific message
   func logUser(properties: Message? = nil) {
-    executeInContext(context: .logUser) {
+    execute(context: .logUser) {
       var user = Event_User()
       user.timing = timingMessage()
       if let p = propertiesMessage(properties) { user.properties = p }
@@ -307,7 +306,7 @@ public extension MetricsLogger {
   /// - Parameters:
   ///   - properties: Client-specific message
   func logSession(properties: Message? = nil) {
-    executeInContext(context: .logSession) {
+    execute(context: .logSession) {
       var session = Event_Session()
       session.timing = timingMessage()
       session.sessionID = sessionID
@@ -334,7 +333,7 @@ public extension MetricsLogger {
                      insertionID: String? = nil,
                      requestID: String? = nil,
                      properties: Message? = nil) {
-    executeInContext(context: .logImpression) {
+    execute(context: .logImpression) {
       let optionalID = idMap.impressionIDOrNil(insertionID: insertionID,
                                                contentID: contentID,
                                                logUserID: logUserID)
@@ -377,7 +376,7 @@ public extension MetricsLogger {
                  targetURL: String? = nil,
                  elementID: String? = nil,
                  properties: Message? = nil) {
-    executeInContext(context: .logAction) {
+    execute(context: .logAction) {
       var action = Event_Action()
       action.timing = timingMessage()
       action.actionID = idMap.actionID()
@@ -427,7 +426,7 @@ public extension MetricsLogger {
   }
 
   private func logView(trackerState: ViewTracker.State, properties: Message? = nil) {
-    executeInContext(context: .logView) {
+    execute(context: .logView) {
       var view = Event_View()
       view.timing = timingMessage()
       view.viewID = trackerState.viewID
@@ -454,7 +453,7 @@ public extension MetricsLogger {
     assert(Thread.isMainThread,
            "[MetricsLogger] Logging must be done on main thread")
     logMessages.append(message)
-    xray?.metricsLoggerCallDidLog(message: message)
+    xray?.callDidLog(message: message)
     maybeSchedulePendingBatchLoggingFlush()
   }
   

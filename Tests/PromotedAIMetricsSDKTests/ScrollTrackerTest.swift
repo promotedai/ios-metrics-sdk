@@ -14,7 +14,7 @@ final class ScrollTrackerTests: XCTestCase {
   private var metricsLogger: MetricsLogger?
   private var scrollTracker: ScrollTracker?
   
-  public override func setUp() {
+  override func setUp() {
     super.setUp()
     clock = FakeClock()
     config = ClientConfig()

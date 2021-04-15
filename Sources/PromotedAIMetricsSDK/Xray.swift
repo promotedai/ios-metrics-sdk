@@ -23,7 +23,7 @@ public class Xray: NSObject {
   
   public typealias CallStack = [String]
   
-  /** Origin or reason for a logging call. */
+  /** Origin or reason for activity in Promoted library. */
   @objc(PROXrayContext)
   public enum Context: Int {
     case unspecified = 0
@@ -77,9 +77,9 @@ public class Xray: NSObject {
     case scrollTrackerUpdate
   }
 
-  /** Instrumented call to perform logging. */
-  @objc(PROXrayMetricsLoggerCall)
-  public class MetricsLoggerCall: NSObject {
+  /** Instrumented call to Promoted library. */
+  @objc(PROXrayCall)
+  public class Call: NSObject {
     
     /// Call stack that triggered logging.
     @objc public fileprivate(set) var callStack: CallStack = []
@@ -100,28 +100,26 @@ public class Xray: NSObject {
     public fileprivate(set) var messages: [Message] = []
 
     /// JSON representation of any messages that were logged.
-    @objc public lazy var messagesJSON: [String] = {
+    @objc public var messagesJSON: [String] {
       return messages.map {
         do { return try $0.jsonString() } catch { return "'ERROR'" }
       }
-    } ()
+    }
 
     /// Serialized bytes of any messages that were logged.
-    @objc public lazy var messagesBytes: [Data] = {
+    @objc public var messagesBytes: [Data] {
       return messages.map {
         do { return try $0.serializedData() } catch { return Data() }
       }
-    } ()
+    }
 
     /// Total number of serialized bytes across all messages.
     /// This count is an approximation of actual network traffic.
-    @objc public lazy var messagesSizeBytes: UInt64 = {
-      var result: UInt64 = 0
-      messagesBytes.forEach { result += UInt64($0.count) }
-      return result
-    } ()
+    @objc public var messagesSizeBytes: UInt64 {
+      return UInt64(messagesBytes.map { $0.count }.reduce(0, +))
+    }
   }
-  
+
   /** Batched logging call. */
   @objc(PROXrayNetworkBatch)
   public class NetworkBatch: NSObject {
@@ -142,7 +140,7 @@ public class Xray: NSObject {
     /// Time spent in Promoted code for batch flush and all calls
     /// contained therein.
     @objc public var timeSpentAcrossCalls: TimeIntervalMillis {
-      return timeSpent + metricsLoggerCalls.map { $0.timeSpent }.reduce(0, +)
+      return timeSpent + calls.map { $0.timeSpent }.reduce(0, +)
     }
 
     /// Time at which network response received.
@@ -153,27 +151,27 @@ public class Xray: NSObject {
     public fileprivate(set) var message: Message? = nil
 
     /// JSON representation of `message`.
-    @objc public lazy var messageJSON: String = {
+    @objc public var messageJSON: String {
       guard let message = message else { return "" }
       do { return try message.jsonString() } catch { return "'ERROR'" }
-    } ()
+    }
 
     /// Serialized bytes for `message` sent across the network.
-    @objc public lazy var messageBytes: Data = {
+    @objc public var messageBytes: Data {
       guard let message = message else { return Data() }
       do { return try message.serializedData() } catch { return Data() }
-    } ()
+    }
 
     /// Total number of serialized bytes sent across network.
     /// This count is an approximation of actual network traffic.
     /// Network traffic also include HTTP headers, which are not
     /// counted in this size.
-    @objc public lazy var messageSizeBytes: UInt64 = {
+    @objc public var messageSizeBytes: UInt64 {
       return UInt64(messageBytes.count)
-    } ()
+    }
 
     /// Logging calls included in this batch.
-    @objc public fileprivate(set) var metricsLoggerCalls: [MetricsLoggerCall] = []
+    @objc public fileprivate(set) var calls: [Call] = []
 
     /// Errors that resulted from this batch.
     @objc public fileprivate(set) var error: Error? = nil
@@ -186,9 +184,7 @@ public class Xray: NSObject {
     didSet {
       let max = Self.networkBatchWindowMaxSize
       networkBatchWindowSize = min(networkBatchWindowSize, max)
-      if networkBatchWindowSize < networkBatches.count {
-        networkBatches = Array(networkBatches.prefix(networkBatchWindowSize))
-      }
+      trimNetworkBatches()
     }
   }
 
@@ -208,8 +204,8 @@ public class Xray: NSObject {
   @objc public private(set) var networkBatches: [NetworkBatch]
 
   /// Flattened logging calls across `networkBatches`.
-  @objc public var metricsLoggerCalls: [MetricsLoggerCall] {
-    return networkBatches.flatMap { $0.metricsLoggerCalls }
+  @objc public var calls: [Call] {
+    return networkBatches.flatMap { $0.calls }
   }
 
   /// Flattened errors across `networkBatches`.
@@ -217,7 +213,7 @@ public class Xray: NSObject {
     return networkBatches.compactMap { $0.error }
   }
 
-  private var pendingCalls: [MetricsLoggerCall]
+  private var pendingCalls: [Call]
   private var pendingBatch: NetworkBatch?
   
   private let clock: Clock
@@ -237,8 +233,8 @@ public class Xray: NSObject {
   }
   
   // MARK: - Call
-  func metricsLoggerCallWillStart(context: Context) {
-    let call = MetricsLoggerCall()
+  func callWillStart(context: Context) {
+    let call = Call()
     call.context = context
     if callStacksEnabled {
       // Thread.callStackSymbols is slow.
@@ -249,12 +245,12 @@ public class Xray: NSObject {
     pendingCalls.append(call)
   }
   
-  func metricsLoggerCallDidLog(message: Message) {
+  func callDidLog(message: Message) {
     guard let lastCall = pendingCalls.last else { return }
     lastCall.messages.append(message)
   }
 
-  func metricsLoggerCallDidComplete() {
+  func callDidComplete() {
     guard let lastCall = pendingCalls.last else { return }
     lastCall.endTime = clock.nowMillis
   }
@@ -268,7 +264,7 @@ public class Xray: NSObject {
     }
     let pendingBatch = NetworkBatch()
     pendingBatch.startTime = clock.nowMillis
-    pendingBatch.metricsLoggerCalls = pendingCalls
+    pendingBatch.calls = pendingCalls
     self.pendingBatch = pendingBatch
     self.pendingCalls.removeAll()
   }
@@ -310,13 +306,21 @@ public class Xray: NSObject {
   
   private func add(batch: NetworkBatch) {
     networkBatches.append(batch)
-    if networkBatches.count > networkBatchWindowSize {
-      networkBatches.removeFirst()
+    trimNetworkBatches()
+  }
+  
+  private func trimNetworkBatches() {
+    let excess = networkBatches.count - networkBatchWindowSize
+    if excess > 0 {
+      // networkBatches.removeFirst(k) is O(networkBatches.count).
+      // Not worth optimizing right now, but could use a circular
+      // buffer to avoid this.
+      networkBatches.removeFirst(excess)
     }
   }
 }
 
-extension Xray.MetricsLoggerCall {
+extension Xray.Call {
   public override var description: String {
     return debugDescription
   }
@@ -336,8 +340,8 @@ extension Xray.NetworkBatch {
   }
 
   public override var debugDescription: String {
-    let callCount = metricsLoggerCalls.count
-    let eventCount = metricsLoggerCalls.flatMap { $0.messages }.count
+    let callCount = calls.count
+    let eventCount = calls.flatMap { $0.messages }.count
     let messageSize = messageSizeBytes
     return "(\(timeSpent) ms, \(callCount) calls, \(eventCount) events, " +
            "\(messageSize) bytes)"

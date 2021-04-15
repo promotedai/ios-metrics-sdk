@@ -156,7 +156,7 @@ public class ScrollTracker: NSObject {
   }
 
   private func updateVisibility() {
-    metricsLogger.executeInContext(context: .scrollTrackerUpdate) {
+    metricsLogger.execute(context: .scrollTrackerUpdate) {
       var visibleContent = [Content]()
       // TODO(yu-hong): Replace linear search with binary/interpolation search
       // for larger inputs. Need a secondary data structure to sort frames.
@@ -230,7 +230,7 @@ public extension ScrollTracker {
   }
   
   private func setFrames(dataProducer: @escaping (IndexPath) -> Content?) {
-    metricsLogger.executeInContext(context: .scrollTrackerSetFrames) {
+    metricsLogger.execute(context: .scrollTrackerSetFrames) {
       guard let collectionView = collectionView else { return }
       guard collectionView.window != nil else { return }
       content.removeAll()

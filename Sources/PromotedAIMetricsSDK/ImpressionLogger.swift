@@ -135,7 +135,7 @@ public class ImpressionLogger: NSObject {
   /// Call this method when new items are displayed.
   @objc(collectionViewWillDisplayContent:)
   public func collectionViewWillDisplay(content: Content) {
-    metricsLogger.executeInContext(context: .impressionLoggerWillDisplay) {
+    metricsLogger.execute(context: .impressionLoggerWillDisplay) {
       broadcastStartAndAddImpressions(contentArray: [content], now: clock.now)
     }
   }
@@ -145,7 +145,7 @@ public class ImpressionLogger: NSObject {
   /// been displayed, the impression for that item will be ignored.
   @objc(collectionViewDidHideContent:)
   public func collectionViewDidHide(content: Content) {
-    metricsLogger.executeInContext(context: .impressionLoggerDidHide) {
+    metricsLogger.execute(context: .impressionLoggerDidHide) {
       broadcastEndAndRemoveImpressions(contentArray: [content], now: clock.now)
     }
   }
@@ -155,7 +155,7 @@ public class ImpressionLogger: NSObject {
   /// when a collection reloads.
   @objc(collectionViewDidChangeVisibleContent:)
   public func collectionViewDidChangeVisibleContent(_ contentArray: [Content]) {
-    metricsLogger.executeInContext(context: .impressionLoggerDidChange) {
+    metricsLogger.execute(context: .impressionLoggerDidChange) {
       let now = clock.now
 
       var newlyShownContent = [Content]()
@@ -179,7 +179,7 @@ public class ImpressionLogger: NSObject {
 
   /// Call this method when the collection view hides.
   @objc public func collectionViewDidHideAllContent() {
-    metricsLogger.executeInContext(context: .impressionLoggerDidHideAll) {
+    metricsLogger.execute(context: .impressionLoggerDidHideAll) {
       let keys = [Content](impressionStarts.keys)
       broadcastEndAndRemoveImpressions(contentArray: keys, now: clock.now)
     }
@@ -194,7 +194,7 @@ public class ImpressionLogger: NSObject {
       impressionStarts[content] = now
     }
     // Context is unspecified because caller should have already started.
-    metricsLogger.executeInContext(context: .unspecified) {
+    metricsLogger.execute(context: .unspecified) {
       for impression in impressions {
         metricsLogger.logImpression(content: impression.content)
       }

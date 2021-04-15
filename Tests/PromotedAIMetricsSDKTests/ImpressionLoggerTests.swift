@@ -52,7 +52,7 @@ final class ImpressionLoggerTests: XCTestCase {
   private var metricsLogger: MetricsLogger?
   private var impressionLogger: ImpressionLogger?
   
-  public override func setUp() {
+  override func setUp() {
     super.setUp()
     clock = FakeClock()
     delegate = Delegate()

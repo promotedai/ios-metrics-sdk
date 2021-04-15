@@ -65,6 +65,8 @@ public class MetricsLoggerService: NSObject {
   private let deviceInfo: DeviceInfo
   private let idMap: IDMap
   private let store: PersistentStore
+
+  /// Profiling information for this session.
   public let xray: Xray?
 
   @objc public convenience init(initialConfig: ClientConfig) {

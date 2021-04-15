@@ -11,7 +11,7 @@ final class NetworkConnectionTests: XCTestCase {
   private var config: ClientConfig?
   private var connection: FakeNetworkConnection?
 
-  public override func setUp() {
+  override func setUp() {
     super.setUp()
     config = ClientConfig()
     connection = FakeNetworkConnection()

@@ -5,7 +5,7 @@ import XCTest
 
 @testable import PromotedAIMetricsSDK
 
-class ViewTrackerTests: XCTestCase {
+final class ViewTrackerTests: XCTestCase {
   private let idMap = FakeIDMap()
   private let stackProvider = FakeViewControllerStackProvider()
   private lazy var viewTracker = ViewTracker(idMap: idMap, stackProvider: stackProvider)

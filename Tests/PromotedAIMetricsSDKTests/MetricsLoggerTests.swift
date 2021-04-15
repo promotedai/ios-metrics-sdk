@@ -22,7 +22,7 @@ final class MetricsLoggerTests: XCTestCase {
   private var viewStackProvider: FakeViewControllerStackProvider?
   private var metricsLogger: MetricsLogger?
 
-  public override func setUp() {
+  override func setUp() {
     super.setUp()
     config = ClientConfig()
     config!.metricsLoggingURL = "http://fake.promoted.ai/metrics"
