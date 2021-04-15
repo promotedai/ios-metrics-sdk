@@ -124,9 +124,6 @@ public class Xray: NSObject {
   @objc(PROXrayNetworkBatch)
   public class NetworkBatch: NSObject {
     
-    /// Approximate bytes sent across network.
-    @objc public fileprivate(set) var bytesSent: UInt64 = 0
-    
     /// Start time for batch flush.
     @objc public fileprivate(set) var startTime: TimeIntervalMillis = 0
 
@@ -162,7 +159,7 @@ public class Xray: NSObject {
       do { return try message.serializedData() } catch { return Data() }
     }
 
-    /// Total number of serialized bytes sent across network.
+    /// Number of serialized bytes sent across network.
     /// This count is an approximation of actual network traffic.
     /// Network traffic also include HTTP headers, which are not
     /// counted in this size.

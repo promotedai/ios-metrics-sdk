@@ -32,6 +32,11 @@ public class FakeClock: Clock {
     scheduledTimers.removeAll(where: { $0 === capturedTimer })
   }
   
+  public func advance(toMillis millis: TimeIntervalMillis) {
+    let secs = TimeInterval(Double(millis) / 1000.0)
+    advance(to: secs)
+  }
+
   public func advance(to timeInterval: TimeInterval) {
     self.now = timeInterval
     let timersCopy = scheduledTimers
