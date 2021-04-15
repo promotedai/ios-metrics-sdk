@@ -33,7 +33,8 @@ public class Xray: NSObject {
     
     /// Direct call to `MetricsLogger`.
     case logUser
-    
+
+    /// Direct call to `MetricsLogger`.
     case logSession
 
     /// Direct call to `MetricsLogger`.
@@ -46,33 +47,33 @@ public class Xray: NSObject {
     case logView
 
     /// Called from `ImpressionLogger.collectionViewWillDisplay(content:)`.
-    /// May not trigger log messages, so the corresponding
-    /// `MetricsLoggerCall.messages` for this context may be empty.
+    /// May not trigger log messages, so `MetricsLoggerCall.messages`
+    /// may be empty for this context.
     case impressionLoggerWillDisplay
 
     /// Called from `ImpressionLogger.collectionViewDidHide(content:)`.
-    /// May not trigger log messages, so the corresponding
-    /// `MetricsLoggerCall.messages` for this context may be empty.
+    /// May not trigger log messages, so `MetricsLoggerCall.messages`
+    /// may be empty for this context.
     case impressionLoggerDidHide
 
     /// Called from `ImpressionLogger.collectionViewDidChangeVisibleContent(:)`.
-    /// May not trigger log messages, so the corresponding
-    /// `MetricsLoggerCall.messages` for this context may be empty.
+    /// May not trigger log messages, so `MetricsLoggerCall.messages`
+    /// may be empty for this context.
     case impressionLoggerDidChange
 
     /// Called from `ImpressionLogger.collectionViewDidHideAllContent()`.
-    /// May not trigger log messages, so the corresponding
-    /// `MetricsLoggerCall.messages` for this context may be empty.
+    /// May not trigger log messages, so `MetricsLoggerCall.messages`
+    /// may be empty for this context.
     case impressionLoggerDidHideAll
 
     /// Called from one of `ScrollTracker`'s `setFrames*` methods.
-    /// Will not trigger log messages, so the corresponding
-    /// `MetricsLoggerCall.messages` for this context will be empty.
+    /// Will not trigger log messages, so `MetricsLoggerCall.messages`
+    /// will be empty for this context.
     case scrollTrackerSetFrames
 
     /// Called from `ScrollTracker`'s `scrollViewDidScroll` method.
-    /// May not trigger log messages, so the corresponding
-    /// `MetricsLoggerCall.messages` for this context may be empty.
+    /// May not trigger log messages, so `MetricsLoggerCall.messages`
+    /// may be empty for this context.
     case scrollTrackerDidScroll
   }
 
