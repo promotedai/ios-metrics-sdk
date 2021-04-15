@@ -71,10 +71,10 @@ public class Xray: NSObject {
     /// will be empty for this context.
     case scrollTrackerSetFrames
 
-    /// Called from `ScrollTracker`'s `scrollViewDidScroll` method.
+    /// Called when `ScrollTracker` sends impressions.
     /// May not trigger log messages, so `MetricsLoggerCall.messages`
     /// may be empty for this context.
-    case scrollTrackerDidScroll
+    case scrollTrackerUpdate
   }
 
   /** Instrumented call to perform logging. */

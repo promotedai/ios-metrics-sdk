@@ -156,16 +156,18 @@ public class ScrollTracker: NSObject {
   }
 
   private func updateVisibility() {
-    var visibleContent = [Content]()
-    // TODO(yu-hong): Replace linear search with binary/interpolation search
-    // for larger inputs. Need a secondary data structure to sort frames.
-    for (frame, content) in content {
-      let overlapRatio = frame.overlapRatio(viewport)
-      if overlapRatio >= visibilityThreshold {
-        visibleContent.append(content)
+    metricsLogger.executeInContext(context: .scrollTrackerUpdate) {
+      var visibleContent = [Content]()
+      // TODO(yu-hong): Replace linear search with binary/interpolation search
+      // for larger inputs. Need a secondary data structure to sort frames.
+      for (frame, content) in content {
+        let overlapRatio = frame.overlapRatio(viewport)
+        if overlapRatio >= visibilityThreshold {
+          visibleContent.append(content)
+        }
       }
+      impressionLogger.collectionViewDidChangeVisibleContent(visibleContent)
     }
-    impressionLogger.collectionViewDidChangeVisibleContent(visibleContent)
   }
 }
 
@@ -253,14 +255,12 @@ public extension ScrollTracker {
   }
   
   @objc func scrollViewDidChangeVisibleContent() {
-    metricsLogger.executeInContext(context: .scrollTrackerDidScroll) {
-      guard let scrollView = scrollView else { return }
-      guard let collectionView = collectionView else { return }
-      guard scrollView.window != nil && collectionView.window != nil else { return }
-      let origin = scrollView.convert(scrollView.contentOffset, to: collectionView);
-      let size = scrollView.frame.size
-      viewport = CGRect(origin: origin, size: size)
-    }
+    guard let scrollView = scrollView else { return }
+    guard let collectionView = collectionView else { return }
+    guard scrollView.window != nil && collectionView.window != nil else { return }
+    let origin = scrollView.convert(scrollView.contentOffset, to: collectionView);
+    let size = scrollView.frame.size
+    viewport = CGRect(origin: origin, size: size)
   }
 }
 
