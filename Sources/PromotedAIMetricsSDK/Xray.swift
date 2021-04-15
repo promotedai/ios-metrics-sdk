@@ -173,10 +173,10 @@ public class Xray: NSObject {
     } ()
 
     /// Logging calls included in this batch.
-    public fileprivate(set) var metricsLoggerCalls: [MetricsLoggerCall] = []
+    @objc public fileprivate(set) var metricsLoggerCalls: [MetricsLoggerCall] = []
 
     /// Errors that resulted from this batch.
-    public fileprivate(set) var error: Error? = nil
+    @objc public fileprivate(set) var error: Error? = nil
   }
   
   public static let networkBatchWindowMaxSize: Int = 100
