@@ -521,12 +521,11 @@ public extension MetricsLogger {
         [weak self] (data, error) in
         print("[MetricsLogger] Logging finished.")
         guard let xray = self?.xray else { return }
-        guard let batch = xray.networkBatches.last else { return }
         if let e = error  {
           xray.metricsLoggerBatchResponseDidError(e)
-          return
         }
         xray.metricsLoggerBatchResponseDidComplete()
+        guard let batch = xray.networkBatches.last else { return }
         print("[MetricsLogger] Spent \(batch.timeSpentAcrossCalls) ms " +
               "for \(batch.messageSizeBytes) bytes.")
         print("[MetricsLogger] TOTAL \(xray.totalTimeSpent) ms " +
