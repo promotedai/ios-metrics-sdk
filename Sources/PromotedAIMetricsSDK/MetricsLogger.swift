@@ -90,6 +90,8 @@ public class MetricsLogger: NSObject {
     return viewTracker.viewID
   }
   let viewTracker: ViewTracker
+  
+  private let xray: Xray?
 
   private lazy var deviceMessage: Event_Device = {
     var device = Event_Device()
@@ -113,7 +115,8 @@ public class MetricsLogger: NSObject {
        deviceInfo: DeviceInfo,
        idMap: IDMap,
        store: PersistentStore,
-       viewTracker: ViewTracker? = nil) {
+       viewTracker: ViewTracker? = nil,
+       xray: Xray?) {
     self.clock = clock
     self.config = clientConfig
     self.connection = connection
@@ -130,6 +133,7 @@ public class MetricsLogger: NSObject {
     })
     self.sessionIDProducer = IDProducer { return idMap.sessionID() }
     self.viewTracker = viewTracker ?? ViewTracker(idMap: idMap)
+    self.xray = xray
   }
 
   // MARK: - Starting new sessions
@@ -138,18 +142,22 @@ public class MetricsLogger: NSObject {
   /// user event.
   @objc(startSessionAndLogUserWithID:)
   public func startSessionAndLogUser(userID: String) {
-    startSession(userID: userID)
-    logUser()
-    logSession()
+    executeInContext(context: .startSession, needsViewStateSync: false) {
+      startSession(userID: userID)
+      logUser()
+      logSession()
+    }
   }
 
   /// Call when sign-in completes with no user.
   /// Starts logging session with signed-out user and logs a
   /// user event.
   @objc public func startSessionAndLogSignedOutUser() {
-    startSessionSignedOut()
-    logUser()
-    logSession()
+    executeInContext(context: .startSession, needsViewStateSync: false) {
+      startSessionSignedOut()
+      logUser()
+      logSession()
+    }
   }
 
   /// Starts a new session with the given `userID`.
@@ -196,25 +204,35 @@ public class MetricsLogger: NSObject {
 
   // MARK: - Internal methods
   
+  private var loggingContextDepth = 0
+  
   /// Groups a series of log messages with the same view, session,
   /// and user context. Avoids doing multiple checks for this
   /// context when logging a large number of events.
-  func batchLog(_ block: () -> Void) {
-    executeInViewLoggingContext(block)
+  func executeInContext(context: Xray.Context, _ block: () -> Void) {
+    executeInContext(context: context, needsViewStateSync: true, block)
   }
-  
-  private var loggingContextDepth = 0
-  
+
   /// Ensures that the view ID is correct for the logging that
   /// occurs within the given block. When called re-entrantly,
   /// only the first (outermost) call performs the view state
   /// checking, since that checking is potentially expensive.
-  private func executeInViewLoggingContext(_ block: () -> Void) {
+  private func executeInContext(context: Xray.Context,
+                                needsViewStateSync: Bool,
+                                _ block: () -> Void) {
     if loggingContextDepth == 0 {
-      ensureViewStateInSync()
+      if needsViewStateSync {
+        ensureViewStateInSync()
+      }
+      xray?.metricsLoggerCallWillStart(context: context)
     }
     loggingContextDepth += 1
-    defer { loggingContextDepth -= 1 }
+    defer {
+      loggingContextDepth -= 1
+      if loggingContextDepth == 0 {
+        xray?.metricsLoggerCallDidComplete()
+      }
+    }
     block()
   }
   
@@ -264,7 +282,7 @@ public extension MetricsLogger {
   /// - Parameters:
   ///   - properties: Client-specific message
   func logUser(properties: Message? = nil) {
-    executeInViewLoggingContext {
+    executeInContext(context: .logUser) {
       var user = Event_User()
       user.timing = timingMessage()
       if let p = propertiesMessage(properties) { user.properties = p }
@@ -282,7 +300,7 @@ public extension MetricsLogger {
   /// - Parameters:
   ///   - properties: Client-specific message
   func logSession(properties: Message? = nil) {
-    executeInViewLoggingContext {
+    executeInContext(context: .logSession) {
       var session = Event_Session()
       session.timing = timingMessage()
       session.sessionID = sessionID
@@ -309,7 +327,7 @@ public extension MetricsLogger {
                      insertionID: String? = nil,
                      requestID: String? = nil,
                      properties: Message? = nil) {
-    executeInViewLoggingContext {
+    executeInContext(context: .logImpression) {
       let optionalID = idMap.impressionIDOrNil(insertionID: insertionID,
                                                contentID: contentID,
                                                logUserID: logUserID)
@@ -352,7 +370,7 @@ public extension MetricsLogger {
                  targetURL: String? = nil,
                  elementID: String? = nil,
                  properties: Message? = nil) {
-    executeInViewLoggingContext {
+    executeInContext(context: .logAction) {
       var action = Event_Action()
       action.timing = timingMessage()
       action.actionID = idMap.actionID()
@@ -402,21 +420,21 @@ public extension MetricsLogger {
   }
 
   private func logView(trackerState: ViewTracker.State, properties: Message? = nil) {
-    // Explicit calls to `logView` don't need to be wrapped in
-    // `executeInViewLoggingContext`.
-    var view = Event_View()
-    view.timing = timingMessage()
-    view.viewID = trackerState.viewID
-    view.sessionID = sessionID
-    view.name = trackerState.name
-    if let use = trackerState.useCase?.protoValue { view.useCase = use }
-    if let p = propertiesMessage(properties) { view.properties = p }
-    view.device = deviceMessage
-    view.viewType = .appScreen
-    let appScreenView = Event_AppScreenView()
-    // TODO(yu-hong): Fill out AppScreenView.
-    view.appScreenView = appScreenView
-    log(message: view)
+    executeInContext(context: .logView, needsViewStateSync: false) {
+      var view = Event_View()
+      view.timing = timingMessage()
+      view.viewID = trackerState.viewID
+      view.sessionID = sessionID
+      view.name = trackerState.name
+      if let use = trackerState.useCase?.protoValue { view.useCase = use }
+      if let p = propertiesMessage(properties) { view.properties = p }
+      view.device = deviceMessage
+      view.viewType = .appScreen
+      let appScreenView = Event_AppScreenView()
+      // TODO(yu-hong): Fill out AppScreenView.
+      view.appScreenView = appScreenView
+      log(message: view)
+    }
   }
 }
 
@@ -429,6 +447,7 @@ public extension MetricsLogger {
     assert(Thread.isMainThread,
            "[MetricsLogger] Logging must be done on main thread")
     logMessages.append(message)
+    xray?.metricsLoggerCallDidLog(message: message)
     maybeSchedulePendingBatchLoggingFlush()
   }
   
@@ -487,6 +506,8 @@ public extension MetricsLogger {
   /// Internally, a `UIBackgroundTask` is created during this operation.
   /// Clients do not need to start a `UIBackgroundTask` to call `flush()`.
   @objc func flush() {
+    xray?.metricsLoggerBatchWillStart()
+    defer { xray?.metricsLoggerBatchDidComplete() }
     cancelPendingBatchLoggingFlush()
     if logMessages.isEmpty { return }
     if !config.loggingEnabled { return }
@@ -494,30 +515,20 @@ public extension MetricsLogger {
     let eventsCopy = logMessages
     logMessages.removeAll()
     let request = logRequestMessage(events: eventsCopy)
+    xray?.metricsLoggerBatchWillSend(message: request)
     do {
       try connection.sendMessage(request, clientConfig: config) {
           [weak self] (data, error) in
+        guard let strongSelf = self else { return }
         if let e = error  {
-          self?.handleSendMessageError(e)
+          strongSelf.xray?.metricsLoggerBatchResponseDidError(e)
           return
         }
+        strongSelf.xray?.metricsLoggerBatchResponseDidComplete()
         print("[MetricsLogger] Logging finished.")
       }
-    } catch NetworkConnectionError.messageSerializationError(let message) {
-      print("[MetricsLogger] \(message)")
-    } catch NetworkConnectionError.unknownError {
-      print("[MetricsLogger] ERROR: Unknown NetworkConnectionError sending message.")
     } catch {
-      print("[MetricsLogger] ERROR: Unknown error sending message.")
-    }
-  }
-  
-  private func handleSendMessageError(_ error: Error) {
-    switch error {
-    case NetworkConnectionError.networkSendError(let domain, let code, let errorString):
-      print("[MetricsLogger] ERROR: domain=\(domain) code=\(code) description=\(errorString)")
-    default:
-      print("[MetricsLogger] ERROR: \(error.localizedDescription)")
+      xray?.metricsLoggerBatchDidError(error)
     }
   }
 }

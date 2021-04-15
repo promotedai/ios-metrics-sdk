@@ -135,7 +135,9 @@ public class ImpressionLogger: NSObject {
   /// Call this method when new items are displayed.
   @objc(collectionViewWillDisplayContent:)
   public func collectionViewWillDisplay(content: Content) {
-    broadcastStartAndAddImpressions(contentArray: [content], now: clock.now)
+    metricsLogger.executeInContext(context: .impressionLoggerWillDisplay) {
+      broadcastStartAndAddImpressions(contentArray: [content], now: clock.now)
+    }
   }
 
   /// Call this method when previously displayed items are hidden.
@@ -143,7 +145,9 @@ public class ImpressionLogger: NSObject {
   /// been displayed, the impression for that item will be ignored.
   @objc(collectionViewDidHideContent:)
   public func collectionViewDidHide(content: Content) {
-    broadcastEndAndRemoveImpressions(contentArray: [content], now: clock.now)
+    metricsLogger.executeInContext(context: .impressionLoggerDidHide) {
+      broadcastEndAndRemoveImpressions(contentArray: [content], now: clock.now)
+    }
   }
 
   /// Call this method when the collection view changes content, but
@@ -151,30 +155,34 @@ public class ImpressionLogger: NSObject {
   /// when a collection reloads.
   @objc(collectionViewDidChangeVisibleContent:)
   public func collectionViewDidChangeVisibleContent(_ contentArray: [Content]) {
-    let now = clock.now
+    metricsLogger.executeInContext(context: .impressionLoggerDidChange) {
+      let now = clock.now
 
-    var newlyShownContent = [Content]()
-    for content in contentArray {
-      if impressionStarts[content] == nil {
-        newlyShownContent.append(content)
+      var newlyShownContent = [Content]()
+      for content in contentArray {
+        if impressionStarts[content] == nil {
+          newlyShownContent.append(content)
+        }
       }
-    }
 
-    var newlyHiddenContent = [Content]()
-    for content in impressionStarts.keys {
-      if !contentArray.contains(content) {
-        newlyHiddenContent.append(content)
+      var newlyHiddenContent = [Content]()
+      for content in impressionStarts.keys {
+        if !contentArray.contains(content) {
+          newlyHiddenContent.append(content)
+        }
       }
-    }
 
-    broadcastStartAndAddImpressions(contentArray: newlyShownContent, now: now)
-    broadcastEndAndRemoveImpressions(contentArray: newlyHiddenContent, now: now)
+      broadcastStartAndAddImpressions(contentArray: newlyShownContent, now: now)
+      broadcastEndAndRemoveImpressions(contentArray: newlyHiddenContent, now: now)
+    }
   }
 
   /// Call this method when the collection view hides.
   @objc public func collectionViewDidHideAllContent() {
-    let keys = [Content](impressionStarts.keys)
-    broadcastEndAndRemoveImpressions(contentArray: keys, now: clock.now)
+    metricsLogger.executeInContext(context: .impressionLoggerDidHideAll) {
+      let keys = [Content](impressionStarts.keys)
+      broadcastEndAndRemoveImpressions(contentArray: keys, now: clock.now)
+    }
   }
   
   private func broadcastStartAndAddImpressions(contentArray: [Content], now: TimeInterval) {
@@ -185,7 +193,8 @@ public class ImpressionLogger: NSObject {
       impressions.append(impression)
       impressionStarts[content] = now
     }
-    metricsLogger.batchLog {
+    // Context is unspecified because caller should have already started.
+    metricsLogger.executeInContext(context: .unspecified) {
       for impression in impressions {
         metricsLogger.logImpression(content: impression.content)
       }

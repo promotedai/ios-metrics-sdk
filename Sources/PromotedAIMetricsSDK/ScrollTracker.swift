@@ -228,18 +228,20 @@ public extension ScrollTracker {
   }
   
   private func setFrames(dataProducer: @escaping (IndexPath) -> Content?) {
-    guard let collectionView = collectionView else { return }
-    guard collectionView.window != nil else { return }
-    content.removeAll()
-    let layout = collectionView.collectionViewLayout
-    for section in 0 ..< collectionView.numberOfSections {
-      for item in 0 ..< collectionView.numberOfItems(inSection: section) {
-        let path = IndexPath(item: item, section: section)
-        guard let attrs = layout.layoutAttributesForItem(at: path) else { continue }
-        guard let content = dataProducer(path) else { continue }
-        let frame = attrs.frame
-        guard frame.area > 0 else { continue }
-        setFrame(frame, forContent: content)
+    metricsLogger.executeInContext(context: .scrollTrackerSetFrames) {
+      guard let collectionView = collectionView else { return }
+      guard collectionView.window != nil else { return }
+      content.removeAll()
+      let layout = collectionView.collectionViewLayout
+      for section in 0 ..< collectionView.numberOfSections {
+        for item in 0 ..< collectionView.numberOfItems(inSection: section) {
+          let path = IndexPath(item: item, section: section)
+          guard let attrs = layout.layoutAttributesForItem(at: path) else { continue }
+          guard let content = dataProducer(path) else { continue }
+          let frame = attrs.frame
+          guard frame.area > 0 else { continue }
+          setFrame(frame, forContent: content)
+        }
       }
     }
     // This should happen after layout is complete. Log initial viewport.
@@ -251,12 +253,14 @@ public extension ScrollTracker {
   }
   
   @objc func scrollViewDidChangeVisibleContent() {
-    guard let scrollView = scrollView else { return }
-    guard let collectionView = collectionView else { return }
-    guard scrollView.window != nil && collectionView.window != nil else { return }
-    let origin = scrollView.convert(scrollView.contentOffset, to: collectionView);
-    let size = scrollView.frame.size
-    viewport = CGRect(origin: origin, size: size)
+    metricsLogger.executeInContext(context: .scrollTrackerDidScroll) {
+      guard let scrollView = scrollView else { return }
+      guard let collectionView = collectionView else { return }
+      guard scrollView.window != nil && collectionView.window != nil else { return }
+      let origin = scrollView.convert(scrollView.contentOffset, to: collectionView);
+      let size = scrollView.frame.size
+      viewport = CGRect(origin: origin, size: size)
+    }
   }
 }
 

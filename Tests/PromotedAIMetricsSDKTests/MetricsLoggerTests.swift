@@ -41,7 +41,8 @@ final class MetricsLoggerTests: XCTestCase {
                                   deviceInfo: FakeDeviceInfo(),
                                   idMap: idMap!,
                                   store: store!,
-                                  viewTracker: viewTracker)
+                                  viewTracker: viewTracker,
+                                  xray: nil)
   }
   
   private func assertLoggerAndStoreInSync() {
@@ -265,7 +266,8 @@ final class MetricsLoggerTests: XCTestCase {
                                   connection: connection!,
                                   deviceInfo: FakeDeviceInfo(),
                                   idMap: SHA1IDMap.instance,
-                                  store: store!)
+                                  store: store!,
+                                  xray: nil)
     metricsLogger!.startSessionForTesting(userID: "foobar")
     metricsLogger!.logUser()
     metricsLogger!.flush()

@@ -29,6 +29,8 @@ public class ClientConfig: NSObject {
   /// from being sent, but these messages may still be collected
   /// at runtime and stored in memory.
   @objc public var loggingEnabled: Bool = true
+  
+  @objc public var xrayEnabled: Bool = false
 
   /// URL for logging endpoint as used by `NetworkConnection`.
   /// Implementations of `NetworkConnection` from Promoted will

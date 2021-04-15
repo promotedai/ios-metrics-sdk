@@ -62,7 +62,8 @@ final class ImpressionLoggerTests: XCTestCase {
                                   connection: FakeNetworkConnection(),
                                   deviceInfo: FakeDeviceInfo(),
                                   idMap: idMap!,
-                                  store: FakePersistentStore())
+                                  store: FakePersistentStore(),
+                                  xray: nil)
     metricsLogger!.startSessionAndLogUser(userID: "foo")
     impressionLogger = ImpressionLogger(metricsLogger: metricsLogger!,
                                         clock: clock!)
