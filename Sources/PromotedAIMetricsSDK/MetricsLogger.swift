@@ -526,10 +526,10 @@ public extension MetricsLogger {
         }
         xray.metricsLoggerBatchResponseDidComplete()
         guard let batch = xray.networkBatches.last else { return }
-        print("[MetricsLogger] Spent \(batch.timeSpentAcrossCalls) ms " +
-              "for \(batch.messageSizeBytes) bytes.")
-        print("[MetricsLogger] TOTAL \(xray.totalTimeSpent) ms " +
-              "for \(xray.totalBytesSent) bytes.")
+        print("[MetricsLogger] Latest: \(String(describing: batch))")
+        print("[MetricsLogger] TOTAL: \(xray.totalTimeSpent) ms, " +
+              "\(xray.totalBytesSent) bytes, " +
+              "\(xray.totalRequestsMade) requests.")
       }
     } catch {
       xray?.metricsLoggerBatchDidError(error)
