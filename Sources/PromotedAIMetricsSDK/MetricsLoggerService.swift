@@ -27,10 +27,11 @@ import UIKit
  
  ## Example (using instance):
  ~~~
- let service = MetricsLoggingService(initialConfig: ...)
+ let service = MetricsLoggerService(initialConfig: ...)
  service.startLoggingServices()
  let logger = service.metricsLogger
  let impressionLogger = service.impressionLogger()
+ let scrollTracker = service.scrollTracker(collectionView: ...)
  ~~~
  
  ## Example (using shared service):
