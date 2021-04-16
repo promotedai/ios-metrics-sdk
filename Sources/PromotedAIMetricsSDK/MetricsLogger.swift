@@ -10,7 +10,7 @@ import SwiftProtobuf
  Typically, instances of `MetricsLogger`s are tied to a
  `MetricsLoggingService`, which configures the logging environment and
  maintains a `MetricsLogger` for the lifetime of the service. See
- `MetricsLoggingService` for more information about the scope of the
+ `MetricsLoggerService` for more information about the scope of the
  logger and the service.
  
  Events are represented as protobuf messages internally. By default,
