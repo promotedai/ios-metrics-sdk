@@ -8,7 +8,7 @@ import SwiftProtobuf
  in batches on a timer (see `ClientConfig.batchLoggingFlushInterval`).
  
  Typically, instances of `MetricsLogger`s are tied to a
- `MetricsLoggingService`, which configures the logging environment and
+ `MetricsLoggerService`, which configures the logging environment and
  maintains a `MetricsLogger` for the lifetime of the service. See
  `MetricsLoggerService` for more information about the scope of the
  logger and the service.
