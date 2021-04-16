@@ -9,15 +9,13 @@ import SwiftProtobuf
  
  Typically, instances of `MetricsLogger`s are tied to a
  `MetricsLoggingService`, which configures the logging environment and
- maintains a `MetricLogger` for the lifetime of the service. See
+ maintains a `MetricsLogger` for the lifetime of the service. See
  `MetricsLoggingService` for more information about the scope of the
  logger and the service.
  
  Events are represented as protobuf messages internally. By default,
  these messages are serialized to binary format for transmission over
  the network.
- 
- Use from main thread only.
  
  # Usage
  To start a logging session, first call `startSession(userID:)` or
@@ -33,6 +31,8 @@ import SwiftProtobuf
  enters the background, use `flush()`. It's not necessary for clients
  to call `flush()` to deliver queued events. Events are automatically
  delivered on a timer.
+ 
+ Use from main thread only.
  
  ## Example:
  ~~~
