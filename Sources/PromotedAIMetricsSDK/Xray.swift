@@ -15,8 +15,7 @@ import SwiftProtobuf
  best effort to exclude its own overhead from its reports.
  
  Profile data from `Xray` is kept only in memory on the client, and
- not sent to Promoted's servers (as of 2021Q1). This may change in
- the future.
+ not sent to Promoted's servers (as of 2021Q1).
  */
 @objc(PROXray)
 public class Xray: NSObject {
@@ -47,33 +46,33 @@ public class Xray: NSObject {
     case logView
 
     /// Called from `ImpressionLogger.collectionViewWillDisplay(content:)`.
-    /// May not trigger log messages, so `MetricsLoggerCall.messages`
-    /// may be empty for this context.
+    /// May not trigger log messages, so `Call.messages` may be empty
+    /// for this context.
     case impressionLoggerWillDisplay
 
     /// Called from `ImpressionLogger.collectionViewDidHide(content:)`.
-    /// May not trigger log messages, so `MetricsLoggerCall.messages`
-    /// may be empty for this context.
+    /// May not trigger log messages, so `Call.messages` may be empty
+    /// for this context.
     case impressionLoggerDidHide
 
     /// Called from `ImpressionLogger.collectionViewDidChangeVisibleContent(:)`.
-    /// May not trigger log messages, so `MetricsLoggerCall.messages`
-    /// may be empty for this context.
+    /// May not trigger log messages, so `Call.messages` may be empty
+    /// for this context.
     case impressionLoggerDidChange
 
     /// Called from `ImpressionLogger.collectionViewDidHideAllContent()`.
-    /// May not trigger log messages, so `MetricsLoggerCall.messages`
-    /// may be empty for this context.
+    /// May not trigger log messages, so `Call.messages` may be empty
+    /// for this context.
     case impressionLoggerDidHideAll
 
     /// Called from one of `ScrollTracker`'s `setFrames*` methods.
-    /// Will not trigger log messages, so `MetricsLoggerCall.messages`
-    /// will be empty for this context.
+    /// Will not trigger log messages, so `Call.messages` will be empty
+    /// for this context.
     case scrollTrackerSetFrames
 
     /// Called when `ScrollTracker` sends impressions.
-    /// May not trigger log messages, so `MetricsLoggerCall.messages`
-    /// may be empty for this context.
+    /// May not trigger log messages, so `Call.messages` may be empty
+    /// for this context.
     case scrollTrackerUpdate
   }
 
@@ -149,7 +148,7 @@ public class Xray: NSObject {
 
     /// JSON representation of `message`.
     @objc public var messageJSON: String {
-      guard let message = message else { return "" }
+      guard let message = message else { return "'ERROR'" }
       do { return try message.jsonString() } catch { return "'ERROR'" }
     }
 
