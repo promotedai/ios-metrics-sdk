@@ -7,9 +7,9 @@ import UIKit
  
  Typically, instances of `MetricsLogger`s are tied to a
  `MetricsLoggingService`, which configures the logging environment and
- maintains a `MetricLogger` for the lifetime of the service. You may
+ maintains a `MetricsLogger` for the lifetime of the service. You may
  choose to make `MetricsLoggerService` a singleton, which makes its
- corresponding `MetricLogger` a singleton. You may also choose to
+ corresponding `MetricsLogger` a singleton. You may also choose to
  instantiate `MetricsLoggingService` and hold a reference to the instance.
  
  The service also provides a facility to create `ImpressionLogger`s.
@@ -18,12 +18,12 @@ import UIKit
  if desired. However, you should not create multiple services that point
  at the same backend.
  
- Use from main thread only.
- 
  # Usage
  Create and configure the service when your app starts, then retrieve the
  `MetricsLogger` instance from the service after it has been configured.
  Alternatively, create `ImpressionLogger` instances using the service.
+ 
+ Use from main thread only.
  
  ## Example (using instance):
  ~~~
