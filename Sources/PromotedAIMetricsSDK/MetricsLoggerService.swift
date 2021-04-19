@@ -100,8 +100,8 @@ public class MetricsLoggerService: NSObject {
     self.deviceInfo = deviceInfo
     self.idMap = idMap
     self.store = store
-    let xrayEnabled = clientConfigService.config.xrayEnabled
     let config = clientConfigService.config
+    let xrayEnabled = config.xrayEnabled
     self.xray = xrayEnabled ? Xray(clock: clock, config: config) : nil
   }
 
