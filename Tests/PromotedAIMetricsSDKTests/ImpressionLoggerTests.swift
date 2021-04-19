@@ -52,7 +52,7 @@ final class ImpressionLoggerTests: XCTestCase {
   private var metricsLogger: MetricsLogger?
   private var impressionLogger: ImpressionLogger?
   
-  public override func setUp() {
+  override func setUp() {
     super.setUp()
     clock = FakeClock()
     delegate = Delegate()
@@ -62,7 +62,8 @@ final class ImpressionLoggerTests: XCTestCase {
                                   connection: FakeNetworkConnection(),
                                   deviceInfo: FakeDeviceInfo(),
                                   idMap: idMap!,
-                                  store: FakePersistentStore())
+                                  store: FakePersistentStore(),
+                                  xray: nil)
     metricsLogger!.startSessionAndLogUser(userID: "foo")
     impressionLogger = ImpressionLogger(metricsLogger: metricsLogger!,
                                         clock: clock!)

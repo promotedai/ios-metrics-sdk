@@ -9,7 +9,7 @@ final class SHA1IDMapTests: XCTestCase {
   
   private static let testBits = 16
 
-  public override func setUp() {
+  override func setUp() {
     super.setUp()
     map = SHA1IDMap.instance
   }

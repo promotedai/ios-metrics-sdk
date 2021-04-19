@@ -81,5 +81,12 @@ public class ClientConfig: NSObject {
   /// processing that `ScrollTracker` performs.
   public var scrollTrackerUpdateFrequency: TimeInterval = 0.5
   
+  /// Whether to enable Xray profiling for this session.
+  @objc public var xrayEnabled: Bool = false
+
+  /// Whether to include call stacks on Xray profiles.
+  /// Call stacks are expensive to compute.
+  @objc public var xrayExpensiveThreadCallStacksEnabled: Bool = false
+
   @objc public override init() {}
 }

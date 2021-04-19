@@ -4,6 +4,8 @@ import Foundation
 /** Opaque type returned by `Clock.schedule()` to use when canceling. */
 public protocol ScheduledTimer {}
 
+public typealias TimeIntervalMillis = Int64
+
 // MARK: -
 /** Represents a way to get time and perform scheduling of tasks. */
 public protocol Clock {
@@ -11,7 +13,6 @@ public protocol Clock {
   /// Returns time for use with timestamps.
   var now: TimeInterval { get }
   
-  typealias TimeIntervalMillis = UInt64
   typealias Callback = (Clock) -> Void
   
   /// Schedules a callback to be invoked in the future. Callback is

@@ -91,7 +91,7 @@ public class ScrollTracker: NSObject {
   private let clock: Clock
   private let metricsLogger: MetricsLogger
   
-  private var impressionLogger: ImpressionLogger
+  private let impressionLogger: ImpressionLogger
   /*visibleForTesting*/ private(set) var content: [(CGRect, Content)]
   private var timer: ScheduledTimer?
   
@@ -156,16 +156,18 @@ public class ScrollTracker: NSObject {
   }
 
   private func updateVisibility() {
-    var visibleContent = [Content]()
-    // TODO(yu-hong): Replace linear search with binary/interpolation search
-    // for larger inputs. Need a secondary data structure to sort frames.
-    for (frame, content) in content {
-      let overlapRatio = frame.overlapRatio(viewport)
-      if overlapRatio >= visibilityThreshold {
-        visibleContent.append(content)
+    metricsLogger.execute(context: .scrollTrackerUpdate) {
+      var visibleContent = [Content]()
+      // TODO(yu-hong): Replace linear search with binary/interpolation search
+      // for larger inputs. Need a secondary data structure to sort frames.
+      for (frame, content) in content {
+        let overlapRatio = frame.overlapRatio(viewport)
+        if overlapRatio >= visibilityThreshold {
+          visibleContent.append(content)
+        }
       }
+      impressionLogger.collectionViewDidChangeVisibleContent(visibleContent)
     }
-    impressionLogger.collectionViewDidChangeVisibleContent(visibleContent)
   }
 }
 
@@ -228,18 +230,20 @@ public extension ScrollTracker {
   }
   
   private func setFrames(dataProducer: @escaping (IndexPath) -> Content?) {
-    guard let collectionView = collectionView else { return }
-    guard collectionView.window != nil else { return }
-    content.removeAll()
-    let layout = collectionView.collectionViewLayout
-    for section in 0 ..< collectionView.numberOfSections {
-      for item in 0 ..< collectionView.numberOfItems(inSection: section) {
-        let path = IndexPath(item: item, section: section)
-        guard let attrs = layout.layoutAttributesForItem(at: path) else { continue }
-        guard let content = dataProducer(path) else { continue }
-        let frame = attrs.frame
-        guard frame.area > 0 else { continue }
-        setFrame(frame, forContent: content)
+    metricsLogger.execute(context: .scrollTrackerSetFrames) {
+      guard let collectionView = collectionView else { return }
+      guard collectionView.window != nil else { return }
+      content.removeAll()
+      let layout = collectionView.collectionViewLayout
+      for section in 0 ..< collectionView.numberOfSections {
+        for item in 0 ..< collectionView.numberOfItems(inSection: section) {
+          let path = IndexPath(item: item, section: section)
+          guard let attrs = layout.layoutAttributesForItem(at: path) else { continue }
+          guard let content = dataProducer(path) else { continue }
+          let frame = attrs.frame
+          guard frame.area > 0 else { continue }
+          setFrame(frame, forContent: content)
+        }
       }
     }
     // This should happen after layout is complete. Log initial viewport.

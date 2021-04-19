@@ -56,7 +56,8 @@ public class MetricsLoggerService: NSObject {
                          connection: self.connection,
                          deviceInfo: self.deviceInfo,
                          idMap: self.idMap,
-                         store: self.store)
+                         store: self.store,
+                         xray: self.xray)
   } ()
 
   var config: ClientConfig {
@@ -70,8 +71,12 @@ public class MetricsLoggerService: NSObject {
   private let idMap: IDMap
   private let store: PersistentStore
 
+  /// Profiling information for this session.
+  public let xray: Xray?
+
   @objc public convenience init(initialConfig: ClientConfig) {
-    self.init(clientConfigService: LocalClientConfigService(initialConfig: initialConfig),
+    let service = LocalClientConfigService(initialConfig: initialConfig)
+    self.init(clientConfigService: service,
               clock: SystemClock.instance,
               connection: GTMSessionFetcherConnection(),
               deviceInfo: IOSDeviceInfo(),
@@ -100,6 +105,9 @@ public class MetricsLoggerService: NSObject {
     self.deviceInfo = deviceInfo
     self.idMap = idMap
     self.store = store
+    let config = clientConfigService.config
+    let xrayEnabled = config.xrayEnabled
+    self.xray = xrayEnabled ? Xray(clock: clock, config: config) : nil
   }
 
   /// Call this to start logging services, prior to accessing `logger`.
