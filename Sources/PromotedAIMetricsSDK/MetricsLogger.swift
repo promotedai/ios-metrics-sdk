@@ -533,7 +533,7 @@ public extension MetricsLogger {
         xray.metricsLoggerBatchResponseDidComplete()
         guard let batch = xray.networkBatches.last else { return }
         print("[MetricsLogger] Latest: \(String(describing: batch))")
-        print("[MetricsLogger] TOTAL: \(xray.totalTimeSpent) ms, " +
+        print("[MetricsLogger] TOTAL: \(xray.totalTimeSpentMillis) ms, " +
               "\(xray.totalBytesSent) bytes, " +
               "\(xray.totalRequestsMade) requests.")
       }
