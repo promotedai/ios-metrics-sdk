@@ -527,7 +527,7 @@ public extension MetricsLogger {
         [weak self] (data, error) in
         print("[MetricsLogger] Logging finished.")
         guard let xray = self?.xray else { return }
-        if let e = error  {
+        if let e = error {
           xray.metricsLoggerBatchResponseDidError(e)
         }
         xray.metricsLoggerBatchResponseDidComplete()

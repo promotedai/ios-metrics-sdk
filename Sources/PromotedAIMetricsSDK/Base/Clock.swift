@@ -22,7 +22,7 @@ public extension TimeInterval {
 /** Represents a way to get time and perform scheduling of tasks. */
 public protocol Clock {
   
-  /// Returns time for use with timestamps.
+  /// Returns time for use with timestamps or interval measurement.
   var now: TimeInterval { get }
 
   typealias Callback = (Clock) -> Void
@@ -39,6 +39,9 @@ public protocol Clock {
 // MARK: -
 extension Clock {
 
+  /// Returns time in millis for use with timestamps only.
+  /// This loses sub-millisecond resolution, which makes it unsuitable
+  /// for interval measurement.
   var nowMillis: TimeIntervalMillis {
     return TimeIntervalMillis(seconds: now)
   }

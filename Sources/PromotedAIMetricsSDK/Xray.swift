@@ -94,10 +94,10 @@ public class Xray: NSObject {
     @objc public fileprivate(set) var context: Context = .unspecified
     
     /// Time spent in Promoted code for this logging call.
-    @objc public var timeSpent: TimeInterval { return endTime - startTime }
+    @objc public var timeSpent: TimeInterval { endTime - startTime }
     
     @objc public var timeSpentMillis: TimeIntervalMillis {
-      return TimeIntervalMillis(seconds: timeSpent)
+      TimeIntervalMillis(seconds: timeSpent)
     }
 
     /// Messages that were logged, if any.
@@ -105,14 +105,14 @@ public class Xray: NSObject {
 
     /// JSON representation of any messages that were logged.
     @objc public var messagesJSON: [String] {
-      return messages.map {
+      messages.map {
         do { return try $0.jsonString() } catch { return "'ERROR'" }
       }
     }
 
     /// Serialized bytes of any messages that were logged.
     @objc public var messagesBytes: [Data] {
-      return messages.map {
+      messages.map {
         do { return try $0.serializedData() } catch { return Data() }
       }
     }
@@ -120,7 +120,7 @@ public class Xray: NSObject {
     /// Total number of serialized bytes across all messages.
     /// This count is an approximation of actual network traffic.
     @objc public var messagesSizeBytes: UInt64 {
-      return UInt64(messagesBytes.map { $0.count }.reduce(0, +))
+      UInt64(messagesBytes.map(\.count).reduce(0, +))
     }
   }
 
@@ -136,20 +136,20 @@ public class Xray: NSObject {
     @objc public fileprivate(set) var endTime: TimeInterval = 0
 
     /// Time spent in Promoted code for batch flush.
-    @objc public var timeSpent: TimeInterval { return endTime - startTime }
+    @objc public var timeSpent: TimeInterval { endTime - startTime }
     
     @objc public var timeSpentMillis: TimeIntervalMillis {
-      return TimeIntervalMillis(seconds: timeSpent)
+      TimeIntervalMillis(seconds: timeSpent)
     }
 
     /// Time spent in Promoted code for batch flush and all calls
     /// contained therein.
     @objc public var timeSpentAcrossCalls: TimeInterval {
-      return timeSpent + calls.map { $0.timeSpent }.reduce(0, +)
+      timeSpent + calls.map(\.timeSpent).reduce(0, +)
     }
     
     @objc public var timeSpentAcrossCallsMillis: TimeIntervalMillis {
-      return TimeIntervalMillis(seconds: timeSpentAcrossCalls)
+      TimeIntervalMillis(seconds: timeSpentAcrossCalls)
     }
 
     /// Time at which network response received.
@@ -161,23 +161,25 @@ public class Xray: NSObject {
 
     /// JSON representation of `message`.
     @objc public var messageJSON: String {
-      guard let message = message else { return "'ERROR'" }
-      do { return try message.jsonString() } catch { return "'ERROR'" }
+      if let json = try? message?.jsonString() {
+        return json
+      }
+      return "'ERROR'"
     }
 
     /// Serialized bytes for `message` sent across the network.
     @objc public var messageBytes: Data {
-      guard let message = message else { return Data() }
-      do { return try message.serializedData() } catch { return Data() }
+      if let bytes = try? message?.serializedData() {
+        return bytes
+      }
+      return Data()
     }
 
     /// Number of serialized bytes sent across network.
     /// This count is an approximation of actual network traffic.
     /// Network traffic also include HTTP headers, which are not
     /// counted in this size.
-    @objc public var messageSizeBytes: UInt64 {
-      return UInt64(messageBytes.count)
-    }
+    @objc public var messageSizeBytes: UInt64 = 0
 
     /// Logging calls included in this batch.
     @objc public fileprivate(set) var calls: [Call] = []
@@ -210,28 +212,23 @@ public class Xray: NSObject {
   @objc public private(set) var totalTimeSpent: TimeInterval
   
   @objc public var totalTimeSpentMillis: TimeIntervalMillis {
-    return TimeIntervalMillis(seconds: totalTimeSpent)
+    TimeIntervalMillis(seconds: totalTimeSpent)
   }
 
   /// Most recent network batches.
   @objc public private(set) var networkBatches: [NetworkBatch]
 
   /// Flattened logging calls across `networkBatches`.
-  @objc public var calls: [Call] {
-    return networkBatches.flatMap { $0.calls }
-  }
+  @objc public var calls: [Call] { networkBatches.flatMap(\.calls) }
 
   /// Flattened errors across `networkBatches`.
-  @objc public var errors: [Error] {
-    return networkBatches.compactMap { $0.error }
-  }
+  @objc public var errors: [Error] { networkBatches.compactMap(\.error) }
 
   private var pendingCalls: [Call]
   private var pendingBatch: NetworkBatch?
   
   private let clock: Clock
   private let callStacksEnabled: Bool
-  
   private let osLog: OSLog
 
   init(clock: Clock, config: ClientConfig) {
@@ -247,10 +244,29 @@ public class Xray: NSObject {
     self.pendingBatch = nil
     
     if #available(iOS 12.0, *) {
-      self.osLog = OSLog(subsystem: "ai.promoted.MetricsLogger",
-                         category: .pointsOfInterest)
+      self.osLog = OSLog(subsystem: "ai.promoted.Xray", category: .pointsOfInterest)
     } else {
-      self.osLog = OSLog(subsystem: "ai.promoted.MetricsLogger", category: "Xray")
+      self.osLog = OSLog(subsystem: "ai.promoted.Xray", category: "Xray")
+    }
+  }
+  
+  private func signpostBegin(name: StaticString) {
+    if #available(iOS 12.0, *) {
+      os_signpost(.begin, log: osLog, name: name)
+    }
+  }
+  
+  private func signpostEvent(name: StaticString,
+                             format: StaticString = "",
+                             _ arguments: CVarArg...) {
+    if #available(iOS 12.0, *) {
+      os_signpost(.event, log: osLog, name: name, format, arguments)
+    }
+  }
+  
+  private func signpostEnd(name: StaticString) {
+    if #available(iOS 12.0, *) {
+      os_signpost(.end, log: osLog, name: name)
     }
   }
   
@@ -265,23 +281,17 @@ public class Xray: NSObject {
     }
     call.startTime = clock.now
     pendingCalls.append(call)
-    if #available(iOS 12.0, *) {
-      os_signpost(.begin, log: osLog, name: "call")
-    }
+    signpostBegin(name: "call")
   }
   
   func callDidLog(message: Message) {
-    if #available(iOS 12.0, *) {
-      os_signpost(.event, log: osLog, name: "call")
-    }
+    signpostEvent(name: "call", format: "log")
     guard let lastCall = pendingCalls.last else { return }
     lastCall.messages.append(message)
   }
 
   func callDidComplete() {
-    if #available(iOS 12.0, *) {
-      os_signpost(.end, log: osLog, name: "call")
-    }
+    signpostEnd(name: "call")
     guard let lastCall = pendingCalls.last else { return }
     lastCall.endTime = clock.now
   }
@@ -298,31 +308,31 @@ public class Xray: NSObject {
     pendingBatch.calls = pendingCalls
     self.pendingBatch = pendingBatch
     self.pendingCalls.removeAll()
-    if #available(iOS 12.0, *) {
-      os_signpost(.begin, log: osLog, name: "batch")
-    }
+    signpostBegin(name: "batch")
   }
   
   func metricsLoggerBatchWillSend(message: Message) {
-    if #available(iOS 12.0, *) {
-      os_signpost(.event, log: osLog, name: "batch")
-    }
+    signpostEvent(name: "batch", format: "sendMessage")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.message = message
   }
   
+  func metricsLoggerBatchWillSend(urlRequest: URLRequest) {
+    let size = urlRequest.httpBody?.count ?? 0
+    signpostEvent(name: "batch", format: "sendURLRequest: %{public}d bytes", size)
+    signpostBegin(name: "network")
+    guard let pendingBatch = pendingBatch else { return }
+    pendingBatch.messageSizeBytes = UInt64(size)
+  }
+  
   func metricsLoggerBatchDidError(_ error: Error) {
-    if #available(iOS 12.0, *) {
-      os_signpost(.event, log: osLog, name: "batch")
-    }
+    signpostEvent(name: "batch", format: "error: %{public}s", error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.error = error
   }
 
   func metricsLoggerBatchDidComplete() {
-    if #available(iOS 12.0, *) {
-      os_signpost(.end, log: osLog, name: "batch")
-    }
+    signpostEnd(name: "batch")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.endTime = clock.now
     totalTimeSpent += pendingBatch.timeSpentAcrossCalls
@@ -333,12 +343,14 @@ public class Xray: NSObject {
   }
   
   func metricsLoggerBatchResponseDidError(_ error: Error) {
+    signpostEvent(name: "network", format: "error: %{public}s", error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.networkEndTime = clock.now
     pendingBatch.error = error
   }
   
   func metricsLoggerBatchResponseDidComplete() {
+    signpostEnd(name: "network")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.networkEndTime = clock.now
     totalBytesSent += pendingBatch.messageSizeBytes
