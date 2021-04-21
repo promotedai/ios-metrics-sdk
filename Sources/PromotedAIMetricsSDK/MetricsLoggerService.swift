@@ -17,11 +17,13 @@ import os.log
  Create and configure the service when your app starts, then retrieve the
  `MetricsLogger` instance from the service after it has been configured.
  Alternatively, create `ImpressionLogger` instances using the service.
+
  You may choose to make `MetricsLoggerService` a singleton, which makes its
  corresponding `MetricsLogger` a singleton. You may also choose to
  instantiate `MetricsLoggingService` and hold a reference to the instance.
  In either case, choose one way to create and access `MetricsLoggerService`
  and use it consistently in your app.
+
  You can create multiple instances of the service with different backends
  if desired. However, you should not create multiple services that point
  at the same backend.
