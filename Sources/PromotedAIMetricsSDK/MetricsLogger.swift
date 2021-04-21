@@ -46,7 +46,7 @@ import os.log
  ~~~
  */
 @objc(PROMetricsLogger)
-public class MetricsLogger: NSObject {
+public final class MetricsLogger: NSObject {
 
   private let clock: Clock
   private let config: ClientConfig

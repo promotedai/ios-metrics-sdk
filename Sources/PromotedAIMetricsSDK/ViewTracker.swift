@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 // MARK: - ViewTracker
-class ViewTracker {
+final class ViewTracker {
 
   /// Representation of an entry in the view stack.
   enum Key: Equatable {

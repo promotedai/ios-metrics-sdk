@@ -13,7 +13,7 @@ public protocol PersistentStore: class {
 
 // MARK: -
 /** Stores information in the app's `UserDefaults`. */
-class UserDefaultsPersistentStore: PersistentStore {
+final class UserDefaultsPersistentStore: PersistentStore {
   
   var userID: String? {
     get { return stringValue(forKey: #function) }

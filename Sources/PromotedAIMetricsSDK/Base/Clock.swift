@@ -59,7 +59,7 @@ extension Clock {
 
 // MARK: -
 /** Default implementation of `Clock` that deals with real time. */
-class SystemClock: Clock {
+final class SystemClock: Clock {
   
   struct SystemTimer: ScheduledTimer {
     let timer: Timer

@@ -49,22 +49,20 @@ import os.log
  ~~~
  */
 @objc(PROMetricsLoggerService)
-public class MetricsLoggerService: NSObject {
+public final class MetricsLoggerService: NSObject {
 
   @objc public private(set) lazy var metricsLogger: MetricsLogger = {
-    return MetricsLogger(clientConfig: self.config,
-                         clock: self.clock,
-                         connection: self.connection,
-                         deviceInfo: self.deviceInfo,
-                         idMap: self.idMap,
-                         osLog: self.metricsLoggerOSLog,
-                         store: self.store,
-                         xray: self.xray)
+    MetricsLogger(clientConfig: self.config,
+                  clock: self.clock,
+                  connection: self.connection,
+                  deviceInfo: self.deviceInfo,
+                  idMap: self.idMap,
+                  osLog: self.metricsLoggerOSLog,
+                  store: self.store,
+                  xray: self.xray)
   } ()
 
-  var config: ClientConfig {
-    return clientConfigService.config
-  }
+  var config: ClientConfig { clientConfigService.config }
 
   private let clientConfigService: ClientConfigService
   private let clock: Clock
@@ -151,14 +149,15 @@ public extension MetricsLoggerService {
   /// Returns a new `ScrollTracker` tied to the given `UIScrollView`.
   /// The scroll view must contain a `UICollectionView` to track, and
   /// clients must provide the `ScrollTracker` with the `UICollectionView`
-  /// via `setFramesFrom(collectionView:...)`
+  /// via `setFramesFrom(collectionView:...)` to initiate tracking.
   @objc func scrollTracker(scrollView: UIScrollView) -> ScrollTracker {
     return ScrollTracker(metricsLogger: self.metricsLogger,
                          clientConfig: self.config,
                          clock: self.clock,
                          scrollView: scrollView)
   }
-  
+
+  /// Returns a new `ScrollTracker` tied to the given `UICollectionView`.
   @objc func scrollTracker(collectionView: UICollectionView) -> ScrollTracker {
     return ScrollTracker(metricsLogger: self.metricsLogger,
                          clientConfig: self.config,

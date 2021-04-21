@@ -80,7 +80,7 @@ public protocol ImpressionLoggerDelegate: class {
  ~~~
  */
 @objc(PROImpressionLogger)
-public class ImpressionLogger: NSObject {
+public final class ImpressionLogger: NSObject {
 
   // MARK: -
   /** Represents an impression of a cell in the collection view. */

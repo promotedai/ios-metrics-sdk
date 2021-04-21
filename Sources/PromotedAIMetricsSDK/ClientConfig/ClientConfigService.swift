@@ -76,7 +76,7 @@ public extension AbstractClientConfigService {
 
 // MARK: - LocalClientConfigService
 /** Loads from local device. */
-public class LocalClientConfigService: AbstractClientConfigService {
+public final class LocalClientConfigService: AbstractClientConfigService {
   public override func fetchClientConfig() {
     // No-op for local config.
   }

@@ -82,7 +82,7 @@ import UIKit
  view updates.
  */
 @objc(PROScrollTracker)
-public class ScrollTracker: NSObject {
+public final class ScrollTracker: NSObject {
   
   private let visibilityThreshold: Float
   private let durationThreshold: TimeInterval
