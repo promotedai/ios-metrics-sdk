@@ -133,10 +133,12 @@ public class MetricsLoggerService: NSObject {
     clientConfigService.fetchClientConfig()
   }
 
+  /// Returns a new `ImpressionLogger`.
   @objc public func impressionLogger() -> ImpressionLogger {
     return ImpressionLogger(metricsLogger: self.metricsLogger, clock: self.clock)
   }
 
+  /// Returns a new `ScrollTracker`.
   @objc func scrollTracker() -> ScrollTracker {
     return ScrollTracker(metricsLogger: self.metricsLogger,
                          clientConfig: self.config,
@@ -146,6 +148,10 @@ public class MetricsLoggerService: NSObject {
 
 // MARK: - UIKit support
 public extension MetricsLoggerService {
+  /// Returns a new `ScrollTracker` tied to the given `UIScrollView`.
+  /// The scroll view must contain a `UICollectionView` to track, and
+  /// clients must provide the `ScrollTracker` with the `UICollectionView`
+  /// via `setFramesFrom(collectionView:...)`
   @objc func scrollTracker(scrollView: UIScrollView) -> ScrollTracker {
     return ScrollTracker(metricsLogger: self.metricsLogger,
                          clientConfig: self.config,
