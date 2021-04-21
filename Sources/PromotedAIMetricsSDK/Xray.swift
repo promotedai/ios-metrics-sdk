@@ -302,7 +302,7 @@ public class Xray: NSObject {
   
   func metricsLoggerBatchDidError(_ error: Error) {
     osLog?.signpostEvent(name: "batch", format: "error: %{public}@",
-                        error.localizedDescription)
+                         error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.error = error
   }
@@ -320,7 +320,7 @@ public class Xray: NSObject {
   
   func metricsLoggerBatchResponseDidError(_ error: Error) {
     osLog?.signpostEvent(name: "network", format: "error: %{public}@",
-                        error.localizedDescription)
+                         error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.networkEndTime = clock.now
     pendingBatch.error = error

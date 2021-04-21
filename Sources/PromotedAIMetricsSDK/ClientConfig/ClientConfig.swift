@@ -91,6 +91,8 @@ public class ClientConfig: NSObject {
   /// Whether to use OSLog to output messages.
   /// OSLog typically incurs minimal overhead and can be useful for
   /// verifying that logging works from the client side.
+  /// If `xrayEnabled` is also set, then setting `osLogEnabled`
+  /// turns on signposts in Instruments.
   @objc public var osLogEnabled: Bool = false
 
   @objc public override init() {}
