@@ -17,11 +17,20 @@ public protocol ImpressionLoggerDelegate: class {
 
 // MARK: -
 /**
- Tracks impressions across scrolling collection views, such as
- `UICollectionView` or `UITableView`. Works best with views that
- can provide fine-grained updates of visible cells, but can also
- be adapted to work with views that don't.
- 
+ Provides basic impression tracking across scrolling collection views,
+ such as `UICollectionView` or `UITableView`. Works best with views that
+ can provide fine-grained updates of visible cells, but can also be
+ adapted to work with views that don't.
+
+ ## Usage
+ `ImpressionLogger` provides only basic impression tracking logic that
+ considers a view as impressed as soon as it enters the screen. For
+ more advanced functionality, see `ScrollTracker`, which offers
+ visibility and time threshholds.
+
+ Used from React Native because RN's `SectionList` and `FlatList`
+ provide this advanced functionality already.
+
  Clients should create an instance of `ImpressionLogger`
  and reference it in their view controller, then provide updates
  to the impression logger as the collection view scrolls or updates.
