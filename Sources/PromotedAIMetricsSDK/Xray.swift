@@ -312,8 +312,8 @@ public class Xray: NSObject {
     pendingBatch.message = message
   }
   
-  func metricsLoggerBatchWillSend(urlRequest: URLRequest) {
-    let size = urlRequest.httpBody?.count ?? 0
+  func metricsLoggerBatchWillSend(data: Data) {
+    let size = data.count
     osLog?.signpostEvent(name: "batch", format: "sendURLRequest: %{public}d bytes", size)
     osLog?.signpostBegin(name: "network")
     guard let pendingBatch = pendingBatch else { return }

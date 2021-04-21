@@ -76,7 +76,6 @@ extension NetworkConnection {
     if clientConfig.metricsLoggingWireFormat == .binary {
       request.addValue("application/protobuf", forHTTPHeaderField: "content-type")
     }
-    request.httpBody = data
     return request
   }
 }
@@ -101,7 +100,8 @@ class GTMSessionFetcherConnection: NetworkConnection {
       let request = urlRequest(url: url, data: messageData, clientConfig: clientConfig)
       let fetcher = fetcherService.fetcher(with: request)
       fetcher.isRetryEnabled = true
-      xray?.metricsLoggerBatchWillSend(urlRequest: request)
+      fetcher.bodyData = messageData
+      xray?.metricsLoggerBatchWillSend(data: messageData)
       fetcher.beginFetch { (data, error) in
         var callbackError = error
         if let e = error as NSError? {
