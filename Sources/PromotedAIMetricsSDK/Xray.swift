@@ -101,16 +101,12 @@ public final class Xray: NSObject {
 
     /// JSON representation of any messages that were logged.
     @objc public var messagesJSON: [String] {
-      messages.map {
-        do { return try $0.jsonString() } catch { return "'ERROR'" }
-      }
+      messages.compactMap { try? $0.jsonString() }
     }
 
     /// Serialized bytes of any messages that were logged.
     @objc public var messagesBytes: [Data] {
-      messages.map {
-        do { return try $0.serializedData() } catch { return Data() }
-      }
+      messages.compactMap { try? $0.serializedData() }
     }
 
     /// Total number of serialized bytes across all messages.
@@ -148,26 +144,16 @@ public final class Xray: NSObject {
     public fileprivate(set) var message: Message? = nil
 
     /// JSON representation of `message`.
-    @objc public var messageJSON: String {
-      if let json = try? message?.jsonString() {
-        return json
-      }
-      return "'ERROR'"
-    }
+    @objc public var messageJSON: String? { try? message?.jsonString() }
 
     /// Serialized bytes for `message` sent across the network.
-    @objc public var messageBytes: Data {
-      if let bytes = try? message?.serializedData() {
-        return bytes
-      }
-      return Data()
-    }
+    @objc public var messageBytes: Data? { try? message?.serializedData() }
 
     /// Number of serialized bytes sent across network.
     /// This count is an approximation of actual network traffic.
-    /// Network traffic also include HTTP headers, which are not
+    /// Network traffic also includes HTTP headers, which are not
     /// counted in this size.
-    @objc public var messageSizeBytes: UInt64 = 0
+    @objc public fileprivate(set) var messageSizeBytes: UInt64 = 0
 
     /// Logging calls included in this batch.
     @objc public fileprivate(set) var calls: [Call] = []
@@ -177,6 +163,14 @@ public final class Xray: NSObject {
   }
   
   public static let networkBatchWindowMaxSize: Int = 100
+  
+  public static var timingMayBeInaccurate: Bool {
+    #if DEBUG || targetEnvironment(simulator)
+    return true
+    #else
+    return false
+    #endif
+  }
   
   /// Number of network batches to keep in memory.
   @objc public var networkBatchWindowSize: Int {
@@ -198,10 +192,6 @@ public final class Xray: NSObject {
 
   /// Total time spent in Promoted logging code.
   @objc public private(set) var totalTimeSpent: TimeInterval
-  
-  @objc public var totalTimeSpentMillis: TimeIntervalMillis {
-    TimeIntervalMillis(seconds: totalTimeSpent)
-  }
 
   /// Most recent network batches.
   @objc public private(set) var networkBatches: [NetworkBatch]
@@ -322,6 +312,7 @@ public final class Xray: NSObject {
     totalRequestsMade += 1
     add(batch: pendingBatch)
     self.pendingBatch = nil
+    logBatchResponseCompleteStats()
   }
   
   private func add(batch: NetworkBatch) {
@@ -337,6 +328,18 @@ public final class Xray: NSObject {
       // buffer to avoid this.
       networkBatches.removeFirst(excess)
     }
+  }
+  
+  private func logBatchResponseCompleteStats() {
+    guard let osLog = osLog else { return }
+    if Self.timingMayBeInaccurate {
+      osLog.info("WARNING! Timing may be inaccurate when running in debug or simulator.")
+    }
+    if let batch = networkBatches.last {
+      osLog.info("Latest batch: %{private}@", String(describing: batch))
+    }
+    osLog.info("Total: %{public}lld ms, %{public}lld bytes, %{public}d requests",
+               totalTimeSpent.millis, totalBytesSent, totalRequestsMade)
   }
 }
 
