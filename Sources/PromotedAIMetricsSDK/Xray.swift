@@ -178,6 +178,14 @@ public class Xray: NSObject {
   
   public static let networkBatchWindowMaxSize: Int = 100
   
+  public static var timingMayBeInaccurate: Bool {
+    #if DEBUG || targetEnvironment(simulator)
+    return true
+    #else
+    return false
+    #endif
+  }
+  
   /// Number of network batches to keep in memory.
   @objc public var networkBatchWindowSize: Int {
     didSet {
@@ -338,6 +346,9 @@ public class Xray: NSObject {
   
   private func logBatchResponseCompleteStats() {
     guard let osLog = osLog else { return }
+    if Self.timingMayBeInaccurate {
+      osLog.info("WARNING! Timing may be inaccurate when running in debug or simulator.")
+    }
     if let batch = networkBatches.last {
       osLog.info("Latest batch: %{private}@", String(describing: batch))
     }
