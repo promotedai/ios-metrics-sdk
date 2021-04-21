@@ -9,17 +9,15 @@ import os.log
  in batches on a timer (see `ClientConfig.batchLoggingFlushInterval`).
  
  Typically, instances of `MetricsLogger`s are tied to a
- `MetricsLoggingService`, which configures the logging environment and
- maintains a `MetricLogger` for the lifetime of the service. See
- `MetricsLoggingService` for more information about the scope of the
+ `MetricsLoggerService`, which configures the logging environment and
+ maintains a `MetricsLogger` for the lifetime of the service. See
+ `MetricsLoggerService` for more information about the scope of the
  logger and the service.
  
  Events are represented as protobuf messages internally. By default,
  these messages are serialized to binary format for transmission over
  the network.
- 
- Use from main thread only.
- 
+
  # Usage
  To start a logging session, first call `startSession(userID:)` or
  `startSessionSignedOut()` to set up the user ID and log user ID
@@ -34,7 +32,9 @@ import os.log
  enters the background, use `flush()`. It's not necessary for clients
  to call `flush()` to deliver queued events. Events are automatically
  delivered on a timer.
- 
+
+ Use from main thread only.
+
  ## Example:
  ~~~
  let logger = MetricsLogger(...)
