@@ -8,7 +8,7 @@ public typealias TimeIntervalMillis = Int64
 
 public extension TimeIntervalMillis {
   init(seconds: TimeInterval) {
-    self = TimeIntervalMillis(seconds * 1000)
+    self = TimeIntervalMillis((seconds * 1000).rounded())
   }
 }
 

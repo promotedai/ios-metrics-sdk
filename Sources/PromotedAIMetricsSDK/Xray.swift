@@ -87,8 +87,16 @@ public class Xray: NSObject {
     /// Start time for logging execution.
     @objc public fileprivate(set) var startTime: TimeInterval = 0
     
+    @objc public var startTimeMillis: TimeIntervalMillis {
+      TimeIntervalMillis(seconds: startTime)
+    }
+    
     /// End time for logging execution.
     @objc public fileprivate(set) var endTime: TimeInterval = 0
+    
+    @objc public var endTimeMillis: TimeIntervalMillis {
+      TimeIntervalMillis(seconds: endTime)
+    }
     
     /// Context that produced the logging.
     @objc public fileprivate(set) var context: Context = .unspecified
@@ -130,11 +138,19 @@ public class Xray: NSObject {
     
     /// Start time for batch flush.
     @objc public fileprivate(set) var startTime: TimeInterval = 0
-
+    
+    @objc public var startTimeMillis: TimeIntervalMillis {
+      TimeIntervalMillis(seconds: startTime)
+    }
+    
     /// End time for batch flush. Includes time for proto serialization,
     /// but not the network latency.
     @objc public fileprivate(set) var endTime: TimeInterval = 0
-
+    
+    @objc public var endTimeMillis: TimeIntervalMillis {
+      TimeIntervalMillis(seconds: endTime)
+    }
+    
     /// Time spent in Promoted code for batch flush.
     @objc public var timeSpent: TimeInterval { endTime - startTime }
     
@@ -155,7 +171,11 @@ public class Xray: NSObject {
     /// Time at which network response received.
     /// This time is asynchronous.
     @objc public fileprivate(set) var networkEndTime: TimeInterval = 0
-
+    
+    @objc public var networkEndTimeMillis: TimeIntervalMillis {
+      TimeIntervalMillis(seconds: networkEndTime)
+    }
+    
     /// Message sent across the network.
     public fileprivate(set) var message: Message? = nil
 
