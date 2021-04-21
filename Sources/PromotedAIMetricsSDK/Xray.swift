@@ -198,10 +198,6 @@ public class Xray: NSObject {
 
   /// Total time spent in Promoted logging code.
   @objc public private(set) var totalTimeSpent: TimeInterval
-  
-  @objc public var totalTimeSpentMillis: TimeIntervalMillis {
-    TimeIntervalMillis(seconds: totalTimeSpent)
-  }
 
   /// Most recent network batches.
   @objc public private(set) var networkBatches: [NetworkBatch]
@@ -322,6 +318,7 @@ public class Xray: NSObject {
     totalRequestsMade += 1
     add(batch: pendingBatch)
     self.pendingBatch = nil
+    logBatchResponseCompleteStats()
   }
   
   private func add(batch: NetworkBatch) {
@@ -337,6 +334,15 @@ public class Xray: NSObject {
       // buffer to avoid this.
       networkBatches.removeFirst(excess)
     }
+  }
+  
+  private func logBatchResponseCompleteStats() {
+    guard let osLog = osLog else { return }
+    if let batch = networkBatches.last {
+      osLog.info("Latest batch: %{private}@", String(describing: batch))
+    }
+    osLog.info("Total: %{public}lld ms, %{public}lld bytes, %{public}d requests",
+               totalTimeSpent.millis, totalBytesSent, totalRequestsMade)
   }
 }
 

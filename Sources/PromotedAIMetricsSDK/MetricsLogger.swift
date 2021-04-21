@@ -273,11 +273,10 @@ public class MetricsLogger: NSObject {
         return dataMessage
       }
     } catch BinaryEncodingError.missingRequiredFields {
-      osLog?.error("propertiesMessage error: missing required fields: %{private}@",
+      osLog?.error("propertiesMessage: Missing required fields: %{private}@",
                    String(describing: message))
     } catch {
-      osLog?.error("propertiesMessage error: unknown serialization error: %{private}@",
-                   error.localizedDescription)
+      osLog?.error("propertiesMessage: %{private}@", error.localizedDescription)
     }
     return nil
   }
@@ -533,27 +532,17 @@ public extension MetricsLogger {
       try connection.sendMessage(request, clientConfig: config, xray: xray) {
         [weak self] (data, error) in
         guard let self = self else { return }
-
         let xray = self.xray
         let osLog = self.osLog
-
         osLog?.info("Logging finished")
         if let e = error {
-          osLog?.error("flush sendMessage error: %{public}@", e.localizedDescription)
+          osLog?.error("flush/sendMessage: %{public}@", e.localizedDescription)
           xray?.metricsLoggerBatchResponseDidError(e)
         }
         xray?.metricsLoggerBatchResponseDidComplete()
-
-        if let osLog = osLog, let xray = xray {
-          if let batch = xray.networkBatches.last {
-            osLog.info("Latest batch: %{private}@", String(describing: batch))
-          }
-          osLog.info("Total: %{public}lld ms, %{public}lld bytes, %{public}d requests",
-                     xray.totalTimeSpentMillis, xray.totalBytesSent, xray.totalRequestsMade)
-        }
       }
     } catch {
-      osLog?.error("flush error: %{public}@", error.localizedDescription)
+      osLog?.error("flush: %{public}@", error.localizedDescription)
       xray?.metricsLoggerBatchDidError(error)
     }
   }
