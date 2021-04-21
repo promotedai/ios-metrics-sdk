@@ -101,16 +101,12 @@ public class Xray: NSObject {
 
     /// JSON representation of any messages that were logged.
     @objc public var messagesJSON: [String] {
-      messages.map {
-        do { return try $0.jsonString() } catch { return "'ERROR'" }
-      }
+      messages.compactMap { try? $0.jsonString() }
     }
 
     /// Serialized bytes of any messages that were logged.
     @objc public var messagesBytes: [Data] {
-      messages.map {
-        do { return try $0.serializedData() } catch { return Data() }
-      }
+      messages.compactMap { try? $0.serializedData() }
     }
 
     /// Total number of serialized bytes across all messages.
@@ -148,26 +144,16 @@ public class Xray: NSObject {
     public fileprivate(set) var message: Message? = nil
 
     /// JSON representation of `message`.
-    @objc public var messageJSON: String {
-      if let json = try? message?.jsonString() {
-        return json
-      }
-      return "'ERROR'"
-    }
+    @objc public var messageJSON: String? { try? message?.jsonString() }
 
     /// Serialized bytes for `message` sent across the network.
-    @objc public var messageBytes: Data {
-      if let bytes = try? message?.serializedData() {
-        return bytes
-      }
-      return Data()
-    }
+    @objc public var messageBytes: Data? { try? message?.serializedData() }
 
     /// Number of serialized bytes sent across network.
     /// This count is an approximation of actual network traffic.
-    /// Network traffic also include HTTP headers, which are not
+    /// Network traffic also includes HTTP headers, which are not
     /// counted in this size.
-    @objc public var messageSizeBytes: UInt64 = 0
+    @objc public fileprivate(set) var messageSizeBytes: UInt64 = 0
 
     /// Logging calls included in this batch.
     @objc public fileprivate(set) var calls: [Call] = []
