@@ -40,6 +40,7 @@ final class MetricsLoggerTests: XCTestCase {
                                   connection: connection!,
                                   deviceInfo: FakeDeviceInfo(),
                                   idMap: idMap!,
+                                  osLog: nil,
                                   store: store!,
                                   viewTracker: viewTracker,
                                   xray: nil)
@@ -266,6 +267,7 @@ final class MetricsLoggerTests: XCTestCase {
                                   connection: connection!,
                                   deviceInfo: FakeDeviceInfo(),
                                   idMap: SHA1IDMap.instance,
+                                  osLog: nil,
                                   store: store!,
                                   xray: nil)
     metricsLogger!.startSessionForTesting(userID: "foobar")

@@ -6,13 +6,29 @@ public protocol ScheduledTimer {}
 
 public typealias TimeIntervalMillis = Int64
 
+public extension TimeIntervalMillis {
+  init(seconds: TimeInterval) {
+    self = TimeIntervalMillis((seconds * 1000).rounded())
+  }
+  var seconds: TimeInterval { TimeInterval(millis: self) }
+  var millis: TimeIntervalMillis { self }
+}
+
+public extension TimeInterval {
+  init(millis: TimeIntervalMillis) {
+    self = TimeInterval(Double(millis) / 1000.0)
+  }
+  var seconds: TimeInterval { self }
+  var millis: TimeIntervalMillis { TimeIntervalMillis(seconds: self) }
+}
+
 // MARK: -
 /** Represents a way to get time and perform scheduling of tasks. */
 public protocol Clock {
   
-  /// Returns time for use with timestamps.
+  /// Returns time for use with timestamps or interval measurement.
   var now: TimeInterval { get }
-  
+
   typealias Callback = (Clock) -> Void
   
   /// Schedules a callback to be invoked in the future. Callback is
@@ -27,8 +43,11 @@ public protocol Clock {
 // MARK: -
 extension Clock {
 
+  /// Returns time in millis for use with timestamps only.
+  /// This loses sub-millisecond resolution, which makes it unsuitable
+  /// for interval measurement.
   var nowMillis: TimeIntervalMillis {
-    return TimeIntervalMillis(now * 1000)
+    return TimeIntervalMillis(seconds: now)
   }
   
   func schedule(timeIntervalMillis: TimeIntervalMillis,

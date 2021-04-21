@@ -27,6 +27,7 @@ final class ScrollTrackerTests: XCTestCase {
                                   connection: FakeNetworkConnection(),
                                   deviceInfo: FakeDeviceInfo(),
                                   idMap: idMap!,
+                                  osLog: nil,
                                   store: store!,
                                   xray: nil)
     metricsLogger!.startSessionForTesting(userID: "foo")

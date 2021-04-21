@@ -14,7 +14,7 @@ final class XrayTests: XCTestCase {
     super.setUp()
     clock = FakeClock()
     config = ClientConfig()
-    xray = Xray(clock: clock!, config: config!)
+    xray = Xray(clock: clock!, config: config!, osLog: nil)
   }
   
   func testSingleBatch() {
@@ -39,6 +39,8 @@ final class XrayTests: XCTestCase {
     var logRequest = Event_LogRequest()
     logRequest.action.append(action)
     xray!.metricsLoggerBatchWillSend(message: logRequest)
+    let data = "fake http body".data(using: .utf8)!
+    xray!.metricsLoggerBatchWillSend(data: data)
     clock!.advance(toMillis: 789)
     xray!.metricsLoggerBatchDidComplete()
     clock!.advance(toMillis: 1234)
@@ -51,29 +53,29 @@ final class XrayTests: XCTestCase {
     
     XCTAssertGreaterThan(xray!.totalBytesSent, 0)
     XCTAssertEqual(1, xray!.totalRequestsMade)
-    XCTAssertEqual(acrossTime, xray!.totalTimeSpent)
+    XCTAssertEqual(acrossTime, xray!.totalTimeSpent.millis)
     
     XCTAssertEqual(1, xray!.networkBatches.count)
     let batch = xray!.networkBatches[0]
     XCTAssertGreaterThan(batch.messageSizeBytes, 0)
-    XCTAssertEqual(networkTime, batch.networkEndTime)
-    XCTAssertEqual(acrossTime, batch.timeSpentAcrossCalls)
+    XCTAssertEqual(networkTime, batch.networkEndTime.millis)
+    XCTAssertEqual(acrossTime, batch.timeSpentAcrossCalls.millis)
     XCTAssertEqual(2, batch.calls.count)
 
     let call1 = batch.calls[0]
     XCTAssertEqual(0, call1.callStack.count)
-    XCTAssertEqual(0, call1.startTime)
-    XCTAssertEqual(123, call1.endTime)
+    XCTAssertEqual(0, call1.startTime.millis)
+    XCTAssertEqual(123, call1.endTime.millis)
     XCTAssertEqual(.logAction, call1.context)
-    XCTAssertEqual(123, call1.timeSpent)
+    XCTAssertEqual(123, call1.timeSpent.millis)
     XCTAssertEqual(action, call1.messages[0] as! Event_Action)
     
     let call2 = batch.calls[1]
     XCTAssertEqual(0, call2.callStack.count)
-    XCTAssertEqual(200, call2.startTime)
-    XCTAssertEqual(250, call2.endTime)
+    XCTAssertEqual(200, call2.startTime.millis)
+    XCTAssertEqual(250, call2.endTime.millis)
     XCTAssertEqual(.logImpression, call2.context)
-    XCTAssertEqual(50, call2.timeSpent)
+    XCTAssertEqual(50, call2.timeSpent.millis)
     XCTAssertEqual(impression, call2.messages[0] as! Event_Impression)
   }
   

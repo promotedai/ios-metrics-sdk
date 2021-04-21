@@ -25,6 +25,7 @@ public protocol NetworkConnection {
   ///     `metricsLoggingWireFormat` property of `clientConfig`, may
   ///     be serialized as JSON or binary format.
   ///   - clientConfig: Configuration to use to send message.
+  ///   - xray: Xray instance to analyze network traffic.
   ///   - callback: Invoked on completion of the network op.
   ///     `NetworkConnection`s should manage their own retry logic, so
   ///     if `callback` is invoked with an error, that error indicates
@@ -33,7 +34,9 @@ public protocol NetworkConnection {
   ///   any errors that occurred in protobuf serialization *prior to*
   ///   the network operation. Errors resulting from the network operation
   ///   are passed through `callback`.
-  func sendMessage(_ message: Message, clientConfig: ClientConfig,
+  func sendMessage(_ message: Message,
+                   clientConfig: ClientConfig,
+                   xray: Xray?,
                    callback: Callback?) throws
 }
 
@@ -87,15 +90,18 @@ class GTMSessionFetcherConnection: NetworkConnection {
     fetcherService = GTMSessionFetcherService()
   }
   
-  func sendMessage(_ message: Message, clientConfig: ClientConfig,
+  func sendMessage(_ message: Message,
+                   clientConfig: ClientConfig,
+                   xray: Xray?,
                    callback: Callback?) throws {
     do {
       let url = try metricsLoggingURL(clientConfig: clientConfig)
       let messageData = try bodyData(message: message, clientConfig: clientConfig)
       let request = urlRequest(url: url, data: messageData, clientConfig: clientConfig)
       let fetcher = fetcherService.fetcher(with: request)
-      fetcher.bodyData = messageData
       fetcher.isRetryEnabled = true
+      fetcher.bodyData = messageData
+      xray?.metricsLoggerBatchWillSend(data: messageData)
       fetcher.beginFetch { (data, error) in
         var callbackError = error
         if let e = error as NSError? {
