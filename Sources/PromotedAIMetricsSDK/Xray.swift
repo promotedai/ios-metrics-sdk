@@ -229,11 +229,12 @@ public class Xray: NSObject {
   
   private let clock: Clock
   private let callStacksEnabled: Bool
-  private let osLog: OSLog
+  private let osLog: OSLog?
 
-  init(clock: Clock, config: ClientConfig) {
+  init(clock: Clock, config: ClientConfig, osLog: OSLog?) {
     self.clock = clock
     self.callStacksEnabled = config.xrayExpensiveThreadCallStacksEnabled
+    self.osLog = osLog
 
     self.networkBatchWindowSize = 10
     self.totalBytesSent = 0
@@ -242,34 +243,8 @@ public class Xray: NSObject {
     self.networkBatches = []
     self.pendingCalls = []
     self.pendingBatch = nil
-    
-    if #available(iOS 12.0, *) {
-      self.osLog = OSLog(subsystem: "ai.promoted.Xray", category: .pointsOfInterest)
-    } else {
-      self.osLog = OSLog(subsystem: "ai.promoted.Xray", category: "Xray")
-    }
   }
-  
-  private func signpostBegin(name: StaticString) {
-    if #available(iOS 12.0, *) {
-      os_signpost(.begin, log: osLog, name: name)
-    }
-  }
-  
-  private func signpostEvent(name: StaticString,
-                             format: StaticString = "",
-                             _ arguments: CVarArg...) {
-    if #available(iOS 12.0, *) {
-      os_signpost(.event, log: osLog, name: name, format, arguments)
-    }
-  }
-  
-  private func signpostEnd(name: StaticString) {
-    if #available(iOS 12.0, *) {
-      os_signpost(.end, log: osLog, name: name)
-    }
-  }
-  
+
   // MARK: - Call
   func callWillStart(context: Context) {
     let call = Call()
@@ -281,17 +256,17 @@ public class Xray: NSObject {
     }
     call.startTime = clock.now
     pendingCalls.append(call)
-    signpostBegin(name: "call")
+    osLog?.signpostBegin(name: "call")
   }
   
   func callDidLog(message: Message) {
-    signpostEvent(name: "call", format: "log")
+    osLog?.signpostEvent(name: "call", format: "log")
     guard let lastCall = pendingCalls.last else { return }
     lastCall.messages.append(message)
   }
 
   func callDidComplete() {
-    signpostEnd(name: "call")
+    osLog?.signpostEnd(name: "call")
     guard let lastCall = pendingCalls.last else { return }
     lastCall.endTime = clock.now
   }
@@ -308,31 +283,32 @@ public class Xray: NSObject {
     pendingBatch.calls = pendingCalls
     self.pendingBatch = pendingBatch
     self.pendingCalls.removeAll()
-    signpostBegin(name: "batch")
+    osLog?.signpostBegin(name: "batch")
   }
   
   func metricsLoggerBatchWillSend(message: Message) {
-    signpostEvent(name: "batch", format: "sendMessage")
+    osLog?.signpostEvent(name: "batch", format: "sendMessage")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.message = message
   }
   
   func metricsLoggerBatchWillSend(urlRequest: URLRequest) {
     let size = urlRequest.httpBody?.count ?? 0
-    signpostEvent(name: "batch", format: "sendURLRequest: %{public}d bytes", size)
-    signpostBegin(name: "network")
+    osLog?.signpostEvent(name: "batch", format: "sendURLRequest: %{public}d bytes", size)
+    osLog?.signpostBegin(name: "network")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.messageSizeBytes = UInt64(size)
   }
   
   func metricsLoggerBatchDidError(_ error: Error) {
-    signpostEvent(name: "batch", format: "error: %{public}s", error.localizedDescription)
+    osLog?.signpostEvent(name: "batch", format: "error: %{public}@",
+                        error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.error = error
   }
 
   func metricsLoggerBatchDidComplete() {
-    signpostEnd(name: "batch")
+    osLog?.signpostEnd(name: "batch")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.endTime = clock.now
     totalTimeSpent += pendingBatch.timeSpentAcrossCalls
@@ -343,14 +319,15 @@ public class Xray: NSObject {
   }
   
   func metricsLoggerBatchResponseDidError(_ error: Error) {
-    signpostEvent(name: "network", format: "error: %{public}s", error.localizedDescription)
+    osLog?.signpostEvent(name: "network", format: "error: %{public}@",
+                        error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.networkEndTime = clock.now
     pendingBatch.error = error
   }
   
   func metricsLoggerBatchResponseDidComplete() {
-    signpostEnd(name: "network")
+    osLog?.signpostEnd(name: "network")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.networkEndTime = clock.now
     totalBytesSent += pendingBatch.messageSizeBytes

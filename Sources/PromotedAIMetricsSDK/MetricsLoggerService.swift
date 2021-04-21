@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import os.log
 
 // MARK: -
 /**
@@ -51,6 +52,7 @@ public class MetricsLoggerService: NSObject {
                          connection: self.connection,
                          deviceInfo: self.deviceInfo,
                          idMap: self.idMap,
+                         osLog: self.metricsLoggerOSLog,
                          store: self.store,
                          xray: self.xray)
   } ()
@@ -65,6 +67,9 @@ public class MetricsLoggerService: NSObject {
   private let deviceInfo: DeviceInfo
   private let idMap: IDMap
   private let store: PersistentStore
+  
+  private let metricsLoggerOSLog: OSLog?
+  private let xrayOSLog: OSLog?
 
   /// Profiling information for this session.
   public let xray: Xray?
@@ -101,8 +106,18 @@ public class MetricsLoggerService: NSObject {
     self.idMap = idMap
     self.store = store
     let config = clientConfigService.config
-    let xrayEnabled = config.xrayEnabled
-    self.xray = xrayEnabled ? Xray(clock: clock, config: config) : nil
+    if config.osLogEnabled {
+      self.metricsLoggerOSLog = OSLog(subsystem: "ai.promoted", category: "MetricsLogger")
+      self.xrayOSLog = OSLog(subsystem: "ai.promoted", category: "Xray")
+    } else {
+      self.metricsLoggerOSLog = nil
+      self.xrayOSLog = nil
+    }
+    if config.xrayEnabled {
+      self.xray = Xray(clock: clock, config: config, osLog: xrayOSLog)
+    } else {
+      self.xray = nil
+    }
   }
 
   /// Call this to start logging services, prior to accessing `logger`.

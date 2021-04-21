@@ -1,5 +1,6 @@
 import Foundation
 import SwiftProtobuf
+import os.log
 
 // MARK: -
 /**
@@ -102,6 +103,7 @@ public class MetricsLogger: NSObject {
   private var needsViewStateCheck: Bool
   
   private let xray: Xray?
+  private let osLog: OSLog?
 
   private lazy var deviceMessage: Event_Device = {
     var device = Event_Device()
@@ -124,6 +126,7 @@ public class MetricsLogger: NSObject {
        connection: NetworkConnection,
        deviceInfo: DeviceInfo,
        idMap: IDMap,
+       osLog: OSLog?,
        store: PersistentStore,
        viewTracker: ViewTracker? = nil,
        xray: Xray?) {
@@ -133,6 +136,8 @@ public class MetricsLogger: NSObject {
     self.deviceInfo = deviceInfo
     self.idMap = idMap
     self.store = store
+    self.xray = xray
+    self.osLog = osLog
 
     self.logMessages = []
     self.userID = nil
@@ -144,7 +149,6 @@ public class MetricsLogger: NSObject {
     self.sessionIDProducer = IDProducer { return idMap.sessionID() }
     self.viewTracker = viewTracker ?? ViewTracker(idMap: idMap)
     self.needsViewStateCheck = false
-    self.xray = xray
   }
 
   // MARK: - Starting new sessions
@@ -269,10 +273,11 @@ public class MetricsLogger: NSObject {
         return dataMessage
       }
     } catch BinaryEncodingError.missingRequiredFields {
-      print("[MetricsLogger] Payload missing required fields: " +
-            String(describing: message))
+      osLog?.error("propertiesMessage error: missing required fields: %{private}@",
+                   String(describing: message))
     } catch {
-      print("[MetricsLogger] Unknown error serializing data")
+      osLog?.error("propertiesMessage error: unknown serialization error: %{private}@",
+                   error.localizedDescription)
     }
     return nil
   }
@@ -450,8 +455,10 @@ public extension MetricsLogger {
   /// Enqueues the given message for logging. Messages are then
   /// delivered to the server on a timer.
   func log(message: Message) {
-    assert(Thread.isMainThread,
-           "[MetricsLogger] Logging must be done on main thread")
+    guard Thread.isMainThread else {
+      osLog?.error("Logging must be done on main thread")
+      return
+    }
     logMessages.append(message)
     xray?.callDidLog(message: message)
     maybeSchedulePendingBatchLoggingFlush()
@@ -497,7 +504,7 @@ public extension MetricsLogger {
       case let action as Event_Action:
         logRequest.action.append(action)
       default:
-        print("Unknown event: \(event)")
+        osLog?.debug("Unknown event: %{private}@", String(describing: event))
       }
     }
     return logRequest
@@ -523,21 +530,23 @@ public extension MetricsLogger {
     let request = logRequestMessage(events: eventsCopy)
     xray?.metricsLoggerBatchWillSend(message: request)
     do {
-      try connection.sendMessage(request, clientConfig: config) {
+      try connection.sendMessage(request, clientConfig: config, xray: xray) {
         [weak self] (data, error) in
-        print("[MetricsLogger] Logging finished.")
+        guard let osLog = self?.osLog else { return }
+        osLog.info("Logging finished")
         guard let xray = self?.xray else { return }
         if let e = error {
           xray.metricsLoggerBatchResponseDidError(e)
         }
         xray.metricsLoggerBatchResponseDidComplete()
-        guard let batch = xray.networkBatches.last else { return }
-        print("[MetricsLogger] Latest: \(String(describing: batch))")
-        print("[MetricsLogger] TOTAL: \(xray.totalTimeSpentMillis) ms, " +
-              "\(xray.totalBytesSent) bytes, " +
-              "\(xray.totalRequestsMade) requests.")
+        if let batch = xray.networkBatches.last {
+          osLog.info("Latest batch: %{private}@", String(describing: batch))
+        }
+        osLog.info("Total: %{public}lld ms, %{public}lld bytes, %{public}d requests",
+                   xray.totalTimeSpentMillis, xray.totalBytesSent, xray.totalRequestsMade)
       }
     } catch {
+      osLog?.error("flush error: %{public}@", error.localizedDescription)
       xray?.metricsLoggerBatchDidError(error)
     }
   }
