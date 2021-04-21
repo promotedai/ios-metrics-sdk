@@ -52,7 +52,7 @@ extension Clock {
   
   func schedule(timeIntervalMillis: TimeIntervalMillis,
                 callback: @escaping Callback) -> ScheduledTimer? {
-    return schedule(timeInterval: TimeInterval(Double(timeIntervalMillis) / 1000.0),
+    return schedule(timeInterval: TimeInterval(millis: timeIntervalMillis),
                     callback: callback)
   }
 }
