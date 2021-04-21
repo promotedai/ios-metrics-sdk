@@ -532,18 +532,25 @@ public extension MetricsLogger {
     do {
       try connection.sendMessage(request, clientConfig: config, xray: xray) {
         [weak self] (data, error) in
-        guard let osLog = self?.osLog else { return }
-        osLog.info("Logging finished")
-        guard let xray = self?.xray else { return }
+        guard let self = self else { return }
+
+        let xray = self.xray
+        let osLog = self.osLog
+
+        osLog?.info("Logging finished")
         if let e = error {
-          xray.metricsLoggerBatchResponseDidError(e)
+          osLog?.error("flush sendMessage error: %{public}@", e.localizedDescription)
+          xray?.metricsLoggerBatchResponseDidError(e)
         }
-        xray.metricsLoggerBatchResponseDidComplete()
-        if let batch = xray.networkBatches.last {
-          osLog.info("Latest batch: %{private}@", String(describing: batch))
+        xray?.metricsLoggerBatchResponseDidComplete()
+
+        if let osLog = osLog, let xray = xray {
+          if let batch = xray.networkBatches.last {
+            osLog.info("Latest batch: %{private}@", String(describing: batch))
+          }
+          osLog.info("Total: %{public}lld ms, %{public}lld bytes, %{public}d requests",
+                     xray.totalTimeSpentMillis, xray.totalBytesSent, xray.totalRequestsMade)
         }
-        osLog.info("Total: %{public}lld ms, %{public}lld bytes, %{public}d requests",
-                   xray.totalTimeSpentMillis, xray.totalBytesSent, xray.totalRequestsMade)
       }
     } catch {
       osLog?.error("flush error: %{public}@", error.localizedDescription)
