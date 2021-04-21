@@ -8,30 +8,33 @@ import os.log
  
  Typically, instances of `MetricsLogger`s are tied to a
  `MetricsLoggingService`, which configures the logging environment and
- maintains a `MetricLogger` for the lifetime of the service. You may
- choose to make `MetricsLoggerService` a singleton, which makes its
- corresponding `MetricLogger` a singleton. You may also choose to
+ maintains a `MetricsLogger` for the lifetime of the service. 
+ 
+ The service also provides a facility to create `ImpressionLogger`s and
+ `ScrollTracker`s.
+ 
+ # Usage
+ Create and configure the service when your app starts, then retrieve the
+ `MetricsLogger` instance from the service after it has been configured.
+ Alternatively, create `ImpressionLogger` instances using the service.
+ You may choose to make `MetricsLoggerService` a singleton, which makes its
+ corresponding `MetricsLogger` a singleton. You may also choose to
  instantiate `MetricsLoggingService` and hold a reference to the instance.
- 
- The service also provides a facility to create `ImpressionLogger`s.
- 
+ In either case, choose one way to create and access `MetricsLoggerService`
+ and use it consistently in your app.
  You can create multiple instances of the service with different backends
  if desired. However, you should not create multiple services that point
  at the same backend.
  
  Use from main thread only.
  
- # Usage
- Create and configure the service when your app starts, then retrieve the
- `MetricsLogger` instance from the service after it has been configured.
- Alternatively, create `ImpressionLogger` instances using the service.
- 
  ## Example (using instance):
  ~~~
- let service = MetricsLoggingService(initialConfig: ...)
+ let service = MetricsLoggerService(initialConfig: ...)
  service.startLoggingServices()
  let logger = service.metricsLogger
  let impressionLogger = service.impressionLogger()
+ let scrollTracker = service.scrollTracker(collectionView: ...)
  ~~~
  
  ## Example (using shared service):
