@@ -39,11 +39,8 @@ final class XrayTests: XCTestCase {
     var logRequest = Event_LogRequest()
     logRequest.action.append(action)
     xray!.metricsLoggerBatchWillSend(message: logRequest)
-    let data = "fake http body".data(using: .utf8)
-    let url = URL(string: "https://promoted.ai")
-    var urlRequest = URLRequest(url: url!)
-    urlRequest.httpBody = data
-    xray!.metricsLoggerBatchWillSend(urlRequest: urlRequest)
+    let data = "fake http body".data(using: .utf8)!
+    xray!.metricsLoggerBatchWillSend(data: data)
     clock!.advance(toMillis: 789)
     xray!.metricsLoggerBatchDidComplete()
     clock!.advance(toMillis: 1234)
