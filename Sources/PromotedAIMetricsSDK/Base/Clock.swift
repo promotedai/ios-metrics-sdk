@@ -10,12 +10,16 @@ public extension TimeIntervalMillis {
   init(seconds: TimeInterval) {
     self = TimeIntervalMillis((seconds * 1000).rounded())
   }
+  var seconds: TimeInterval { TimeInterval(millis: self) }
+  var millis: TimeIntervalMillis { self }
 }
 
 public extension TimeInterval {
   init(millis: TimeIntervalMillis) {
     self = TimeInterval(Double(millis) / 1000.0)
   }
+  var seconds: TimeInterval { self }
+  var millis: TimeIntervalMillis { TimeIntervalMillis(seconds: self) }
 }
 
 // MARK: -

@@ -86,27 +86,15 @@ public class Xray: NSObject {
     
     /// Start time for logging execution.
     @objc public fileprivate(set) var startTime: TimeInterval = 0
-    
-    @objc public var startTimeMillis: TimeIntervalMillis {
-      TimeIntervalMillis(seconds: startTime)
-    }
-    
+
     /// End time for logging execution.
     @objc public fileprivate(set) var endTime: TimeInterval = 0
-    
-    @objc public var endTimeMillis: TimeIntervalMillis {
-      TimeIntervalMillis(seconds: endTime)
-    }
     
     /// Context that produced the logging.
     @objc public fileprivate(set) var context: Context = .unspecified
     
     /// Time spent in Promoted code for this logging call.
     @objc public var timeSpent: TimeInterval { endTime - startTime }
-    
-    @objc public var timeSpentMillis: TimeIntervalMillis {
-      TimeIntervalMillis(seconds: timeSpent)
-    }
 
     /// Messages that were logged, if any.
     public fileprivate(set) var messages: [Message] = []
@@ -138,43 +126,23 @@ public class Xray: NSObject {
     
     /// Start time for batch flush.
     @objc public fileprivate(set) var startTime: TimeInterval = 0
-    
-    @objc public var startTimeMillis: TimeIntervalMillis {
-      TimeIntervalMillis(seconds: startTime)
-    }
-    
+
     /// End time for batch flush. Includes time for proto serialization,
     /// but not the network latency.
     @objc public fileprivate(set) var endTime: TimeInterval = 0
     
-    @objc public var endTimeMillis: TimeIntervalMillis {
-      TimeIntervalMillis(seconds: endTime)
-    }
-    
     /// Time spent in Promoted code for batch flush.
     @objc public var timeSpent: TimeInterval { endTime - startTime }
-    
-    @objc public var timeSpentMillis: TimeIntervalMillis {
-      TimeIntervalMillis(seconds: timeSpent)
-    }
 
     /// Time spent in Promoted code for batch flush and all calls
     /// contained therein.
     @objc public var timeSpentAcrossCalls: TimeInterval {
       timeSpent + calls.map(\.timeSpent).reduce(0, +)
     }
-    
-    @objc public var timeSpentAcrossCallsMillis: TimeIntervalMillis {
-      TimeIntervalMillis(seconds: timeSpentAcrossCalls)
-    }
 
     /// Time at which network response received.
     /// This time is asynchronous.
     @objc public fileprivate(set) var networkEndTime: TimeInterval = 0
-    
-    @objc public var networkEndTimeMillis: TimeIntervalMillis {
-      TimeIntervalMillis(seconds: networkEndTime)
-    }
     
     /// Message sent across the network.
     public fileprivate(set) var message: Message? = nil
@@ -381,7 +349,7 @@ extension Xray.Call {
     let context = String(describing: self.context)
     let messageCount = messages.count
     let messageSize = messagesSizeBytes
-    return "(\(context): \(timeSpentMillis) ms, \(messageCount) msgs, " +
+    return "(\(context): \(timeSpent.millis) ms, \(messageCount) msgs, " +
            "\(messageSize) bytes)"
   }
 }
@@ -395,7 +363,7 @@ extension Xray.NetworkBatch {
     let callCount = calls.count
     let eventCount = calls.flatMap { $0.messages }.count
     let messageSize = messageSizeBytes
-    return "(\(timeSpentAcrossCallsMillis) ms, \(callCount) calls, " +
+    return "(\(timeSpentAcrossCalls.millis) ms, \(callCount) calls, " +
            "\(eventCount) events, \(messageSize) bytes)"
   }
 }
