@@ -241,7 +241,7 @@ public extension ScrollTracker {
           guard let attrs = layout.layoutAttributesForItem(at: path) else { continue }
           guard let content = dataProducer(path) else { continue }
           let frame = attrs.frame
-          guard frame.area > 0 else { continue }
+          guard !frame.isEmpty else { continue }
           setFrame(frame, forContent: content)
         }
       }
