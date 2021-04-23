@@ -30,13 +30,9 @@ class IOSDeviceInfo: DeviceInfo {
     }
   }
 
-  var brand: String {
-    return "Apple"
-  }
+  var brand: String { "Apple" }
   
-  var manufacturer: String {
-    return "Apple"
-  }
+  var manufacturer: String { "Apple" }
   
   lazy var identifier: String = {
     var systemInfo = utsname()
@@ -49,24 +45,16 @@ class IOSDeviceInfo: DeviceInfo {
     return identifier
   } ()
   
-  var osVersion: String {
-    return UIDevice.current.systemVersion
-  }
+  var osVersion: String { UIDevice.current.systemVersion }
 
-  var screenScale: Float {
-    return Float(UIScreen.main.scale)
-  }
+  var screenScale: Float { Float(UIScreen.main.scale) }
 
   var screenSizePx: (UInt32, UInt32) {
     let bounds = UIScreen.main.nativeBounds
     return (UInt32(bounds.width), UInt32(bounds.height))
   }
   
-  var languageCode: String {
-    return Locale.current.languageCode ?? "unknown"
-  }
+  var languageCode: String { Locale.current.languageCode ?? "unknown" }
   
-  var regionCode: String {
-    return Locale.current.regionCode ?? "unknown"
-  }
+  var regionCode: String { Locale.current.regionCode ?? "unknown" }
 }

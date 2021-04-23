@@ -96,7 +96,5 @@ public enum ActionType: Int {
     }
   }
 
-  var protoValue: Event_ActionType? {
-    return Event_ActionType(rawValue: self.rawValue)
-  }
+  var protoValue: Event_ActionType? { Event_ActionType(rawValue: self.rawValue) }
 }

@@ -266,9 +266,7 @@ public extension ScrollTracker {
 
 // MARK: - CGRect extension
 extension CGRect {
-  var area: Float {
-    return Float(width * height)
-  }
+  var area: Float { Float(width * height) }
   
   func overlapRatio(_ other: CGRect) -> Float {
     let area = self.area

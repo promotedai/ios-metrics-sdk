@@ -16,12 +16,12 @@ public protocol PersistentStore: class {
 final class UserDefaultsPersistentStore: PersistentStore {
   
   var userID: String? {
-    get { return stringValue(forKey: #function) }
+    get { stringValue(forKey: #function) }
     set(value) { setStringValue(value, forKey: #function) }
   }
 
   var logUserID: String? {
-    get { return stringValue(forKey: #function) }
+    get { stringValue(forKey: #function) }
     set(value) { setStringValue(value, forKey: #function) }
   }
 
@@ -32,7 +32,7 @@ final class UserDefaultsPersistentStore: PersistentStore {
   }
   
   private func stringValue(forKey key: String) -> String? {
-    return defaults.string(forKey: "ai.promoted." + key)
+    defaults.string(forKey: "ai.promoted." + key)
   }
   
   private func setStringValue(_ value: String?, forKey key: String) {
