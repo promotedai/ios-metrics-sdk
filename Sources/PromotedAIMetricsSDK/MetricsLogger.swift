@@ -46,7 +46,7 @@ import os.log
  ~~~
  */
 @objc(PROMetricsLogger)
-public class MetricsLogger: NSObject {
+public final class MetricsLogger: NSObject {
 
   private let clock: Clock
   private let config: ClientConfig
@@ -70,18 +70,14 @@ public class MetricsLogger: NSObject {
   /// called. If read before the first call to `startSession*`,
   /// returns the cached ID from the previous session from
   /// `PeristentStore`.
-  public var logUserID: String {
-    return logUserIDProducer.currentValue
-  }
+  public var logUserID: String { logUserIDProducer.currentValue }
   private let logUserIDProducer: IDProducer
   
   /// Session ID for this session. Updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
   /// called. If read before the first call to `startSession*`,
   /// returns an ID that will be used for the first session.
-  public var sessionID: String {
-    return sessionIDProducer.currentValue
-  }
+  public var sessionID: String { sessionIDProducer.currentValue }
   private let sessionIDProducer: IDProducer
   
   /// View ID for current view. Updated when `logView()` is
@@ -454,6 +450,10 @@ public extension MetricsLogger {
   /// Enqueues the given message for logging. Messages are then
   /// delivered to the server on a timer.
   func log(message: Message) {
+    guard config.loggingEnabled else {
+      logMessages.removeAll()
+      return
+    }
     guard Thread.isMainThread else {
       osLog?.error("Logging must be done on main thread")
       return
@@ -468,9 +468,9 @@ public extension MetricsLogger {
     let interval = config.loggingFlushInterval
     batchLoggingTimer = clock.schedule(timeInterval: interval) {
       [weak self] clock in
-      guard let strongSelf = self else { return }
-      strongSelf.batchLoggingTimer = nil
-      strongSelf.flush()
+      guard let self = self else { return }
+      self.batchLoggingTimer = nil
+      self.flush()
     }
   }
   
@@ -518,11 +518,15 @@ public extension MetricsLogger {
   /// Internally, a `UIBackgroundTask` is created during this operation.
   /// Clients do not need to start a `UIBackgroundTask` to call `flush()`.
   @objc func flush() {
+    cancelPendingBatchLoggingFlush()
+    guard config.loggingEnabled else {
+      logMessages.removeAll()
+      return
+    }
+    guard !logMessages.isEmpty else { return }
+
     xray?.metricsLoggerBatchWillStart()
     defer { xray?.metricsLoggerBatchDidComplete() }
-    cancelPendingBatchLoggingFlush()
-    if logMessages.isEmpty { return }
-    if !config.loggingEnabled { return }
 
     let eventsCopy = logMessages
     logMessages.removeAll()
@@ -550,13 +554,13 @@ public extension MetricsLogger {
 
 // MARK: - Testing
 extension MetricsLogger {
-  var logMessagesForTesting: [Message] { return logMessages }
-  var userIDForTesting: String? { return userID }
-  
+  var logMessagesForTesting: [Message] { logMessages }
+  var userIDForTesting: String? { userID }
+
   func startSessionForTesting(userID: String) {
     startSession(userID: userID)
   }
-  
+
   func startSessionSignedOutForTesting() {
     startSessionSignedOut()
   }

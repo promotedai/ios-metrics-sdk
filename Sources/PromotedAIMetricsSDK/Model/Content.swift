@@ -62,9 +62,7 @@ public class Content: NSObject {
     self.insertionID = properties?.firstValueFromKeysInArray(insertionIDKeys)
   }
   
-  public override var description: String {
-    return debugDescription
-  }
+  public override var description: String { debugDescription }
 
   public override var debugDescription: String {
     var result = "("
@@ -91,9 +89,7 @@ public class Content: NSObject {
     return false
   }
   
-  public override var hash: Int {
-    return contentID?.hash ?? 0
-  }
+  public override var hash: Int { contentID?.hash ?? 0 }
 }
 
 /** Represents a saleable unit in your marketplace. */

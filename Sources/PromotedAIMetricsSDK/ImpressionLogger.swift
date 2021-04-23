@@ -80,50 +80,24 @@ public protocol ImpressionLoggerDelegate: class {
  ~~~
  */
 @objc(PROImpressionLogger)
-public class ImpressionLogger: NSObject {
+public final class ImpressionLogger: NSObject {
 
   // MARK: -
   /** Represents an impression of a cell in the collection view. */
-  public struct Impression: CustomDebugStringConvertible, Hashable {
+  public struct Impression {
    
     /// Content that was impressed.
-    public var content: Content
+    public let content: Content
     
     /// Start time of impression.
-    public var startTime: TimeInterval
+    public let startTime: TimeInterval
     
-    /// End time of impression, if available. If not, returns -1.
-    public var endTime: TimeInterval
+    /// End time of impression, if available.
+    public let endTime: TimeInterval?
 
-    /// Duration of impression, if available. If not, returns -1.
-    public var duration: TimeInterval {
-      get {
-        if endTime < 0.0 { return -1.0 }
-        return endTime - startTime
-      }
-    }
-
-    public init(content: Content,
-                startTime: TimeInterval,
-                endTime: TimeInterval = -1.0) {
-      self.content = content
-      self.startTime = startTime
-      self.endTime = endTime
-    }
-
-    public var debugDescription: String {
-      return "(\(content.description), \(startTime), \(endTime))"
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-      hasher.combine(content)
-    }
-    
-    public static func == (lhs: ImpressionLogger.Impression,
-                           rhs: ImpressionLogger.Impression) -> Bool {
-      return ((lhs.content == rhs.content) &&
-              (abs(lhs.startTime - rhs.startTime) < 0.01) &&
-              (abs(lhs.endTime - rhs.endTime) < 0.01))
+    /// Duration of impression, if available.
+    public var duration: TimeInterval? {
+      endTime != nil ? endTime! - startTime : nil
     }
   }
 
@@ -198,7 +172,7 @@ public class ImpressionLogger: NSObject {
     guard !contentArray.isEmpty else { return }
     var impressions = [Impression]()
     for content in contentArray {
-      let impression = Impression(content: content, startTime: now)
+      let impression = Impression(content: content, startTime: now, endTime: nil)
       impressions.append(impression)
       impressionStarts[content] = now
     }
@@ -221,5 +195,25 @@ public class ImpressionLogger: NSObject {
     }
     // Not calling `metricsLogger`. No logging end impressions for now.
     delegate?.impressionLogger(self, didEndImpressions: impressions)
+  }
+}
+
+extension ImpressionLogger.Impression: CustomDebugStringConvertible {
+  public var debugDescription: String {
+    endTime != nil ? "(\(content.description), \(startTime), \(endTime!))"
+      : "(\(content.description), \(startTime))"
+  }
+}
+
+extension ImpressionLogger.Impression: Hashable {
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(content)
+  }
+  
+  public static func == (lhs: ImpressionLogger.Impression,
+                         rhs: ImpressionLogger.Impression) -> Bool {
+    ((lhs.content == rhs.content) &&
+     (abs(lhs.startTime - rhs.startTime) < 0.01) &&
+     (abs((lhs.endTime ?? 0) - (rhs.endTime ?? 0)) < 0.01))
   }
 }

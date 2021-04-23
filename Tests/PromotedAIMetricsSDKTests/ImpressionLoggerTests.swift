@@ -7,9 +7,11 @@ import XCTest
 
 final class ImpressionLoggerTests: XCTestCase {
 
+  typealias Impression = ImpressionLogger.Impression
+
   class Delegate: ImpressionLoggerDelegate {
-    var startImpressions: [ImpressionLogger.Impression]
-    var endImpressions: [ImpressionLogger.Impression]
+    var startImpressions: [Impression]
+    var endImpressions: [Impression]
     init() {
       startImpressions = []
       endImpressions = []
@@ -19,12 +21,12 @@ final class ImpressionLoggerTests: XCTestCase {
       endImpressions.removeAll()
     }
     func impressionLogger(_ impressionLogger: ImpressionLogger,
-                          didStartImpressions impressions: [ImpressionLogger.Impression]) {
+                          didStartImpressions impressions: [Impression]) {
       startImpressions.append(contentsOf: impressions)
     }
     
     func impressionLogger(_ impressionLogger: ImpressionLogger,
-                          didEndImpressions impressions: [ImpressionLogger.Impression]) {
+                          didEndImpressions impressions: [Impression]) {
       endImpressions.append(contentsOf: impressions)
     }
   }
@@ -35,14 +37,13 @@ final class ImpressionLoggerTests: XCTestCase {
   
   private func impression(_ contentID: String,
                           _ startTime: TimeInterval,
-                          _ endTime: TimeInterval = -1.0) -> ImpressionLogger.Impression {
+                          _ endTime: TimeInterval? = nil) -> Impression {
     let content = Content(contentID: contentID)
     return ImpressionLogger.Impression(content: content, startTime: startTime, endTime: endTime)
   }
 
   /** Asserts that list contents are equal regardless of order. */
-  func assertContentsEqual(_ a: [ImpressionLogger.Impression],
-                           _ b: [ImpressionLogger.Impression]) {
+  func assertContentsEqual(_ a: [Impression], _ b: [Impression]) {
     XCTAssertEqual(Set(a), Set(b))
   }
   

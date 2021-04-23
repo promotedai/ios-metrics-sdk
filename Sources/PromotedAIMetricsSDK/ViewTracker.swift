@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 // MARK: - ViewTracker
-class ViewTracker {
+final class ViewTracker {
 
   /// Representation of an entry in the view stack.
   enum Key: Equatable {
@@ -33,9 +33,7 @@ class ViewTracker {
   private let stackProvider: ViewControllerStackProvider
   private let isReactNativeHint: Bool
   
-  var viewID: String {
-    return viewStack.top?.viewID ?? viewIDProducer.currentValue
-  }
+  var viewID: String { viewStack.top?.viewID ?? viewIDProducer.currentValue }
   
   init(idMap: IDMap,
        stackProvider: ViewControllerStackProvider = UIKitViewControllerStackProvider()) {
@@ -103,7 +101,7 @@ class ViewTracker {
 }
 
 extension ViewTracker {
-  var viewStackForTesting: [State] { return viewStack }
+  var viewStackForTesting: [State] { viewStack }
 }
 
 extension ViewTracker.Key: CustomDebugStringConvertible {
@@ -118,9 +116,7 @@ extension ViewTracker.Key: CustomDebugStringConvertible {
 }
 
 extension ViewTracker.State: CustomDebugStringConvertible {
-  var debugDescription: String {
-    return "\(viewKey.debugDescription)-\(viewID.suffix(5))"
-  }
+  var debugDescription: String { "\(viewKey.debugDescription)-\(viewID.suffix(5))" }
 }
 
 // MARK: - Stack
@@ -139,7 +135,7 @@ fileprivate extension ViewTracker.Stack {
   }
 
   func firstIndex(matching viewController: UIViewController) -> Int? {
-    return self.firstIndex { e in
+    self.firstIndex { e in
       if case ViewTracker.Key.uiKit(let vc) = e.viewKey {
         return viewController == vc
       }
@@ -148,7 +144,7 @@ fileprivate extension ViewTracker.Stack {
   }
 
   func firstIndex(matching routeKey: String) -> Int? {
-    return self.firstIndex { e in
+    self.firstIndex { e in
       if case ViewTracker.Key.reactNative(_, let k) = e.viewKey {
         return k == routeKey
       }
@@ -195,7 +191,7 @@ protocol ViewControllerStackProvider: class {
   func viewControllerStack() -> [UIViewController]
 }
 
-class UIKitViewControllerStackProvider: ViewControllerStackProvider {
+final class UIKitViewControllerStackProvider: ViewControllerStackProvider {
   
   func viewControllerStack() -> [UIViewController] {
     guard let root = UIApplication.shared.keyWindow?.rootViewController else {

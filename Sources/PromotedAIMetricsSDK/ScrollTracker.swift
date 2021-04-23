@@ -82,7 +82,7 @@ import UIKit
  view updates.
  */
 @objc(PROScrollTracker)
-public class ScrollTracker: NSObject {
+public final class ScrollTracker: NSObject {
   
   private let visibilityThreshold: Float
   private let durationThreshold: TimeInterval
@@ -241,7 +241,7 @@ public extension ScrollTracker {
           guard let attrs = layout.layoutAttributesForItem(at: path) else { continue }
           guard let content = dataProducer(path) else { continue }
           let frame = attrs.frame
-          guard frame.area > 0 else { continue }
+          guard !frame.isEmpty else { continue }
           setFrame(frame, forContent: content)
         }
       }
@@ -266,9 +266,7 @@ public extension ScrollTracker {
 
 // MARK: - CGRect extension
 extension CGRect {
-  var area: Float {
-    return Float(width * height)
-  }
+  var area: Float { Float(width * height) }
   
   func overlapRatio(_ other: CGRect) -> Float {
     let area = self.area

@@ -19,7 +19,7 @@ import os.log
  not sent to Promoted's servers (as of 2021Q1).
  */
 @objc(PROXray)
-public class Xray: NSObject {
+public final class Xray: NSObject {
   
   public typealias CallStack = [String]
   
@@ -79,7 +79,7 @@ public class Xray: NSObject {
 
   /** Instrumented call to Promoted library. */
   @objc(PROXrayCall)
-  public class Call: NSObject {
+  public final class Call: NSObject {
     
     /// Call stack that triggered logging.
     @objc public fileprivate(set) var callStack: CallStack = []
@@ -118,7 +118,7 @@ public class Xray: NSObject {
 
   /** Batched logging call. */
   @objc(PROXrayNetworkBatch)
-  public class NetworkBatch: NSObject {
+  public final class NetworkBatch: NSObject {
     
     /// Start time for batch flush.
     @objc public fileprivate(set) var startTime: TimeInterval = 0

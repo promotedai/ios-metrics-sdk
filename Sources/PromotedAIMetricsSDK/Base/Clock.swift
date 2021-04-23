@@ -46,20 +46,17 @@ extension Clock {
   /// Returns time in millis for use with timestamps only.
   /// This loses sub-millisecond resolution, which makes it unsuitable
   /// for interval measurement.
-  var nowMillis: TimeIntervalMillis {
-    return TimeIntervalMillis(seconds: now)
-  }
+  var nowMillis: TimeIntervalMillis { TimeIntervalMillis(seconds: now) }
   
   func schedule(timeIntervalMillis: TimeIntervalMillis,
                 callback: @escaping Callback) -> ScheduledTimer? {
-    return schedule(timeInterval: TimeInterval(millis: timeIntervalMillis),
-                    callback: callback)
+    schedule(timeInterval: TimeInterval(millis: timeIntervalMillis), callback: callback)
   }
 }
 
 // MARK: -
 /** Default implementation of `Clock` that deals with real time. */
-class SystemClock: Clock {
+final class SystemClock: Clock {
   
   struct SystemTimer: ScheduledTimer {
     let timer: Timer
@@ -69,9 +66,7 @@ class SystemClock: Clock {
 
   private init() {}
 
-  var now: TimeInterval {
-    return Date().timeIntervalSince1970
-  }
+  var now: TimeInterval { Date().timeIntervalSince1970 }
 
   func schedule(timeInterval: TimeInterval,
                 callback: @escaping Callback) -> ScheduledTimer? {

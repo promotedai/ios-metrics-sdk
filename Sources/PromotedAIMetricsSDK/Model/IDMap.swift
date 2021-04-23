@@ -55,13 +55,9 @@ open class AbstractIDMap: IDMap {
     return ""
   }
 
-  open func logUserID() -> String {
-    return UUID().uuidString
-  }
+  open func logUserID() -> String { UUID().uuidString }
   
-  open func sessionID() -> String {
-    return UUID().uuidString
-  }
+  open func sessionID() -> String { UUID().uuidString }
 
   open func impressionIDOrNil(insertionID: String?,
                               contentID: String?,
@@ -77,21 +73,17 @@ open class AbstractIDMap: IDMap {
   }
   
   open func contentID(clientID: String) -> String {
-    return deterministicUUIDString(value: clientID)
+    deterministicUUIDString(value: clientID)
   }
   
-  open func actionID() -> String {
-    return UUID().uuidString
-  }
+  open func actionID() -> String { UUID().uuidString }
   
-  open func viewID() -> String {
-    return UUID().uuidString
-  }
+  open func viewID() -> String { UUID().uuidString }
 }
 
 // MARK: -
 /** SHA1-based deterministic UUID generation. */
-class SHA1IDMap: AbstractIDMap {
+final class SHA1IDMap: AbstractIDMap {
   
   static let instance = SHA1IDMap()
   

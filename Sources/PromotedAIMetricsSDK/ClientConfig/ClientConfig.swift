@@ -22,7 +22,7 @@ import Foundation
  should go in client code, external from this config.
  */
 @objc(PROClientConfig)
-public class ClientConfig: NSObject {
+public final class ClientConfig: NSObject {
 
   /// Controls whether log messages are sent over the network.
   /// Setting this property to `false` will prevent log messages

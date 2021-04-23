@@ -49,10 +49,12 @@ import os.log
  ~~~
  */
 @objc(PROMetricsLoggerService)
-public class MetricsLoggerService: NSObject {
+public final class MetricsLoggerService: NSObject {
 
-  @objc public private(set) lazy var metricsLogger: MetricsLogger = {
-    return MetricsLogger(clientConfig: self.config,
+  @objc public private(set) lazy var metricsLogger: MetricsLogger? = {
+    let config = self.config
+    guard config.loggingEnabled else { return nil }
+    return MetricsLogger(clientConfig: config,
                          clock: self.clock,
                          connection: self.connection,
                          deviceInfo: self.deviceInfo,
@@ -62,9 +64,7 @@ public class MetricsLoggerService: NSObject {
                          xray: self.xray)
   } ()
 
-  var config: ClientConfig {
-    return clientConfigService.config
-  }
+  private var config: ClientConfig { clientConfigService.config }
 
   private let clientConfigService: ClientConfigService
   private let clock: Clock
@@ -133,12 +133,16 @@ public class MetricsLoggerService: NSObject {
     clientConfigService.fetchClientConfig()
   }
 
-  @objc public func impressionLogger() -> ImpressionLogger {
-    return ImpressionLogger(metricsLogger: self.metricsLogger, clock: self.clock)
+  /// Returns a new `ImpressionLogger`.
+  @objc public func impressionLogger() -> ImpressionLogger? {
+    guard let metricsLogger = self.metricsLogger else { return nil }
+    return ImpressionLogger(metricsLogger: metricsLogger, clock: self.clock)
   }
 
-  @objc func scrollTracker() -> ScrollTracker {
-    return ScrollTracker(metricsLogger: self.metricsLogger,
+  /// Returns a new `ScrollTracker`.
+  @objc func scrollTracker() -> ScrollTracker? {
+    guard let metricsLogger = self.metricsLogger else { return nil }
+    return ScrollTracker(metricsLogger: metricsLogger,
                          clientConfig: self.config,
                          clock: self.clock)
   }
@@ -146,15 +150,22 @@ public class MetricsLoggerService: NSObject {
 
 // MARK: - UIKit support
 public extension MetricsLoggerService {
-  @objc func scrollTracker(scrollView: UIScrollView) -> ScrollTracker {
-    return ScrollTracker(metricsLogger: self.metricsLogger,
+  /// Returns a new `ScrollTracker` tied to the given `UIScrollView`.
+  /// The scroll view must contain a `UICollectionView` to track, and
+  /// clients must provide the `ScrollTracker` with the `UICollectionView`
+  /// via `setFramesFrom(collectionView:...)` to initiate tracking.
+  @objc func scrollTracker(scrollView: UIScrollView) -> ScrollTracker? {
+    guard let metricsLogger = self.metricsLogger else { return nil }
+    return ScrollTracker(metricsLogger: metricsLogger,
                          clientConfig: self.config,
                          clock: self.clock,
                          scrollView: scrollView)
   }
-  
-  @objc func scrollTracker(collectionView: UICollectionView) -> ScrollTracker {
-    return ScrollTracker(metricsLogger: self.metricsLogger,
+
+  /// Returns a new `ScrollTracker` tied to the given `UICollectionView`.
+  @objc func scrollTracker(collectionView: UICollectionView) -> ScrollTracker? {
+    guard let metricsLogger = self.metricsLogger else { return nil }
+    return ScrollTracker(metricsLogger: metricsLogger,
                          clientConfig: self.config,
                          clock: self.clock,
                          collectionView: collectionView)

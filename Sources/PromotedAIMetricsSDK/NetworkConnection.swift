@@ -82,7 +82,7 @@ extension NetworkConnection {
 
 // MARK: -
 /** Uses `GTMSessionFetcher` to perform the network connection. */
-class GTMSessionFetcherConnection: NetworkConnection {
+final class GTMSessionFetcherConnection: NetworkConnection {
   
   private let fetcherService: GTMSessionFetcherService
   
