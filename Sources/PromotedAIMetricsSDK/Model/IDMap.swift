@@ -83,7 +83,7 @@ open class AbstractIDMap: IDMap {
 
 // MARK: -
 /** SHA1-based deterministic UUID generation. */
-class SHA1IDMap: AbstractIDMap {
+final class SHA1IDMap: AbstractIDMap {
   
   static let instance = SHA1IDMap()
   

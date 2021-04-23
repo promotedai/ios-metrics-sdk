@@ -5,7 +5,7 @@ import Foundation
  a session and keep those IDs consistent when the session
  does start.
  */
-class IDProducer {
+final class IDProducer {
 
   typealias Producer = () -> String
   

@@ -17,7 +17,7 @@ public protocol DeviceInfo {
 import UIKit
 
 /** Device info for iPhones and iPads. */
-class IOSDeviceInfo: DeviceInfo {
+final class IOSDeviceInfo: DeviceInfo {
 
   var deviceType: DeviceType {
     switch UIDevice.current.userInterfaceIdiom {

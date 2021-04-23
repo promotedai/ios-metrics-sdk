@@ -191,7 +191,7 @@ protocol ViewControllerStackProvider: class {
   func viewControllerStack() -> [UIViewController]
 }
 
-class UIKitViewControllerStackProvider: ViewControllerStackProvider {
+final class UIKitViewControllerStackProvider: ViewControllerStackProvider {
   
   func viewControllerStack() -> [UIViewController] {
     guard let root = UIApplication.shared.keyWindow?.rootViewController else {
