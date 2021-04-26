@@ -64,7 +64,7 @@ public final class MetricsLoggerService: NSObject {
                          xray: self.xray)
   } ()
 
-  private var config: ClientConfig { clientConfigService.config }
+  public var config: ClientConfig { clientConfigService.config }
 
   private let clientConfigService: ClientConfigService
   private let clock: Clock
