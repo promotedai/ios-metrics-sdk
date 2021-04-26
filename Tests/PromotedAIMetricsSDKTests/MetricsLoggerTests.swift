@@ -309,7 +309,7 @@ final class MetricsLoggerTests: XCTestCase {
       },
       "impression_id": "\(impressionID)",
       "insertion_id": "insertion!",
-      "content_id": "\(idMap!.contentID(clientID: "foobar"))",
+      "content_id": "foobar",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id"
     }
@@ -333,7 +333,7 @@ final class MetricsLoggerTests: XCTestCase {
         "client_log_timestamp": 123000
       },
       "impression_id": "\(impressionID)",
-      "content_id": "\(idMap!.contentID(clientID: "foobar"))",
+      "content_id": "foobar",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id"
     }

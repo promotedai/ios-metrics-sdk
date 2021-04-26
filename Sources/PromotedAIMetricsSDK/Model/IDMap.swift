@@ -72,9 +72,7 @@ open class AbstractIDMap: IDMap {
     return nil
   }
   
-  open func contentID(clientID: String) -> String {
-    deterministicUUIDString(value: clientID)
-  }
+  open func contentID(clientID: String) -> String { clientID }
   
   open func actionID() -> String { UUID().uuidString }
   
