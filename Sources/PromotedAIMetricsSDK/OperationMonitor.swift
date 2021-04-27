@@ -46,8 +46,8 @@ final class OperationMonitor {
   /// switch is enabled mid-session. Also generates Xray profiling
   /// data for the provided block, if needed.
   ///
-  /// Calls to `execute` can be nested, in which case only the outermost
-  /// call triggers calls to listeners.
+  /// Calls to `execute` can be nested, in which case only the
+  /// outermost call triggers calls to listeners.
   ///
   /// - Parameters:
   ///   - context: Identifier for execution context for Xray
