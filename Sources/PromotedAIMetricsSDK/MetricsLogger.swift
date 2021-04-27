@@ -490,7 +490,6 @@ public extension MetricsLogger {
   /// Clients do not need to start a `UIBackgroundTask` to call `flush()`.
   @objc func flush() {
     cancelPendingBatchLoggingFlush()
-    guard config.loggingEnabled else { return }
     guard !logMessages.isEmpty else { return }
 
     xray?.metricsLoggerBatchWillStart()

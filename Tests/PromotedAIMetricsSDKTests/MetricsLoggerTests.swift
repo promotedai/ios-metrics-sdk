@@ -251,35 +251,7 @@ final class MetricsLoggerTests: XCTestCase {
       XCTFail("Exception when deserializing payload")
     }
   }
-  
-  func testDisableLogging() {
-    // Logging enabled.
-    metricsLogger.startSessionForTesting(userID: "foobar")
-    metricsLogger.logUser()
-    XCTAssertEqual(1, metricsLogger.logMessagesForTesting.count)
-    let message = metricsLogger.logMessagesForTesting[0]
-    XCTAssertTrue(message is Event_User)
-    metricsLogger.flush()
-    XCTAssertEqual(1, connection.messages.count)
 
-    // Logging disabled.
-    connection.messages.removeAll()
-    config.loggingEnabled = false
-    metricsLogger = MetricsLogger(clientConfig: config!,
-                                  clock: clock!,
-                                  connection: connection!,
-                                  deviceInfo: FakeDeviceInfo(),
-                                  idMap: SHA1IDMap.instance,
-                                  monitor: monitor,
-                                  osLog: nil,
-                                  store: store!,
-                                  xray: nil)
-    metricsLogger.startSessionForTesting(userID: "foobar")
-    metricsLogger.logUser()
-    metricsLogger.flush()
-    XCTAssertEqual(0, connection.messages.count)
-  }
-  
   func testLogUser() {
     metricsLogger.startSessionForTesting(userID: "foo")
     metricsLogger.logUser()
