@@ -8,8 +8,8 @@ import XCTest
 
 final class NetworkConnectionTests: XCTestCase {
   
-  private var config: ClientConfig?
-  private var connection: FakeNetworkConnection?
+  private var config: ClientConfig!
+  private var connection: FakeNetworkConnection!
 
   override func setUp() {
     super.setUp()
@@ -22,8 +22,8 @@ final class NetworkConnectionTests: XCTestCase {
     message.actionID = "foo"
     
     do {
-      config!.metricsLoggingWireFormat = .json
-      let jsonData = try connection!.bodyData(message: message, clientConfig: config!)
+      config.metricsLoggingWireFormat = .json
+      let jsonData = try connection.bodyData(message: message, clientConfig: config)
       let jsonString = String(data: jsonData, encoding: .utf8)!
       XCTAssertEqual("{\"actionId\":\"foo\"}", jsonString)
     } catch {
@@ -36,8 +36,8 @@ final class NetworkConnectionTests: XCTestCase {
     message.actionID = "foo"
     
     do {
-      config!.metricsLoggingWireFormat = .binary
-      let binaryData = try connection!.bodyData(message: message, clientConfig: config!)
+      config.metricsLoggingWireFormat = .binary
+      let binaryData = try connection.bodyData(message: message, clientConfig: config)
       XCTAssertGreaterThan(binaryData.count, 0)
     } catch {
       XCTFail("Binary serialization threw an exception.")
@@ -45,11 +45,11 @@ final class NetworkConnectionTests: XCTestCase {
   }
     
   func testURLRequestAPIKey() {
-    config!.devMetricsLoggingAPIKey = "key!"
-    config!.metricsLoggingAPIKey = config!.devMetricsLoggingAPIKey
+    config.devMetricsLoggingAPIKey = "key!"
+    config.metricsLoggingAPIKey = config.devMetricsLoggingAPIKey
     let url = URL(string: "http://promoted.ai")!
     let data = "foobar".data(using: .utf8)!
-    let request = connection?.urlRequest(url: url, data: data, clientConfig: config!)
+    let request = connection?.urlRequest(url: url, data: data, clientConfig: config)
     XCTAssertEqual("key!", request!.allHTTPHeaderFields!["x-api-key"]!)
   }
 }
