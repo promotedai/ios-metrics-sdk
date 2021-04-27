@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - ClientConfigListener
 /** Listens for changes when `ClientConfig` loads. */
-public protocol ClientConfigListener: class {
+public protocol ClientConfigListener: AnyObject {
   func clientConfigDidChange(_ config: ClientConfig)
 }
 
@@ -44,19 +44,19 @@ open class AbstractClientConfigService: ClientConfigService {
 
   public private(set) var config: ClientConfig
 
-  private var listeners: [ClientConfigListener]
+  fileprivate var dispatcher: Dispatcher<ClientConfigListener>
 
   public init(initialConfig: ClientConfig) {
     self.config = initialConfig
-    self.listeners = []
+    self.dispatcher = Dispatcher()
   }
   
   public func addClientConfigListener(_ listener: ClientConfigListener) {
-    listeners.append(listener)
+    dispatcher.addListener(listener)
   }
   
   public func removeClientConfigListener(_ listener: ClientConfigListener) {
-    listeners.removeAll(where: { $0 === listener })
+    dispatcher.removeListener(listener)
   }
 
   open func fetchClientConfig() {
@@ -68,9 +68,7 @@ open class AbstractClientConfigService: ClientConfigService {
 public extension AbstractClientConfigService {
   func setClientConfigAndNotifyListeners(_ config: ClientConfig) {
     self.config = config
-    for l in listeners {
-      l.clientConfigDidChange(config)
-    }
+    dispatcher.iterate { $0.clientConfigDidChange(config) }
   }
 }
 

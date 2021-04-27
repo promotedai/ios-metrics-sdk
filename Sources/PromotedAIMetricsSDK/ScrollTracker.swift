@@ -89,7 +89,8 @@ public final class ScrollTracker: NSObject {
   private let updateFrequency: TimeInterval
   
   private let clock: Clock
-  private let metricsLogger: MetricsLogger
+  private unowned let metricsLogger: MetricsLogger
+  private unowned let monitor: OperationMonitor
   
   private let impressionLogger: ImpressionLogger
   /*visibleForTesting*/ private(set) var content: [(CGRect, Content)]
@@ -122,13 +123,19 @@ public final class ScrollTracker: NSObject {
     didSet { maybeScheduleUpdateVisibilityTimer() }
   }
   
-  init(metricsLogger: MetricsLogger, clientConfig: ClientConfig, clock: Clock) {
+  init(metricsLogger: MetricsLogger,
+       clientConfig: ClientConfig,
+       clock: Clock,
+       monitor: OperationMonitor) {
     self.clock = clock
     self.visibilityThreshold = clientConfig.scrollTrackerVisibilityThreshold
     self.durationThreshold = clientConfig.scrollTrackerDurationThreshold
     self.updateFrequency = clientConfig.scrollTrackerUpdateFrequency
     self.metricsLogger = metricsLogger
-    self.impressionLogger = ImpressionLogger(metricsLogger: metricsLogger, clock: clock)
+    self.monitor = monitor
+    self.impressionLogger = ImpressionLogger(metricsLogger: metricsLogger,
+                                             clock: clock,
+                                             monitor: monitor)
     self.content = []
     self.timer = nil
     self.viewport = CGRect.zero
@@ -156,7 +163,7 @@ public final class ScrollTracker: NSObject {
   }
 
   private func updateVisibility() {
-    metricsLogger.execute(context: .scrollTrackerUpdate) {
+    monitor.execute {
       var visibleContent = [Content]()
       // TODO(yu-hong): Replace linear search with binary/interpolation search
       // for larger inputs. Need a secondary data structure to sort frames.
@@ -172,24 +179,34 @@ public final class ScrollTracker: NSObject {
 }
 
 // MARK: - UIKit: UICollectionView/UIScrollView
-public extension ScrollTracker {
+extension ScrollTracker {
 
   convenience init(metricsLogger: MetricsLogger,
                    clientConfig: ClientConfig,
                    clock: Clock,
+                   monitor: OperationMonitor,
                    collectionView: UICollectionView) {
-    self.init(metricsLogger: metricsLogger, clientConfig: clientConfig, clock: clock)
+    self.init(metricsLogger: metricsLogger,
+              clientConfig: clientConfig,
+              clock: clock,
+              monitor: monitor)
     set(scrollView: collectionView, collectionView: collectionView)
   }
   
   convenience init(metricsLogger: MetricsLogger,
                    clientConfig: ClientConfig,
                    clock: Clock,
+                   monitor: OperationMonitor,
                    scrollView: UIScrollView) {
-    self.init(metricsLogger: metricsLogger, clientConfig: clientConfig, clock: clock)
+    self.init(metricsLogger: metricsLogger,
+              clientConfig: clientConfig,
+              clock: clock,
+              monitor: monitor)
     set(scrollView: scrollView, collectionView: nil)
   }
+}
 
+public extension ScrollTracker {
   private func set(scrollView: UIScrollView, collectionView: UICollectionView?) {
     self.scrollView = scrollView
     self.collectionView = collectionView
@@ -230,7 +247,7 @@ public extension ScrollTracker {
   }
   
   private func setFrames(dataProducer: @escaping (IndexPath) -> Content?) {
-    metricsLogger.execute(context: .scrollTrackerSetFrames) {
+    monitor.execute {
       guard let collectionView = collectionView else { return }
       guard collectionView.window != nil else { return }
       content.removeAll()
@@ -245,13 +262,15 @@ public extension ScrollTracker {
           setFrame(frame, forContent: content)
         }
       }
+      // This should happen after layout is complete. Log initial viewport.
+      scrollViewDidChangeVisibleContent()
     }
-    // This should happen after layout is complete. Log initial viewport.
-    scrollViewDidChangeVisibleContent()
   }
 
   @objc func scrollViewDidScroll() {
-    scrollViewDidChangeVisibleContent()
+    monitor.execute {
+      scrollViewDidChangeVisibleContent()
+    }
   }
   
   @objc func scrollViewDidChangeVisibleContent() {

@@ -59,6 +59,7 @@ public final class MetricsLoggerService: NSObject {
                          connection: self.connection,
                          deviceInfo: self.deviceInfo,
                          idMap: self.idMap,
+                         monitor: self.monitor,
                          osLog: self.metricsLoggerOSLog,
                          store: self.store,
                          xray: self.xray)
@@ -71,6 +72,7 @@ public final class MetricsLoggerService: NSObject {
   private let connection: NetworkConnection
   private let deviceInfo: DeviceInfo
   private let idMap: IDMap
+  private let monitor: OperationMonitor
   private let store: PersistentStore
   
   private let metricsLoggerOSLog: OSLog?
@@ -109,6 +111,7 @@ public final class MetricsLoggerService: NSObject {
     self.connection = connection
     self.deviceInfo = deviceInfo
     self.idMap = idMap
+    self.monitor = OperationMonitor(clientConfig: clientConfigService.config)
     self.store = store
     let config = clientConfigService.config
     if config.osLogEnabled {
@@ -119,7 +122,10 @@ public final class MetricsLoggerService: NSObject {
       self.xrayOSLog = nil
     }
     if config.xrayEnabled {
-      self.xray = Xray(clock: clock, config: config, osLog: xrayOSLog)
+      self.xray = Xray(clock: clock,
+                       config: config,
+                       monitor: monitor,
+                       osLog: xrayOSLog)
     } else {
       self.xray = nil
     }
@@ -136,7 +142,9 @@ public final class MetricsLoggerService: NSObject {
   /// Returns a new `ImpressionLogger`.
   @objc public func impressionLogger() -> ImpressionLogger? {
     guard let metricsLogger = self.metricsLogger else { return nil }
-    return ImpressionLogger(metricsLogger: metricsLogger, clock: self.clock)
+    return ImpressionLogger(metricsLogger: metricsLogger,
+                            clock: self.clock,
+                            monitor: self.monitor)
   }
 
   /// Returns a new `ScrollTracker`.
@@ -144,7 +152,8 @@ public final class MetricsLoggerService: NSObject {
     guard let metricsLogger = self.metricsLogger else { return nil }
     return ScrollTracker(metricsLogger: metricsLogger,
                          clientConfig: self.config,
-                         clock: self.clock)
+                         clock: self.clock,
+                         monitor: self.monitor)
   }
 }
 
@@ -159,6 +168,7 @@ public extension MetricsLoggerService {
     return ScrollTracker(metricsLogger: metricsLogger,
                          clientConfig: self.config,
                          clock: self.clock,
+                         monitor: self.monitor,
                          scrollView: scrollView)
   }
 
@@ -168,6 +178,7 @@ public extension MetricsLoggerService {
     return ScrollTracker(metricsLogger: metricsLogger,
                          clientConfig: self.config,
                          clock: self.clock,
+                         monitor: self.monitor,
                          collectionView: collectionView)
   }
 }

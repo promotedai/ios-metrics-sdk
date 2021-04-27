@@ -85,13 +85,13 @@ public final class ImpressionLogger: NSObject {
   // MARK: -
   /** Represents an impression of a cell in the collection view. */
   public struct Impression {
-   
+
     /// Content that was impressed.
     public let content: Content
-    
+
     /// Start time of impression.
     public let startTime: TimeInterval
-    
+
     /// End time of impression, if available.
     public let endTime: TimeInterval?
 
@@ -103,22 +103,27 @@ public final class ImpressionLogger: NSObject {
 
   // MARK: -
   private unowned let metricsLogger: MetricsLogger
+
   private let clock: Clock
+  private unowned let monitor: OperationMonitor
+  
   private var impressionStarts: [Content: TimeInterval]
 
   public weak var delegate: ImpressionLoggerDelegate?
 
   init(metricsLogger: MetricsLogger,
-       clock: Clock) {
+       clock: Clock,
+       monitor: OperationMonitor) {
     self.metricsLogger = metricsLogger
     self.clock = clock
+    self.monitor = monitor
     self.impressionStarts = [Content: TimeInterval]()
   }
 
   /// Call this method when new items are displayed.
   @objc(collectionViewWillDisplayContent:)
   public func collectionViewWillDisplay(content: Content) {
-    metricsLogger.execute(context: .impressionLoggerWillDisplay) {
+    monitor.execute {
       broadcastStartAndAddImpressions(contentArray: [content], now: clock.now)
     }
   }
@@ -128,7 +133,7 @@ public final class ImpressionLogger: NSObject {
   /// been displayed, the impression for that item will be ignored.
   @objc(collectionViewDidHideContent:)
   public func collectionViewDidHide(content: Content) {
-    metricsLogger.execute(context: .impressionLoggerDidHide) {
+    monitor.execute {
       broadcastEndAndRemoveImpressions(contentArray: [content], now: clock.now)
     }
   }
@@ -138,7 +143,7 @@ public final class ImpressionLogger: NSObject {
   /// when a collection reloads.
   @objc(collectionViewDidChangeVisibleContent:)
   public func collectionViewDidChangeVisibleContent(_ contentArray: [Content]) {
-    metricsLogger.execute(context: .impressionLoggerDidChange) {
+    monitor.execute {
       let now = clock.now
 
       var newlyShownContent = [Content]()
@@ -162,7 +167,7 @@ public final class ImpressionLogger: NSObject {
 
   /// Call this method when the collection view hides.
   @objc public func collectionViewDidHideAllContent() {
-    metricsLogger.execute(context: .impressionLoggerDidHideAll) {
+    monitor.execute {
       let keys = [Content](impressionStarts.keys)
       broadcastEndAndRemoveImpressions(contentArray: keys, now: clock.now)
     }
@@ -177,7 +182,7 @@ public final class ImpressionLogger: NSObject {
       impressionStarts[content] = now
     }
     // Context is unspecified because caller specifies it.
-    metricsLogger.execute(context: .unspecified) {
+    monitor.execute {
       for impression in impressions {
         metricsLogger.logImpression(content: impression.content)
       }
