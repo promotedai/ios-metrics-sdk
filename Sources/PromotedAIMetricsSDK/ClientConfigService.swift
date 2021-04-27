@@ -22,7 +22,7 @@ public protocol ClientConfigListener: AnyObject {
  simply read from the `ClientConfig` object each time you need to access
  a config property.
  */
-public protocol ClientConfigService: class {
+public protocol ClientConfigService: AnyObject {
   
   /// The current config for the session. May change when different
   /// configs load.
@@ -36,6 +36,10 @@ public protocol ClientConfigService: class {
   
   /// Initiates asynchronous load of client properties.
   func fetchClientConfig()
+}
+
+public protocol ClientConfigServiceProvider {
+  var clientConfigService: ClientConfigService { get }
 }
 
 // MARK: - ClientConfigService

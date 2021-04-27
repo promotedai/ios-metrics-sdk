@@ -295,6 +295,10 @@ public final class Xray: NSObject {
   }
 }
 
+public protocol XrayProvider {
+  var xray: Xray? { get }
+}
+
 extension Xray: OperationMonitorListener {
   func executionWillStart(context: String) {
     callWillStart(context: context)

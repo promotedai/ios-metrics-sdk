@@ -62,6 +62,7 @@ public final class MetricsLoggerService: NSObject {
                          monitor: self.monitor,
                          osLog: self.metricsLoggerOSLog,
                          store: self.store,
+                         uiState: self.uiState,
                          xray: self.xray)
   } ()
 
@@ -74,6 +75,7 @@ public final class MetricsLoggerService: NSObject {
   private let idMap: IDMap
   private let monitor: OperationMonitor
   private let store: PersistentStore
+  private let uiState: UIState
   
   private let metricsLoggerOSLog: OSLog?
   private let xrayOSLog: OSLog?
@@ -113,6 +115,7 @@ public final class MetricsLoggerService: NSObject {
     self.idMap = idMap
     self.monitor = OperationMonitor()
     self.store = store
+    self.uiState = UIKitState()
     let config = clientConfigService.config
     if config.osLogEnabled {
       self.metricsLoggerOSLog = OSLog(subsystem: "ai.promoted", category: "MetricsLogger")

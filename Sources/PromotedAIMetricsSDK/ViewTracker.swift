@@ -30,16 +30,15 @@ final class ViewTracker {
 
   private let viewIDProducer: IDProducer
   private var viewStack: Stack
-  private let stackProvider: ViewControllerStackProvider
+  private let uiState: UIState
   private let isReactNativeHint: Bool
   
   var viewID: String { viewStack.top?.viewID ?? viewIDProducer.currentValue }
   
-  init(idMap: IDMap,
-       stackProvider: ViewControllerStackProvider = UIKitViewControllerStackProvider()) {
+  init(idMap: IDMap, uiState: UIState) {
     self.viewIDProducer = IDProducer { idMap.viewID() }
     self.viewStack = []
-    self.stackProvider = stackProvider
+    self.uiState = uiState
     self.isReactNativeHint = (NSClassFromString("PromotedMetricsModule") != nil)
   }
 
@@ -89,7 +88,7 @@ final class ViewTracker {
 
     // Regenerate stack, including only VCs that were explicitly
     // logged. These are the VCs in the previous stack.
-    let viewControllerStack = stackProvider.viewControllerStack()
+    let viewControllerStack = uiState.viewControllerStack()
     let newStack = viewControllerStack.compactMap { vc -> State? in
       if let entry = previousStack.first(matching: vc) {
         return entry
@@ -98,6 +97,10 @@ final class ViewTracker {
     }
     return newStack
   }
+}
+
+protocol ViewTrackerProvider {
+  var viewTracker: ViewTracker { get }
 }
 
 extension ViewTracker {

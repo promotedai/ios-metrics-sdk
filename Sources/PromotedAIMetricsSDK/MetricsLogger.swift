@@ -112,6 +112,7 @@ public final class MetricsLogger: NSObject {
        monitor: OperationMonitor,
        osLog: OSLog?,
        store: PersistentStore,
+       uiState: UIState,
        viewTracker: ViewTracker? = nil,
        xray: Xray?) {
     self.clock = clock
@@ -132,7 +133,7 @@ public final class MetricsLogger: NSObject {
       return idMap.logUserID()
     })
     self.sessionIDProducer = IDProducer { return idMap.sessionID() }
-    self.viewTracker = viewTracker ?? ViewTracker(idMap: idMap)
+    self.viewTracker = viewTracker ?? ViewTracker(idMap: idMap, uiState: uiState)
     self.needsViewStateCheck = false
     
     super.init()

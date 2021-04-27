@@ -40,6 +40,10 @@ public protocol NetworkConnection {
                    callback: Callback?) throws
 }
 
+public protocol NetworkConnectionProvider {
+  var networkConnection: NetworkConnection { get }
+}
+
 // MARK: -
 extension NetworkConnection {
   func metricsLoggingURL(clientConfig: ClientConfig) throws -> URL {

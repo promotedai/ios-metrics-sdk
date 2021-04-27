@@ -66,3 +66,7 @@ final class OperationMonitor {
     operation()
   }
 }
+
+protocol OperationMonitorProvider {
+  var operationMonitor: OperationMonitor { get }
+}

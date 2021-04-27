@@ -70,6 +70,7 @@ final class ImpressionLoggerTests: XCTestCase {
                                   monitor: monitor,
                                   osLog: nil,
                                   store: FakePersistentStore(),
+                                  uiState: FakeUIState(),
                                   xray: nil)
     metricsLogger.startSessionAndLogUser(userID: "foo")
     impressionLogger = ImpressionLogger(metricsLogger: metricsLogger,

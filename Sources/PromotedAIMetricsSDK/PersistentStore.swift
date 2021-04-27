@@ -11,6 +11,10 @@ public protocol PersistentStore: class {
   var logUserID: String? { get set }
 }
 
+public protocol PersistentStoreProvider {
+  var persistentStore: PersistentStore { get }
+}
+
 // MARK: -
 /** Stores information in the app's `UserDefaults`. */
 final class UserDefaultsPersistentStore: PersistentStore {

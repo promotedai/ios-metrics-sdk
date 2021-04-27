@@ -40,6 +40,10 @@ public protocol Clock {
   func cancel(scheduledTimer: ScheduledTimer)
 }
 
+public protocol ClockSource {
+  var clock: Clock { get }
+}
+
 // MARK: -
 extension Clock {
 

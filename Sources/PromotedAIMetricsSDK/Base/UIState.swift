@@ -1,11 +1,15 @@
 import Foundation
 import UIKit
 
-protocol ViewControllerStackProvider: class {
+protocol UIState: AnyObject {
   func viewControllerStack() -> [UIViewController]
 }
 
-final class UIKitViewControllerStackProvider: ViewControllerStackProvider {
+protocol UIStateSource {
+  var uiState: UIState { get }
+}
+
+final class UIKitState: UIState {
   
   func viewControllerStack() -> [UIViewController] {
     guard let root = UIApplication.shared.keyWindow?.rootViewController else {

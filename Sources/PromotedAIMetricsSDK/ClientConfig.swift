@@ -97,3 +97,7 @@ public final class ClientConfig: NSObject {
 
   @objc public override init() {}
 }
+
+public protocol ClientConfigSource {
+  var clientConfig: ClientConfig { get }
+}

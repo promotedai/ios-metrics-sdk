@@ -20,7 +20,7 @@ final class MetricsLoggerTests: XCTestCase {
   private var idMap: FakeIDMap!
   private var monitor: OperationMonitor!
   private var store: FakePersistentStore!
-  private var viewStackProvider: FakeViewControllerStackProvider!
+  private var uiState: FakeUIState!
   private var metricsLogger: MetricsLogger!
 
   override func setUp() {
@@ -35,8 +35,7 @@ final class MetricsLoggerTests: XCTestCase {
     store = FakePersistentStore()
     store.userID = "foobar"
     store.logUserID = "fake-log-user-id"
-    viewStackProvider = FakeViewControllerStackProvider()
-    let viewTracker = ViewTracker(idMap: idMap, stackProvider: viewStackProvider)
+    uiState = FakeUIState()
     metricsLogger = MetricsLogger(clientConfig: config,
                                   clock: clock,
                                   connection: connection,
@@ -45,7 +44,7 @@ final class MetricsLoggerTests: XCTestCase {
                                   monitor: monitor,
                                   osLog: nil,
                                   store: store,
-                                  viewTracker: viewTracker,
+                                  uiState: uiState,
                                   xray: nil)
   }
   
@@ -755,10 +754,10 @@ final class MetricsLoggerTests: XCTestCase {
 
     metricsLogger.flush()
 
-    viewStackProvider.viewControllers = [vc1, vc2]
+    uiState.viewControllers = [vc1, vc2]
     metricsLogger.logAction(name: "hello")
 
-    viewStackProvider.viewControllers = [vc1]
+    uiState.viewControllers = [vc1]
     metricsLogger.logAction(name: "goodbye")
 
     // First action should be logged against vc2.

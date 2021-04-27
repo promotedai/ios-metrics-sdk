@@ -32,6 +32,7 @@ final class ScrollTrackerTests: XCTestCase {
                                   monitor: monitor,
                                   osLog: nil,
                                   store: store,
+                                  uiState: FakeUIState(),
                                   xray: nil)
     metricsLogger.startSessionForTesting(userID: "foo")
     scrollTracker = ScrollTracker(metricsLogger: metricsLogger,
