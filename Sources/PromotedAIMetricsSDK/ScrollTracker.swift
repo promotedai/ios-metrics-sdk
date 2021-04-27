@@ -249,13 +249,11 @@ public extension ScrollTracker {
   
   private func setFramesOnCollectionViewLayout(
       dataProducer: @escaping (IndexPath) -> Content?) {
-    monitor.execute {
-      collectionViewLayoutObservation = collectionView?.observe(\.contentSize) {
-        [weak self] _, _ in
-        guard let strongSelf = self else { return }
-        strongSelf.collectionViewLayoutObservation = nil
-        strongSelf.setFrames(dataProducer: dataProducer)
-      }
+    collectionViewLayoutObservation = collectionView?.observe(\.contentSize) {
+      [weak self] _, _ in
+      guard let strongSelf = self else { return }
+      strongSelf.collectionViewLayoutObservation = nil
+      strongSelf.setFrames(dataProducer: dataProducer)
     }
   }
   
@@ -281,9 +279,7 @@ public extension ScrollTracker {
   }
 
   @objc func scrollViewDidScroll() {
-    monitor.execute {
-      scrollViewDidChangeVisibleContent()
-    }
+    scrollViewDidChangeVisibleContent()
   }
   
   @objc func scrollViewDidChangeVisibleContent() {
