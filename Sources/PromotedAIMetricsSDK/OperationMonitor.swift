@@ -49,8 +49,13 @@ class OperationMonitor {
   ///
   /// - Returns: True if operation was executed, false if not
   @discardableResult
-  func execute(context: String = #function, operation: Operation) -> Bool {
-    guard config.loggingEnabled else { return false }
+  func execute(context: String = #function,
+               operation: Operation,
+               loggingDisabledOperation: Operation = {}) -> Bool {
+    guard config.loggingEnabled else {
+      loggingDisabledOperation()
+      return false
+    }
     if exectionDepth == 0 {
       dispatcher.iterate { $0.executionWillStart(context: context) }
     }
