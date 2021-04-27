@@ -111,7 +111,7 @@ public final class MetricsLoggerService: NSObject {
     self.connection = connection
     self.deviceInfo = deviceInfo
     self.idMap = idMap
-    self.monitor = OperationMonitor(clientConfig: clientConfigService.config)
+    self.monitor = OperationMonitor()
     self.store = store
     let config = clientConfigService.config
     if config.osLogEnabled {

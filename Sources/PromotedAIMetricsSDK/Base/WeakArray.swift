@@ -32,7 +32,9 @@ extension Array {
   typealias Visitor<T> = (T) -> Void
   func forEach<T>(_ visitor: Visitor<T>) where Element == Weak<T> {
     for object in self {
-      visitor(object.value!)
+      if let value = object.value {
+        visitor(value)
+      }
     }
   }
 }

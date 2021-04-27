@@ -1,7 +1,11 @@
 import Foundation
 
-protocol OperationMonitorListener: class {
+/** Listens for execution scopes. */
+protocol OperationMonitorListener: AnyObject {
+  /// Called when the outermost `execute()` starts.
   func executionWillStart(context: String)
+
+  /// Called when the outermost `execute()` ends.
   func executionDidEnd(context: String)
 }
 
@@ -11,16 +15,14 @@ protocol OperationMonitorListener: class {
  state for a series of grouped logging operations, performance
  monitoring, and respecting state of kill switch.
  */
-class OperationMonitor {
+final class OperationMonitor {
 
   typealias Operation = () -> Void
 
-  private let config: ClientConfig
   private var listeners: WeakArray<OperationMonitorListener>
   private var exectionDepth: Int
   
-  init(clientConfig: ClientConfig) {
-    self.config = clientConfig
+  init() {
     self.listeners = []
     self.exectionDepth = 0
   }
@@ -50,14 +52,7 @@ class OperationMonitor {
   /// - Parameters:
   ///   - context: Identifier for execution context for Xray
   ///   - operation: Block to execute if logging enabled
-  ///   - loggingDisabledOperation: Block to execute if logging disabled
-  func execute(context: String = #function,
-               operation: Operation,
-               loggingDisabledOperation: Operation = {}) {
-    guard config.loggingEnabled else {
-      loggingDisabledOperation()
-      return
-    }
+  func execute(context: String = #function, operation: Operation) {
     if exectionDepth == 0 {
       listeners.forEach { $0.executionWillStart(context: context) }
     }

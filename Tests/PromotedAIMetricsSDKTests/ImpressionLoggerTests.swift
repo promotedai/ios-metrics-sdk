@@ -61,7 +61,7 @@ final class ImpressionLoggerTests: XCTestCase {
     config = ClientConfig()
     delegate = Delegate()
     idMap = SHA1IDMap.instance
-    monitor = OperationMonitor(clientConfig: config)
+    monitor = OperationMonitor()
     metricsLogger = MetricsLogger(clientConfig: ClientConfig(),
                                   clock: clock,
                                   connection: FakeNetworkConnection(),

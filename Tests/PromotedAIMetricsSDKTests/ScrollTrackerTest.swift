@@ -20,7 +20,7 @@ final class ScrollTrackerTests: XCTestCase {
     clock = FakeClock()
     config = ClientConfig()
     idMap = FakeIDMap()
-    monitor = OperationMonitor(clientConfig: config)
+    monitor = OperationMonitor()
     store = FakePersistentStore()
     store.userID = "foobar"
     store.logUserID = "fake-log-user-id"

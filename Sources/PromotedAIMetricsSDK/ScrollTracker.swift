@@ -156,11 +156,7 @@ public final class ScrollTracker: NSObject {
   }
   
   @objc public func setFrame(_ frame: CGRect, forContent content: Content) {
-    monitor.execute(operation: {
-      self.content.append((frame, content))
-    }, loggingDisabledOperation: {
-      clearAllState()
-    })
+    self.content.append((frame, content))
   }
 
   @objc public func scrollViewDidHideAllContent() {
@@ -253,16 +249,14 @@ public extension ScrollTracker {
   
   private func setFramesOnCollectionViewLayout(
       dataProducer: @escaping (IndexPath) -> Content?) {
-    monitor.execute(operation: {
+    monitor.execute {
       collectionViewLayoutObservation = collectionView?.observe(\.contentSize) {
         [weak self] _, _ in
         guard let strongSelf = self else { return }
         strongSelf.collectionViewLayoutObservation = nil
         strongSelf.setFrames(dataProducer: dataProducer)
       }
-    }, loggingDisabledOperation: {
-      collectionViewLayoutObservation = nil
-    })
+    }
   }
   
   private func setFrames(dataProducer: @escaping (IndexPath) -> Content?) {

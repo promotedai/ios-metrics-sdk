@@ -198,11 +198,10 @@ public final class MetricsLogger: NSObject {
     if (self.userID != nil) && (self.userID == userID) { return }
 
     self.userID = userID
-    // Reads logUserID from store for initial value, if available.
-    let logUserID = logUserIDProducer.nextValue()
-
     store.userID = userID
-    store.logUserID = logUserID
+
+    // Reads logUserID from store for initial value, if available.
+    store.logUserID = logUserIDProducer.nextValue()
   }
 }
 
@@ -430,13 +429,9 @@ public extension MetricsLogger {
       osLog?.error("Logging must be done on main thread")
       return
     }
-    monitor.execute(operation: {
-      logMessages.append(message)
-      xray?.callDidLog(message: message)
-      maybeSchedulePendingBatchLoggingFlush()
-    }, loggingDisabledOperation: {
-      logMessages.removeAll()
-    })
+    logMessages.append(message)
+    xray?.callDidLog(message: message)
+    maybeSchedulePendingBatchLoggingFlush()
   }
   
   private func maybeSchedulePendingBatchLoggingFlush() {
@@ -494,29 +489,26 @@ public extension MetricsLogger {
   /// Internally, a `UIBackgroundTask` is created during this operation.
   /// Clients do not need to start a `UIBackgroundTask` to call `flush()`.
   @objc func flush() {
-    monitor.execute(operation: {
-      cancelPendingBatchLoggingFlush()
-      guard !logMessages.isEmpty else { return }
+    cancelPendingBatchLoggingFlush()
+    guard config.loggingEnabled else { return }
+    guard !logMessages.isEmpty else { return }
 
-      xray?.metricsLoggerBatchWillStart()
-      defer { xray?.metricsLoggerBatchDidComplete() }
+    xray?.metricsLoggerBatchWillStart()
+    defer { xray?.metricsLoggerBatchDidComplete() }
 
-      let eventsCopy = logMessages
-      logMessages.removeAll()
-      let request = logRequestMessage(events: eventsCopy)
-      xray?.metricsLoggerBatchWillSend(message: request)
-      do {
-        try connection.sendMessage(request, clientConfig: config, xray: xray) {
-          [weak self] (data, error) in
-          self?.handleFlushResponse(data: data, error: error)
-        }
-      } catch {
-        osLog?.error("flush: %{public}@", error.localizedDescription)
-        xray?.metricsLoggerBatchDidError(error)
+    let eventsCopy = logMessages
+    logMessages.removeAll()
+    let request = logRequestMessage(events: eventsCopy)
+    xray?.metricsLoggerBatchWillSend(message: request)
+    do {
+      try connection.sendMessage(request, clientConfig: config, xray: xray) {
+        [weak self] (data, error) in
+        self?.handleFlushResponse(data: data, error: error)
       }
-    }, loggingDisabledOperation: {
-      logMessages.removeAll()
-    })
+    } catch {
+      osLog?.error("flush: %{public}@", error.localizedDescription)
+      xray?.metricsLoggerBatchDidError(error)
+    }
   }
   
   private func handleFlushResponse(data: Data?, error: Error?) {

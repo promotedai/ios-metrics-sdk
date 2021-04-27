@@ -31,7 +31,7 @@ final class MetricsLoggerTests: XCTestCase {
     clock = FakeClock()
     clock.advance(to: 123)
     idMap = FakeIDMap()
-    monitor = OperationMonitor(clientConfig: config)
+    monitor = OperationMonitor()
     store = FakePersistentStore()
     store.userID = "foobar"
     store.logUserID = "fake-log-user-id"

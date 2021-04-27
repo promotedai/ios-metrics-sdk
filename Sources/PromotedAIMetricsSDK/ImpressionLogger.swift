@@ -117,7 +117,7 @@ public final class ImpressionLogger: NSObject {
     self.metricsLogger = metricsLogger
     self.clock = clock
     self.monitor = monitor
-    self.impressionStarts = [Content: TimeInterval]()
+    self.impressionStarts = [:]
   }
 
   /// Call this method when new items are displayed.

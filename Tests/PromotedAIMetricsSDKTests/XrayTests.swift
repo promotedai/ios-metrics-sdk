@@ -15,7 +15,7 @@ final class XrayTests: XCTestCase {
     super.setUp()
     clock = FakeClock()
     config = ClientConfig()
-    monitor = OperationMonitor(clientConfig: config)
+    monitor = OperationMonitor()
     xray = Xray(clock: clock, config: config, monitor: monitor, osLog: nil)
   }
   
