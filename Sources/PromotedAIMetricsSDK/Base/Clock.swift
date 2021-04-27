@@ -2,11 +2,11 @@ import Foundation
 
 // MARK: -
 /** Opaque type returned by `Clock.schedule()` to use when canceling. */
-public protocol ScheduledTimer {}
+protocol ScheduledTimer {}
 
-public typealias TimeIntervalMillis = Int64
+typealias TimeIntervalMillis = Int64
 
-public extension TimeIntervalMillis {
+extension TimeIntervalMillis {
   init(seconds: TimeInterval) {
     self = TimeIntervalMillis((seconds * 1000).rounded())
   }
@@ -14,7 +14,7 @@ public extension TimeIntervalMillis {
   var millis: TimeIntervalMillis { self }
 }
 
-public extension TimeInterval {
+extension TimeInterval {
   init(millis: TimeIntervalMillis) {
     self = TimeInterval(Double(millis) / 1000.0)
   }
@@ -24,7 +24,7 @@ public extension TimeInterval {
 
 // MARK: -
 /** Represents a way to get time and perform scheduling of tasks. */
-public protocol Clock {
+protocol Clock {
   
   /// Returns time for use with timestamps or interval measurement.
   var now: TimeInterval { get }
@@ -40,7 +40,7 @@ public protocol Clock {
   func cancel(scheduledTimer: ScheduledTimer)
 }
 
-public protocol ClockSource {
+protocol ClockSource {
   var clock: Clock { get }
 }
 
@@ -65,10 +65,6 @@ final class SystemClock: Clock {
   struct SystemTimer: ScheduledTimer {
     let timer: Timer
   }
-  
-  static let instance = SystemClock()
-
-  private init() {}
 
   var now: TimeInterval { Date().timeIntervalSince1970 }
 

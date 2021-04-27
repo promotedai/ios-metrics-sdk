@@ -100,4 +100,5 @@ public final class ClientConfig: NSObject {
 
 public protocol ClientConfigSource {
   var clientConfig: ClientConfig { get }
+  var initialConfig: ClientConfig { get }
 }

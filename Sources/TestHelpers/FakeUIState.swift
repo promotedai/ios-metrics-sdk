@@ -3,10 +3,10 @@ import UIKit
 
 @testable import PromotedAIMetricsSDK
 
-public class FakeUIState: UIState {
-  public var viewControllers: [UIViewController] = []
-  public func viewControllerStack() -> [UIViewController] {
+class FakeUIState: UIState {
+  var viewControllers: [UIViewController] = []
+  func viewControllerStack() -> [UIViewController] {
     return viewControllers
   }
-  public init() {}
+  init() {}
 }

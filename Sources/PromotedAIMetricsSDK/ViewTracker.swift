@@ -35,10 +35,12 @@ final class ViewTracker {
   
   var viewID: String { viewStack.top?.viewID ?? viewIDProducer.currentValue }
   
-  init(idMap: IDMap, uiState: UIState) {
-    self.viewIDProducer = IDProducer { idMap.viewID() }
+  typealias Deps = IDMapSource & UIStateSource
+
+  init(deps: Deps) {
+    self.viewIDProducer = IDProducer { deps.idMap.viewID() }
     self.viewStack = []
-    self.uiState = uiState
+    self.uiState = deps.uiState
     self.isReactNativeHint = (NSClassFromString("PromotedMetricsModule") != nil)
   }
 
@@ -99,7 +101,7 @@ final class ViewTracker {
   }
 }
 
-protocol ViewTrackerProvider {
+protocol ViewTrackerSource {
   var viewTracker: ViewTracker { get }
 }
 

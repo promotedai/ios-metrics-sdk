@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: -
 /** Maps client-side IDs to server-side IDs. */
-public protocol IDMap {
+protocol IDMap {
   
   /// Produces a deterministic UUID string given an input value.
   /// Collision of returned values when given different input should
@@ -39,6 +39,10 @@ public protocol IDMap {
   func viewID() -> String
 }
 
+protocol IDMapSource {
+  var idMap: IDMap { get }
+}
+
 // MARK: -
 /**
  DO NOT INSTANTIATE. Base class for IDMap implementation.
@@ -46,20 +50,20 @@ public protocol IDMap {
  ideally be in the protocol extension, but doing so prevents
  FakeIDMap from overriding them for tests.
  */
-open class AbstractIDMap: IDMap {
+class AbstractIDMap: IDMap {
 
-  public init() {}
+  init() {}
 
-  open func deterministicUUIDString(value: String?) -> String {
+  func deterministicUUIDString(value: String?) -> String {
     assertionFailure("Don't instantiate AbstractIDMap")
     return ""
   }
 
-  open func logUserID() -> String { UUID().uuidString }
+  func logUserID() -> String { UUID().uuidString }
   
-  open func sessionID() -> String { UUID().uuidString }
+  func sessionID() -> String { UUID().uuidString }
 
-  open func impressionIDOrNil(insertionID: String?,
+  func impressionIDOrNil(insertionID: String?,
                               contentID: String?,
                               logUserID: String?) -> String? {
     if let insertionID = insertionID {
@@ -72,20 +76,16 @@ open class AbstractIDMap: IDMap {
     return nil
   }
   
-  open func contentID(clientID: String) -> String { clientID }
+  func contentID(clientID: String) -> String { clientID }
   
-  open func actionID() -> String { UUID().uuidString }
+  func actionID() -> String { UUID().uuidString }
   
-  open func viewID() -> String { UUID().uuidString }
+  func viewID() -> String { UUID().uuidString }
 }
 
 // MARK: -
 /** SHA1-based deterministic UUID generation. */
 final class SHA1IDMap: AbstractIDMap {
-  
-  static let instance = SHA1IDMap()
-  
-  private override init() {}
   
   override func deterministicUUIDString(value: String?) -> String {
     if let s = value { return SHA1IDMap.sha1(s) }

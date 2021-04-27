@@ -38,7 +38,7 @@ public protocol ClientConfigService: AnyObject {
   func fetchClientConfig()
 }
 
-public protocol ClientConfigServiceProvider {
+protocol ClientConfigServiceSource {
   var clientConfigService: ClientConfigService { get }
 }
 
@@ -78,7 +78,7 @@ public extension AbstractClientConfigService {
 
 // MARK: - LocalClientConfigService
 /** Loads from local device. */
-public final class LocalClientConfigService: AbstractClientConfigService {
+final class LocalClientConfigService: AbstractClientConfigService {
   public override func fetchClientConfig() {
     // No-op for local config.
   }

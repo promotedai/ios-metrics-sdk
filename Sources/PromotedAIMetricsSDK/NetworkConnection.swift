@@ -40,7 +40,7 @@ public protocol NetworkConnection {
                    callback: Callback?) throws
 }
 
-public protocol NetworkConnectionProvider {
+protocol NetworkConnectionSource {
   var networkConnection: NetworkConnection { get }
 }
 

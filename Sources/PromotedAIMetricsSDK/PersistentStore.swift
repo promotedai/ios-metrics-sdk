@@ -11,7 +11,7 @@ public protocol PersistentStore: class {
   var logUserID: String? { get set }
 }
 
-public protocol PersistentStoreProvider {
+protocol PersistentStoreSource {
   var persistentStore: PersistentStore { get }
 }
 

@@ -111,12 +111,12 @@ public final class ImpressionLogger: NSObject {
 
   public weak var delegate: ImpressionLoggerDelegate?
 
-  init(metricsLogger: MetricsLogger,
-       clock: Clock,
-       monitor: OperationMonitor) {
+  typealias Deps = ClockSource & OperationMonitorSource
+
+  init(metricsLogger: MetricsLogger, deps: Deps) {
     self.metricsLogger = metricsLogger
-    self.clock = clock
-    self.monitor = monitor
+    self.clock = deps.clock
+    self.monitor = deps.operationMonitor
     self.impressionStarts = [:]
   }
 

@@ -1,9 +1,9 @@
 import Foundation
-import TestHelpers
 import UIKit
 import XCTest
 
 @testable import PromotedAIMetricsSDK
+@testable import TestHelpers
 
 final class ViewTrackerTests: XCTestCase {
   private let idMap = FakeIDMap()

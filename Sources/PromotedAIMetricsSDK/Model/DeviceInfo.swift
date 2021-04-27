@@ -1,7 +1,7 @@
 import Foundation
 
 // MARK: - DeviceInfo
-public protocol DeviceInfo {
+protocol DeviceInfo {
   var deviceType: DeviceType { get }
   var brand: String { get }
   var manufacturer: String { get }
@@ -11,6 +11,10 @@ public protocol DeviceInfo {
   var screenSizePx: (UInt32, UInt32) { get }
   var languageCode: String { get }
   var regionCode: String { get }
+}
+
+protocol DeviceInfoSource {
+  var deviceInfo: DeviceInfo { get }
 }
 
 // MARK: - iOS

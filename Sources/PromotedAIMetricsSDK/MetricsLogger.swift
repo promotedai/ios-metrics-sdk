@@ -100,40 +100,34 @@ public final class MetricsLogger: NSObject {
 
   private unowned var monitor: OperationMonitor!
   private unowned let xray: Xray?
-  private unowned let osLog: OSLog?
+  private let osLog: OSLog?
 
   private lazy var cachedDeviceMessage: Event_Device = deviceMessage()
 
-  init(clientConfig: ClientConfig,
-       clock: Clock,
-       connection: NetworkConnection,
-       deviceInfo: DeviceInfo,
-       idMap: IDMap,
-       monitor: OperationMonitor,
-       osLog: OSLog?,
-       store: PersistentStore,
-       uiState: UIState,
-       viewTracker: ViewTracker? = nil,
-       xray: Xray?) {
-    self.clock = clock
-    self.config = clientConfig
-    self.connection = connection
-    self.deviceInfo = deviceInfo
-    self.idMap = idMap
-    self.monitor = monitor
-    self.store = store
-    self.xray = xray
-    self.osLog = osLog
+  typealias Deps = ClientConfigSource & ClockSource & NetworkConnectionSource &
+                   DeviceInfoSource & IDMapSource & OperationMonitorSource &
+                   OSLogSource & PersistentStoreSource & ViewTrackerSource & XraySource
+
+  init(deps: Deps) {
+    self.clock = deps.clock
+    self.config = deps.clientConfig
+    self.connection = deps.networkConnection
+    self.deviceInfo = deps.deviceInfo
+    self.idMap = deps.idMap
+    self.monitor = deps.operationMonitor
+    self.store = deps.persistentStore
+    self.xray = deps.xray
+    self.osLog = deps.osLog(category: "MetricsLogger")
 
     self.logMessages = []
     self.userID = nil
     self.logUserIDProducer = IDProducer(initialValueProducer: {
-      return store.logUserID ?? idMap.logUserID()
+      [store, idMap] in store.logUserID ?? idMap.logUserID()
     }, nextValueProducer: {
-      return idMap.logUserID()
+      [idMap] in idMap.logUserID()
     })
-    self.sessionIDProducer = IDProducer { return idMap.sessionID() }
-    self.viewTracker = viewTracker ?? ViewTracker(idMap: idMap, uiState: uiState)
+    self.sessionIDProducer = IDProducer { [idMap] in idMap.sessionID() }
+    self.viewTracker = deps.viewTracker
     self.needsViewStateCheck = false
     
     super.init()

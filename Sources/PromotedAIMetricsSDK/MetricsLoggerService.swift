@@ -54,84 +54,21 @@ public final class MetricsLoggerService: NSObject {
   @objc public private(set) lazy var metricsLogger: MetricsLogger? = {
     let config = self.config
     guard config.loggingEnabled else { return nil }
-    return MetricsLogger(clientConfig: config,
-                         clock: self.clock,
-                         connection: self.connection,
-                         deviceInfo: self.deviceInfo,
-                         idMap: self.idMap,
-                         monitor: self.monitor,
-                         osLog: self.metricsLoggerOSLog,
-                         store: self.store,
-                         uiState: self.uiState,
-                         xray: self.xray)
+    return MetricsLogger(deps: module)
   } ()
 
-  public var config: ClientConfig { clientConfigService.config }
-
-  private let clientConfigService: ClientConfigService
-  private let clock: Clock
-  private let connection: NetworkConnection
-  private let deviceInfo: DeviceInfo
-  private let idMap: IDMap
-  private let monitor: OperationMonitor
-  private let store: PersistentStore
-  private let uiState: UIState
+  @objc public var config: ClientConfig { module.clientConfig }
   
-  private let metricsLoggerOSLog: OSLog?
-  private let xrayOSLog: OSLog?
+  @objc public var xray: Xray? { module.xray }
 
-  /// Profiling information for this session.
-  public let xray: Xray?
+  private let module: Module
 
-  @objc public convenience init(initialConfig: ClientConfig) {
-    let service = LocalClientConfigService(initialConfig: initialConfig)
-    self.init(clientConfigService: service,
-              clock: SystemClock.instance,
-              connection: GTMSessionFetcherConnection(),
-              deviceInfo: IOSDeviceInfo(),
-              idMap: SHA1IDMap.instance,
-              store: UserDefaultsPersistentStore())
+  @objc public init(initialConfig: ClientConfig) {
+    self.module = Module(initialConfig: initialConfig)
   }
 
-  public convenience init(clientConfigService: ClientConfigService) {
-    self.init(clientConfigService: clientConfigService,
-              clock: SystemClock.instance,
-              connection: GTMSessionFetcherConnection(),
-              deviceInfo: IOSDeviceInfo(),
-              idMap: SHA1IDMap.instance,
-              store: UserDefaultsPersistentStore())
-  }
-
-  public init(clientConfigService: ClientConfigService,
-              clock: Clock,
-              connection: NetworkConnection,
-              deviceInfo: DeviceInfo,
-              idMap: IDMap,
-              store: PersistentStore) {
-    self.clientConfigService = clientConfigService
-    self.clock = clock
-    self.connection = connection
-    self.deviceInfo = deviceInfo
-    self.idMap = idMap
-    self.monitor = OperationMonitor()
-    self.store = store
-    self.uiState = UIKitState()
-    let config = clientConfigService.config
-    if config.osLogEnabled {
-      self.metricsLoggerOSLog = OSLog(subsystem: "ai.promoted", category: "MetricsLogger")
-      self.xrayOSLog = OSLog(subsystem: "ai.promoted", category: "Xray")
-    } else {
-      self.metricsLoggerOSLog = nil
-      self.xrayOSLog = nil
-    }
-    if config.xrayEnabled {
-      self.xray = Xray(clock: clock,
-                       config: config,
-                       monitor: monitor,
-                       osLog: xrayOSLog)
-    } else {
-      self.xray = nil
-    }
+  @objc public init(moduleConfig: ModuleConfig) {
+    self.module = Module(moduleConfig: moduleConfig)
   }
 
   /// Call this to start logging services, prior to accessing `logger`.
@@ -139,24 +76,19 @@ public final class MetricsLoggerService: NSObject {
   /// startup without performance penalty. For example, in
   /// `application(_:didFinishLaunchingWithOptions:)`.
   @objc public func startLoggingServices() {
-    clientConfigService.fetchClientConfig()
+    module.clientConfigService.fetchClientConfig()
   }
 
   /// Returns a new `ImpressionLogger`.
   @objc public func impressionLogger() -> ImpressionLogger? {
     guard let metricsLogger = self.metricsLogger else { return nil }
-    return ImpressionLogger(metricsLogger: metricsLogger,
-                            clock: self.clock,
-                            monitor: self.monitor)
+    return ImpressionLogger(metricsLogger: metricsLogger, deps: module)
   }
 
   /// Returns a new `ScrollTracker`.
   @objc func scrollTracker() -> ScrollTracker? {
     guard let metricsLogger = self.metricsLogger else { return nil }
-    return ScrollTracker(metricsLogger: metricsLogger,
-                         clientConfig: self.config,
-                         clock: self.clock,
-                         monitor: self.monitor)
+    return ScrollTracker(metricsLogger: metricsLogger, deps: module)
   }
 }
 
@@ -169,48 +101,44 @@ public extension MetricsLoggerService {
   @objc func scrollTracker(scrollView: UIScrollView) -> ScrollTracker? {
     guard let metricsLogger = self.metricsLogger else { return nil }
     return ScrollTracker(metricsLogger: metricsLogger,
-                         clientConfig: self.config,
-                         clock: self.clock,
-                         monitor: self.monitor,
-                         scrollView: scrollView)
+                         scrollView: scrollView,
+                         deps: module)
   }
 
   /// Returns a new `ScrollTracker` tied to the given `UICollectionView`.
   @objc func scrollTracker(collectionView: UICollectionView) -> ScrollTracker? {
     guard let metricsLogger = self.metricsLogger else { return nil }
     return ScrollTracker(metricsLogger: metricsLogger,
-                         clientConfig: self.config,
-                         clock: self.clock,
-                         monitor: self.monitor,
-                         collectionView: collectionView)
+                         collectionView: collectionView, deps: module)
   }
 }
 
 // MARK: - Singleton support for `MetricsLoggingService`
 public extension MetricsLoggerService {
 
-  private static var clientConfigService: ClientConfigService?
+  private static var moduleConfig: ModuleConfig?
   
   /// Call this to start logging services, prior to accessing `sharedService`.
   ///
   /// - SeeAlso: `startLoggingServices()`
   @objc static func startServices(initialConfig: ClientConfig) {
-    self.clientConfigService = LocalClientConfigService(initialConfig: initialConfig)
+    self.moduleConfig = ModuleConfig()
+    self.moduleConfig!.initialConfig = initialConfig
     self.shared.startLoggingServices()
   }
   
   /// Call this to start logging services, prior to accessing `sharedService`.
   ///
   /// - SeeAlso: `startLoggingServices()`
-  static func startServices(clientConfigService: ClientConfigService) {
-    self.clientConfigService = clientConfigService
+  static func startServices(moduleConfig: ModuleConfig) {
+    self.moduleConfig = moduleConfig
     self.shared.startLoggingServices()
   }
 
   /// Returns the shared logger. Causes error if `startServices` was not called.
   @objc(sharedService)
   static let shared: MetricsLoggerService = {
-    assert(clientConfigService != nil, "Call startServices() before accessing shared service")
-    return MetricsLoggerService(clientConfigService: clientConfigService!)
+    assert(moduleConfig != nil, "Call startServices() before accessing shared service")
+    return MetricsLoggerService(moduleConfig: moduleConfig!)
   } ()
 }
