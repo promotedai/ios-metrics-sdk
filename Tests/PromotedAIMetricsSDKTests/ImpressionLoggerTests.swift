@@ -47,105 +47,111 @@ final class ImpressionLoggerTests: XCTestCase {
     XCTAssertEqual(Set(a), Set(b))
   }
   
-  private var clock: FakeClock?
-  private var delegate: Delegate?
-  private var idMap: IDMap?
-  private var metricsLogger: MetricsLogger?
-  private var impressionLogger: ImpressionLogger?
+  private var clock: FakeClock!
+  private var config: ClientConfig!
+  private var delegate: Delegate!
+  private var idMap: IDMap!
+  private var monitor: OperationMonitor!
+  private var metricsLogger: MetricsLogger!
+  private var impressionLogger: ImpressionLogger!
   
   override func setUp() {
     super.setUp()
     clock = FakeClock()
+    config = ClientConfig()
     delegate = Delegate()
     idMap = SHA1IDMap.instance
+    monitor = OperationMonitor(clientConfig: config)
     metricsLogger = MetricsLogger(clientConfig: ClientConfig(),
-                                  clock: clock!,
+                                  clock: clock,
                                   connection: FakeNetworkConnection(),
                                   deviceInfo: FakeDeviceInfo(),
-                                  idMap: idMap!,
+                                  idMap: idMap,
+                                  monitor: monitor,
                                   osLog: nil,
                                   store: FakePersistentStore(),
                                   xray: nil)
-    metricsLogger!.startSessionAndLogUser(userID: "foo")
-    impressionLogger = ImpressionLogger(metricsLogger: metricsLogger!,
-                                        clock: clock!)
-    impressionLogger!.delegate = delegate
+    metricsLogger.startSessionAndLogUser(userID: "foo")
+    impressionLogger = ImpressionLogger(metricsLogger: metricsLogger,
+                                        clock: clock,
+                                        monitor: monitor)
+    impressionLogger.delegate = delegate
   }
 
   func testStartImpressions() {
-    clock!.advance(to: 123)
+    clock.advance(to: 123)
     
-    impressionLogger!.collectionViewWillDisplay(content: content("jeff"))
-    assertContentsEqual(delegate!.startImpressions, [impression("jeff", 123)])
+    impressionLogger.collectionViewWillDisplay(content: content("jeff"))
+    assertContentsEqual(delegate.startImpressions, [impression("jeff", 123)])
     
-    delegate!.clear()
-    clock!.now = 500
-    impressionLogger!.collectionViewWillDisplay(content: content("britta"))
-    clock!.now = 501
-    impressionLogger!.collectionViewWillDisplay(content: content("troy"))
-    clock!.now = 502
-    impressionLogger!.collectionViewWillDisplay(content: content("abed"))
-    assertContentsEqual(delegate!.startImpressions,
+    delegate.clear()
+    clock.now = 500
+    impressionLogger.collectionViewWillDisplay(content: content("britta"))
+    clock.now = 501
+    impressionLogger.collectionViewWillDisplay(content: content("troy"))
+    clock.now = 502
+    impressionLogger.collectionViewWillDisplay(content: content("abed"))
+    assertContentsEqual(delegate.startImpressions,
                         [impression("britta", 500),
                          impression("troy", 501),
                          impression("abed", 502)])
   }
   
   func testEndImpressions() {
-    clock!.advance(to: 123)
+    clock.advance(to: 123)
     
-    impressionLogger!.collectionViewWillDisplay(content: content("annie"))
-    clock!.now = 200
-    impressionLogger!.collectionViewDidHide(content: content("annie"))
-    assertContentsEqual(delegate!.endImpressions, [impression("annie", 123, 200)])
+    impressionLogger.collectionViewWillDisplay(content: content("annie"))
+    clock.now = 200
+    impressionLogger.collectionViewDidHide(content: content("annie"))
+    assertContentsEqual(delegate.endImpressions, [impression("annie", 123, 200)])
   }
   
   func testDidChangeImpressions() {
-    clock!.advance(to: 123)
+    clock.advance(to: 123)
     
-    impressionLogger!.collectionViewWillDisplay(content: content("shirley"))
-    impressionLogger!.collectionViewWillDisplay(content: content("pierce"))
-    impressionLogger!.collectionViewWillDisplay(content: content("ben"))
-    impressionLogger!.collectionViewWillDisplay(content: content("craig"))
-    assertContentsEqual(delegate!.startImpressions,
+    impressionLogger.collectionViewWillDisplay(content: content("shirley"))
+    impressionLogger.collectionViewWillDisplay(content: content("pierce"))
+    impressionLogger.collectionViewWillDisplay(content: content("ben"))
+    impressionLogger.collectionViewWillDisplay(content: content("craig"))
+    assertContentsEqual(delegate.startImpressions,
                         [impression("shirley", 123),
                          impression("pierce", 123),
                          impression("ben", 123),
                          impression("craig", 123)])
 
-    delegate!.clear()
+    delegate.clear()
     let visibleContent = [content("shirley"),
                           content("craig"),
                           content("troy"),
                           content("abed")]
-    clock!.now = 200
+    clock.now = 200
     
-    impressionLogger!.collectionViewDidChangeVisibleContent(visibleContent)
-    assertContentsEqual(delegate!.startImpressions,
+    impressionLogger.collectionViewDidChangeVisibleContent(visibleContent)
+    assertContentsEqual(delegate.startImpressions,
                         [impression("troy", 200), impression("abed", 200)])
-    assertContentsEqual(delegate!.endImpressions,
+    assertContentsEqual(delegate.endImpressions,
                         [impression("pierce", 123, 200), impression("ben", 123, 200)])
   }
   
   func testDidHideAllImpressions() {
-    clock!.advance(to: 123)
+    clock.advance(to: 123)
     
-    impressionLogger!.collectionViewWillDisplay(content: content("jeff"))
-    impressionLogger!.collectionViewWillDisplay(content: content("britta"))
-    impressionLogger!.collectionViewWillDisplay(content: content("annie"))
-    impressionLogger!.collectionViewWillDisplay(content: content("troy"))
-    assertContentsEqual(delegate!.startImpressions,
+    impressionLogger.collectionViewWillDisplay(content: content("jeff"))
+    impressionLogger.collectionViewWillDisplay(content: content("britta"))
+    impressionLogger.collectionViewWillDisplay(content: content("annie"))
+    impressionLogger.collectionViewWillDisplay(content: content("troy"))
+    assertContentsEqual(delegate.startImpressions,
                         [impression("jeff", 123),
                          impression("britta", 123),
                          impression("annie", 123),
                          impression("troy", 123)])
 
-    delegate!.clear()
-    clock!.now = 200
+    delegate.clear()
+    clock.now = 200
     
-    impressionLogger!.collectionViewDidHideAllContent()
-    assertContentsEqual(delegate!.startImpressions, [])
-    assertContentsEqual(delegate!.endImpressions,
+    impressionLogger.collectionViewDidHideAllContent()
+    assertContentsEqual(delegate.startImpressions, [])
+    assertContentsEqual(delegate.endImpressions,
                         [impression("jeff", 123, 200),
                          impression("britta", 123, 200),
                          impression("annie", 123, 200),

@@ -296,7 +296,7 @@ public final class Xray: NSObject {
 }
 
 extension Xray: OperationMonitorListener {
-  func executionDidStart(context: String) {
+  func executionWillStart(context: String) {
     callWillStart(context: context)
   }
 

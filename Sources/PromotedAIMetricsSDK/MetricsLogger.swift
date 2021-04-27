@@ -534,7 +534,7 @@ extension MetricsLogger: OperationMonitorListener {
   /// on the first access of the `viewID` property. When called
   /// re-entrantly, only the first (outermost) call causes this
   /// view state check, since that check is relatively expensive.
-  func executionDidStart(context: String) {
+  func executionWillStart(context: String) {
     needsViewStateCheck = true
   }
 

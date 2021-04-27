@@ -7,33 +7,37 @@ import XCTest
 
 final class ScrollTrackerTests: XCTestCase {
   
-  private var clock: FakeClock?
-  private var config: ClientConfig?
-  private var idMap: FakeIDMap?
-  private var store: FakePersistentStore?
-  private var metricsLogger: MetricsLogger?
-  private var scrollTracker: ScrollTracker?
+  private var clock: FakeClock!
+  private var config: ClientConfig!
+  private var idMap: FakeIDMap!
+  private var monitor: OperationMonitor!
+  private var store: FakePersistentStore!
+  private var metricsLogger: MetricsLogger!
+  private var scrollTracker: ScrollTracker!
   
   override func setUp() {
     super.setUp()
     clock = FakeClock()
     config = ClientConfig()
     idMap = FakeIDMap()
+    monitor = OperationMonitor(clientConfig: config)
     store = FakePersistentStore()
-    store!.userID = "foobar"
-    store!.logUserID = "fake-log-user-id"
-    metricsLogger = MetricsLogger(clientConfig: config!,
-                                  clock: clock!,
+    store.userID = "foobar"
+    store.logUserID = "fake-log-user-id"
+    metricsLogger = MetricsLogger(clientConfig: config,
+                                  clock: clock,
                                   connection: FakeNetworkConnection(),
                                   deviceInfo: FakeDeviceInfo(),
-                                  idMap: idMap!,
+                                  idMap: idMap,
+                                  monitor: monitor,
                                   osLog: nil,
-                                  store: store!,
+                                  store: store,
                                   xray: nil)
-    metricsLogger!.startSessionForTesting(userID: "foo")
-    scrollTracker = ScrollTracker(metricsLogger: metricsLogger!,
-                                  clientConfig: config!,
-                                  clock: clock!)
+    metricsLogger.startSessionForTesting(userID: "foo")
+    scrollTracker = ScrollTracker(metricsLogger: metricsLogger,
+                                  clientConfig: config,
+                                  clock: clock,
+                                  monitor: monitor)
   }
 
   func testSetViewport() {
