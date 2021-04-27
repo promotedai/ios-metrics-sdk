@@ -44,19 +44,19 @@ open class AbstractClientConfigService: ClientConfigService {
 
   public private(set) var config: ClientConfig
 
-  fileprivate var dispatcher: Dispatcher<ClientConfigListener>
+  fileprivate var listeners: WeakArray<ClientConfigListener>
 
   public init(initialConfig: ClientConfig) {
     self.config = initialConfig
-    self.dispatcher = Dispatcher()
+    self.listeners = []
   }
   
   public func addClientConfigListener(_ listener: ClientConfigListener) {
-    dispatcher.addListener(listener)
+    listeners.append(listener)
   }
   
   public func removeClientConfigListener(_ listener: ClientConfigListener) {
-    dispatcher.removeListener(listener)
+    listeners.removeAll(identicalTo: listener)
   }
 
   open func fetchClientConfig() {
@@ -68,7 +68,7 @@ open class AbstractClientConfigService: ClientConfigService {
 public extension AbstractClientConfigService {
   func setClientConfigAndNotifyListeners(_ config: ClientConfig) {
     self.config = config
-    dispatcher.iterate { $0.clientConfigDidChange(config) }
+    listeners.forEach { $0.clientConfigDidChange(config) }
   }
 }
 

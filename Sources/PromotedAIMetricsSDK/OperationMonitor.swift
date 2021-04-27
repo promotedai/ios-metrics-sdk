@@ -16,21 +16,21 @@ class OperationMonitor {
   typealias Operation = () -> Void
 
   private let config: ClientConfig
-  private var dispatcher: Dispatcher<OperationMonitorListener>
+  private var listeners: WeakArray<OperationMonitorListener>
   private var exectionDepth: Int
   
   init(clientConfig: ClientConfig) {
     self.config = clientConfig
-    self.dispatcher = Dispatcher()
+    self.listeners = []
     self.exectionDepth = 0
   }
   
   func addOperationMonitorListener(_ listener: OperationMonitorListener) {
-    dispatcher.addListener(listener)
+    listeners.append(listener)
   }
   
   func removeOperationMonitorListener(_ listener: OperationMonitorListener) {
-    dispatcher.removeListener(listener)
+    listeners.removeAll(identicalTo: listener)
   }
 
   /// Groups a series of operations with the same view, session,
@@ -47,26 +47,27 @@ class OperationMonitor {
   /// Calls to `execute` can be nested, in which case only the outermost
   /// call triggers calls to listeners.
   ///
-  /// - Returns: True if operation was executed, false if not
-  @discardableResult
+  /// - Parameters:
+  ///   - context: Identifier for execution context for Xray
+  ///   - operation: Block to execute if logging enabled
+  ///   - loggingDisabledOperation: Block to execute if logging disabled
   func execute(context: String = #function,
                operation: Operation,
-               loggingDisabledOperation: Operation = {}) -> Bool {
+               loggingDisabledOperation: Operation = {}) {
     guard config.loggingEnabled else {
       loggingDisabledOperation()
-      return false
+      return
     }
     if exectionDepth == 0 {
-      dispatcher.iterate { $0.executionWillStart(context: context) }
+      listeners.forEach { $0.executionWillStart(context: context) }
     }
     exectionDepth += 1
     defer {
       exectionDepth -= 1
       if exectionDepth == 0 {
-        dispatcher.iterate { $0.executionDidEnd(context: context) }
+        listeners.forEach { $0.executionDidEnd(context: context) }
       }
     }
     operation()
-    return true
   }
 }

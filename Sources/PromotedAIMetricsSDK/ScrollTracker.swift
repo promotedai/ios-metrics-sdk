@@ -83,19 +83,19 @@ import UIKit
  */
 @objc(PROScrollTracker)
 public final class ScrollTracker: NSObject {
-  
+
   private let visibilityThreshold: Float
   private let durationThreshold: TimeInterval
   private let updateFrequency: TimeInterval
-  
+
   private let clock: Clock
   private unowned let metricsLogger: MetricsLogger
   private unowned let monitor: OperationMonitor
-  
+
   private let impressionLogger: ImpressionLogger
-  /*visibleForTesting*/ private(set) var content: [(CGRect, Content)]
+  private var content: [(CGRect, Content)]
   private var timer: ScheduledTimer?
-  
+
   /// Scroll view that user interacts with.
   public unowned var scrollView: UIScrollView? {
     didSet {
@@ -114,7 +114,7 @@ public final class ScrollTracker: NSObject {
 
   private var collectionViewLayoutObservation: NSKeyValueObservation?
   private var scrollViewOffsetObservation: NSKeyValueObservation?
-  
+
   /// Viewport of scroll view, based on scroll view's coord system.
   /// Under UIKit and React Native, this corresponds to the viewport
   /// of the scroll view as reported by scroll events. Changing this
@@ -122,7 +122,7 @@ public final class ScrollTracker: NSObject {
   public var viewport: CGRect {
     didSet { maybeScheduleUpdateVisibilityTimer() }
   }
-  
+
   init(metricsLogger: MetricsLogger,
        clientConfig: ClientConfig,
        clock: Clock,
@@ -140,13 +140,27 @@ public final class ScrollTracker: NSObject {
     self.timer = nil
     self.viewport = CGRect.zero
   }
+
+  private func clearAllState() {
+    clearContent()
+    collectionViewLayoutObservation = nil
+    scrollViewOffsetObservation = nil
+    if timer != nil {
+      clock.cancel(scheduledTimer: timer!)
+      timer = nil
+    }
+  }
   
   @objc public func clearContent() {
     content.removeAll()
   }
   
   @objc public func setFrame(_ frame: CGRect, forContent content: Content) {
-    self.content.append((frame, content))
+    monitor.execute(operation: {
+      self.content.append((frame, content))
+    }, loggingDisabledOperation: {
+      clearAllState()
+    })
   }
 
   @objc public func scrollViewDidHideAllContent() {
@@ -206,6 +220,7 @@ extension ScrollTracker {
   }
 }
 
+// MARK: - UIKit support
 public extension ScrollTracker {
   private func set(scrollView: UIScrollView, collectionView: UICollectionView?) {
     self.scrollView = scrollView
@@ -238,12 +253,16 @@ public extension ScrollTracker {
   
   private func setFramesOnCollectionViewLayout(
       dataProducer: @escaping (IndexPath) -> Content?) {
-    collectionViewLayoutObservation = collectionView?.observe(\.contentSize) {
-      [weak self] _, _ in
-      guard let strongSelf = self else { return }
-      strongSelf.collectionViewLayoutObservation = nil
-      strongSelf.setFrames(dataProducer: dataProducer)
-    }
+    monitor.execute(operation: {
+      collectionViewLayoutObservation = collectionView?.observe(\.contentSize) {
+        [weak self] _, _ in
+        guard let strongSelf = self else { return }
+        strongSelf.collectionViewLayoutObservation = nil
+        strongSelf.setFrames(dataProducer: dataProducer)
+      }
+    }, loggingDisabledOperation: {
+      collectionViewLayoutObservation = nil
+    })
   }
   
   private func setFrames(dataProducer: @escaping (IndexPath) -> Content?) {
@@ -281,6 +300,11 @@ public extension ScrollTracker {
     let size = scrollView.frame.size
     viewport = CGRect(origin: origin, size: size)
   }
+}
+
+// MARK: - Testing
+extension ScrollTracker {
+  var contentForTesting: [(CGRect, Content)] { content }
 }
 
 // MARK: - CGRect extension

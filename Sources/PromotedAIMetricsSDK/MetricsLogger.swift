@@ -102,21 +102,7 @@ public final class MetricsLogger: NSObject {
   private unowned let xray: Xray?
   private unowned let osLog: OSLog?
 
-  private lazy var deviceMessage: Event_Device = {
-    var device = Event_Device()
-    if let type = deviceInfo.deviceType.protoValue { device.deviceType = type }
-    device.brand = deviceInfo.brand
-    device.manufacturer = deviceInfo.manufacturer
-    device.identifier = deviceInfo.identifier
-    device.osVersion = deviceInfo.osVersion
-    device.locale.languageCode = deviceInfo.languageCode
-    device.locale.regionCode = deviceInfo.regionCode
-    let (width, height) = deviceInfo.screenSizePx
-    device.screen.size.width = width
-    device.screen.size.height = height
-    device.screen.scale = deviceInfo.screenScale
-    return device
-  } ()
+  private lazy var cachedDeviceMessage: Event_Device = deviceMessage()
 
   init(clientConfig: ClientConfig,
        clock: Clock,
@@ -218,8 +204,25 @@ public final class MetricsLogger: NSObject {
     store.userID = userID
     store.logUserID = logUserID
   }
+}
 
-  // MARK: - Internal methods
+// MARK: - Internal methods
+fileprivate extension MetricsLogger {
+  private func deviceMessage() -> Event_Device {
+    var device = Event_Device()
+    if let type = deviceInfo.deviceType.protoValue { device.deviceType = type }
+    device.brand = deviceInfo.brand
+    device.manufacturer = deviceInfo.manufacturer
+    device.identifier = deviceInfo.identifier
+    device.osVersion = deviceInfo.osVersion
+    device.locale.languageCode = deviceInfo.languageCode
+    device.locale.regionCode = deviceInfo.regionCode
+    let (width, height) = deviceInfo.screenSizePx
+    device.screen.size.width = width
+    device.screen.size.height = height
+    device.screen.scale = deviceInfo.screenScale
+    return device
+  }
 
   private func userInfoMessage() -> Common_UserInfo {
     var userInfo = Common_UserInfo()
@@ -407,7 +410,7 @@ public extension MetricsLogger {
       view.name = trackerState.name
       if let use = trackerState.useCase?.protoValue { view.useCase = use }
       if let p = propertiesMessage(properties) { view.properties = p }
-      view.device = deviceMessage
+      view.device = cachedDeviceMessage
       view.viewType = .appScreen
       let appScreenView = Event_AppScreenView()
       // TODO(yu-hong): Fill out AppScreenView.
@@ -505,15 +508,7 @@ public extension MetricsLogger {
       do {
         try connection.sendMessage(request, clientConfig: config, xray: xray) {
           [weak self] (data, error) in
-          guard let self = self else { return }
-          let xray = self.xray
-          let osLog = self.osLog
-          osLog?.info("Logging finished")
-          if let e = error {
-            osLog?.error("flush/sendMessage: %{public}@", e.localizedDescription)
-            xray?.metricsLoggerBatchResponseDidError(e)
-          }
-          xray?.metricsLoggerBatchResponseDidComplete()
+          self?.handleFlushResponse(data: data, error: error)
         }
       } catch {
         osLog?.error("flush: %{public}@", error.localizedDescription)
@@ -522,6 +517,15 @@ public extension MetricsLogger {
     }, loggingDisabledOperation: {
       logMessages.removeAll()
     })
+  }
+  
+  private func handleFlushResponse(data: Data?, error: Error?) {
+    osLog?.info("Logging finished")
+    if let e = error {
+      osLog?.error("flush/sendMessage: %{public}@", e.localizedDescription)
+      xray?.metricsLoggerBatchResponseDidError(e)
+    }
+    xray?.metricsLoggerBatchResponseDidComplete()
   }
 }
 
