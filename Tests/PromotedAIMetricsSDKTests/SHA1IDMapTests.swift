@@ -5,7 +5,7 @@ import XCTest
 
 final class SHA1IDMapTests: XCTestCase {
 
-  private var map: IDMap?
+  private var map: IDMap!
   
   private static let testBits = 16
 
@@ -24,7 +24,7 @@ final class SHA1IDMapTests: XCTestCase {
   func testUniqueness() {
     var idsSeen = [String: String]()
     iterateStrings { str in
-      let id = map!.deterministicUUIDString(value: str)
+      let id = map.deterministicUUIDString(value: str)
       if let usedID = idsSeen[id] {
         XCTFail("\(str): hash \(id) already seen for \(usedID)");
         return
@@ -36,11 +36,11 @@ final class SHA1IDMapTests: XCTestCase {
   func testDeterminism() {
     var idsSeen = [String: String]()
     iterateStrings { str in
-      let id = map!.deterministicUUIDString(value: str)
+      let id = map.deterministicUUIDString(value: str)
       idsSeen[str] = id
     }
     iterateStrings { str in
-      let id = map!.deterministicUUIDString(value: str)
+      let id = map.deterministicUUIDString(value: str)
       let seenID = idsSeen[str]!
       XCTAssertEqual(id, seenID, "Hash for \(str) was not unique: \(id) vs \(seenID)")
     }

@@ -22,60 +22,6 @@ import os.log
 public final class Xray: NSObject {
   
   public typealias CallStack = [String]
-  
-  /** Origin or reason for activity in Promoted library. */
-  @objc(PROXrayContext)
-  public enum Context: Int {
-    case unspecified = 0
-
-    /// Starting session when user is decided.
-    case startSession
-    
-    /// Direct call to `MetricsLogger`.
-    case logUser
-
-    /// Direct call to `MetricsLogger`.
-    case logSession
-
-    /// Direct call to `MetricsLogger`.
-    case logImpression
-
-    /// Direct call to `MetricsLogger`.
-    case logAction
-
-    /// Direct call to `MetricsLogger`.
-    case logView
-
-    /// Called from `ImpressionLogger.collectionViewWillDisplay(content:)`.
-    /// May not trigger log messages, so `Call.messages` may be empty
-    /// for this context.
-    case impressionLoggerWillDisplay
-
-    /// Called from `ImpressionLogger.collectionViewDidHide(content:)`.
-    /// May not trigger log messages, so `Call.messages` may be empty
-    /// for this context.
-    case impressionLoggerDidHide
-
-    /// Called from `ImpressionLogger.collectionViewDidChangeVisibleContent(:)`.
-    /// May not trigger log messages, so `Call.messages` may be empty
-    /// for this context.
-    case impressionLoggerDidChange
-
-    /// Called from `ImpressionLogger.collectionViewDidHideAllContent()`.
-    /// May not trigger log messages, so `Call.messages` may be empty
-    /// for this context.
-    case impressionLoggerDidHideAll
-
-    /// Called from one of `ScrollTracker`'s `setFrames*` methods.
-    /// Will not trigger log messages, so `Call.messages` will be empty
-    /// for this context.
-    case scrollTrackerSetFrames
-
-    /// Called when `ScrollTracker` sends impressions.
-    /// May not trigger log messages, so `Call.messages` may be empty
-    /// for this context.
-    case scrollTrackerUpdate
-  }
 
   /** Instrumented call to Promoted library. */
   @objc(PROXrayCall)
@@ -91,7 +37,7 @@ public final class Xray: NSObject {
     @objc public fileprivate(set) var endTime: TimeInterval = 0
     
     /// Context that produced the logging.
-    @objc public fileprivate(set) var context: Context = .unspecified
+    @objc public fileprivate(set) var context: String = ""
     
     /// Time spent in Promoted code for this logging call.
     @objc public var timeSpent: TimeInterval { endTime - startTime }
@@ -209,7 +155,10 @@ public final class Xray: NSObject {
   private let callStacksEnabled: Bool
   private let osLog: OSLog?
 
-  init(clock: Clock, config: ClientConfig, osLog: OSLog?) {
+  init(clock: Clock,
+       config: ClientConfig,
+       monitor: OperationMonitor,
+       osLog: OSLog?) {
     self.clock = clock
     self.callStacksEnabled = config.xrayExpensiveThreadCallStacksEnabled
     self.osLog = osLog
@@ -221,10 +170,13 @@ public final class Xray: NSObject {
     self.networkBatches = []
     self.pendingCalls = []
     self.pendingBatch = nil
+
+    super.init()
+    monitor.addOperationMonitorListener(self)
   }
 
   // MARK: - Call
-  func callWillStart(context: Context) {
+  func callWillStart(context: String) {
     let call = Call()
     call.context = context
     if callStacksEnabled {
@@ -340,6 +292,16 @@ public final class Xray: NSObject {
     }
     osLog.info("Total: %{public}lld ms, %{public}lld bytes, %{public}d requests",
                totalTimeSpent.millis, totalBytesSent, totalRequestsMade)
+  }
+}
+
+extension Xray: OperationMonitorListener {
+  func executionWillStart(context: String) {
+    callWillStart(context: context)
+  }
+
+  func executionDidEnd(context: String) {
+    callDidComplete()
   }
 }
 

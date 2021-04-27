@@ -97,31 +97,19 @@ public final class MetricsLogger: NSObject {
   }
   let viewTracker: ViewTracker
   private var needsViewStateCheck: Bool
-  
-  private let xray: Xray?
-  private let osLog: OSLog?
 
-  private lazy var deviceMessage: Event_Device = {
-    var device = Event_Device()
-    if let type = deviceInfo.deviceType.protoValue { device.deviceType = type }
-    device.brand = deviceInfo.brand
-    device.manufacturer = deviceInfo.manufacturer
-    device.identifier = deviceInfo.identifier
-    device.osVersion = deviceInfo.osVersion
-    device.locale.languageCode = deviceInfo.languageCode
-    device.locale.regionCode = deviceInfo.regionCode
-    let (width, height) = deviceInfo.screenSizePx
-    device.screen.size.width = width
-    device.screen.size.height = height
-    device.screen.scale = deviceInfo.screenScale
-    return device
-  } ()
+  private unowned var monitor: OperationMonitor!
+  private unowned let xray: Xray?
+  private unowned let osLog: OSLog?
+
+  private lazy var cachedDeviceMessage: Event_Device = deviceMessage()
 
   init(clientConfig: ClientConfig,
        clock: Clock,
        connection: NetworkConnection,
        deviceInfo: DeviceInfo,
        idMap: IDMap,
+       monitor: OperationMonitor,
        osLog: OSLog?,
        store: PersistentStore,
        viewTracker: ViewTracker? = nil,
@@ -131,6 +119,7 @@ public final class MetricsLogger: NSObject {
     self.connection = connection
     self.deviceInfo = deviceInfo
     self.idMap = idMap
+    self.monitor = monitor
     self.store = store
     self.xray = xray
     self.osLog = osLog
@@ -145,6 +134,9 @@ public final class MetricsLogger: NSObject {
     self.sessionIDProducer = IDProducer { return idMap.sessionID() }
     self.viewTracker = viewTracker ?? ViewTracker(idMap: idMap)
     self.needsViewStateCheck = false
+    
+    super.init()
+    self.monitor.addOperationMonitorListener(self)
   }
 
   // MARK: - Starting new sessions
@@ -153,7 +145,7 @@ public final class MetricsLogger: NSObject {
   /// user event.
   @objc(startSessionAndLogUserWithID:)
   public func startSessionAndLogUser(userID: String) {
-    execute(context: .startSession) {
+    monitor.execute {
       startSession(userID: userID)
       logUser()
       logSession()
@@ -164,7 +156,7 @@ public final class MetricsLogger: NSObject {
   /// Starts logging session with signed-out user and logs a
   /// user event.
   @objc public func startSessionAndLogSignedOutUser() {
-    execute(context: .startSession) {
+    monitor.execute {
       startSessionSignedOut()
       logUser()
       logSession()
@@ -206,46 +198,29 @@ public final class MetricsLogger: NSObject {
     if (self.userID != nil) && (self.userID == userID) { return }
 
     self.userID = userID
-    // Reads logUserID from store for initial value, if available.
-    let logUserID = logUserIDProducer.nextValue()
-
     store.userID = userID
-    store.logUserID = logUserID
-  }
 
-  // MARK: - Internal methods
-  
-  private var loggingContextDepth = 0
-  
-  /// Groups a series of log messages with the same view, session,
-  /// and user context. Avoids doing multiple checks for this
-  /// context when logging a large number of events.
-  ///
-  /// Also generates Xray profiling data for the provided block,
-  /// if needed. Due to this, blocks sent to `execute(context::)`
-  /// might not perform any logging. (In future versions of the
-  /// library, we may move this profiling out of `MetricsLogger`.)
-  ///
-  /// Ensures that the view ID is correct for the logging that
-  /// occurs within the given block. This may involve a check that
-  /// iterates through the UIView stack. This check occurs lazily
-  /// on the first access of the `viewID` property. When called
-  /// re-entrantly, only the first (outermost) call causes this
-  /// view state check, since that check is relatively expensive.
-  func execute(context: Xray.Context, _ block: () -> Void) {
-    if loggingContextDepth == 0 {
-      xray?.callWillStart(context: context)
-      needsViewStateCheck = true
-    }
-    loggingContextDepth += 1
-    defer {
-      loggingContextDepth -= 1
-      if loggingContextDepth == 0 {
-        needsViewStateCheck = false
-        xray?.callDidComplete()
-      }
-    }
-    block()
+    // Reads logUserID from store for initial value, if available.
+    store.logUserID = logUserIDProducer.nextValue()
+  }
+}
+
+// MARK: - Internal methods
+fileprivate extension MetricsLogger {
+  private func deviceMessage() -> Event_Device {
+    var device = Event_Device()
+    if let type = deviceInfo.deviceType.protoValue { device.deviceType = type }
+    device.brand = deviceInfo.brand
+    device.manufacturer = deviceInfo.manufacturer
+    device.identifier = deviceInfo.identifier
+    device.osVersion = deviceInfo.osVersion
+    device.locale.languageCode = deviceInfo.languageCode
+    device.locale.regionCode = deviceInfo.regionCode
+    let (width, height) = deviceInfo.screenSizePx
+    device.screen.size.width = width
+    device.screen.size.height = height
+    device.screen.scale = deviceInfo.screenScale
+    return device
   }
 
   private func userInfoMessage() -> Common_UserInfo {
@@ -288,7 +263,7 @@ public extension MetricsLogger {
   /// - Parameters:
   ///   - properties: Client-specific message
   func logUser(properties: Message? = nil) {
-    execute(context: .logUser) {
+    monitor.execute {
       var user = Event_User()
       user.timing = timingMessage()
       if let p = propertiesMessage(properties) { user.properties = p }
@@ -306,7 +281,7 @@ public extension MetricsLogger {
   /// - Parameters:
   ///   - properties: Client-specific message
   func logSession(properties: Message? = nil) {
-    execute(context: .logSession) {
+    monitor.execute {
       var session = Event_Session()
       session.timing = timingMessage()
       session.sessionID = sessionID
@@ -333,7 +308,7 @@ public extension MetricsLogger {
                      insertionID: String? = nil,
                      requestID: String? = nil,
                      properties: Message? = nil) {
-    execute(context: .logImpression) {
+    monitor.execute {
       let optionalID = idMap.impressionIDOrNil(insertionID: insertionID,
                                                contentID: contentID,
                                                logUserID: logUserID)
@@ -376,7 +351,7 @@ public extension MetricsLogger {
                  targetURL: String? = nil,
                  elementID: String? = nil,
                  properties: Message? = nil) {
-    execute(context: .logAction) {
+    monitor.execute {
       var action = Event_Action()
       action.timing = timingMessage()
       action.actionID = idMap.actionID()
@@ -426,7 +401,7 @@ public extension MetricsLogger {
   }
 
   private func logView(trackerState: ViewTracker.State, properties: Message? = nil) {
-    execute(context: .logView) {
+    monitor.execute {
       var view = Event_View()
       view.timing = timingMessage()
       view.viewID = trackerState.viewID
@@ -434,7 +409,7 @@ public extension MetricsLogger {
       view.name = trackerState.name
       if let use = trackerState.useCase?.protoValue { view.useCase = use }
       if let p = propertiesMessage(properties) { view.properties = p }
-      view.device = deviceMessage
+      view.device = cachedDeviceMessage
       view.viewType = .appScreen
       let appScreenView = Event_AppScreenView()
       // TODO(yu-hong): Fill out AppScreenView.
@@ -450,10 +425,6 @@ public extension MetricsLogger {
   /// Enqueues the given message for logging. Messages are then
   /// delivered to the server on a timer.
   func log(message: Message) {
-    guard config.loggingEnabled else {
-      logMessages.removeAll()
-      return
-    }
     guard Thread.isMainThread else {
       osLog?.error("Logging must be done on main thread")
       return
@@ -519,10 +490,6 @@ public extension MetricsLogger {
   /// Clients do not need to start a `UIBackgroundTask` to call `flush()`.
   @objc func flush() {
     cancelPendingBatchLoggingFlush()
-    guard config.loggingEnabled else {
-      logMessages.removeAll()
-      return
-    }
     guard !logMessages.isEmpty else { return }
 
     xray?.metricsLoggerBatchWillStart()
@@ -535,20 +502,39 @@ public extension MetricsLogger {
     do {
       try connection.sendMessage(request, clientConfig: config, xray: xray) {
         [weak self] (data, error) in
-        guard let self = self else { return }
-        let xray = self.xray
-        let osLog = self.osLog
-        osLog?.info("Logging finished")
-        if let e = error {
-          osLog?.error("flush/sendMessage: %{public}@", e.localizedDescription)
-          xray?.metricsLoggerBatchResponseDidError(e)
-        }
-        xray?.metricsLoggerBatchResponseDidComplete()
+        self?.handleFlushResponse(data: data, error: error)
       }
     } catch {
       osLog?.error("flush: %{public}@", error.localizedDescription)
       xray?.metricsLoggerBatchDidError(error)
     }
+  }
+  
+  private func handleFlushResponse(data: Data?, error: Error?) {
+    osLog?.info("Logging finished")
+    if let e = error {
+      osLog?.error("flush/sendMessage: %{public}@", e.localizedDescription)
+      xray?.metricsLoggerBatchResponseDidError(e)
+    }
+    xray?.metricsLoggerBatchResponseDidComplete()
+  }
+}
+
+// MARK: - OperationMonitorListener
+
+extension MetricsLogger: OperationMonitorListener {
+  /// Ensures that the view ID is correct for the logging that
+  /// occurs within the given block. This may involve a check that
+  /// iterates through the UIView stack. This check occurs lazily
+  /// on the first access of the `viewID` property. When called
+  /// re-entrantly, only the first (outermost) call causes this
+  /// view state check, since that check is relatively expensive.
+  func executionWillStart(context: String) {
+    needsViewStateCheck = true
+  }
+
+  func executionDidEnd(context: String) {
+    needsViewStateCheck = false
   }
 }
 
