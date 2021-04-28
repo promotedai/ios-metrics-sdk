@@ -9,15 +9,32 @@ import os.log
 @objc(PROModuleConfig)
 public class ModuleConfig: NSObject {
   @objc public var initialConfig = ClientConfig()
+  // TODO: What if some specialization has dependencies?
   public var clientConfigService: ClientConfigService? = nil
   public var networkConnection: NetworkConnection? = nil
   public var persistentStore: PersistentStore? = nil
 }
 
-typealias AllDeps = ClientConfigSource & ClientConfigServiceSource & ClockSource &
-                    DeviceInfoSource & IDMapSource & NetworkConnectionSource &
-                    OperationMonitorSource & OSLogSource & PersistentStoreSource &
-                    UIStateSource & ViewTrackerSource & XraySource
+typealias ClientConfigDeps = ClientConfigSource & ClientConfigServiceSource
+
+typealias InternalDeps = ClientConfigDeps &
+                         ClockSource &
+                         DeviceInfoSource &
+                         IDMapSource &
+                         OperationMonitorSource &
+                         OSLogSource &
+                         UIStateSource &
+                         ViewTrackerSource &
+                         XraySource
+
+typealias NetworkConnectionDeps = InternalDeps & NetworkConnectionSource
+
+typealias PersistentStoreDeps = InternalDeps & PersistentStoreSource
+
+typealias AllDeps = InternalDeps &
+                    ClientConfigDeps &
+                    NetworkConnectionDeps &
+                    PersistentStoreDeps
 
 /**
  Owner of all dependencies in the logging library.
@@ -30,7 +47,7 @@ typealias AllDeps = ClientConfigSource & ClientConfigServiceSource & ClockSource
  a potential dependency has a corresponding `Source` protocol, and that
  protocol has a single property that returns an instance of the
  dependency. The property name should be the class name of the provided
- object in camelCase. For example, for `Clock`, the protocl is:
+ object in camelCase. For example, for `Clock`, the protocol is:
  ~~~
  protocol ClockSource {
    var clock: Clock { get }
@@ -78,7 +95,7 @@ typealias AllDeps = ClientConfigSource & ClientConfigServiceSource & ClockSource
  ## Dependencies with other dependencies
  
  If you're adding an object with dependencies, declare it as a
- `private(set) lazy var`.
+ `private(set) lazy var`. Then you can reference `self`.
  ~~~
  private(set) lazy var viewTracker: ViewTracker = ViewTracker(deps: self)
  ~~~
