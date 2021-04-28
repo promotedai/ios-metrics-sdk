@@ -46,36 +46,20 @@ final class ImpressionLoggerTests: XCTestCase {
   func assertContentsEqual(_ a: [Impression], _ b: [Impression]) {
     XCTAssertEqual(Set(a), Set(b))
   }
-  
-  private var clock: FakeClock!
-  private var config: ClientConfig!
-  private var delegate: Delegate!
-  private var idMap: IDMap!
-  private var monitor: OperationMonitor!
+
+  private var module: TestModule!
+  private var clock: FakeClock { module.fakeClock }
   private var metricsLogger: MetricsLogger!
   private var impressionLogger: ImpressionLogger!
-  
+  private var delegate: Delegate!
+
   override func setUp() {
     super.setUp()
-    clock = FakeClock()
-    config = ClientConfig()
-    delegate = Delegate()
-    idMap = SHA1IDMap()
-    monitor = OperationMonitor()
-    metricsLogger = MetricsLogger(clientConfig: ClientConfig(),
-                                  clock: clock,
-                                  connection: FakeNetworkConnection(),
-                                  deviceInfo: FakeDeviceInfo(),
-                                  idMap: idMap,
-                                  monitor: monitor,
-                                  osLog: nil,
-                                  store: FakePersistentStore(),
-                                  uiState: FakeUIState(),
-                                  xray: nil)
+    module = TestModule()
+    metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionAndLogUser(userID: "foo")
-    impressionLogger = ImpressionLogger(metricsLogger: metricsLogger,
-                                        clock: clock,
-                                        monitor: monitor)
+    impressionLogger = ImpressionLogger(metricsLogger: metricsLogger, deps: module)
+    delegate = Delegate()
     impressionLogger.delegate = delegate
   }
 

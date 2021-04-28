@@ -39,6 +39,10 @@ class Module: AllDeps {
 
   let operationMonitor = OperationMonitor()
 
+  func osLog(category: String) -> OSLog? {
+    osLogSource?.osLog(category: category)
+  }
+
   lazy var osLogSource: OSLogSource? = {
     clientConfig.osLogEnabled ? SystemOSLogSource() : nil
   } ()
@@ -71,9 +75,5 @@ class Module: AllDeps {
     self.clientConfigServiceSpec = clientConfigService
     self.networkConnectionSpec = networkConnection
     self.persistentStoreSpec = persistentStore
-  }
-
-  func osLog(category: String) -> OSLog? {
-    osLogSource?.osLog(category: category)
   }
 }

@@ -7,45 +7,26 @@ import XCTest
 @testable import TestHelpers
 
 final class MetricsLoggerTests: XCTestCase {
-  
-  #if canImport(UIKit)
+
   private class FakeScreenViewController: UIViewController {}
-  #else
-  private class FakeScreenViewController {}
-  #endif
-  
-  private var config: ClientConfig!
-  private var connection: FakeNetworkConnection!
-  private var clock: FakeClock!
-  private var idMap: FakeIDMap!
-  private var monitor: OperationMonitor!
-  private var store: FakePersistentStore!
-  private var uiState: FakeUIState!
+
+  private var module: TestModule!
+  private var config: ClientConfig { module.clientConfig }
+  private var connection: FakeNetworkConnection { module.fakeNetworkConnection }
+  private var clock: FakeClock { module.fakeClock }
+  private var idMap: FakeIDMap { module.fakeIDMap }
+  private var store: FakePersistentStore { module.fakePersistentStore }
+  private var uiState: FakeUIState { module.fakeUIState }
   private var metricsLogger: MetricsLogger!
 
   override func setUp() {
     super.setUp()
-    config = ClientConfig()
+    module = TestModule()
     config.metricsLoggingURL = "http://fake.promoted.ai/metrics"
-    connection = FakeNetworkConnection()
-    clock = FakeClock()
     clock.advance(to: 123)
-    idMap = FakeIDMap()
-    monitor = OperationMonitor()
-    store = FakePersistentStore()
     store.userID = "foobar"
     store.logUserID = "fake-log-user-id"
-    uiState = FakeUIState()
-    metricsLogger = MetricsLogger(clientConfig: config,
-                                  clock: clock,
-                                  connection: connection,
-                                  deviceInfo: FakeDeviceInfo(),
-                                  idMap: idMap,
-                                  monitor: monitor,
-                                  osLog: nil,
-                                  store: store,
-                                  uiState: uiState,
-                                  xray: nil)
+    metricsLogger = MetricsLogger(deps: module)
   }
   
   private func assertLoggerAndStoreInSync() {

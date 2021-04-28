@@ -26,13 +26,13 @@ class TestModule: AllDeps {
 
   var initialConfig = ClientConfig()
 
-  var clock: Clock { fakeClock }
+  lazy var clock: Clock = fakeClock
 
-  var deviceInfo: DeviceInfo { fakeDeviceInfo }
+  lazy var deviceInfo: DeviceInfo = fakeDeviceInfo
 
-  var idMap: IDMap { fakeIDMap }
+  lazy var idMap: IDMap = fakeIDMap
 
-  var networkConnection: NetworkConnection { fakeNetworkConnection }
+  lazy var networkConnection: NetworkConnection = fakeNetworkConnection
 
   var operationMonitor = OperationMonitor()
 
@@ -40,11 +40,11 @@ class TestModule: AllDeps {
 
   var osLogSource: OSLogSource? = nil
 
-  var persistentStore: PersistentStore { fakePersistentStore }
+  lazy var persistentStore: PersistentStore = fakePersistentStore
 
-  var uiState: UIState { fakeUIState }
+  lazy var uiState: UIState = fakeUIState
 
-  lazy var viewTracker: ViewTracker = { ViewTracker(deps: self) } ()
+  lazy var viewTracker: ViewTracker = ViewTracker(deps: self)
 
   var xray: Xray? = nil
 }

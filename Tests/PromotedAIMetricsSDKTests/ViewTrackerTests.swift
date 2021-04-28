@@ -6,9 +6,10 @@ import XCTest
 @testable import TestHelpers
 
 final class ViewTrackerTests: XCTestCase {
-  private let idMap = FakeIDMap()
-  private let uiState = FakeUIState()
-  private lazy var viewTracker = ViewTracker(idMap: idMap, uiState: uiState)
+  private let module = TestModule()
+  private var idMap: FakeIDMap { module.fakeIDMap }
+  private var uiState: FakeUIState { module.fakeUIState }
+  private var viewTracker: ViewTracker { module.viewTracker }
 
   override func setUp() {
     super.setUp()

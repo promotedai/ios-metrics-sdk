@@ -7,38 +7,21 @@ import XCTest
 
 final class ScrollTrackerTests: XCTestCase {
   
-  private var clock: FakeClock!
-  private var config: ClientConfig!
-  private var idMap: FakeIDMap!
-  private var monitor: OperationMonitor!
-  private var store: FakePersistentStore!
+  private var module: TestModule!
+  private var clock: FakeClock { module.fakeClock }
+  private var idMap: FakeIDMap { module.fakeIDMap }
+  private var store: FakePersistentStore { module.fakePersistentStore }
   private var metricsLogger: MetricsLogger!
   private var scrollTracker: ScrollTracker!
   
   override func setUp() {
     super.setUp()
-    clock = FakeClock()
-    config = ClientConfig()
-    idMap = FakeIDMap()
-    monitor = OperationMonitor()
-    store = FakePersistentStore()
+    module = TestModule()
     store.userID = "foobar"
     store.logUserID = "fake-log-user-id"
-    metricsLogger = MetricsLogger(clientConfig: config,
-                                  clock: clock,
-                                  connection: FakeNetworkConnection(),
-                                  deviceInfo: FakeDeviceInfo(),
-                                  idMap: idMap,
-                                  monitor: monitor,
-                                  osLog: nil,
-                                  store: store,
-                                  uiState: FakeUIState(),
-                                  xray: nil)
+    metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
-    scrollTracker = ScrollTracker(metricsLogger: metricsLogger,
-                                  clientConfig: config,
-                                  clock: clock,
-                                  monitor: monitor)
+    scrollTracker = ScrollTracker(metricsLogger: metricsLogger, deps: module)
   }
 
   func testSetViewport() {
