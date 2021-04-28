@@ -40,7 +40,7 @@ final class NetworkConnectionTests: ModuleTestCase {
     config.metricsLoggingAPIKey = config.devMetricsLoggingAPIKey
     let url = URL(string: "http://promoted.ai")!
     let data = "foobar".data(using: .utf8)!
-    let request = connection?.urlRequest(url: url, data: data, clientConfig: config)
-    XCTAssertEqual("key!", request!.allHTTPHeaderFields!["x-api-key"]!)
+    let request = connection.urlRequest(url: url, data: data, clientConfig: config)
+    XCTAssertEqual("key!", request.allHTTPHeaderFields!["x-api-key"]!)
   }
 }

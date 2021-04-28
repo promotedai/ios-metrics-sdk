@@ -5,15 +5,12 @@ import XCTest
 @testable import PromotedAIMetricsSDK
 @testable import TestHelpers
 
-final class XrayTests: XCTestCase {
+final class XrayTests: ModuleTestCase {
   
-  private var module: TestModule!
-  private var clock: FakeClock { module.fakeClock }
   private var xray: Xray!
   
   override func setUp() {
     super.setUp()
-    module = TestModule()
     xray = Xray(deps: module)
   }
   
