@@ -52,7 +52,6 @@ import os.log
 public final class MetricsLoggerService: NSObject {
 
   @objc public private(set) lazy var metricsLogger: MetricsLogger? = {
-    let config = self.config
     guard config.loggingEnabled else { return nil }
     return MetricsLogger(deps: module)
   } ()
