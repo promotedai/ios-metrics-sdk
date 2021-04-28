@@ -5,11 +5,7 @@ import XCTest
 @testable import PromotedAIMetricsSDK
 @testable import TestHelpers
 
-final class ViewTrackerTests: XCTestCase {
-  private let module = TestModule()
-  private var idMap: FakeIDMap { module.fakeIDMap }
-  private var uiState: FakeUIState { module.fakeUIState }
-  private var viewTracker: ViewTracker { module.viewTracker }
+final class ViewTrackerTests: ModuleTestCase {
 
   override func setUp() {
     super.setUp()

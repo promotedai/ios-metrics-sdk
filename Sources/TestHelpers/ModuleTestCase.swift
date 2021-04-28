@@ -15,6 +15,7 @@ open class ModuleTestCase: XCTestCase {
   var idMap: FakeIDMap { module.fakeIDMap }
   var store: FakePersistentStore { module.fakePersistentStore }
   var uiState: FakeUIState { module.fakeUIState }
+  var viewTracker: ViewTracker { module.viewTracker }
   
   open override func setUp() {
     super.setUp()
