@@ -5,7 +5,7 @@ import XCTest
 @testable import PromotedAIMetricsSDK
 @testable import TestHelpers
 
-final class ImpressionLoggerTests: XCTestCase {
+final class ImpressionLoggerTests: ModuleTestCase {
 
   typealias Impression = ImpressionLogger.Impression
 
@@ -47,15 +47,12 @@ final class ImpressionLoggerTests: XCTestCase {
     XCTAssertEqual(Set(a), Set(b))
   }
 
-  private var module: TestModule!
-  private var clock: FakeClock { module.fakeClock }
   private var metricsLogger: MetricsLogger!
   private var impressionLogger: ImpressionLogger!
   private var delegate: Delegate!
 
   override func setUp() {
     super.setUp()
-    module = TestModule()
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionAndLogUser(userID: "foo")
     impressionLogger = ImpressionLogger(metricsLogger: metricsLogger, deps: module)

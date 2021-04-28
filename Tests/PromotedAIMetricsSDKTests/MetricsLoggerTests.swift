@@ -6,22 +6,14 @@ import XCTest
 @testable import PromotedAIMetricsSDK
 @testable import TestHelpers
 
-final class MetricsLoggerTests: XCTestCase {
+final class MetricsLoggerTests: ModuleTestCase {
 
   private class FakeScreenViewController: UIViewController {}
 
-  private var module: TestModule!
-  private var config: ClientConfig { module.clientConfig }
-  private var connection: FakeNetworkConnection { module.fakeNetworkConnection }
-  private var clock: FakeClock { module.fakeClock }
-  private var idMap: FakeIDMap { module.fakeIDMap }
-  private var store: FakePersistentStore { module.fakePersistentStore }
-  private var uiState: FakeUIState { module.fakeUIState }
   private var metricsLogger: MetricsLogger!
 
   override func setUp() {
     super.setUp()
-    module = TestModule()
     config.metricsLoggingURL = "http://fake.promoted.ai/metrics"
     clock.advance(to: 123)
     store.userID = "foobar"

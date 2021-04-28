@@ -6,17 +6,8 @@ import XCTest
 @testable import PromotedAIMetricsSDK
 @testable import TestHelpers
 
-final class NetworkConnectionTests: XCTestCase {
-  
-  private var config: ClientConfig!
-  private var connection: FakeNetworkConnection!
+final class NetworkConnectionTests: ModuleTestCase {
 
-  override func setUp() {
-    super.setUp()
-    config = ClientConfig()
-    connection = FakeNetworkConnection()
-  }
-  
   func testBodyDataJSON() {
     var message = Event_Action()
     message.actionID = "foo"

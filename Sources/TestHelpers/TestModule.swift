@@ -3,6 +3,7 @@ import os.log
 
 @testable import PromotedAIMetricsSDK
 
+/** Module for use with testing with convenient fakes. */
 class TestModule: AllDeps {
   // MARK: - Fakes
   var fakeClock = FakeClock()

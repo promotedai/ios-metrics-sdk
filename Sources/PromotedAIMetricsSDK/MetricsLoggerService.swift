@@ -109,7 +109,8 @@ public extension MetricsLoggerService {
   @objc func scrollTracker(collectionView: UICollectionView) -> ScrollTracker? {
     guard let metricsLogger = self.metricsLogger else { return nil }
     return ScrollTracker(metricsLogger: metricsLogger,
-                         collectionView: collectionView, deps: module)
+                         collectionView: collectionView,
+                         deps: module)
   }
 }
 
