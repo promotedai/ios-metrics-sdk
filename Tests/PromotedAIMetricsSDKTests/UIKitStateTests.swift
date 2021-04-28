@@ -4,7 +4,7 @@ import XCTest
 
 @testable import PromotedAIMetricsSDK
 
-final class UIKitViewControllerStackProviderTests: XCTestCase {
+final class UIKitStateTests: XCTestCase {
   
   private class FakePresentingViewController: UIViewController {
     private var fakePresented: UIViewController? = nil
@@ -20,7 +20,7 @@ final class UIKitViewControllerStackProviderTests: XCTestCase {
 
   func testSingleVC() {
     let vc = UIViewController()
-    let actual = UIKitViewControllerStackProvider.viewControllerStack(root: vc)
+    let actual = UIKitState.viewControllerStack(root: vc)
     XCTAssertEqual([vc], actual)
   }
   
@@ -30,7 +30,7 @@ final class UIKitViewControllerStackProviderTests: XCTestCase {
     let vc2 = UIViewController()
     nc.pushViewController(vc1, animated: false)
     nc.pushViewController(vc2, animated: false)
-    let actual = UIKitViewControllerStackProvider.viewControllerStack(root: nc)
+    let actual = UIKitState.viewControllerStack(root: nc)
     XCTAssertEqual([nc, vc1, vc2], actual)
   }
   
@@ -41,7 +41,7 @@ final class UIKitViewControllerStackProviderTests: XCTestCase {
     let vc3 = UIViewController()
     tc.viewControllers = [vc1, vc2, vc3]
     tc.selectedViewController = vc3
-    let actual = UIKitViewControllerStackProvider.viewControllerStack(root: tc)
+    let actual = UIKitState.viewControllerStack(root: tc)
     XCTAssertEqual([tc, vc3], actual)
   }
   
@@ -49,7 +49,7 @@ final class UIKitViewControllerStackProviderTests: XCTestCase {
     let presentingVC = FakePresentingViewController()
     let vc = UIViewController()
     presentingVC.present(vc, animated: false, completion: nil)
-    let actual = UIKitViewControllerStackProvider.viewControllerStack(root: presentingVC)
+    let actual = UIKitState.viewControllerStack(root: presentingVC)
     XCTAssertEqual([presentingVC, vc], actual)
   }
   
@@ -57,7 +57,7 @@ final class UIKitViewControllerStackProviderTests: XCTestCase {
     let parentVC = UIViewController()
     let childVC = UIViewController()
     parentVC.addChild(childVC)
-    let actual = UIKitViewControllerStackProvider.viewControllerStack(root: parentVC)
+    let actual = UIKitState.viewControllerStack(root: parentVC)
     XCTAssertEqual([parentVC, childVC], actual)
   }
   
@@ -73,7 +73,7 @@ final class UIKitViewControllerStackProviderTests: XCTestCase {
     c1.addChild(c11)
     c1.addChild(c12)
     c2.addChild(c21)
-    let actual = UIKitViewControllerStackProvider.viewControllerStack(root: rootVC)
+    let actual = UIKitState.viewControllerStack(root: rootVC)
     XCTAssertEqual([rootVC, c1, c2, c11, c12, c21], actual)
   }
   
@@ -88,7 +88,7 @@ final class UIKitViewControllerStackProviderTests: XCTestCase {
     nc1.pushViewController(vc1, animated: false)
     vc1.present(nc2, animated: false, completion: nil)
     nc2.pushViewController(vc2, animated: false)
-    let actual = UIKitViewControllerStackProvider.viewControllerStack(root: rootVC)
+    let actual = UIKitState.viewControllerStack(root: rootVC)
     XCTAssertEqual([rootVC, nc1, vc1, nc2, vc2], actual)
   }
   
@@ -101,7 +101,7 @@ final class UIKitViewControllerStackProviderTests: XCTestCase {
     rootVC.addChild(c1)
     rootVC.addChild(c2)
     c2.present(p1, animated: false, completion: nil)
-    let actual = UIKitViewControllerStackProvider.viewControllerStack(root: rootVC)
+    let actual = UIKitState.viewControllerStack(root: rootVC)
     XCTAssertEqual([rootVC, c1, c2, p1], actual)
   }
 }

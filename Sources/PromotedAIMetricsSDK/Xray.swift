@@ -155,13 +155,12 @@ public final class Xray: NSObject {
   private let callStacksEnabled: Bool
   private let osLog: OSLog?
 
-  init(clock: Clock,
-       config: ClientConfig,
-       monitor: OperationMonitor,
-       osLog: OSLog?) {
-    self.clock = clock
-    self.callStacksEnabled = config.xrayExpensiveThreadCallStacksEnabled
-    self.osLog = osLog
+  typealias Deps = ClockSource & ClientConfigSource & OperationMonitorSource & OSLogSource
+
+  init(deps: Deps) {
+    self.clock = deps.clock
+    self.callStacksEnabled = deps.clientConfig.xrayExpensiveThreadCallStacksEnabled
+    self.osLog = deps.osLog(category: "Xray")
 
     self.networkBatchWindowSize = 10
     self.totalBytesSent = 0
@@ -172,7 +171,7 @@ public final class Xray: NSObject {
     self.pendingBatch = nil
 
     super.init()
-    monitor.addOperationMonitorListener(self)
+    deps.operationMonitor.addOperationMonitorListener(self)
   }
 
   // MARK: - Call
@@ -293,6 +292,10 @@ public final class Xray: NSObject {
     osLog.info("Total: %{public}lld ms, %{public}lld bytes, %{public}d requests",
                totalTimeSpent.millis, totalBytesSent, totalRequestsMade)
   }
+}
+
+protocol XraySource {
+  var xray: Xray? { get }
 }
 
 extension Xray: OperationMonitorListener {

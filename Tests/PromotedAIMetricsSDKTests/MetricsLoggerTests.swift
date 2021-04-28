@@ -6,47 +6,19 @@ import XCTest
 @testable import PromotedAIMetricsSDK
 @testable import TestHelpers
 
-final class MetricsLoggerTests: XCTestCase {
-  
-  #if canImport(UIKit)
+final class MetricsLoggerTests: ModuleTestCase {
+
   private class FakeScreenViewController: UIViewController {}
-  #else
-  private class FakeScreenViewController {}
-  #endif
-  
-  private var config: ClientConfig!
-  private var connection: FakeNetworkConnection!
-  private var clock: FakeClock!
-  private var idMap: FakeIDMap!
-  private var monitor: OperationMonitor!
-  private var store: FakePersistentStore!
-  private var viewStackProvider: FakeViewControllerStackProvider!
+
   private var metricsLogger: MetricsLogger!
 
   override func setUp() {
     super.setUp()
-    config = ClientConfig()
     config.metricsLoggingURL = "http://fake.promoted.ai/metrics"
-    connection = FakeNetworkConnection()
-    clock = FakeClock()
     clock.advance(to: 123)
-    idMap = FakeIDMap()
-    monitor = OperationMonitor()
-    store = FakePersistentStore()
     store.userID = "foobar"
     store.logUserID = "fake-log-user-id"
-    viewStackProvider = FakeViewControllerStackProvider()
-    let viewTracker = ViewTracker(idMap: idMap, stackProvider: viewStackProvider)
-    metricsLogger = MetricsLogger(clientConfig: config,
-                                  clock: clock,
-                                  connection: connection,
-                                  deviceInfo: FakeDeviceInfo(),
-                                  idMap: idMap,
-                                  monitor: monitor,
-                                  osLog: nil,
-                                  store: store,
-                                  viewTracker: viewTracker,
-                                  xray: nil)
+    metricsLogger = MetricsLogger(deps: module)
   }
   
   private func assertLoggerAndStoreInSync() {
@@ -755,10 +727,10 @@ final class MetricsLoggerTests: XCTestCase {
 
     metricsLogger.flush()
 
-    viewStackProvider.viewControllers = [vc1, vc2]
+    uiState.viewControllers = [vc1, vc2]
     metricsLogger.logAction(name: "hello")
 
-    viewStackProvider.viewControllers = [vc1]
+    uiState.viewControllers = [vc1]
     metricsLogger.logAction(name: "goodbye")
 
     // First action should be logged against vc2.

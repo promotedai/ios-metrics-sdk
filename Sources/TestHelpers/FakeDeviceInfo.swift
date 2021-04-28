@@ -1,5 +1,6 @@
 import Foundation
-import PromotedAIMetricsSDK
+
+@testable import PromotedAIMetricsSDK
 
 class FakeDeviceInfo: DeviceInfo {
 

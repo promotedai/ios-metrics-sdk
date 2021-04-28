@@ -5,39 +5,18 @@ import XCTest
 @testable import PromotedAIMetricsSDK
 @testable import TestHelpers
 
-final class ScrollTrackerTests: XCTestCase {
+final class ScrollTrackerTests: ModuleTestCase {
   
-  private var clock: FakeClock!
-  private var config: ClientConfig!
-  private var idMap: FakeIDMap!
-  private var monitor: OperationMonitor!
-  private var store: FakePersistentStore!
   private var metricsLogger: MetricsLogger!
   private var scrollTracker: ScrollTracker!
   
   override func setUp() {
     super.setUp()
-    clock = FakeClock()
-    config = ClientConfig()
-    idMap = FakeIDMap()
-    monitor = OperationMonitor()
-    store = FakePersistentStore()
     store.userID = "foobar"
     store.logUserID = "fake-log-user-id"
-    metricsLogger = MetricsLogger(clientConfig: config,
-                                  clock: clock,
-                                  connection: FakeNetworkConnection(),
-                                  deviceInfo: FakeDeviceInfo(),
-                                  idMap: idMap,
-                                  monitor: monitor,
-                                  osLog: nil,
-                                  store: store,
-                                  xray: nil)
+    metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
-    scrollTracker = ScrollTracker(metricsLogger: metricsLogger,
-                                  clientConfig: config,
-                                  clock: clock,
-                                  monitor: monitor)
+    scrollTracker = ScrollTracker(metricsLogger: metricsLogger, deps: module)
   }
 
   func testSetViewport() {

@@ -6,17 +6,8 @@ import XCTest
 @testable import PromotedAIMetricsSDK
 @testable import TestHelpers
 
-final class NetworkConnectionTests: XCTestCase {
-  
-  private var config: ClientConfig!
-  private var connection: FakeNetworkConnection!
+final class NetworkConnectionTests: ModuleTestCase {
 
-  override func setUp() {
-    super.setUp()
-    config = ClientConfig()
-    connection = FakeNetworkConnection()
-  }
-  
   func testBodyDataJSON() {
     var message = Event_Action()
     message.actionID = "foo"
@@ -49,7 +40,7 @@ final class NetworkConnectionTests: XCTestCase {
     config.metricsLoggingAPIKey = config.devMetricsLoggingAPIKey
     let url = URL(string: "http://promoted.ai")!
     let data = "foobar".data(using: .utf8)!
-    let request = connection?.urlRequest(url: url, data: data, clientConfig: config)
-    XCTAssertEqual("key!", request!.allHTTPHeaderFields!["x-api-key"]!)
+    let request = connection.urlRequest(url: url, data: data, clientConfig: config)
+    XCTAssertEqual("key!", request.allHTTPHeaderFields!["x-api-key"]!)
   }
 }

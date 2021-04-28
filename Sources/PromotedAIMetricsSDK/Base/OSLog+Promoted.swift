@@ -1,6 +1,17 @@
 import Foundation
 import os.log
 
+protocol OSLogSource {
+  /// Callers own the returned object.
+  func osLog(category: String) -> OSLog?
+}
+
+class SystemOSLogSource: OSLogSource {
+  func osLog(category: String) -> OSLog? {
+    OSLog(subsystem: "ai.promoted", category: category)
+  }
+}
+
 extension OSLog {
   func signpostBegin(name: StaticString) {
     if #available(iOS 12.0, *) {

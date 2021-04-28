@@ -1,14 +1,11 @@
 import Foundation
-import TestHelpers
 import UIKit
 import XCTest
 
 @testable import PromotedAIMetricsSDK
+@testable import TestHelpers
 
-final class ViewTrackerTests: XCTestCase {
-  private let idMap = FakeIDMap()
-  private let stackProvider = FakeViewControllerStackProvider()
-  private lazy var viewTracker = ViewTracker(idMap: idMap, stackProvider: stackProvider)
+final class ViewTrackerTests: ModuleTestCase {
 
   override func setUp() {
     super.setUp()
@@ -102,7 +99,7 @@ final class ViewTrackerTests: XCTestCase {
     XCTAssertNotNil(state3)
 
     // No change in VC stack should provide nil state.
-    stackProvider.viewControllers = [vc1, vc2, vc3]
+    uiState.viewControllers = [vc1, vc2, vc3]
     let updatedState = viewTracker.updateState()
     XCTAssertNil(updatedState)
   }
@@ -121,7 +118,7 @@ final class ViewTrackerTests: XCTestCase {
     XCTAssertNotNil(state3)
 
     // Simulate vc2 and vc3 being popped off stack.
-    stackProvider.viewControllers = [vc1]
+    uiState.viewControllers = [vc1]
     let finalState = viewTracker.updateState()
     XCTAssertEqual(state1, finalState)
   }
@@ -138,7 +135,7 @@ final class ViewTrackerTests: XCTestCase {
     XCTAssertNotNil(state3)
 
     // vc2 shouldn't appear in the stack.
-    stackProvider.viewControllers = [vc1, vc2, vc3]
+    uiState.viewControllers = [vc1, vc2, vc3]
     _ = viewTracker.updateState()
     let stack = viewTracker.viewStackForTesting
     XCTAssertEqual([state1, state3], stack)

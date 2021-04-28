@@ -1,6 +1,6 @@
 import Foundation
 
-public enum DeviceType: Int {
+enum DeviceType: Int {
   case unknown = 0
   case desktop = 1
   case mobile = 2

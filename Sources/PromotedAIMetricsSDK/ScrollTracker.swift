@@ -123,19 +123,17 @@ public final class ScrollTracker: NSObject {
     didSet { maybeScheduleUpdateVisibilityTimer() }
   }
 
-  init(metricsLogger: MetricsLogger,
-       clientConfig: ClientConfig,
-       clock: Clock,
-       monitor: OperationMonitor) {
-    self.clock = clock
+  typealias Deps = ClientConfigSource & ClockSource & OperationMonitorSource
+
+  init(metricsLogger: MetricsLogger, deps: Deps) {
+    self.clock = deps.clock
+    let clientConfig = deps.clientConfig
     self.visibilityThreshold = clientConfig.scrollTrackerVisibilityThreshold
     self.durationThreshold = clientConfig.scrollTrackerDurationThreshold
     self.updateFrequency = clientConfig.scrollTrackerUpdateFrequency
     self.metricsLogger = metricsLogger
-    self.monitor = monitor
-    self.impressionLogger = ImpressionLogger(metricsLogger: metricsLogger,
-                                             clock: clock,
-                                             monitor: monitor)
+    self.monitor = deps.operationMonitor
+    self.impressionLogger = ImpressionLogger(metricsLogger: metricsLogger, deps: deps)
     self.content = []
     self.timer = nil
     self.viewport = CGRect.zero
@@ -192,26 +190,16 @@ public final class ScrollTracker: NSObject {
 extension ScrollTracker {
 
   convenience init(metricsLogger: MetricsLogger,
-                   clientConfig: ClientConfig,
-                   clock: Clock,
-                   monitor: OperationMonitor,
-                   collectionView: UICollectionView) {
-    self.init(metricsLogger: metricsLogger,
-              clientConfig: clientConfig,
-              clock: clock,
-              monitor: monitor)
+                   collectionView: UICollectionView,
+                   deps: Deps) {
+    self.init(metricsLogger: metricsLogger, deps: deps)
     set(scrollView: collectionView, collectionView: collectionView)
   }
   
   convenience init(metricsLogger: MetricsLogger,
-                   clientConfig: ClientConfig,
-                   clock: Clock,
-                   monitor: OperationMonitor,
-                   scrollView: UIScrollView) {
-    self.init(metricsLogger: metricsLogger,
-              clientConfig: clientConfig,
-              clock: clock,
-              monitor: monitor)
+                   scrollView: UIScrollView,
+                   deps: Deps) {
+    self.init(metricsLogger: metricsLogger, deps: deps)
     set(scrollView: scrollView, collectionView: nil)
   }
 }

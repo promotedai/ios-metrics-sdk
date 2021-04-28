@@ -11,7 +11,7 @@ final class SHA1IDMapTests: XCTestCase {
 
   override func setUp() {
     super.setUp()
-    map = SHA1IDMap.instance
+    map = SHA1IDMap()
   }
   
   private func iterateStrings(block: (String) -> Void) {

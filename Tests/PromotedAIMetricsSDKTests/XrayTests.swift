@@ -3,20 +3,15 @@ import TestHelpers
 import XCTest
 
 @testable import PromotedAIMetricsSDK
+@testable import TestHelpers
 
-final class XrayTests: XCTestCase {
+final class XrayTests: ModuleTestCase {
   
-  private var clock: FakeClock!
-  private var config: ClientConfig!
-  private var monitor: OperationMonitor!
   private var xray: Xray!
   
   override func setUp() {
     super.setUp()
-    clock = FakeClock()
-    config = ClientConfig()
-    monitor = OperationMonitor()
-    xray = Xray(clock: clock, config: config, monitor: monitor, osLog: nil)
+    xray = Xray(deps: module)
   }
   
   func testSingleBatch() {
