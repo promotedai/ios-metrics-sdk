@@ -23,16 +23,22 @@ Pod::Spec.new do |s|
   # By default we bring in GTMSessionFetcher for networking.
   # If you provide your own network implementation, depend on
   # 'PromotedAIMetricsSDK/Core' instead.
-  s.default_subspecs = 'Fetcher'
+  s.default_subspecs = 'Metrics'
 
   s.subspec 'Core' do |core|
-    core.source_files = ['Sources/PromotedAIMetricsSDK/**/*.{h,m,swift}']
+    core.source_files = ['Sources/PromotedCore/**/*.{h,m,swift}']
     core.dependency 'SwiftProtobuf', '~> 1.15.0'
   end
-  
+
   s.subspec 'Fetcher' do |fetcher|
-    fetcher.source_files = ['Sources/Fetcher/**/*.{h,m,swift}']
+    fetcher.source_files = ['Sources/PromotedFetcher/**/*.{h,m,swift}']
     fetcher.dependency 'GTMSessionFetcher/Core', '~> 1.5.0'
     fetcher.dependency 'PromotedAIMetricsSDK/Core'
+  end
+  
+  s.subspec 'Metrics' do |metrics|
+    metrics.source_files = ['Sources/PromotedMetrics/**/*.{h,m,swift}']
+    metrics.dependency 'PromotedAIMetricsSDK/Core'
+    metrics.dependency 'PromotedAIMetricsSDK/Fetcher'
   end
 end

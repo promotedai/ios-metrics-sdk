@@ -9,14 +9,19 @@ let package = Package(
   ],
   products: [
     .library(
-      name: "PromotedAIMetricsSDK",
+      name: "PromotedCore",
       targets: [
-        "PromotedAIMetricsSDK",
+        "PromotedCore",
       ]),
     .library(
-      name: "TestHelpers",
+      name: "PromotedFetcher",
       targets: [
-        "TestHelpers",
+        "PromotedFetcher",
+      ]),
+    .library(
+      name: "PromotedMetrics",
+      targets: [
+        "PromotedMetrics",
       ]),
   ],
   dependencies: [
@@ -26,26 +31,32 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "Fetcher",
-      dependencies: [
-        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
-        "PromotedAIMetricsSDK",
-      ]),
-    .target(
-      name: "PromotedAIMetricsSDK",
+      name: "PromotedCore",
       dependencies: [
         "SwiftProtobuf",
       ]),
     .target(
-      name: "TestHelpers",
+      name: "PromotedFetcher",
       dependencies: [
-        "PromotedAIMetricsSDK",
+        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
+        "PromotedCore",
+      ]),
+    .target(
+      name: "PromotedMetrics",
+      dependencies: [
+        "PromotedCore",
+        "PromotedFetcher",
+      ]),
+    .target(
+      name: "PromotedCoreTestHelpers",
+      dependencies: [
+        "PromotedCore",
       ]),
     .testTarget(
-      name: "PromotedAIMetricsSDKTests",
+      name: "PromotedCoreTests",
       dependencies: [
-        "PromotedAIMetricsSDK",
-        "TestHelpers",
+        "PromotedCore",
+        "PromotedCoreTestHelpers",
       ]),
   ]
 )
