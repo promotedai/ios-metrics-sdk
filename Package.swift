@@ -20,14 +20,20 @@ let package = Package(
       ]),
   ],
   dependencies: [
+    .package(name: "Firebase", url: "https://github.com/firebase/firebase-ios-sdk", from: "7.0.0"),
     .package(name: "GTMSessionFetcher", url: "https://github.com/google/gtm-session-fetcher", from: "1.5.0"),
     .package(name: "SwiftProtobuf", url: "https://github.com/apple/swift-protobuf", from: "1.15.0"),
   ],
   targets: [
     .target(
-      name: "PromotedAIMetricsSDK",
+      name: "Fetcher",
       dependencies: [
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
+        "PromotedAIMetricsSDK",
+      ]),
+    .target(
+      name: "PromotedAIMetricsSDK",
+      dependencies: [
         "SwiftProtobuf",
       ]),
     .target(
