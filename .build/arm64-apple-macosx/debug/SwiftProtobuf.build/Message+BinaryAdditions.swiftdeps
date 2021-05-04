@@ -1,0 +1,256 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+provides-nominal:
+provides-member:
+- ["13SwiftProtobuf7MessageP", ""]
+- ["13SwiftProtobuf7MessageP", "serializedData"]
+- ["13SwiftProtobuf7MessageP", "serializedDataSize"]
+- ["13SwiftProtobuf7MessageP", "init"]
+- ["13SwiftProtobuf7MessageP", "init"]
+- ["13SwiftProtobuf7MessageP", "merge"]
+- ["13SwiftProtobuf7MessageP", "merge"]
+- ["13SwiftProtobuf7MessageP", "_merge"]
+provides-dynamic-lookup:
+depends-top-level:
+- !private "!"
+- !private "&&"
+- "=="
+- ">"
+- !private "BinaryDecoder"
+- !private "BinaryDecodingError"
+- "BinaryDecodingOptions"
+- !private "BinaryEncodingError"
+- !private "BinaryEncodingSizeVisitor"
+- "BinaryEncodingVisitor"
+- "Bool"
+- "BooleanLiteralType"
+- "ContiguousBytes"
+- "Data"
+- "ExtensionMap"
+- "FloatLiteralType"
+- "Int"
+- "IntegerLiteralType"
+- "Message"
+- "UnsafeMutableRawBufferPointer"
+- "UnsafeRawBufferPointer"
+- "_merge"
+- "assert"
+- !private "isInitialized"
+- !private "merge"
+- !private "serializedDataSize"
+- "traverse"
+depends-member:
+- !private ["SK", ""]
+- !private ["SK", "baseAddress"]
+- !private ["SK", "count"]
+- !private ["SK", "init"]
+- !private ["SK", "withUnsafeMutableBytes"]
+- !private ["13SwiftProtobuf13BinaryDecoderV", "decodeFullMessage"]
+- !private ["13SwiftProtobuf13BinaryDecoderV", "init"]
+- !private ["13SwiftProtobuf19BinaryDecodingErrorO", ""]
+- !private ["13SwiftProtobuf19BinaryDecodingErrorO", "missingRequiredFields"]
+- !private ["13SwiftProtobuf21BinaryDecodingOptionsV", "init"]
+- !private ["13SwiftProtobuf13BinaryEncoderV", "distance"]
+- !private ["13SwiftProtobuf19BinaryEncodingErrorO", ""]
+- !private ["13SwiftProtobuf19BinaryEncodingErrorO", "missingRequiredFields"]
+- !private ["13SwiftProtobuf25BinaryEncodingSizeVisitorV", ""]
+- !private ["13SwiftProtobuf25BinaryEncodingSizeVisitorV", "init"]
+- !private ["13SwiftProtobuf25BinaryEncodingSizeVisitorV", "serializedSize"]
+- !private ["13SwiftProtobuf21BinaryEncodingVisitorV", ""]
+- !private ["13SwiftProtobuf21BinaryEncodingVisitorV", "encoder"]
+- !private ["13SwiftProtobuf21BinaryEncodingVisitorV", "init"]
+- !private ["Sl", ""]
+- !private ["Sl", "baseAddress"]
+- !private ["Sl", "count"]
+- !private ["Sl", "init"]
+- !private ["Sl", "withUnsafeMutableBytes"]
+- !private ["10Foundation15ContiguousBytesP", "baseAddress"]
+- !private ["10Foundation15ContiguousBytesP", "count"]
+- !private ["10Foundation15ContiguousBytesP", "init"]
+- !private ["10Foundation15ContiguousBytesP", "withUnsafeBytes"]
+- !private ["10Foundation15ContiguousBytesP", "withUnsafeMutableBytes"]
+- !private ["s28CustomDebugStringConvertibleP", "BinaryDecoder"]
+- !private ["s28CustomDebugStringConvertibleP", "BinaryDecodingError"]
+- ["s28CustomDebugStringConvertibleP", "BinaryDecodingOptions"]
+- !private ["s28CustomDebugStringConvertibleP", "BinaryEncodingError"]
+- !private ["s28CustomDebugStringConvertibleP", "BinaryEncodingSizeVisitor"]
+- !private ["s28CustomDebugStringConvertibleP", "BinaryEncodingVisitor"]
+- ["s28CustomDebugStringConvertibleP", "Bool"]
+- ["s28CustomDebugStringConvertibleP", "ContiguousBytes"]
+- ["s28CustomDebugStringConvertibleP", "Data"]
+- ["s28CustomDebugStringConvertibleP", "ExtensionMap"]
+- ["s28CustomDebugStringConvertibleP", "Int"]
+- !private ["s28CustomDebugStringConvertibleP", "UnsafeMutableRawBufferPointer"]
+- ["s28CustomDebugStringConvertibleP", "UnsafeRawBufferPointer"]
+- ["s28CustomDebugStringConvertibleP", ""]
+- !private ["s28CustomDebugStringConvertibleP", "_merge"]
+- !private ["s28CustomDebugStringConvertibleP", "assert"]
+- !private ["s28CustomDebugStringConvertibleP", "baseAddress"]
+- !private ["s28CustomDebugStringConvertibleP", "count"]
+- !private ["s28CustomDebugStringConvertibleP", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "isInitialized"]
+- !private ["s28CustomDebugStringConvertibleP", "merge"]
+- !private ["s28CustomDebugStringConvertibleP", "serializedDataSize"]
+- !private ["s28CustomDebugStringConvertibleP", "traverse"]
+- !private ["s28CustomDebugStringConvertibleP", "withUnsafeMutableBytes"]
+- !private ["s17CustomReflectableP", "init"]
+- !private ["s17CustomReflectableP", "withUnsafeMutableBytes"]
+- !private ["s23CustomStringConvertibleP", ""]
+- !private ["s23CustomStringConvertibleP", "init"]
+- !private ["s23CustomStringConvertibleP", "withUnsafeMutableBytes"]
+- !private ["10Foundation4DataV", "init"]
+- !private ["10Foundation4DataV", "withUnsafeMutableBytes"]
+- !private ["10Foundation12DataProtocolP", ""]
+- !private ["10Foundation12DataProtocolP", "baseAddress"]
+- !private ["10Foundation12DataProtocolP", "count"]
+- !private ["10Foundation12DataProtocolP", "init"]
+- !private ["10Foundation12DataProtocolP", "withUnsafeMutableBytes"]
+- !private ["Se", "init"]
+- !private ["Se", "withUnsafeMutableBytes"]
+- !private ["13SwiftProtobuf7DecoderP", "decodeFullMessage"]
+- !private ["13SwiftProtobuf7DecoderP", "init"]
+- !private ["SE", "init"]
+- !private ["SE", "withUnsafeMutableBytes"]
+- !private ["13SwiftProtobuf4EnumP", "RawValue"]
+- !private ["SQ", "RawValue"]
+- !private ["SQ", ""]
+- !private ["SQ", "init"]
+- !private ["SQ", "missingRequiredFields"]
+- !private ["SQ", "withUnsafeMutableBytes"]
+- !private ["s5ErrorP", "missingRequiredFields"]
+- !private ["SH", "RawValue"]
+- ["SH", ""]
+- !private ["SH", "init"]
+- !private ["SH", "missingRequiredFields"]
+- !private ["SH", "withUnsafeMutableBytes"]
+- !private ["13SwiftProtobuf7MessageP", "BinaryDecoder"]
+- !private ["13SwiftProtobuf7MessageP", "BinaryDecodingError"]
+- ["13SwiftProtobuf7MessageP", "BinaryDecodingOptions"]
+- !private ["13SwiftProtobuf7MessageP", "BinaryEncodingError"]
+- !private ["13SwiftProtobuf7MessageP", "BinaryEncodingSizeVisitor"]
+- !private ["13SwiftProtobuf7MessageP", "BinaryEncodingVisitor"]
+- ["13SwiftProtobuf7MessageP", "Bool"]
+- ["13SwiftProtobuf7MessageP", "ContiguousBytes"]
+- ["13SwiftProtobuf7MessageP", "Data"]
+- ["13SwiftProtobuf7MessageP", "ExtensionMap"]
+- ["13SwiftProtobuf7MessageP", "Int"]
+- !private ["13SwiftProtobuf7MessageP", "UnsafeMutableRawBufferPointer"]
+- ["13SwiftProtobuf7MessageP", "UnsafeRawBufferPointer"]
+- ["13SwiftProtobuf7MessageP", ""]
+- ["13SwiftProtobuf7MessageP", "_merge"]
+- !private ["13SwiftProtobuf7MessageP", "assert"]
+- ["13SwiftProtobuf7MessageP", "init"]
+- !private ["13SwiftProtobuf7MessageP", "isInitialized"]
+- ["13SwiftProtobuf7MessageP", "merge"]
+- ["13SwiftProtobuf7MessageP", "serializedData"]
+- ["13SwiftProtobuf7MessageP", "serializedDataSize"]
+- !private ["13SwiftProtobuf7MessageP", "traverse"]
+- !private ["SM", ""]
+- !private ["SM", "baseAddress"]
+- !private ["SM", "count"]
+- !private ["SM", "init"]
+- !private ["SM", "withUnsafeMutableBytes"]
+- !private ["10Foundation19MutableDataProtocolP", "init"]
+- !private ["10Foundation19MutableDataProtocolP", "withUnsafeMutableBytes"]
+- ["So8NSCodingP", ""]
+- ["So8NSObjectP", ""]
+- !private ["Sk", ""]
+- !private ["Sk", "baseAddress"]
+- !private ["Sk", "count"]
+- !private ["Sk", "init"]
+- !private ["Sk", "withUnsafeMutableBytes"]
+- !private ["Sm", ""]
+- !private ["Sm", "_customRemoveLast"]
+- !private ["Sm", "append"]
+- !private ["Sm", "init"]
+- !private ["Sm", "insert"]
+- !private ["Sm", "remove"]
+- !private ["Sm", "removeAll"]
+- !private ["Sm", "removeFirst"]
+- !private ["Sm", "removeSubrange"]
+- !private ["Sm", "replaceSubrange"]
+- !private ["Sm", "reserveCapacity"]
+- !private ["Sm", "subscript"]
+- !private ["Sm", "withUnsafeMutableBytes"]
+- !private ["SY", "RawValue"]
+- ["SY", ""]
+- !private ["10Foundation20ReferenceConvertibleP", "init"]
+- !private ["10Foundation20ReferenceConvertibleP", "withUnsafeMutableBytes"]
+- !private ["ST", ""]
+- !private ["ST", "baseAddress"]
+- !private ["ST", "count"]
+- !private ["ST", "init"]
+- !private ["ST", "withUnsafeMutableBytes"]
+- !private ["Sw", "baseAddress"]
+- !private ["Sw", "count"]
+- !private ["SW", "baseAddress"]
+- !private ["SW", "count"]
+- !private ["13SwiftProtobuf7VisitorP", "encoder"]
+- !private ["13SwiftProtobuf7VisitorP", "init"]
+- !private ["13SwiftProtobuf7VisitorP", "serializedSize"]
+- ["s35_ExpressibleByBuiltinBooleanLiteralP", "init"]
+- !private ["s35_ExpressibleByBuiltinIntegerLiteralP", "init"]
+- !private ["s19_HasContiguousBytesP", "baseAddress"]
+- !private ["s19_HasContiguousBytesP", "count"]
+- !private ["s21_ObjectiveCBridgeableP", ""]
+- !private ["s21_ObjectiveCBridgeableP", "init"]
+- !private ["s21_ObjectiveCBridgeableP", "withUnsafeMutableBytes"]
+depends-nominal:
+- !private "SK"
+- !private "13SwiftProtobuf13BinaryDecoderV"
+- !private "13SwiftProtobuf19BinaryDecodingErrorO"
+- !private "13SwiftProtobuf21BinaryDecodingOptionsV"
+- !private "13SwiftProtobuf13BinaryEncoderV"
+- !private "13SwiftProtobuf19BinaryEncodingErrorO"
+- !private "13SwiftProtobuf25BinaryEncodingSizeVisitorV"
+- !private "13SwiftProtobuf21BinaryEncodingVisitorV"
+- !private "Sl"
+- !private "10Foundation15ContiguousBytesP"
+- "s28CustomDebugStringConvertibleP"
+- !private "s17CustomReflectableP"
+- !private "s23CustomStringConvertibleP"
+- !private "10Foundation4DataV"
+- !private "10Foundation12DataProtocolP"
+- !private "Se"
+- !private "13SwiftProtobuf7DecoderP"
+- !private "SE"
+- !private "13SwiftProtobuf4EnumP"
+- !private "SQ"
+- !private "s5ErrorP"
+- "SH"
+- "13SwiftProtobuf7MessageP"
+- !private "SM"
+- !private "10Foundation19MutableDataProtocolP"
+- "So8NSCodingP"
+- "So8NSObjectP"
+- !private "Sk"
+- !private "Sm"
+- "SY"
+- !private "10Foundation20ReferenceConvertibleP"
+- !private "ST"
+- !private "Sw"
+- !private "SW"
+- !private "13SwiftProtobuf7VisitorP"
+- "s35_ExpressibleByBuiltinBooleanLiteralP"
+- !private "s35_ExpressibleByBuiltinIntegerLiteralP"
+- !private "s19_HasContiguousBytesP"
+- !private "s21_ObjectiveCBridgeableP"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Swift.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/dyld.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobufPluginLibrary.build/module.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/compact_unwind_encoding.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/xpc/XPC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Headers/ApplicationServices.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "a9c89c8a5207142d96d12be174f27f8f"

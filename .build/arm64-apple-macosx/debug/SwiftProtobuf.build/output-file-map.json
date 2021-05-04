@@ -1,0 +1,503 @@
+{
+  "": {
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/master.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/AnyMessageStorage.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/AnyMessageStorage.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/AnyMessageStorage.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/AnyMessageStorage~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/AnyMessageStorage.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/AnyUnpackError.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/AnyUnpackError.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/AnyUnpackError.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/AnyUnpackError~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/AnyUnpackError.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/BinaryDecoder.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDecoder.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDecoder.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDecoder~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDecoder.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/BinaryDecodingError.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDecodingError.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDecodingError.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDecodingError~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDecodingError.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/BinaryDecodingOptions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDecodingOptions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDecodingOptions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDecodingOptions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDecodingOptions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/BinaryDelimited.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDelimited.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDelimited.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDelimited~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryDelimited.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/BinaryEncoder.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncoder.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncoder.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncoder~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncoder.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/BinaryEncodingError.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncodingError.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncodingError.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncodingError~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncodingError.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/BinaryEncodingSizeVisitor.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncodingSizeVisitor.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncodingSizeVisitor.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncodingSizeVisitor~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncodingSizeVisitor.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/BinaryEncodingVisitor.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncodingVisitor.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncodingVisitor.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncodingVisitor~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/BinaryEncodingVisitor.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/CustomJSONCodable.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/CustomJSONCodable.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/CustomJSONCodable.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/CustomJSONCodable~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/CustomJSONCodable.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Data+Extensions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Data+Extensions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Data+Extensions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Data+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Data+Extensions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Decoder.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Decoder.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Decoder.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Decoder~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Decoder.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/DoubleParser.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/DoubleParser.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/DoubleParser.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/DoubleParser~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/DoubleParser.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Enum.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Enum.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Enum.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Enum~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Enum.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/ExtensibleMessage.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensibleMessage.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensibleMessage.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensibleMessage~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensibleMessage.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/ExtensionFieldValueSet.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensionFieldValueSet.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensionFieldValueSet.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensionFieldValueSet~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensionFieldValueSet.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/ExtensionFields.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensionFields.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensionFields.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensionFields~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensionFields.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/ExtensionMap.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensionMap.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensionMap.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensionMap~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ExtensionMap.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/FieldTag.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/FieldTag.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/FieldTag.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/FieldTag~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/FieldTag.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/FieldTypes.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/FieldTypes.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/FieldTypes.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/FieldTypes~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/FieldTypes.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Google_Protobuf_Any+Extensions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Any+Extensions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Any+Extensions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Any+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Any+Extensions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Google_Protobuf_Any+Registry.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Any+Registry.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Any+Registry.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Any+Registry~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Any+Registry.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Google_Protobuf_Duration+Extensions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Duration+Extensions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Duration+Extensions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Duration+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Duration+Extensions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Google_Protobuf_FieldMask+Extensions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_FieldMask+Extensions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_FieldMask+Extensions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_FieldMask+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_FieldMask+Extensions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Google_Protobuf_ListValue+Extensions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_ListValue+Extensions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_ListValue+Extensions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_ListValue+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_ListValue+Extensions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Google_Protobuf_NullValue+Extensions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_NullValue+Extensions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_NullValue+Extensions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_NullValue+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_NullValue+Extensions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Google_Protobuf_Struct+Extensions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Struct+Extensions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Struct+Extensions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Struct+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Struct+Extensions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Google_Protobuf_Timestamp+Extensions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Timestamp+Extensions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Timestamp+Extensions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Timestamp+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Timestamp+Extensions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Google_Protobuf_Value+Extensions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Value+Extensions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Value+Extensions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Value+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Value+Extensions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Google_Protobuf_Wrappers+Extensions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Wrappers+Extensions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Wrappers+Extensions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Wrappers+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Google_Protobuf_Wrappers+Extensions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/HashVisitor.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/HashVisitor.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/HashVisitor.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/HashVisitor~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/HashVisitor.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Internal.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Internal.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Internal.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Internal~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Internal.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/JSONDecoder.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONDecoder.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONDecoder.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONDecoder~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONDecoder.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/JSONDecodingError.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONDecodingError.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONDecodingError.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONDecodingError~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONDecodingError.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/JSONDecodingOptions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONDecodingOptions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONDecodingOptions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONDecodingOptions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONDecodingOptions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/JSONEncoder.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncoder.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncoder.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncoder~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncoder.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/JSONEncodingError.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncodingError.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncodingError.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncodingError~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncodingError.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/JSONEncodingOptions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncodingOptions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncodingOptions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncodingOptions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncodingOptions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/JSONEncodingVisitor.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncodingVisitor.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncodingVisitor.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncodingVisitor~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONEncodingVisitor.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/JSONMapEncodingVisitor.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONMapEncodingVisitor.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONMapEncodingVisitor.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONMapEncodingVisitor~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONMapEncodingVisitor.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/JSONScanner.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONScanner.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONScanner.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONScanner~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/JSONScanner.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/MathUtils.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/MathUtils.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/MathUtils.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/MathUtils~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/MathUtils.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Message+AnyAdditions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+AnyAdditions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+AnyAdditions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+AnyAdditions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+AnyAdditions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Message+BinaryAdditions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+BinaryAdditions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+BinaryAdditions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+BinaryAdditions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+BinaryAdditions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Message+JSONAdditions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+JSONAdditions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+JSONAdditions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+JSONAdditions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+JSONAdditions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Message+JSONArrayAdditions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+JSONArrayAdditions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+JSONArrayAdditions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+JSONArrayAdditions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+JSONArrayAdditions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Message+TextFormatAdditions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+TextFormatAdditions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+TextFormatAdditions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+TextFormatAdditions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message+TextFormatAdditions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Message.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Message.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/MessageExtension.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/MessageExtension.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/MessageExtension.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/MessageExtension~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/MessageExtension.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/NameMap.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/NameMap.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/NameMap.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/NameMap~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/NameMap.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/ProtoNameProviding.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ProtoNameProviding.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ProtoNameProviding.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ProtoNameProviding~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ProtoNameProviding.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/ProtobufAPIVersionCheck.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ProtobufAPIVersionCheck.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ProtobufAPIVersionCheck.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ProtobufAPIVersionCheck~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ProtobufAPIVersionCheck.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/ProtobufMap.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ProtobufMap.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ProtobufMap.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ProtobufMap~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ProtobufMap.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/SelectiveVisitor.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/SelectiveVisitor.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/SelectiveVisitor.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/SelectiveVisitor~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/SelectiveVisitor.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/SimpleExtensionMap.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/SimpleExtensionMap.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/SimpleExtensionMap.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/SimpleExtensionMap~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/SimpleExtensionMap.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/StringUtils.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/StringUtils.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/StringUtils.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/StringUtils~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/StringUtils.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/TextFormatDecoder.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatDecoder.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatDecoder.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatDecoder~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatDecoder.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/TextFormatDecodingError.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatDecodingError.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatDecodingError.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatDecodingError~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatDecodingError.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/TextFormatEncoder.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatEncoder.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatEncoder.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatEncoder~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatEncoder.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/TextFormatEncodingOptions.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatEncodingOptions.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatEncodingOptions.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatEncodingOptions~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatEncodingOptions.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/TextFormatEncodingVisitor.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatEncodingVisitor.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatEncodingVisitor.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatEncodingVisitor~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatEncodingVisitor.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/TextFormatScanner.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatScanner.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatScanner.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatScanner~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TextFormatScanner.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/TimeUtils.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TimeUtils.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TimeUtils.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TimeUtils~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/TimeUtils.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/UnknownStorage.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/UnknownStorage.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/UnknownStorage.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/UnknownStorage~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/UnknownStorage.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/UnsafeBufferPointer+Shims.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/UnsafeBufferPointer+Shims.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/UnsafeBufferPointer+Shims.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/UnsafeBufferPointer+Shims~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/UnsafeBufferPointer+Shims.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/UnsafeRawPointer+Shims.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/UnsafeRawPointer+Shims.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/UnsafeRawPointer+Shims.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/UnsafeRawPointer+Shims~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/UnsafeRawPointer+Shims.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Varint.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Varint.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Varint.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Varint~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Varint.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Version.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Version.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Version.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Version~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Version.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/Visitor.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Visitor.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Visitor.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Visitor~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/Visitor.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/WireFormat.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/WireFormat.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/WireFormat.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/WireFormat~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/WireFormat.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/ZigZag.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ZigZag.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ZigZag.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ZigZag~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/ZigZag.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/any.pb.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/any.pb.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/any.pb.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/any.pb~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/any.pb.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/api.pb.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/api.pb.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/api.pb.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/api.pb~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/api.pb.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/descriptor.pb.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/descriptor.pb.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/descriptor.pb.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/descriptor.pb~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/descriptor.pb.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/duration.pb.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/duration.pb.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/duration.pb.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/duration.pb~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/duration.pb.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/empty.pb.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/empty.pb.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/empty.pb.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/empty.pb~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/empty.pb.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/field_mask.pb.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/field_mask.pb.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/field_mask.pb.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/field_mask.pb~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/field_mask.pb.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/source_context.pb.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/source_context.pb.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/source_context.pb.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/source_context.pb~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/source_context.pb.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/struct.pb.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/struct.pb.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/struct.pb.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/struct.pb~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/struct.pb.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/timestamp.pb.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/timestamp.pb.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/timestamp.pb.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/timestamp.pb~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/timestamp.pb.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/type.pb.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/type.pb.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/type.pb.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/type.pb~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/type.pb.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/swift-protobuf/Sources/SwiftProtobuf/wrappers.pb.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/wrappers.pb.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/wrappers.pb.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/wrappers.pb~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/wrappers.pb.swiftdeps"
+  }
+}

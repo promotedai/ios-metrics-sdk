@@ -1,0 +1,574 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "JSONDecoder"
+provides-nominal:
+- "13SwiftProtobuf11JSONDecoderV"
+provides-member:
+- ["13SwiftProtobuf11JSONDecoderV", ""]
+provides-dynamic-lookup:
+depends-top-level:
+- !private "!"
+- !private "!="
+- !private "+="
+- !private "<"
+- "=="
+- !private ">"
+- "AssignmentPrecedence"
+- "Bool"
+- "BooleanLiteralType"
+- "CastingPrecedence"
+- "Data"
+- "Decoder"
+- "Double"
+- "Enum"
+- !private "ExtendedGraphemeClusterType"
+- "ExtensionFieldValueSet"
+- "ExtensionMap"
+- "Float"
+- "FloatLiteralType"
+- "Int"
+- "Int32"
+- "Int64"
+- "IntegerLiteralType"
+- "JSONDecoder"
+- !private "JSONDecodingError"
+- "JSONDecodingOptions"
+- "JSONScanner"
+- "MapValueType"
+- "Message"
+- "String"
+- "UInt32"
+- "UInt64"
+- !private "UnicodeScalarType"
+- "UnsafeRawBufferPointer"
+- "_CustomJSONCodable"
+- "_NameMap"
+- "_ProtoNameProviding"
+- "_ProtobufEnumMap"
+- "_ProtobufMap"
+- "_ProtobufMessageMap"
+- !private "assert"
+- !private "decodeRepeatedInt32Field"
+- !private "decodeRepeatedInt64Field"
+- !private "decodeRepeatedUInt32Field"
+- !private "decodeRepeatedUInt64Field"
+- !private "decodeSingularEnumField"
+- !private "decodeSingularInt32Field"
+- !private "decodeSingularInt64Field"
+- !private "decodeSingularMessageField"
+- !private "decodeSingularUInt32Field"
+- !private "decodeSingularUInt64Field"
+- !private "fieldCount"
+- !private "fieldNameMap"
+- !private "isMapKey"
+- !private "messageType"
+- !private "scanner"
+- !private "||"
+depends-member:
+- !private ["s18AdditiveArithmeticP", ""]
+- !private ["s18AdditiveArithmeticP", "init"]
+- !private ["s18AdditiveArithmeticP", "max"]
+- !private ["s18AdditiveArithmeticP", "min"]
+- !private ["13SwiftProtobuf17AnyExtensionFieldP", "decodeExtensionField"]
+- !private ["13SwiftProtobuf19AnyMessageExtensionP", "_protobuf_newField"]
+- !private ["13SwiftProtobuf19AnyMessageExtensionP", "protobuf_newField"]
+- !private ["Sa", "append"]
+- !private ["SK", ""]
+- !private ["SK", "append"]
+- !private ["SK", "init"]
+- !private ["Sz", ""]
+- !private ["Sz", "init"]
+- !private ["Sz", "max"]
+- !private ["Sz", "min"]
+- !private ["s7CVarArgP", ""]
+- !private ["s7CVarArgP", "append"]
+- !private ["s7CVarArgP", "init"]
+- !private ["s7CVarArgP", "max"]
+- !private ["s7CVarArgP", "min"]
+- !private ["s7CVarArgP", "subscript"]
+- !private ["Sl", ""]
+- !private ["Sl", "append"]
+- !private ["Sl", "init"]
+- !private ["Sl", "subscript"]
+- !private ["SL", ""]
+- !private ["SL", "init"]
+- !private ["SL", "max"]
+- !private ["SL", "min"]
+- !private ["10Foundation15ContiguousBytesP", "append"]
+- !private ["10Foundation15ContiguousBytesP", "init"]
+- ["s28CustomDebugStringConvertibleP", ""]
+- !private ["s28CustomDebugStringConvertibleP", "append"]
+- !private ["s28CustomDebugStringConvertibleP", "decodeExtensionField"]
+- !private ["s28CustomDebugStringConvertibleP", "decodeMessage"]
+- !private ["s28CustomDebugStringConvertibleP", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "subscript"]
+- !private ["s17CustomReflectableP", "append"]
+- !private ["s17CustomReflectableP", "init"]
+- !private ["s17CustomReflectableP", "max"]
+- !private ["s17CustomReflectableP", "min"]
+- !private ["s17CustomReflectableP", "subscript"]
+- !private ["s23CustomStringConvertibleP", ""]
+- !private ["s23CustomStringConvertibleP", "append"]
+- !private ["s23CustomStringConvertibleP", "init"]
+- !private ["s23CustomStringConvertibleP", "max"]
+- !private ["s23CustomStringConvertibleP", "min"]
+- !private ["s23CustomStringConvertibleP", "subscript"]
+- !private ["10Foundation4DataV", "init"]
+- !private ["10Foundation12DataProtocolP", ""]
+- !private ["10Foundation12DataProtocolP", "append"]
+- !private ["10Foundation12DataProtocolP", "init"]
+- !private ["Se", "append"]
+- !private ["Se", "init"]
+- !private ["Se", "max"]
+- !private ["Se", "min"]
+- !private ["Se", "subscript"]
+- !private ["13SwiftProtobuf7DecoderP", "Data"]
+- !private ["13SwiftProtobuf7DecoderP", "Int32"]
+- !private ["13SwiftProtobuf7DecoderP", "Int64"]
+- !private ["13SwiftProtobuf7DecoderP", "JSONDecoder"]
+- !private ["13SwiftProtobuf7DecoderP", "JSONDecodingError"]
+- !private ["13SwiftProtobuf7DecoderP", "JSONScanner"]
+- !private ["13SwiftProtobuf7DecoderP", "String"]
+- !private ["13SwiftProtobuf7DecoderP", "UInt32"]
+- !private ["13SwiftProtobuf7DecoderP", "UInt64"]
+- ["13SwiftProtobuf7DecoderP", ""]
+- !private ["13SwiftProtobuf7DecoderP", "assert"]
+- ["13SwiftProtobuf7DecoderP", "decodeExtensionField"]
+- ["13SwiftProtobuf7DecoderP", "decodeExtensionFieldsAsMessageSet"]
+- !private ["13SwiftProtobuf7DecoderP", "decodeFullObject"]
+- ["13SwiftProtobuf7DecoderP", "decodeMapField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedBoolField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedBytesField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedDoubleField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedEnumField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedFixed32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedFixed64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedFloatField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedGroupField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedInt32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedInt64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedMessageField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedSFixed32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedSFixed64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedSInt32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedSInt64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedStringField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedUInt32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedUInt64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularBoolField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularBytesField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularDoubleField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularEnumField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularFixed32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularFixed64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularFloatField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularGroupField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularInt32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularInt64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularMessageField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularSFixed32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularSFixed64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularSInt32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularSInt64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularStringField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularUInt32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularUInt64Field"]
+- !private ["13SwiftProtobuf7DecoderP", "fieldCount"]
+- !private ["13SwiftProtobuf7DecoderP", "fieldNameMap"]
+- ["13SwiftProtobuf7DecoderP", "handleConflictingOneOf"]
+- !private ["13SwiftProtobuf7DecoderP", "init"]
+- !private ["13SwiftProtobuf7DecoderP", "isMapKey"]
+- !private ["13SwiftProtobuf7DecoderP", "messageType"]
+- ["13SwiftProtobuf7DecoderP", "nextFieldNumber"]
+- !private ["13SwiftProtobuf7DecoderP", "scanner"]
+- !private ["SD", "subscript"]
+- !private ["SE", "append"]
+- !private ["SE", "init"]
+- !private ["SE", "max"]
+- !private ["SE", "min"]
+- !private ["SE", "subscript"]
+- ["13SwiftProtobuf4EnumP", "RawValue"]
+- !private ["13SwiftProtobuf4EnumP", "init"]
+- ["SQ", "RawValue"]
+- ["SQ", ""]
+- !private ["SQ", "append"]
+- !private ["SQ", "init"]
+- !private ["SQ", "max"]
+- !private ["SQ", "min"]
+- !private ["SQ", "subscript"]
+- !private ["s5ErrorP", "conflictingOneOf"]
+- !private ["s5ErrorP", "illegalNull"]
+- !private ["s5ErrorP", "malformedMap"]
+- !private ["s5ErrorP", "missingFieldNames"]
+- !private ["s5ErrorP", "numberRange"]
+- !private ["s5ErrorP", "schemaMismatch"]
+- !private ["s5ErrorP", "unquotedMapKey"]
+- !private ["s25ExpressibleByArrayLiteralP", ""]
+- !private ["s25ExpressibleByArrayLiteralP", "append"]
+- !private ["s30ExpressibleByDictionaryLiteralP", "subscript"]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", ""]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "init"]
+- !private ["s27ExpressibleByIntegerLiteralP", ""]
+- !private ["s27ExpressibleByIntegerLiteralP", "init"]
+- !private ["s27ExpressibleByIntegerLiteralP", "max"]
+- !private ["s27ExpressibleByIntegerLiteralP", "min"]
+- !private ["s23ExpressibleByNilLiteralP", "init"]
+- !private ["s32ExpressibleByStringInterpolationP", ""]
+- !private ["s32ExpressibleByStringInterpolationP", "init"]
+- !private ["s26ExpressibleByStringLiteralP", ""]
+- !private ["s26ExpressibleByStringLiteralP", "init"]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", ""]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", "init"]
+- !private ["13SwiftProtobuf22ExtensionFieldValueSetV", "subscript"]
+- !private ["13SwiftProtobuf12ExtensionMapP", "subscript"]
+- ["13SwiftProtobuf9FieldTypeP", "BaseType"]
+- ["13SwiftProtobuf9FieldTypeP", ""]
+- !private ["13SwiftProtobuf9FieldTypeP", "decodeSingular"]
+- !private ["s17FixedWidthIntegerP", "init"]
+- !private ["s17FixedWidthIntegerP", "max"]
+- !private ["s17FixedWidthIntegerP", "min"]
+- ["SH", "RawValue"]
+- ["SH", ""]
+- !private ["SH", "append"]
+- !private ["SH", "init"]
+- !private ["SH", "max"]
+- !private ["SH", "min"]
+- !private ["SH", "subscript"]
+- !private ["s5Int32V", "init"]
+- !private ["s5Int32V", "max"]
+- !private ["s5Int32V", "min"]
+- !private ["s5Int64V", "init"]
+- ["13SwiftProtobuf11JSONDecoderV", "Bool"]
+- !private ["13SwiftProtobuf11JSONDecoderV", "CustomJSONCodable"]
+- ["13SwiftProtobuf11JSONDecoderV", "Data"]
+- ["13SwiftProtobuf11JSONDecoderV", "Double"]
+- ["13SwiftProtobuf11JSONDecoderV", "Enum"]
+- ["13SwiftProtobuf11JSONDecoderV", "ExtensionFieldValueSet"]
+- ["13SwiftProtobuf11JSONDecoderV", "ExtensionMap"]
+- ["13SwiftProtobuf11JSONDecoderV", "Float"]
+- ["13SwiftProtobuf11JSONDecoderV", "Int"]
+- ["13SwiftProtobuf11JSONDecoderV", "Int32"]
+- ["13SwiftProtobuf11JSONDecoderV", "Int64"]
+- !private ["13SwiftProtobuf11JSONDecoderV", "JSONDecoder"]
+- !private ["13SwiftProtobuf11JSONDecoderV", "JSONDecodingError"]
+- ["13SwiftProtobuf11JSONDecoderV", "JSONDecodingOptions"]
+- ["13SwiftProtobuf11JSONDecoderV", "JSONScanner"]
+- ["13SwiftProtobuf11JSONDecoderV", "MapValueType"]
+- ["13SwiftProtobuf11JSONDecoderV", "Message"]
+- ["13SwiftProtobuf11JSONDecoderV", "NameMap"]
+- !private ["13SwiftProtobuf11JSONDecoderV", "ProtoNameProviding"]
+- ["13SwiftProtobuf11JSONDecoderV", "ProtobufEnumMap"]
+- ["13SwiftProtobuf11JSONDecoderV", "ProtobufMap"]
+- ["13SwiftProtobuf11JSONDecoderV", "ProtobufMessageMap"]
+- ["13SwiftProtobuf11JSONDecoderV", "String"]
+- ["13SwiftProtobuf11JSONDecoderV", "UInt32"]
+- ["13SwiftProtobuf11JSONDecoderV", "UInt64"]
+- ["13SwiftProtobuf11JSONDecoderV", "UnsafeRawBufferPointer"]
+- ["13SwiftProtobuf11JSONDecoderV", ""]
+- !private ["13SwiftProtobuf11JSONDecoderV", "_CustomJSONCodable"]
+- ["13SwiftProtobuf11JSONDecoderV", "_NameMap"]
+- !private ["13SwiftProtobuf11JSONDecoderV", "_ProtoNameProviding"]
+- ["13SwiftProtobuf11JSONDecoderV", "_ProtobufEnumMap"]
+- ["13SwiftProtobuf11JSONDecoderV", "_ProtobufMap"]
+- ["13SwiftProtobuf11JSONDecoderV", "_ProtobufMessageMap"]
+- !private ["13SwiftProtobuf11JSONDecoderV", "assert"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeExtensionField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeExtensionFieldsAsMessageSet"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeFullObject"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeMapField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedBoolField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedBytesField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedDoubleField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedEnumField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedFixed32Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedFixed64Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedFloatField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedGroupField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedInt32Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedInt64Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedMessageField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedSFixed32Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedSFixed64Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedSInt32Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedSInt64Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedStringField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedUInt32Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeRepeatedUInt64Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularBoolField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularBytesField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularDoubleField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularEnumField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularFixed32Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularFixed64Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularFloatField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularGroupField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularInt32Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularInt64Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularMessageField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularSFixed32Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularSFixed64Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularSInt32Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularSInt64Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularStringField"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularUInt32Field"]
+- ["13SwiftProtobuf11JSONDecoderV", "decodeSingularUInt64Field"]
+- !private ["13SwiftProtobuf11JSONDecoderV", "fieldCount"]
+- !private ["13SwiftProtobuf11JSONDecoderV", "fieldNameMap"]
+- ["13SwiftProtobuf11JSONDecoderV", "handleConflictingOneOf"]
+- ["13SwiftProtobuf11JSONDecoderV", "init"]
+- !private ["13SwiftProtobuf11JSONDecoderV", "isMapKey"]
+- ["13SwiftProtobuf11JSONDecoderV", "messageType"]
+- ["13SwiftProtobuf11JSONDecoderV", "nextFieldNumber"]
+- ["13SwiftProtobuf11JSONDecoderV", "options"]
+- ["13SwiftProtobuf11JSONDecoderV", "scanner"]
+- !private ["13SwiftProtobuf17JSONDecodingErrorO", ""]
+- !private ["13SwiftProtobuf17JSONDecodingErrorO", "conflictingOneOf"]
+- !private ["13SwiftProtobuf17JSONDecodingErrorO", "illegalNull"]
+- !private ["13SwiftProtobuf17JSONDecodingErrorO", "malformedMap"]
+- !private ["13SwiftProtobuf17JSONDecodingErrorO", "missingFieldNames"]
+- !private ["13SwiftProtobuf17JSONDecodingErrorO", "numberRange"]
+- !private ["13SwiftProtobuf17JSONDecodingErrorO", "schemaMismatch"]
+- !private ["13SwiftProtobuf17JSONDecodingErrorO", "unquotedMapKey"]
+- !private ["13SwiftProtobuf11JSONScannerV", "extensions"]
+- !private ["13SwiftProtobuf11JSONScannerV", "init"]
+- !private ["13SwiftProtobuf11JSONScannerV", "nextBool"]
+- !private ["13SwiftProtobuf11JSONScannerV", "nextBytesValue"]
+- !private ["13SwiftProtobuf11JSONScannerV", "nextDouble"]
+- !private ["13SwiftProtobuf11JSONScannerV", "nextEnumValue"]
+- !private ["13SwiftProtobuf11JSONScannerV", "nextFieldNumber"]
+- !private ["13SwiftProtobuf11JSONScannerV", "nextFloat"]
+- !private ["13SwiftProtobuf11JSONScannerV", "nextQuotedBool"]
+- !private ["13SwiftProtobuf11JSONScannerV", "nextQuotedString"]
+- !private ["13SwiftProtobuf11JSONScannerV", "nextSInt"]
+- !private ["13SwiftProtobuf11JSONScannerV", "nextUInt"]
+- !private ["13SwiftProtobuf11JSONScannerV", "options"]
+- !private ["13SwiftProtobuf11JSONScannerV", "peekOneCharacter"]
+- !private ["13SwiftProtobuf11JSONScannerV", "recursionBudget"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipOptionalArrayEnd"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipOptionalNull"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipOptionalObjectEnd"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipRequiredArrayStart"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipRequiredColon"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipRequiredComma"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipRequiredObjectStart"]
+- !private ["s25LosslessStringConvertibleP", ""]
+- !private ["s25LosslessStringConvertibleP", "init"]
+- !private ["s25LosslessStringConvertibleP", "max"]
+- !private ["s25LosslessStringConvertibleP", "min"]
+- ["13SwiftProtobuf10MapKeyTypeP", "BaseType"]
+- !private ["13SwiftProtobuf10MapKeyTypeP", "decodeSingular"]
+- ["13SwiftProtobuf12MapValueTypeP", "BaseType"]
+- !private ["13SwiftProtobuf12MapValueTypeP", "decodeSingular"]
+- ["13SwiftProtobuf7MessageP", ""]
+- !private ["13SwiftProtobuf7MessageP", "decodeMessage"]
+- !private ["13SwiftProtobuf7MessageP", "init"]
+- !private ["s10MirrorPathP", "init"]
+- !private ["SM", ""]
+- !private ["SM", "append"]
+- !private ["SM", "init"]
+- !private ["10Foundation19MutableDataProtocolP", "append"]
+- !private ["10Foundation19MutableDataProtocolP", "init"]
+- !private ["So8NSCodingP", ""]
+- !private ["So8NSObjectP", ""]
+- ["13SwiftProtobuf8_NameMapV0C0V", ""]
+- !private ["Sj", ""]
+- !private ["Sj", "init"]
+- !private ["Sj", "max"]
+- !private ["Sj", "min"]
+- !private ["Sk", ""]
+- !private ["Sk", "append"]
+- !private ["Sk", "init"]
+- !private ["Sm", ""]
+- !private ["Sm", "_customRemoveLast"]
+- !private ["Sm", "append"]
+- !private ["Sm", "init"]
+- !private ["Sm", "insert"]
+- !private ["Sm", "remove"]
+- !private ["Sm", "removeAll"]
+- !private ["Sm", "removeFirst"]
+- !private ["Sm", "removeSubrange"]
+- !private ["Sm", "replaceSubrange"]
+- !private ["Sm", "reserveCapacity"]
+- !private ["Sm", "subscript"]
+- ["SY", "RawValue"]
+- ["SY", ""]
+- !private ["SY", "init"]
+- !private ["10Foundation20ReferenceConvertibleP", "init"]
+- !private ["s10SIMDScalarP", "init"]
+- !private ["s10SIMDScalarP", "max"]
+- !private ["s10SIMDScalarP", "min"]
+- !private ["ST", ""]
+- !private ["ST", "append"]
+- !private ["ST", "init"]
+- !private ["ST", "subscript"]
+- !private ["SZ", "init"]
+- !private ["SZ", "max"]
+- !private ["SZ", "min"]
+- !private ["s13SignedNumericP", ""]
+- !private ["s13SignedNumericP", "init"]
+- !private ["s13SignedNumericP", "max"]
+- !private ["s13SignedNumericP", "min"]
+- !private ["Sx", ""]
+- !private ["Sx", "init"]
+- !private ["Sx", "max"]
+- !private ["Sx", "min"]
+- !private ["SS", "init"]
+- !private ["Sy", "init"]
+- !private ["s16TextOutputStreamP", ""]
+- !private ["s16TextOutputStreamP", "init"]
+- !private ["s20TextOutputStreamableP", ""]
+- !private ["s20TextOutputStreamableP", "init"]
+- !private ["s6UInt32V", "init"]
+- !private ["s6UInt32V", "max"]
+- !private ["s6UInt64V", "init"]
+- !private ["SU", "init"]
+- !private ["SU", "max"]
+- !private ["s14_ArrayProtocolP", "append"]
+- !private ["s15_CVarArgAlignedP", "init"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "decodeJSON"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "decodedFromJSONNull"]
+- !private ["s30_CustomPlaygroundQuickLookableP", "init"]
+- !private ["s30_CustomPlaygroundQuickLookableP", "max"]
+- !private ["s30_CustomPlaygroundQuickLookableP", "min"]
+- !private ["s24_DestructorSafeContainerP", "append"]
+- ["s35_ExpressibleByBuiltinBooleanLiteralP", "init"]
+- !private ["s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP", ""]
+- !private ["s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP", "init"]
+- ["s35_ExpressibleByBuiltinIntegerLiteralP", "init"]
+- !private ["s35_ExpressibleByBuiltinIntegerLiteralP", "max"]
+- !private ["s35_ExpressibleByBuiltinIntegerLiteralP", "min"]
+- !private ["s34_ExpressibleByBuiltinStringLiteralP", "init"]
+- !private ["s41_ExpressibleByBuiltinUnicodeScalarLiteralP", ""]
+- !private ["s41_ExpressibleByBuiltinUnicodeScalarLiteralP", "init"]
+- !private ["s19_HasContiguousBytesP", "append"]
+- !private ["s19_HasContiguousBytesP", "init"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "append"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "init"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "max"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "min"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "subscript"]
+- !private ["s21_ObjectiveCBridgeableP", ""]
+- !private ["s21_ObjectiveCBridgeableP", "append"]
+- !private ["s21_ObjectiveCBridgeableP", "init"]
+- !private ["s21_ObjectiveCBridgeableP", "max"]
+- !private ["s21_ObjectiveCBridgeableP", "min"]
+- !private ["s21_ObjectiveCBridgeableP", "subscript"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "_protobuf_nameMap"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "protobuf_nameMap"]
+- ["13SwiftProtobuf01_B7EnumMapV", "BaseType"]
+- ["13SwiftProtobuf01_B3MapV", "BaseType"]
+- ["13SwiftProtobuf01_B10MessageMapV", "BaseType"]
+depends-nominal:
+- !private "s18AdditiveArithmeticP"
+- !private "13SwiftProtobuf17AnyExtensionFieldP"
+- !private "13SwiftProtobuf19AnyMessageExtensionP"
+- !private "Sa"
+- !private "SK"
+- !private "Sz"
+- !private "s7CVarArgP"
+- !private "Sl"
+- !private "SL"
+- !private "10Foundation15ContiguousBytesP"
+- "s28CustomDebugStringConvertibleP"
+- !private "s17CustomReflectableP"
+- !private "s23CustomStringConvertibleP"
+- !private "10Foundation4DataV"
+- !private "10Foundation12DataProtocolP"
+- !private "Se"
+- "13SwiftProtobuf7DecoderP"
+- !private "SD"
+- !private "SE"
+- "13SwiftProtobuf4EnumP"
+- "SQ"
+- !private "s5ErrorP"
+- !private "s25ExpressibleByArrayLiteralP"
+- !private "s30ExpressibleByDictionaryLiteralP"
+- !private "s43ExpressibleByExtendedGraphemeClusterLiteralP"
+- !private "s27ExpressibleByIntegerLiteralP"
+- !private "s23ExpressibleByNilLiteralP"
+- !private "s32ExpressibleByStringInterpolationP"
+- !private "s26ExpressibleByStringLiteralP"
+- !private "s33ExpressibleByUnicodeScalarLiteralP"
+- !private "13SwiftProtobuf22ExtensionFieldValueSetV"
+- !private "13SwiftProtobuf12ExtensionMapP"
+- "13SwiftProtobuf9FieldTypeP"
+- !private "s17FixedWidthIntegerP"
+- "SH"
+- !private "s5Int32V"
+- !private "s5Int64V"
+- "13SwiftProtobuf11JSONDecoderV"
+- !private "13SwiftProtobuf17JSONDecodingErrorO"
+- !private "13SwiftProtobuf11JSONScannerV"
+- !private "s25LosslessStringConvertibleP"
+- "13SwiftProtobuf10MapKeyTypeP"
+- "13SwiftProtobuf12MapValueTypeP"
+- "13SwiftProtobuf7MessageP"
+- !private "s10MirrorPathP"
+- !private "SM"
+- !private "10Foundation19MutableDataProtocolP"
+- !private "So8NSCodingP"
+- !private "So8NSObjectP"
+- "13SwiftProtobuf8_NameMapV0C0V"
+- !private "Sj"
+- !private "Sk"
+- !private "Sm"
+- "SY"
+- !private "10Foundation20ReferenceConvertibleP"
+- !private "s10SIMDScalarP"
+- !private "ST"
+- !private "SZ"
+- !private "s13SignedNumericP"
+- !private "Sx"
+- !private "SS"
+- !private "Sy"
+- !private "s16TextOutputStreamP"
+- !private "s20TextOutputStreamableP"
+- !private "s6UInt32V"
+- !private "s6UInt64V"
+- !private "SU"
+- !private "s14_ArrayProtocolP"
+- !private "s15_CVarArgAlignedP"
+- !private "13SwiftProtobuf18_CustomJSONCodableP"
+- !private "s30_CustomPlaygroundQuickLookableP"
+- !private "s24_DestructorSafeContainerP"
+- "s35_ExpressibleByBuiltinBooleanLiteralP"
+- !private "s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP"
+- "s35_ExpressibleByBuiltinIntegerLiteralP"
+- !private "s34_ExpressibleByBuiltinStringLiteralP"
+- !private "s41_ExpressibleByBuiltinUnicodeScalarLiteralP"
+- !private "s19_HasContiguousBytesP"
+- !private "s35_HasCustomAnyHashableRepresentationP"
+- !private "s21_ObjectiveCBridgeableP"
+- !private "13SwiftProtobuf19_ProtoNameProvidingP"
+- "13SwiftProtobuf01_B7EnumMapV"
+- "13SwiftProtobuf01_B3MapV"
+- "13SwiftProtobuf01_B10MessageMapV"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/XPC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/ObjectiveC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Combine.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Dispatch.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Darwin.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Foundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreFoundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreGraphics.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Swift.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/IOKit.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/SwiftOnoneSupport.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/dyld.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobufPluginLibrary.build/module.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/compact_unwind_encoding.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/xpc/XPC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Headers/ApplicationServices.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "f1168929a4f2c21e061737793d8ad3d7"

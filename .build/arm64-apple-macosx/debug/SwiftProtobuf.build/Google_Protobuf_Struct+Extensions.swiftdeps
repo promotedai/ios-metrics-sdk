@@ -1,0 +1,252 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+provides-nominal:
+- "13SwiftProtobuf07Google_B7_StructV"
+provides-member:
+- ["13SwiftProtobuf07Google_B7_StructV", ""]
+- ["13SwiftProtobuf07Google_B7_StructV", "init"]
+- ["13SwiftProtobuf07Google_B7_StructV", "subscript"]
+provides-dynamic-lookup:
+depends-top-level:
+- "AssignmentPrecedence"
+- !private "BooleanLiteralType"
+- "ExpressibleByDictionaryLiteral"
+- !private "FloatLiteralType"
+- "Google_Protobuf_Struct"
+- "Google_Protobuf_Value"
+- !private "IntegerLiteralType"
+- "JSONDecoder"
+- !private "JSONEncoder"
+- "JSONEncodingOptions"
+- !private "JSONMapEncodingVisitor"
+- "String"
+- "_CustomJSONCodable"
+- !private "fields"
+depends-member:
+- !private ["s7CVarArgP", "subscript"]
+- !private ["Sl", "subscript"]
+- !private ["s28CustomDebugStringConvertibleP", "Google_Protobuf_Value"]
+- !private ["s28CustomDebugStringConvertibleP", "JSONEncoder"]
+- !private ["s28CustomDebugStringConvertibleP", "JSONMapEncodingVisitor"]
+- ["s28CustomDebugStringConvertibleP", "Key"]
+- ["s28CustomDebugStringConvertibleP", "Value"]
+- ["s28CustomDebugStringConvertibleP", ""]
+- ["s28CustomDebugStringConvertibleP", "decodeJSON"]
+- ["s28CustomDebugStringConvertibleP", "decodedFromJSONNull"]
+- ["s28CustomDebugStringConvertibleP", "encodedJSONString"]
+- !private ["s28CustomDebugStringConvertibleP", "fields"]
+- ["s28CustomDebugStringConvertibleP", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "subscript"]
+- !private ["s17CustomReflectableP", "subscript"]
+- !private ["s23CustomStringConvertibleP", "subscript"]
+- !private ["Se", "subscript"]
+- !private ["13SwiftProtobuf7DecoderP", "scanner"]
+- !private ["SD", "subscript"]
+- !private ["SE", "subscript"]
+- !private ["SQ", "Google_Protobuf_Value"]
+- !private ["SQ", "JSONEncoder"]
+- !private ["SQ", "JSONMapEncodingVisitor"]
+- ["SQ", "Key"]
+- ["SQ", "Value"]
+- ["SQ", ""]
+- ["SQ", "decodeJSON"]
+- ["SQ", "decodedFromJSONNull"]
+- ["SQ", "encodedJSONString"]
+- !private ["SQ", "fields"]
+- ["SQ", "init"]
+- !private ["SQ", "subscript"]
+- !private ["s27ExpressibleByBooleanLiteralP", "decodeJSON"]
+- !private ["s27ExpressibleByBooleanLiteralP", "init"]
+- !private ["s30ExpressibleByDictionaryLiteralP", "Google_Protobuf_Value"]
+- !private ["s30ExpressibleByDictionaryLiteralP", "JSONEncoder"]
+- !private ["s30ExpressibleByDictionaryLiteralP", "JSONMapEncodingVisitor"]
+- ["s30ExpressibleByDictionaryLiteralP", "Key"]
+- ["s30ExpressibleByDictionaryLiteralP", "Value"]
+- ["s30ExpressibleByDictionaryLiteralP", ""]
+- ["s30ExpressibleByDictionaryLiteralP", "decodeJSON"]
+- ["s30ExpressibleByDictionaryLiteralP", "decodedFromJSONNull"]
+- ["s30ExpressibleByDictionaryLiteralP", "encodedJSONString"]
+- !private ["s30ExpressibleByDictionaryLiteralP", "fields"]
+- ["s30ExpressibleByDictionaryLiteralP", "init"]
+- !private ["s30ExpressibleByDictionaryLiteralP", "subscript"]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", ""]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "decodeJSON"]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "init"]
+- !private ["s25ExpressibleByFloatLiteralP", "decodeJSON"]
+- !private ["s25ExpressibleByFloatLiteralP", "init"]
+- !private ["s27ExpressibleByIntegerLiteralP", "decodeJSON"]
+- !private ["s27ExpressibleByIntegerLiteralP", "init"]
+- !private ["s23ExpressibleByNilLiteralP", "decodeJSON"]
+- !private ["s23ExpressibleByNilLiteralP", "init"]
+- !private ["s26ExpressibleByStringLiteralP", "decodeJSON"]
+- !private ["s26ExpressibleByStringLiteralP", "init"]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", ""]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", "decodeJSON"]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", "init"]
+- ["13SwiftProtobuf07Google_B7_StructV", "Google_Protobuf_Value"]
+- ["13SwiftProtobuf07Google_B7_StructV", "JSONDecoder"]
+- !private ["13SwiftProtobuf07Google_B7_StructV", "JSONEncoder"]
+- ["13SwiftProtobuf07Google_B7_StructV", "JSONEncodingOptions"]
+- !private ["13SwiftProtobuf07Google_B7_StructV", "JSONMapEncodingVisitor"]
+- ["13SwiftProtobuf07Google_B7_StructV", "Key"]
+- ["13SwiftProtobuf07Google_B7_StructV", "String"]
+- ["13SwiftProtobuf07Google_B7_StructV", "Value"]
+- ["13SwiftProtobuf07Google_B7_StructV", ""]
+- ["13SwiftProtobuf07Google_B7_StructV", "decodeJSON"]
+- ["13SwiftProtobuf07Google_B7_StructV", "decodedFromJSONNull"]
+- ["13SwiftProtobuf07Google_B7_StructV", "encodedJSONString"]
+- !private ["13SwiftProtobuf07Google_B7_StructV", "fields"]
+- ["13SwiftProtobuf07Google_B7_StructV", "init"]
+- ["13SwiftProtobuf07Google_B7_StructV", "subscript"]
+- !private ["13SwiftProtobuf07Google_B6_ValueV", ""]
+- !private ["13SwiftProtobuf07Google_B6_ValueV", "decodeJSON"]
+- !private ["13SwiftProtobuf07Google_B6_ValueV", "init"]
+- !private ["SH", "Google_Protobuf_Value"]
+- !private ["SH", "JSONEncoder"]
+- !private ["SH", "JSONMapEncodingVisitor"]
+- ["SH", "Key"]
+- ["SH", "Value"]
+- ["SH", ""]
+- ["SH", "decodeJSON"]
+- ["SH", "decodedFromJSONNull"]
+- ["SH", "encodedJSONString"]
+- !private ["SH", "fields"]
+- ["SH", "init"]
+- !private ["SH", "subscript"]
+- !private ["13SwiftProtobuf11JSONDecoderV", "scanner"]
+- !private ["13SwiftProtobuf11JSONEncoderV", "endObject"]
+- !private ["13SwiftProtobuf11JSONEncoderV", "init"]
+- !private ["13SwiftProtobuf11JSONEncoderV", "startObject"]
+- !private ["13SwiftProtobuf11JSONEncoderV", "stringResult"]
+- !private ["13SwiftProtobuf22JSONMapEncodingVisitorV", ""]
+- !private ["13SwiftProtobuf22JSONMapEncodingVisitorV", "encoder"]
+- !private ["13SwiftProtobuf22JSONMapEncodingVisitorV", "init"]
+- !private ["13SwiftProtobuf22JSONMapEncodingVisitorV", "visitSingularMessageField"]
+- !private ["13SwiftProtobuf22JSONMapEncodingVisitorV", "visitSingularStringField"]
+- !private ["13SwiftProtobuf11JSONScannerV", "nextQuotedString"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipOptionalObjectEnd"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipRequiredColon"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipRequiredComma"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipRequiredObjectStart"]
+- !private ["13SwiftProtobuf7MessageP", "Google_Protobuf_Value"]
+- !private ["13SwiftProtobuf7MessageP", "JSONEncoder"]
+- !private ["13SwiftProtobuf7MessageP", "JSONMapEncodingVisitor"]
+- ["13SwiftProtobuf7MessageP", "Key"]
+- ["13SwiftProtobuf7MessageP", "Value"]
+- ["13SwiftProtobuf7MessageP", ""]
+- ["13SwiftProtobuf7MessageP", "decodeJSON"]
+- ["13SwiftProtobuf7MessageP", "decodedFromJSONNull"]
+- ["13SwiftProtobuf7MessageP", "encodedJSONString"]
+- !private ["13SwiftProtobuf7MessageP", "fields"]
+- ["13SwiftProtobuf7MessageP", "init"]
+- !private ["13SwiftProtobuf16SelectiveVisitorP", "encoder"]
+- !private ["13SwiftProtobuf16SelectiveVisitorP", "init"]
+- !private ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularMessageField"]
+- !private ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularStringField"]
+- !private ["ST", "Element"]
+- !private ["ST", "Iterator"]
+- !private ["ST", ""]
+- !private ["ST", "subscript"]
+- ["13SwiftProtobuf7VisitorP", ""]
+- !private ["13SwiftProtobuf7VisitorP", "encoder"]
+- !private ["13SwiftProtobuf7VisitorP", "init"]
+- !private ["13SwiftProtobuf7VisitorP", "visitSingularMessageField"]
+- !private ["13SwiftProtobuf7VisitorP", "visitSingularStringField"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "Google_Protobuf_Value"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "JSONEncoder"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "JSONMapEncodingVisitor"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "Key"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "Value"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", ""]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "decodeJSON"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "decodedFromJSONNull"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "encodedJSONString"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "fields"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "init"]
+- !private ["s35_ExpressibleByBuiltinBooleanLiteralP", "init"]
+- !private ["s35_ExpressibleByBuiltinIntegerLiteralP", "init"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "subscript"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "Google_Protobuf_Value"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "JSONEncoder"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "JSONMapEncodingVisitor"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "Key"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "Value"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "decodeJSON"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "decodedFromJSONNull"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "encodedJSONString"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "fields"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "init"]
+- !private ["s21_ObjectiveCBridgeableP", "subscript"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "Google_Protobuf_Value"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "JSONEncoder"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "JSONMapEncodingVisitor"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "Key"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "Value"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "decodeJSON"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "decodedFromJSONNull"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "encodedJSONString"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "fields"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "init"]
+depends-nominal:
+- !private "s7CVarArgP"
+- !private "Sl"
+- "s28CustomDebugStringConvertibleP"
+- !private "s17CustomReflectableP"
+- !private "s23CustomStringConvertibleP"
+- !private "Se"
+- !private "13SwiftProtobuf7DecoderP"
+- !private "SD"
+- !private "SE"
+- "SQ"
+- !private "s27ExpressibleByBooleanLiteralP"
+- "s30ExpressibleByDictionaryLiteralP"
+- !private "s43ExpressibleByExtendedGraphemeClusterLiteralP"
+- !private "s25ExpressibleByFloatLiteralP"
+- !private "s27ExpressibleByIntegerLiteralP"
+- !private "s23ExpressibleByNilLiteralP"
+- !private "s26ExpressibleByStringLiteralP"
+- !private "s33ExpressibleByUnicodeScalarLiteralP"
+- "13SwiftProtobuf07Google_B7_StructV"
+- !private "13SwiftProtobuf07Google_B6_ValueV"
+- "SH"
+- !private "13SwiftProtobuf11JSONDecoderV"
+- !private "13SwiftProtobuf11JSONEncoderV"
+- !private "13SwiftProtobuf22JSONMapEncodingVisitorV"
+- !private "13SwiftProtobuf11JSONScannerV"
+- "13SwiftProtobuf7MessageP"
+- !private "13SwiftProtobuf16SelectiveVisitorP"
+- !private "ST"
+- "13SwiftProtobuf7VisitorP"
+- "13SwiftProtobuf18_CustomJSONCodableP"
+- !private "s35_ExpressibleByBuiltinBooleanLiteralP"
+- !private "s35_ExpressibleByBuiltinIntegerLiteralP"
+- !private "s35_HasCustomAnyHashableRepresentationP"
+- "13SwiftProtobuf26_MessageImplementationBaseP"
+- !private "s21_ObjectiveCBridgeableP"
+- "13SwiftProtobuf19_ProtoNameProvidingP"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/XPC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/ObjectiveC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Dispatch.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreFoundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreGraphics.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Swift.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/IOKit.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/SwiftOnoneSupport.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/dyld.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobufPluginLibrary.build/module.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/compact_unwind_encoding.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/xpc/XPC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Headers/ApplicationServices.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "b238c773759543020afabdeb61fa848c"

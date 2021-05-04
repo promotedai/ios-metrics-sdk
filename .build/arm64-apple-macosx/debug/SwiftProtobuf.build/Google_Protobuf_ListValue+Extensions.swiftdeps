@@ -1,0 +1,307 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+provides-nominal:
+- "13SwiftProtobuf07Google_B10_ListValueV"
+provides-member:
+- ["13SwiftProtobuf07Google_B10_ListValueV", ""]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "init"]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "subscript"]
+provides-dynamic-lookup:
+depends-top-level:
+- "AssignmentPrecedence"
+- !private "BooleanLiteralType"
+- "Element"
+- "ExpressibleByArrayLiteral"
+- "Google_Protobuf_ListValue"
+- "Google_Protobuf_Value"
+- "Int"
+- "JSONDecoder"
+- !private "JSONEncoder"
+- "JSONEncodingOptions"
+- "StaticString"
+- "String"
+- !private "StringLiteralType"
+- !private "UnicodeScalarType"
+- "_CustomJSONCodable"
+- !private "values"
+depends-member:
+- !private ["Sa", "append"]
+- !private ["Sa", "subscript"]
+- !private ["SK", ""]
+- !private ["SK", "append"]
+- !private ["SK", "subscript"]
+- !private ["s7CVarArgP", "append"]
+- !private ["s7CVarArgP", "subscript"]
+- !private ["Sl", ""]
+- !private ["Sl", "append"]
+- !private ["Sl", "subscript"]
+- !private ["10Foundation15ContiguousBytesP", "append"]
+- !private ["10Foundation15ContiguousBytesP", "subscript"]
+- ["s28CustomDebugStringConvertibleP", "ArrayLiteralElement"]
+- ["s28CustomDebugStringConvertibleP", "Default_ArrayLiteralElement"]
+- !private ["s28CustomDebugStringConvertibleP", "Google_Protobuf_Value"]
+- !private ["s28CustomDebugStringConvertibleP", "JSONEncoder"]
+- ["s28CustomDebugStringConvertibleP", ""]
+- ["s28CustomDebugStringConvertibleP", "_Default_ArrayLiteralElement"]
+- !private ["s28CustomDebugStringConvertibleP", "append"]
+- ["s28CustomDebugStringConvertibleP", "decodeJSON"]
+- ["s28CustomDebugStringConvertibleP", "decodedFromJSONNull"]
+- ["s28CustomDebugStringConvertibleP", "encodedJSONString"]
+- ["s28CustomDebugStringConvertibleP", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "serializeJSONValue"]
+- !private ["s28CustomDebugStringConvertibleP", "subscript"]
+- !private ["s28CustomDebugStringConvertibleP", "values"]
+- !private ["s17CustomReflectableP", "append"]
+- !private ["s17CustomReflectableP", "subscript"]
+- !private ["s23CustomStringConvertibleP", "append"]
+- !private ["s23CustomStringConvertibleP", "subscript"]
+- !private ["10Foundation12DataProtocolP", ""]
+- !private ["10Foundation12DataProtocolP", "append"]
+- !private ["10Foundation12DataProtocolP", "subscript"]
+- !private ["Se", "append"]
+- !private ["Se", "subscript"]
+- !private ["13SwiftProtobuf7DecoderP", "scanner"]
+- !private ["SE", "append"]
+- !private ["SE", "subscript"]
+- ["SQ", "ArrayLiteralElement"]
+- ["SQ", "Default_ArrayLiteralElement"]
+- !private ["SQ", "Google_Protobuf_Value"]
+- !private ["SQ", "JSONEncoder"]
+- ["SQ", ""]
+- ["SQ", "_Default_ArrayLiteralElement"]
+- !private ["SQ", "append"]
+- ["SQ", "decodeJSON"]
+- ["SQ", "decodedFromJSONNull"]
+- ["SQ", "encodedJSONString"]
+- ["SQ", "init"]
+- !private ["SQ", "serializeJSONValue"]
+- !private ["SQ", "subscript"]
+- !private ["SQ", "values"]
+- ["s25ExpressibleByArrayLiteralP", "ArrayLiteralElement"]
+- ["s25ExpressibleByArrayLiteralP", "Default_ArrayLiteralElement"]
+- !private ["s25ExpressibleByArrayLiteralP", "Google_Protobuf_Value"]
+- !private ["s25ExpressibleByArrayLiteralP", "JSONEncoder"]
+- ["s25ExpressibleByArrayLiteralP", ""]
+- ["s25ExpressibleByArrayLiteralP", "_Default_ArrayLiteralElement"]
+- !private ["s25ExpressibleByArrayLiteralP", "append"]
+- ["s25ExpressibleByArrayLiteralP", "decodeJSON"]
+- ["s25ExpressibleByArrayLiteralP", "decodedFromJSONNull"]
+- ["s25ExpressibleByArrayLiteralP", "encodedJSONString"]
+- ["s25ExpressibleByArrayLiteralP", "init"]
+- !private ["s25ExpressibleByArrayLiteralP", "subscript"]
+- !private ["s25ExpressibleByArrayLiteralP", "values"]
+- !private ["s27ExpressibleByBooleanLiteralP", "decodeJSON"]
+- !private ["s27ExpressibleByBooleanLiteralP", "init"]
+- !private ["s27ExpressibleByBooleanLiteralP", "serializeJSONValue"]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", ""]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "decodeJSON"]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "init"]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "serializeJSONValue"]
+- !private ["s25ExpressibleByFloatLiteralP", "decodeJSON"]
+- !private ["s25ExpressibleByFloatLiteralP", "init"]
+- !private ["s25ExpressibleByFloatLiteralP", "serializeJSONValue"]
+- !private ["s27ExpressibleByIntegerLiteralP", "decodeJSON"]
+- !private ["s27ExpressibleByIntegerLiteralP", "init"]
+- !private ["s27ExpressibleByIntegerLiteralP", "serializeJSONValue"]
+- !private ["s23ExpressibleByNilLiteralP", "decodeJSON"]
+- !private ["s23ExpressibleByNilLiteralP", "init"]
+- !private ["s23ExpressibleByNilLiteralP", "serializeJSONValue"]
+- !private ["s26ExpressibleByStringLiteralP", "decodeJSON"]
+- !private ["s26ExpressibleByStringLiteralP", "init"]
+- !private ["s26ExpressibleByStringLiteralP", "serializeJSONValue"]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", ""]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", "decodeJSON"]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", "init"]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", "serializeJSONValue"]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "ArrayLiteralElement"]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "Default_ArrayLiteralElement"]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "Element"]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "Google_Protobuf_Value"]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "Int"]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "JSONDecoder"]
+- !private ["13SwiftProtobuf07Google_B10_ListValueV", "JSONEncoder"]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "JSONEncodingOptions"]
+- !private ["13SwiftProtobuf07Google_B10_ListValueV", "StaticString"]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "String"]
+- ["13SwiftProtobuf07Google_B10_ListValueV", ""]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "_Default_ArrayLiteralElement"]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "decodeJSON"]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "decodedFromJSONNull"]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "encodedJSONString"]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "init"]
+- ["13SwiftProtobuf07Google_B10_ListValueV", "subscript"]
+- !private ["13SwiftProtobuf07Google_B10_ListValueV", "values"]
+- !private ["13SwiftProtobuf07Google_B6_ValueV", ""]
+- !private ["13SwiftProtobuf07Google_B6_ValueV", "decodeJSON"]
+- !private ["13SwiftProtobuf07Google_B6_ValueV", "init"]
+- !private ["13SwiftProtobuf07Google_B6_ValueV", "serializeJSONValue"]
+- ["SH", "ArrayLiteralElement"]
+- ["SH", "Default_ArrayLiteralElement"]
+- !private ["SH", "Google_Protobuf_Value"]
+- !private ["SH", "JSONEncoder"]
+- ["SH", ""]
+- ["SH", "_Default_ArrayLiteralElement"]
+- !private ["SH", "append"]
+- ["SH", "decodeJSON"]
+- ["SH", "decodedFromJSONNull"]
+- ["SH", "encodedJSONString"]
+- ["SH", "init"]
+- !private ["SH", "serializeJSONValue"]
+- !private ["SH", "subscript"]
+- !private ["SH", "values"]
+- !private ["13SwiftProtobuf11JSONDecoderV", "scanner"]
+- !private ["13SwiftProtobuf11JSONEncoderV", "append"]
+- !private ["13SwiftProtobuf11JSONEncoderV", "init"]
+- !private ["13SwiftProtobuf11JSONEncoderV", "stringResult"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipOptionalArrayEnd"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipOptionalNull"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipRequiredArrayStart"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipRequiredComma"]
+- ["13SwiftProtobuf7MessageP", "ArrayLiteralElement"]
+- ["13SwiftProtobuf7MessageP", "Default_ArrayLiteralElement"]
+- !private ["13SwiftProtobuf7MessageP", "Google_Protobuf_Value"]
+- !private ["13SwiftProtobuf7MessageP", "JSONEncoder"]
+- ["13SwiftProtobuf7MessageP", ""]
+- ["13SwiftProtobuf7MessageP", "_Default_ArrayLiteralElement"]
+- ["13SwiftProtobuf7MessageP", "decodeJSON"]
+- ["13SwiftProtobuf7MessageP", "decodedFromJSONNull"]
+- ["13SwiftProtobuf7MessageP", "encodedJSONString"]
+- ["13SwiftProtobuf7MessageP", "init"]
+- !private ["13SwiftProtobuf7MessageP", "serializeJSONValue"]
+- !private ["13SwiftProtobuf7MessageP", "values"]
+- !private ["SM", ""]
+- !private ["SM", "append"]
+- !private ["SM", "subscript"]
+- !private ["10Foundation19MutableDataProtocolP", "append"]
+- !private ["10Foundation19MutableDataProtocolP", "subscript"]
+- !private ["Sk", ""]
+- !private ["Sk", "append"]
+- !private ["Sk", "subscript"]
+- !private ["Sm", ""]
+- !private ["Sm", "append"]
+- !private ["Sm", "subscript"]
+- !private ["ST", "Element"]
+- !private ["ST", "Iterator"]
+- !private ["ST", ""]
+- !private ["ST", "append"]
+- !private ["ST", "subscript"]
+- !private ["s14_ArrayProtocolP", "append"]
+- !private ["s14_ArrayProtocolP", "subscript"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "ArrayLiteralElement"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "Default_ArrayLiteralElement"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "Google_Protobuf_Value"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "JSONEncoder"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", ""]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "_Default_ArrayLiteralElement"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "decodeJSON"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "decodedFromJSONNull"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "encodedJSONString"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "init"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "serializeJSONValue"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "values"]
+- !private ["s24_DestructorSafeContainerP", "append"]
+- !private ["s24_DestructorSafeContainerP", "subscript"]
+- !private ["s35_ExpressibleByBuiltinBooleanLiteralP", "init"]
+- !private ["s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP", ""]
+- !private ["s34_ExpressibleByBuiltinStringLiteralP", "init"]
+- !private ["s41_ExpressibleByBuiltinUnicodeScalarLiteralP", ""]
+- !private ["s19_HasContiguousBytesP", "append"]
+- !private ["s19_HasContiguousBytesP", "subscript"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "append"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "subscript"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "ArrayLiteralElement"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "Default_ArrayLiteralElement"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "Google_Protobuf_Value"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "JSONEncoder"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "_Default_ArrayLiteralElement"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "decodeJSON"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "decodedFromJSONNull"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "encodedJSONString"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "init"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "serializeJSONValue"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "values"]
+- !private ["s21_ObjectiveCBridgeableP", "append"]
+- !private ["s21_ObjectiveCBridgeableP", "subscript"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "ArrayLiteralElement"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "Default_ArrayLiteralElement"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "Google_Protobuf_Value"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "JSONEncoder"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "_Default_ArrayLiteralElement"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "decodeJSON"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "decodedFromJSONNull"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "encodedJSONString"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "init"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "serializeJSONValue"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "values"]
+depends-nominal:
+- !private "Sa"
+- !private "SK"
+- !private "s7CVarArgP"
+- !private "Sl"
+- !private "10Foundation15ContiguousBytesP"
+- "s28CustomDebugStringConvertibleP"
+- !private "s17CustomReflectableP"
+- !private "s23CustomStringConvertibleP"
+- !private "10Foundation12DataProtocolP"
+- !private "Se"
+- !private "13SwiftProtobuf7DecoderP"
+- !private "SE"
+- "SQ"
+- "s25ExpressibleByArrayLiteralP"
+- !private "s27ExpressibleByBooleanLiteralP"
+- !private "s43ExpressibleByExtendedGraphemeClusterLiteralP"
+- !private "s25ExpressibleByFloatLiteralP"
+- !private "s27ExpressibleByIntegerLiteralP"
+- !private "s23ExpressibleByNilLiteralP"
+- !private "s26ExpressibleByStringLiteralP"
+- !private "s33ExpressibleByUnicodeScalarLiteralP"
+- "13SwiftProtobuf07Google_B10_ListValueV"
+- !private "13SwiftProtobuf07Google_B6_ValueV"
+- "SH"
+- !private "13SwiftProtobuf11JSONDecoderV"
+- !private "13SwiftProtobuf11JSONEncoderV"
+- !private "13SwiftProtobuf11JSONScannerV"
+- "13SwiftProtobuf7MessageP"
+- !private "SM"
+- !private "10Foundation19MutableDataProtocolP"
+- !private "Sk"
+- !private "Sm"
+- !private "ST"
+- !private "s14_ArrayProtocolP"
+- "13SwiftProtobuf18_CustomJSONCodableP"
+- !private "s24_DestructorSafeContainerP"
+- !private "s35_ExpressibleByBuiltinBooleanLiteralP"
+- !private "s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP"
+- !private "s34_ExpressibleByBuiltinStringLiteralP"
+- !private "s41_ExpressibleByBuiltinUnicodeScalarLiteralP"
+- !private "s19_HasContiguousBytesP"
+- !private "s35_HasCustomAnyHashableRepresentationP"
+- "13SwiftProtobuf26_MessageImplementationBaseP"
+- !private "s21_ObjectiveCBridgeableP"
+- "13SwiftProtobuf19_ProtoNameProvidingP"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/XPC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/ObjectiveC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Dispatch.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreFoundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreGraphics.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Swift.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/IOKit.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/SwiftOnoneSupport.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/dyld.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobufPluginLibrary.build/module.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/compact_unwind_encoding.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/xpc/XPC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Headers/ApplicationServices.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "9c34451553cc26631660c00f3b8d3616"

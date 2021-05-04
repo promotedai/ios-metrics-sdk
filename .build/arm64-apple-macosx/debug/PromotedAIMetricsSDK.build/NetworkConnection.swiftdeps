@@ -1,0 +1,442 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "NetworkConnection"
+- "GTMSessionFetcherConnection"
+- "NetworkConnectionError"
+provides-nominal:
+- "20PromotedAIMetricsSDK17NetworkConnectionP"
+- "20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC"
+- "20PromotedAIMetricsSDK22NetworkConnectionErrorO"
+provides-member:
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", ""]
+- ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", ""]
+- ["20PromotedAIMetricsSDK22NetworkConnectionErrorO", ""]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", "metricsLoggingURL"]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", "bodyData"]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", "urlRequest"]
+provides-dynamic-lookup:
+- "fetcherService"
+- "sendMessage"
+depends-top-level:
+- "=="
+- "AssignmentPrecedence"
+- "BinaryEncodingError"
+- !private "BooleanLiteralType"
+- "Callback"
+- !private "CastingPrecedence"
+- "ClientConfig"
+- "Data"
+- "Error"
+- "GTMSessionFetcherConnection"
+- "GTMSessionFetcherService"
+- "Int"
+- "Message"
+- "NSError"
+- "NetworkConnection"
+- "NetworkConnectionError"
+- "String"
+- !private "StringLiteralType"
+- "URL"
+- "URLRequest"
+- "UTF8"
+- "Void"
+- !private "bodyData"
+- !private "fetcherService"
+- !private "metricsLoggingURL"
+- !private "urlRequest"
+depends-member:
+- !private ["SK", ""]
+- !private ["SK", "init"]
+- ["13SwiftProtobuf19BinaryEncodingErrorO", "anyTranscodeFailure"]
+- ["13SwiftProtobuf19BinaryEncodingErrorO", "missingRequiredFields"]
+- !private ["s7CVarArgP", "beginFetch"]
+- !private ["s7CVarArgP", "bodyData"]
+- !private ["s7CVarArgP", "code"]
+- !private ["s7CVarArgP", "devMetricsLoggingAPIKey"]
+- !private ["s7CVarArgP", "devMetricsLoggingURL"]
+- !private ["s7CVarArgP", "domain"]
+- !private ["s7CVarArgP", "fetcher"]
+- !private ["s7CVarArgP", "init"]
+- !private ["s7CVarArgP", "isRetryEnabled"]
+- !private ["s7CVarArgP", "metricsLoggingWireFormat"]
+- !private ["s7CVarArgP", "subscript"]
+- !private ["s7CVarArgP", "userInfo"]
+- !private ["20PromotedAIMetricsSDK12ClientConfigC", "devMetricsLoggingAPIKey"]
+- !private ["20PromotedAIMetricsSDK12ClientConfigC", "devMetricsLoggingURL"]
+- !private ["20PromotedAIMetricsSDK12ClientConfigC", "metricsLoggingWireFormat"]
+- !private ["Sl", ""]
+- !private ["Sl", "_copyToContiguousArray"]
+- !private ["Sl", "init"]
+- !private ["Sl", "subscript"]
+- !private ["Sl", "underestimatedCount"]
+- !private ["SL", ""]
+- !private ["SL", "init"]
+- !private ["s28CustomDebugStringConvertibleP", ""]
+- !private ["s28CustomDebugStringConvertibleP", "addValue"]
+- !private ["s28CustomDebugStringConvertibleP", "beginFetch"]
+- !private ["s28CustomDebugStringConvertibleP", "bodyData"]
+- !private ["s28CustomDebugStringConvertibleP", "code"]
+- !private ["s28CustomDebugStringConvertibleP", "devMetricsLoggingAPIKey"]
+- !private ["s28CustomDebugStringConvertibleP", "devMetricsLoggingURL"]
+- !private ["s28CustomDebugStringConvertibleP", "domain"]
+- !private ["s28CustomDebugStringConvertibleP", "fetcher"]
+- !private ["s28CustomDebugStringConvertibleP", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "isRetryEnabled"]
+- !private ["s28CustomDebugStringConvertibleP", "jsonUTF8Data"]
+- !private ["s28CustomDebugStringConvertibleP", "metricsLoggingWireFormat"]
+- !private ["s28CustomDebugStringConvertibleP", "serializedData"]
+- !private ["s28CustomDebugStringConvertibleP", "subscript"]
+- !private ["s28CustomDebugStringConvertibleP", "userInfo"]
+- !private ["s17CustomReflectableP", "addValue"]
+- !private ["s17CustomReflectableP", "init"]
+- !private ["s17CustomReflectableP", "subscript"]
+- !private ["s23CustomStringConvertibleP", ""]
+- !private ["s23CustomStringConvertibleP", "addValue"]
+- !private ["s23CustomStringConvertibleP", "beginFetch"]
+- !private ["s23CustomStringConvertibleP", "bodyData"]
+- !private ["s23CustomStringConvertibleP", "code"]
+- !private ["s23CustomStringConvertibleP", "devMetricsLoggingAPIKey"]
+- !private ["s23CustomStringConvertibleP", "devMetricsLoggingURL"]
+- !private ["s23CustomStringConvertibleP", "domain"]
+- !private ["s23CustomStringConvertibleP", "fetcher"]
+- !private ["s23CustomStringConvertibleP", "init"]
+- !private ["s23CustomStringConvertibleP", "isRetryEnabled"]
+- !private ["s23CustomStringConvertibleP", "metricsLoggingWireFormat"]
+- !private ["s23CustomStringConvertibleP", "subscript"]
+- !private ["s23CustomStringConvertibleP", "userInfo"]
+- !private ["Se", "init"]
+- !private ["Se", "subscript"]
+- !private ["SD", "subscript"]
+- !private ["SE", "init"]
+- !private ["SE", "subscript"]
+- !private ["SQ", "=="]
+- ["SQ", ""]
+- !private ["SQ", "addValue"]
+- ["SQ", "anyTranscodeFailure"]
+- !private ["SQ", "beginFetch"]
+- ["SQ", "binary"]
+- !private ["SQ", "bodyData"]
+- !private ["SQ", "code"]
+- !private ["SQ", "devMetricsLoggingAPIKey"]
+- !private ["SQ", "devMetricsLoggingURL"]
+- !private ["SQ", "domain"]
+- !private ["SQ", "fetcher"]
+- !private ["SQ", "init"]
+- !private ["SQ", "isRetryEnabled"]
+- ["SQ", "json"]
+- !private ["SQ", "metricsLoggingWireFormat"]
+- ["SQ", "missingRequiredFields"]
+- !private ["SQ", "subscript"]
+- !private ["SQ", "userInfo"]
+- ["s5ErrorP", ""]
+- ["s5ErrorP", "_code"]
+- ["s5ErrorP", "_domain"]
+- ["s5ErrorP", "_getEmbeddedNSError"]
+- ["s5ErrorP", "_userInfo"]
+- ["s5ErrorP", "anyTranscodeFailure"]
+- ["s5ErrorP", "code"]
+- ["s5ErrorP", "domain"]
+- !private ["s5ErrorP", "invalidURLError"]
+- !private ["s5ErrorP", "messageSerializationError"]
+- ["s5ErrorP", "missingRequiredFields"]
+- !private ["s5ErrorP", "networkSendError"]
+- !private ["s5ErrorP", "unknownError"]
+- ["s5ErrorP", "userInfo"]
+- !private ["s30ExpressibleByDictionaryLiteralP", "subscript"]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", ""]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "init"]
+- !private ["s32ExpressibleByStringInterpolationP", ""]
+- !private ["s32ExpressibleByStringInterpolationP", "init"]
+- !private ["s26ExpressibleByStringLiteralP", ""]
+- !private ["s26ExpressibleByStringLiteralP", "init"]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", ""]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", "init"]
+- !private ["So17GTMSessionFetcherC", "beginFetch"]
+- !private ["So17GTMSessionFetcherC", "bodyData"]
+- !private ["So17GTMSessionFetcherC", "isRetryEnabled"]
+- !private ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "BinaryEncodingError"]
+- ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "Callback"]
+- ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "ClientConfig"]
+- !private ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "Data"]
+- ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "GTMSessionFetcherService"]
+- ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "Message"]
+- !private ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "NSError"]
+- !private ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "NetworkConnectionError"]
+- !private ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "String"]
+- !private ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "UTF8"]
+- ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", ""]
+- !private ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "bodyData"]
+- ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "deinit"]
+- !private ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "fetcherService"]
+- ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "init"]
+- !private ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "metricsLoggingURL"]
+- ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "sendMessage"]
+- !private ["20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC", "urlRequest"]
+- !private ["So24GTMSessionFetcherServiceC", "fetcher"]
+- !private ["So24GTMSessionFetcherServiceC", "init"]
+- !private ["So32GTMSessionFetcherServiceProtocolP", "fetcher"]
+- !private ["So32GTMSessionFetcherServiceProtocolP", "init"]
+- !private ["SH", ""]
+- !private ["SH", "addValue"]
+- ["SH", "anyTranscodeFailure"]
+- !private ["SH", "beginFetch"]
+- ["SH", "binary"]
+- !private ["SH", "bodyData"]
+- !private ["SH", "code"]
+- !private ["SH", "devMetricsLoggingAPIKey"]
+- !private ["SH", "devMetricsLoggingURL"]
+- !private ["SH", "domain"]
+- !private ["SH", "fetcher"]
+- !private ["SH", "init"]
+- !private ["SH", "isRetryEnabled"]
+- ["SH", "json"]
+- !private ["SH", "metricsLoggingWireFormat"]
+- ["SH", "missingRequiredFields"]
+- !private ["SH", "subscript"]
+- !private ["SH", "userInfo"]
+- !private ["s25LosslessStringConvertibleP", ""]
+- !private ["s25LosslessStringConvertibleP", "init"]
+- !private ["13SwiftProtobuf7MessageP", "jsonUTF8Data"]
+- !private ["13SwiftProtobuf7MessageP", "serializedData"]
+- !private ["20PromotedAIMetricsSDK12ClientConfigC24MetricsLoggingWireFormatO", "RawValue"]
+- !private ["20PromotedAIMetricsSDK12ClientConfigC24MetricsLoggingWireFormatO", ""]
+- ["20PromotedAIMetricsSDK12ClientConfigC24MetricsLoggingWireFormatO", "binary"]
+- ["20PromotedAIMetricsSDK12ClientConfigC24MetricsLoggingWireFormatO", "json"]
+- !private ["s10MirrorPathP", "init"]
+- !private ["So8NSCodingP", ""]
+- !private ["So8NSCodingP", "code"]
+- !private ["So8NSCodingP", "domain"]
+- !private ["So8NSCodingP", "userInfo"]
+- !private ["So9NSCopyingP", "code"]
+- !private ["So9NSCopyingP", "domain"]
+- !private ["So9NSCopyingP", "userInfo"]
+- !private ["So7NSErrorC", "code"]
+- !private ["So7NSErrorC", "domain"]
+- !private ["So7NSErrorC", "userInfo"]
+- ["So8NSObjectC", ""]
+- !private ["So8NSObjectC", "beginFetch"]
+- !private ["So8NSObjectC", "beginFetchWithCompletionHandler"]
+- !private ["So8NSObjectC", "beginFetchWithDelegate"]
+- !private ["So8NSObjectC", "bodyData"]
+- !private ["So8NSObjectC", "code"]
+- !private ["So8NSObjectC", "devMetricsLoggingAPIKey"]
+- !private ["So8NSObjectC", "devMetricsLoggingURL"]
+- !private ["So8NSObjectC", "domain"]
+- !private ["So8NSObjectC", "fetcher"]
+- !private ["So8NSObjectC", "fetcherWithRequest"]
+- !private ["So8NSObjectC", "fetcherWithURL"]
+- !private ["So8NSObjectC", "fetcherWithURLString"]
+- !private ["So8NSObjectC", "init"]
+- !private ["So8NSObjectC", "isRetryEnabled"]
+- !private ["So8NSObjectC", "metricsLoggingWireFormat"]
+- !private ["So8NSObjectC", "userInfo"]
+- ["So8NSObjectP", ""]
+- !private ["So8NSObjectP", "beginFetch"]
+- !private ["So8NSObjectP", "beginFetchWithCompletionHandler"]
+- !private ["So8NSObjectP", "beginFetchWithDelegate"]
+- !private ["So8NSObjectP", "bodyData"]
+- !private ["So8NSObjectP", "code"]
+- !private ["So8NSObjectP", "devMetricsLoggingAPIKey"]
+- !private ["So8NSObjectP", "devMetricsLoggingURL"]
+- !private ["So8NSObjectP", "domain"]
+- !private ["So8NSObjectP", "fetcher"]
+- !private ["So8NSObjectP", "fetcherWithRequest"]
+- !private ["So8NSObjectP", "fetcherWithURL"]
+- !private ["So8NSObjectP", "fetcherWithURLString"]
+- !private ["So8NSObjectP", "init"]
+- !private ["So8NSObjectP", "isRetryEnabled"]
+- !private ["So8NSObjectP", "metricsLoggingWireFormat"]
+- !private ["So8NSObjectP", "userInfo"]
+- !private ["So14NSSecureCodingP", "code"]
+- !private ["So14NSSecureCodingP", "domain"]
+- !private ["So14NSSecureCodingP", "userInfo"]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", "Callback"]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", "ClientConfig"]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", "Data"]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", "Error"]
+- !private ["20PromotedAIMetricsSDK17NetworkConnectionP", "GTMSessionFetcherService"]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", "Message"]
+- !private ["20PromotedAIMetricsSDK17NetworkConnectionP", "NetworkConnectionError"]
+- !private ["20PromotedAIMetricsSDK17NetworkConnectionP", "String"]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", "URL"]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", "URLRequest"]
+- !private ["20PromotedAIMetricsSDK17NetworkConnectionP", "UTF8"]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", "Void"]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", ""]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", "bodyData"]
+- !private ["20PromotedAIMetricsSDK17NetworkConnectionP", "fetcherService"]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", "metricsLoggingURL"]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", "sendMessage"]
+- ["20PromotedAIMetricsSDK17NetworkConnectionP", "urlRequest"]
+- ["20PromotedAIMetricsSDK22NetworkConnectionErrorO", "Int"]
+- ["20PromotedAIMetricsSDK22NetworkConnectionErrorO", "String"]
+- ["20PromotedAIMetricsSDK22NetworkConnectionErrorO", ""]
+- ["20PromotedAIMetricsSDK22NetworkConnectionErrorO", "_code"]
+- ["20PromotedAIMetricsSDK22NetworkConnectionErrorO", "_domain"]
+- ["20PromotedAIMetricsSDK22NetworkConnectionErrorO", "_getEmbeddedNSError"]
+- ["20PromotedAIMetricsSDK22NetworkConnectionErrorO", "_userInfo"]
+- ["20PromotedAIMetricsSDK22NetworkConnectionErrorO", "code"]
+- ["20PromotedAIMetricsSDK22NetworkConnectionErrorO", "domain"]
+- ["20PromotedAIMetricsSDK22NetworkConnectionErrorO", "invalidURLError"]
+- ["20PromotedAIMetricsSDK22NetworkConnectionErrorO", "messageSerializationError"]
+- ["20PromotedAIMetricsSDK22NetworkConnectionErrorO", "networkSendError"]
+- ["20PromotedAIMetricsSDK22NetworkConnectionErrorO", "unknownError"]
+- ["20PromotedAIMetricsSDK22NetworkConnectionErrorO", "userInfo"]
+- !private ["Sm", "init"]
+- ["SY", "binary"]
+- ["SY", "json"]
+- !private ["10Foundation20ReferenceConvertibleP", "addValue"]
+- !private ["10Foundation20ReferenceConvertibleP", "init"]
+- !private ["ST", ""]
+- !private ["ST", "_copyContents"]
+- !private ["ST", "_copyToContiguousArray"]
+- !private ["ST", "_customContainsEquatableElement"]
+- !private ["ST", "init"]
+- !private ["ST", "makeIterator"]
+- !private ["ST", "subscript"]
+- !private ["ST", "underestimatedCount"]
+- !private ["ST", "withContiguousStorageIfAvailable"]
+- !private ["SS", "init"]
+- !private ["Sy", "init"]
+- !private ["s16TextOutputStreamP", ""]
+- !private ["s16TextOutputStreamP", "init"]
+- !private ["s20TextOutputStreamableP", ""]
+- !private ["s20TextOutputStreamableP", "init"]
+- !private ["10Foundation3URLV", "init"]
+- !private ["10Foundation10URLRequestV", "addValue"]
+- !private ["10Foundation10URLRequestV", "init"]
+- !private ["So20NSURLSessionDelegateP", "beginFetch"]
+- !private ["So20NSURLSessionDelegateP", "bodyData"]
+- !private ["So20NSURLSessionDelegateP", "isRetryEnabled"]
+- !private ["s30_CustomPlaygroundQuickLookableP", "init"]
+- !private ["s35_ExpressibleByBuiltinBooleanLiteralP", "init"]
+- !private ["s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP", ""]
+- !private ["s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP", "init"]
+- !private ["s35_ExpressibleByBuiltinIntegerLiteralP", "init"]
+- !private ["s34_ExpressibleByBuiltinStringLiteralP", "init"]
+- !private ["s41_ExpressibleByBuiltinUnicodeScalarLiteralP", ""]
+- !private ["s41_ExpressibleByBuiltinUnicodeScalarLiteralP", "init"]
+- !private ["s34_ExpressibleByFileReferenceLiteralP", "init"]
+- !private ["s19_HasContiguousBytesP", "init"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "subscript"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "beginFetch"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "bodyData"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "code"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "devMetricsLoggingAPIKey"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "devMetricsLoggingURL"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "domain"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "fetcher"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "init"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "isRetryEnabled"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "metricsLoggingWireFormat"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "userInfo"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "beginFetch"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "bodyData"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "code"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "devMetricsLoggingAPIKey"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "devMetricsLoggingURL"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "domain"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "fetcher"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "init"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "isRetryEnabled"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "metricsLoggingWireFormat"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "userInfo"]
+- !private ["s21_ObjectiveCBridgeableP", ""]
+- !private ["s21_ObjectiveCBridgeableP", "addValue"]
+- !private ["s21_ObjectiveCBridgeableP", "init"]
+- !private ["s21_ObjectiveCBridgeableP", "subscript"]
+depends-nominal:
+- !private "SK"
+- "13SwiftProtobuf19BinaryEncodingErrorO"
+- !private "s7CVarArgP"
+- !private "20PromotedAIMetricsSDK12ClientConfigC"
+- !private "Sl"
+- !private "SL"
+- !private "s28CustomDebugStringConvertibleP"
+- !private "s17CustomReflectableP"
+- !private "s23CustomStringConvertibleP"
+- !private "Se"
+- !private "SD"
+- !private "SE"
+- "SQ"
+- "s5ErrorP"
+- !private "s30ExpressibleByDictionaryLiteralP"
+- !private "s43ExpressibleByExtendedGraphemeClusterLiteralP"
+- !private "s32ExpressibleByStringInterpolationP"
+- !private "s26ExpressibleByStringLiteralP"
+- !private "s33ExpressibleByUnicodeScalarLiteralP"
+- !private "So17GTMSessionFetcherC"
+- "20PromotedAIMetricsSDK27GTMSessionFetcherConnectionC"
+- !private "So24GTMSessionFetcherServiceC"
+- !private "So32GTMSessionFetcherServiceProtocolP"
+- "SH"
+- !private "s25LosslessStringConvertibleP"
+- !private "13SwiftProtobuf7MessageP"
+- "20PromotedAIMetricsSDK12ClientConfigC24MetricsLoggingWireFormatO"
+- !private "s10MirrorPathP"
+- !private "So8NSCodingP"
+- !private "So9NSCopyingP"
+- !private "So7NSErrorC"
+- "So8NSObjectC"
+- "So8NSObjectP"
+- !private "So14NSSecureCodingP"
+- "20PromotedAIMetricsSDK17NetworkConnectionP"
+- "20PromotedAIMetricsSDK22NetworkConnectionErrorO"
+- !private "Sm"
+- "SY"
+- !private "10Foundation20ReferenceConvertibleP"
+- !private "ST"
+- !private "SS"
+- !private "Sy"
+- !private "s16TextOutputStreamP"
+- !private "s20TextOutputStreamableP"
+- !private "10Foundation3URLV"
+- !private "10Foundation10URLRequestV"
+- !private "So20NSURLSessionDelegateP"
+- !private "s30_CustomPlaygroundQuickLookableP"
+- !private "s35_ExpressibleByBuiltinBooleanLiteralP"
+- !private "s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP"
+- !private "s35_ExpressibleByBuiltinIntegerLiteralP"
+- !private "s34_ExpressibleByBuiltinStringLiteralP"
+- !private "s41_ExpressibleByBuiltinUnicodeScalarLiteralP"
+- !private "s34_ExpressibleByFileReferenceLiteralP"
+- !private "s19_HasContiguousBytesP"
+- !private "s35_HasCustomAnyHashableRepresentationP"
+- !private "10Foundation27_KeyValueCodingAndObservingP"
+- !private "10Foundation37_KeyValueCodingAndObservingPublishingP"
+- !private "s21_ObjectiveCBridgeableP"
+depends-dynamic-lookup:
+depends-external:
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/XPC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/ObjectiveC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Combine.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Dispatch.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Darwin.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Foundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreFoundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreGraphics.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Swift.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/IOKit.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/SwiftOnoneSupport.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionFetcherService.h"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionFetcherLogging.h"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionUploadFetcher.h"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionFetcher.h"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/dyld.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobufPluginLibrary.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/module.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/compact_unwind_encoding.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/xpc/XPC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Headers/ApplicationServices.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "6e7991a77caa51b81151dbd1e68ec774"

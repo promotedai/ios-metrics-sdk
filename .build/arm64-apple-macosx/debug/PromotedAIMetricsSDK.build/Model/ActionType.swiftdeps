@@ -1,0 +1,183 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "ActionType"
+provides-nominal:
+- "20PromotedAIMetricsSDK10ActionTypeO"
+provides-member:
+- ["20PromotedAIMetricsSDK10ActionTypeO", ""]
+provides-dynamic-lookup:
+depends-top-level:
+- "=="
+- "ActionType"
+- "AssignmentPrecedence"
+- "Event_ActionType"
+- "FloatLiteralType"
+- "Int"
+- "IntegerLiteralType"
+- !private "~="
+depends-member:
+- ["20PromotedAIMetricsSDK10ActionTypeO", "=="]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "Default_RawValue"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "Event_ActionType"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "Int"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "RawValue"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", ""]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "_Default_RawValue"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "_rawHashValue"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "addToCart"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "answerQuestion"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "askQuestion"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "checkout"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "comment"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "completeSignIn"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "completeSignUp"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "customActionType"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "hash"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "hashValue"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "init"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "like"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "makeOffer"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "navigate"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "protoValue"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "purchase"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "rawValue"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "removeFromCart"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "share"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "unknownActionType"]
+- ["20PromotedAIMetricsSDK10ActionTypeO", "unlike"]
+- !private ["s12CaseIterableP", "init"]
+- !private ["13SwiftProtobuf4EnumP", "init"]
+- ["SQ", "=="]
+- ["SQ", "Default_RawValue"]
+- !private ["SQ", "Event_ActionType"]
+- ["SQ", "RawValue"]
+- ["SQ", ""]
+- ["SQ", "_Default_RawValue"]
+- ["SQ", "_rawHashValue"]
+- ["SQ", "addToCart"]
+- ["SQ", "answerQuestion"]
+- ["SQ", "askQuestion"]
+- ["SQ", "checkout"]
+- ["SQ", "comment"]
+- ["SQ", "completeSignIn"]
+- ["SQ", "completeSignUp"]
+- ["SQ", "customActionType"]
+- ["SQ", "hash"]
+- ["SQ", "hashValue"]
+- ["SQ", "init"]
+- ["SQ", "like"]
+- ["SQ", "makeOffer"]
+- ["SQ", "navigate"]
+- ["SQ", "purchase"]
+- ["SQ", "rawValue"]
+- ["SQ", "removeFromCart"]
+- ["SQ", "share"]
+- ["SQ", "unknownActionType"]
+- ["SQ", "unlike"]
+- !private ["20PromotedAIMetricsSDK16Event_ActionTypeO", ""]
+- !private ["20PromotedAIMetricsSDK16Event_ActionTypeO", "init"]
+- ["SH", "=="]
+- ["SH", "Default_RawValue"]
+- !private ["SH", "Event_ActionType"]
+- ["SH", "RawValue"]
+- ["SH", ""]
+- ["SH", "_Default_RawValue"]
+- ["SH", "_rawHashValue"]
+- ["SH", "addToCart"]
+- ["SH", "answerQuestion"]
+- ["SH", "askQuestion"]
+- ["SH", "checkout"]
+- ["SH", "comment"]
+- ["SH", "completeSignIn"]
+- ["SH", "completeSignUp"]
+- ["SH", "customActionType"]
+- ["SH", "hash"]
+- ["SH", "hashValue"]
+- ["SH", "init"]
+- ["SH", "like"]
+- ["SH", "makeOffer"]
+- ["SH", "navigate"]
+- ["SH", "purchase"]
+- ["SH", "rawValue"]
+- ["SH", "removeFromCart"]
+- ["SH", "share"]
+- ["SH", "unknownActionType"]
+- ["SH", "unlike"]
+- ["So8NSCodingP", ""]
+- ["So8NSObjectP", ""]
+- ["SY", "=="]
+- ["SY", "Default_RawValue"]
+- !private ["SY", "Event_ActionType"]
+- ["SY", "RawValue"]
+- ["SY", ""]
+- ["SY", "_Default_RawValue"]
+- ["SY", "_rawHashValue"]
+- ["SY", "addToCart"]
+- ["SY", "answerQuestion"]
+- ["SY", "askQuestion"]
+- ["SY", "checkout"]
+- ["SY", "comment"]
+- ["SY", "completeSignIn"]
+- ["SY", "completeSignUp"]
+- ["SY", "customActionType"]
+- ["SY", "hash"]
+- ["SY", "hashValue"]
+- ["SY", "init"]
+- ["SY", "like"]
+- ["SY", "makeOffer"]
+- ["SY", "navigate"]
+- ["SY", "purchase"]
+- ["SY", "rawValue"]
+- ["SY", "removeFromCart"]
+- ["SY", "share"]
+- ["SY", "unknownActionType"]
+- ["SY", "unlike"]
+- ["s35_ExpressibleByBuiltinIntegerLiteralP", "init"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "init"]
+depends-nominal:
+- "20PromotedAIMetricsSDK10ActionTypeO"
+- !private "s12CaseIterableP"
+- !private "13SwiftProtobuf4EnumP"
+- "SQ"
+- !private "20PromotedAIMetricsSDK16Event_ActionTypeO"
+- "SH"
+- "So8NSCodingP"
+- "So8NSObjectP"
+- "SY"
+- "s35_ExpressibleByBuiltinIntegerLiteralP"
+- !private "13SwiftProtobuf19_ProtoNameProvidingP"
+depends-dynamic-lookup:
+depends-external:
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/XPC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/ObjectiveC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Combine.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Dispatch.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Darwin.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Foundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreFoundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreGraphics.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Swift.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/IOKit.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/SwiftOnoneSupport.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionFetcherService.h"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionFetcherLogging.h"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionUploadFetcher.h"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionFetcher.h"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/dyld.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobufPluginLibrary.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/module.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/compact_unwind_encoding.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/xpc/XPC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Headers/ApplicationServices.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "a0756bb5ec88df9a9cbb0b85948c5f02"

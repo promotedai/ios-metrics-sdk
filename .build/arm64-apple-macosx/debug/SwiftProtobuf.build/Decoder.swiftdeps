@@ -1,0 +1,148 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "Decoder"
+provides-nominal:
+- "13SwiftProtobuf7DecoderP"
+provides-member:
+- ["13SwiftProtobuf7DecoderP", ""]
+- ["13SwiftProtobuf7DecoderP", "decodeExtensionFieldsAsMessageSet"]
+provides-dynamic-lookup:
+depends-top-level:
+- "Bool"
+- "Data"
+- "Decoder"
+- "Double"
+- "Enum"
+- "ExtensionFieldValueSet"
+- "Float"
+- "Int"
+- "Int32"
+- "Int64"
+- "MapValueType"
+- "Message"
+- "String"
+- "UInt32"
+- "UInt64"
+- "_ProtobufEnumMap"
+- "_ProtobufMap"
+- "_ProtobufMessageMap"
+depends-member:
+- ["s28CustomDebugStringConvertibleP", ""]
+- ["13SwiftProtobuf7DecoderP", "Bool"]
+- ["13SwiftProtobuf7DecoderP", "Data"]
+- ["13SwiftProtobuf7DecoderP", "Double"]
+- ["13SwiftProtobuf7DecoderP", "Enum"]
+- ["13SwiftProtobuf7DecoderP", "ExtensionFieldValueSet"]
+- ["13SwiftProtobuf7DecoderP", "Float"]
+- ["13SwiftProtobuf7DecoderP", "Int"]
+- ["13SwiftProtobuf7DecoderP", "Int32"]
+- ["13SwiftProtobuf7DecoderP", "Int64"]
+- ["13SwiftProtobuf7DecoderP", "MapValueType"]
+- ["13SwiftProtobuf7DecoderP", "Message"]
+- ["13SwiftProtobuf7DecoderP", "ProtobufEnumMap"]
+- ["13SwiftProtobuf7DecoderP", "ProtobufMap"]
+- ["13SwiftProtobuf7DecoderP", "ProtobufMessageMap"]
+- ["13SwiftProtobuf7DecoderP", "String"]
+- ["13SwiftProtobuf7DecoderP", "UInt32"]
+- ["13SwiftProtobuf7DecoderP", "UInt64"]
+- ["13SwiftProtobuf7DecoderP", ""]
+- ["13SwiftProtobuf7DecoderP", "_ProtobufEnumMap"]
+- ["13SwiftProtobuf7DecoderP", "_ProtobufMap"]
+- ["13SwiftProtobuf7DecoderP", "_ProtobufMessageMap"]
+- ["13SwiftProtobuf7DecoderP", "decodeExtensionField"]
+- ["13SwiftProtobuf7DecoderP", "decodeExtensionFieldsAsMessageSet"]
+- ["13SwiftProtobuf7DecoderP", "decodeMapField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedBoolField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedBytesField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedDoubleField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedEnumField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedFixed32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedFixed64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedFloatField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedGroupField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedInt32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedInt64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedMessageField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedSFixed32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedSFixed64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedSInt32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedSInt64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedStringField"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedUInt32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeRepeatedUInt64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularBoolField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularBytesField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularDoubleField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularEnumField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularFixed32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularFixed64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularFloatField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularGroupField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularInt32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularInt64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularMessageField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularSFixed32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularSFixed64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularSInt32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularSInt64Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularStringField"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularUInt32Field"]
+- ["13SwiftProtobuf7DecoderP", "decodeSingularUInt64Field"]
+- ["13SwiftProtobuf7DecoderP", "handleConflictingOneOf"]
+- ["13SwiftProtobuf7DecoderP", "nextFieldNumber"]
+- ["13SwiftProtobuf4EnumP", "RawValue"]
+- ["SQ", "RawValue"]
+- ["SQ", ""]
+- ["13SwiftProtobuf9FieldTypeP", "BaseType"]
+- ["13SwiftProtobuf9FieldTypeP", ""]
+- ["SH", "RawValue"]
+- ["SH", ""]
+- ["13SwiftProtobuf10MapKeyTypeP", "BaseType"]
+- ["13SwiftProtobuf12MapValueTypeP", "BaseType"]
+- ["SY", "RawValue"]
+- ["SY", ""]
+- ["13SwiftProtobuf01_B7EnumMapV", "BaseType"]
+- ["13SwiftProtobuf01_B3MapV", "BaseType"]
+- ["13SwiftProtobuf01_B10MessageMapV", "BaseType"]
+depends-nominal:
+- "s28CustomDebugStringConvertibleP"
+- "13SwiftProtobuf7DecoderP"
+- "13SwiftProtobuf4EnumP"
+- "SQ"
+- "13SwiftProtobuf9FieldTypeP"
+- "SH"
+- "13SwiftProtobuf10MapKeyTypeP"
+- "13SwiftProtobuf12MapValueTypeP"
+- "SY"
+- "13SwiftProtobuf01_B7EnumMapV"
+- "13SwiftProtobuf01_B3MapV"
+- "13SwiftProtobuf01_B10MessageMapV"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/XPC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/ObjectiveC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Combine.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Dispatch.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Darwin.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Foundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreFoundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreGraphics.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Swift.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/IOKit.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/SwiftOnoneSupport.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/dyld.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobufPluginLibrary.build/module.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/compact_unwind_encoding.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/xpc/XPC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Headers/ApplicationServices.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "13762c849ba97dda01350d5187225faa"

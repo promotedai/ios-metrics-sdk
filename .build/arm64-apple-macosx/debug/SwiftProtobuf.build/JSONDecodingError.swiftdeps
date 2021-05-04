@@ -1,0 +1,83 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "JSONDecodingError"
+provides-nominal:
+- "13SwiftProtobuf17JSONDecodingErrorO"
+provides-member:
+- ["13SwiftProtobuf17JSONDecodingErrorO", ""]
+provides-dynamic-lookup:
+depends-top-level:
+- "Error"
+- "JSONDecodingError"
+- "String"
+depends-member:
+- ["s5ErrorP", ""]
+- ["s5ErrorP", "_code"]
+- ["s5ErrorP", "_domain"]
+- ["s5ErrorP", "_getEmbeddedNSError"]
+- ["s5ErrorP", "_userInfo"]
+- ["s5ErrorP", "code"]
+- ["s5ErrorP", "domain"]
+- ["s5ErrorP", "userInfo"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "String"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", ""]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "_code"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "_domain"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "_getEmbeddedNSError"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "_userInfo"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "code"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "conflictingOneOf"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "domain"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "failure"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "illegalNull"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "invalidUTF8"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "leadingZero"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "malformedBool"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "malformedDuration"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "malformedFieldMask"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "malformedMap"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "malformedNumber"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "malformedString"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "malformedTimestamp"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "messageDepthLimit"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "missingFieldNames"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "numberRange"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "schemaMismatch"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "trailingGarbage"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "truncated"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "unknownField"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "unquotedMapKey"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "unrecognizedEnumValue"]
+- ["13SwiftProtobuf17JSONDecodingErrorO", "userInfo"]
+depends-nominal:
+- "s5ErrorP"
+- "13SwiftProtobuf17JSONDecodingErrorO"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/XPC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/ObjectiveC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Combine.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Dispatch.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Darwin.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Foundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreFoundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreGraphics.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Swift.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/IOKit.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/SwiftOnoneSupport.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/dyld.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobufPluginLibrary.build/module.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/compact_unwind_encoding.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/xpc/XPC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Headers/ApplicationServices.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "768b230fdd9ca1950d7536c6e4006de0"

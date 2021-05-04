@@ -1,0 +1,242 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "SelectiveVisitor"
+provides-nominal:
+- "13SwiftProtobuf16SelectiveVisitorP"
+provides-member:
+- ["13SwiftProtobuf16SelectiveVisitorP", ""]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularFloatField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularDoubleField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularUInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularUInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularSInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularSInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularFixed32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularFixed64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularSFixed32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularSFixed64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularBoolField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularStringField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularBytesField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularEnumField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularMessageField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularGroupField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedFloatField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedDoubleField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedUInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedUInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedSInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedSInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedFixed32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedFixed64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedSFixed32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedSFixed64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedBoolField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedStringField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedBytesField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedEnumField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedMessageField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedGroupField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedFloatField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedDoubleField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedUInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedUInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedSInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedSInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedFixed32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedFixed64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedSFixed32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedSFixed64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedBoolField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedEnumField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitMapField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitMapField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitMapField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitExtensionFields"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitExtensionFieldsAsMessageSet"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitUnknown"]
+provides-dynamic-lookup:
+depends-top-level:
+- "Bool"
+- !private "BooleanLiteralType"
+- "Data"
+- "Double"
+- "Enum"
+- "ExtensionFieldValueSet"
+- "Float"
+- "Int"
+- "Int32"
+- "Int64"
+- "MapValueType"
+- "Message"
+- "SelectiveVisitor"
+- "String"
+- "UInt32"
+- "UInt64"
+- "Visitor"
+- "_ProtobufEnumMap"
+- "_ProtobufMap"
+- "_ProtobufMessageMap"
+- !private "assert"
+depends-member:
+- ["s28CustomDebugStringConvertibleP", ""]
+- ["13SwiftProtobuf4EnumP", "RawValue"]
+- ["SQ", "RawValue"]
+- ["SQ", ""]
+- ["13SwiftProtobuf9FieldTypeP", ""]
+- ["SH", "RawValue"]
+- ["SH", ""]
+- ["13SwiftProtobuf12MapValueTypeP", "BaseType"]
+- ["SY", "RawValue"]
+- ["SY", ""]
+- ["13SwiftProtobuf16SelectiveVisitorP", "Bool"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "Data"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "Double"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "Enum"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "ExtensionFieldValueSet"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "Float"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "Int"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "Int32"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "Int64"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "MapValueType"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "Message"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "ProtobufEnumMap"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "ProtobufMap"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "ProtobufMessageMap"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "String"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "UInt32"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "UInt64"]
+- ["13SwiftProtobuf16SelectiveVisitorP", ""]
+- ["13SwiftProtobuf16SelectiveVisitorP", "_ProtobufEnumMap"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "_ProtobufMap"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "_ProtobufMessageMap"]
+- !private ["13SwiftProtobuf16SelectiveVisitorP", "assert"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitExtensionFields"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitExtensionFieldsAsMessageSet"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitMapField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedBoolField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedDoubleField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedEnumField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedFixed32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedFixed64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedFloatField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedSFixed32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedSFixed64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedSInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedSInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedUInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitPackedUInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedBoolField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedBytesField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedDoubleField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedEnumField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedFixed32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedFixed64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedFloatField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedGroupField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedMessageField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedSFixed32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedSFixed64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedSInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedSInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedStringField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedUInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitRepeatedUInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularBoolField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularBytesField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularDoubleField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularEnumField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularFixed32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularFixed64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularFloatField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularGroupField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularMessageField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularSFixed32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularSFixed64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularSInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularSInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularStringField"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularUInt32Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitSingularUInt64Field"]
+- ["13SwiftProtobuf16SelectiveVisitorP", "visitUnknown"]
+- ["13SwiftProtobuf7VisitorP", "Bool"]
+- ["13SwiftProtobuf7VisitorP", "Data"]
+- ["13SwiftProtobuf7VisitorP", "Double"]
+- ["13SwiftProtobuf7VisitorP", "Enum"]
+- ["13SwiftProtobuf7VisitorP", "ExtensionFieldValueSet"]
+- ["13SwiftProtobuf7VisitorP", "Float"]
+- ["13SwiftProtobuf7VisitorP", "Int"]
+- ["13SwiftProtobuf7VisitorP", "Int32"]
+- ["13SwiftProtobuf7VisitorP", "Int64"]
+- ["13SwiftProtobuf7VisitorP", "MapValueType"]
+- ["13SwiftProtobuf7VisitorP", "Message"]
+- ["13SwiftProtobuf7VisitorP", "ProtobufEnumMap"]
+- ["13SwiftProtobuf7VisitorP", "ProtobufMap"]
+- ["13SwiftProtobuf7VisitorP", "ProtobufMessageMap"]
+- ["13SwiftProtobuf7VisitorP", "String"]
+- ["13SwiftProtobuf7VisitorP", "UInt32"]
+- ["13SwiftProtobuf7VisitorP", "UInt64"]
+- ["13SwiftProtobuf7VisitorP", ""]
+- ["13SwiftProtobuf7VisitorP", "_ProtobufEnumMap"]
+- ["13SwiftProtobuf7VisitorP", "_ProtobufMap"]
+- ["13SwiftProtobuf7VisitorP", "_ProtobufMessageMap"]
+- !private ["13SwiftProtobuf7VisitorP", "assert"]
+- !private ["s35_ExpressibleByBuiltinBooleanLiteralP", "init"]
+- ["13SwiftProtobuf01_B7EnumMapV", "BaseType"]
+- ["13SwiftProtobuf01_B3MapV", "BaseType"]
+- ["13SwiftProtobuf01_B10MessageMapV", "BaseType"]
+depends-nominal:
+- "s28CustomDebugStringConvertibleP"
+- "13SwiftProtobuf4EnumP"
+- "SQ"
+- "13SwiftProtobuf9FieldTypeP"
+- "SH"
+- "13SwiftProtobuf12MapValueTypeP"
+- "SY"
+- "13SwiftProtobuf16SelectiveVisitorP"
+- "13SwiftProtobuf7VisitorP"
+- !private "s35_ExpressibleByBuiltinBooleanLiteralP"
+- "13SwiftProtobuf01_B7EnumMapV"
+- "13SwiftProtobuf01_B3MapV"
+- "13SwiftProtobuf01_B10MessageMapV"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/XPC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/ObjectiveC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Combine.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Dispatch.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Darwin.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Foundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreFoundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreGraphics.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Swift.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/IOKit.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/SwiftOnoneSupport.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/dyld.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobufPluginLibrary.build/module.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/compact_unwind_encoding.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/xpc/XPC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Headers/ApplicationServices.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "8d82eb6e151479fd7cc8e97cbe675c3b"

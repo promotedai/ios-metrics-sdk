@@ -1,0 +1,133 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "UseCase"
+provides-nominal:
+- "20PromotedAIMetricsSDK7UseCaseO"
+provides-member:
+- ["20PromotedAIMetricsSDK7UseCaseO", ""]
+provides-dynamic-lookup:
+depends-top-level:
+- "=="
+- "Delivery_UseCase"
+- "FloatLiteralType"
+- "Int"
+- "IntegerLiteralType"
+- "UseCase"
+- !private "unsafeBitCast"
+- !private "~="
+depends-member:
+- !private ["s12CaseIterableP", "init"]
+- !private ["20PromotedAIMetricsSDK16Delivery_UseCaseO", ""]
+- !private ["20PromotedAIMetricsSDK16Delivery_UseCaseO", "init"]
+- !private ["13SwiftProtobuf4EnumP", "init"]
+- ["SQ", "=="]
+- ["SQ", "Default_RawValue"]
+- !private ["SQ", "Delivery_UseCase"]
+- ["SQ", "RawValue"]
+- ["SQ", ""]
+- ["SQ", "_Default_RawValue"]
+- ["SQ", "_rawHashValue"]
+- ["SQ", "hash"]
+- ["SQ", "hashValue"]
+- ["SQ", "init"]
+- ["SQ", "rawValue"]
+- !private ["SQ", "unsafeBitCast"]
+- ["SH", "=="]
+- ["SH", "Default_RawValue"]
+- !private ["SH", "Delivery_UseCase"]
+- ["SH", "RawValue"]
+- ["SH", ""]
+- ["SH", "_Default_RawValue"]
+- ["SH", "_rawHashValue"]
+- ["SH", "hash"]
+- ["SH", "hashValue"]
+- ["SH", "init"]
+- ["SH", "rawValue"]
+- !private ["SH", "unsafeBitCast"]
+- ["So8NSCodingP", ""]
+- ["So8NSObjectP", ""]
+- ["SY", "=="]
+- ["SY", "Default_RawValue"]
+- !private ["SY", "Delivery_UseCase"]
+- ["SY", "RawValue"]
+- ["SY", ""]
+- ["SY", "_Default_RawValue"]
+- ["SY", "_rawHashValue"]
+- ["SY", "hash"]
+- ["SY", "hashValue"]
+- ["SY", "init"]
+- ["SY", "rawValue"]
+- !private ["SY", "unsafeBitCast"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "=="]
+- ["20PromotedAIMetricsSDK7UseCaseO", "Default_RawValue"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "Delivery_UseCase"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "RawValue"]
+- ["20PromotedAIMetricsSDK7UseCaseO", ""]
+- ["20PromotedAIMetricsSDK7UseCaseO", "_Default_RawValue"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "_rawHashValue"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "categoryContent"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "closeUp"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "custom"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "feed"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "hash"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "hashValue"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "init"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "myContent"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "protoValue"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "rawValue"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "relatedContent"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "savedContent"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "search"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "searchSuggestions"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "sellerContent"]
+- ["20PromotedAIMetricsSDK7UseCaseO", "unknown"]
+- !private ["20PromotedAIMetricsSDK7UseCaseO", "unsafeBitCast"]
+- ["s35_ExpressibleByBuiltinIntegerLiteralP", "init"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "init"]
+depends-nominal:
+- !private "s12CaseIterableP"
+- !private "20PromotedAIMetricsSDK16Delivery_UseCaseO"
+- !private "13SwiftProtobuf4EnumP"
+- "SQ"
+- "SH"
+- "So8NSCodingP"
+- "So8NSObjectP"
+- "SY"
+- "20PromotedAIMetricsSDK7UseCaseO"
+- "s35_ExpressibleByBuiltinIntegerLiteralP"
+- !private "13SwiftProtobuf19_ProtoNameProvidingP"
+depends-dynamic-lookup:
+depends-external:
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/XPC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/ObjectiveC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Combine.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Dispatch.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Darwin.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Foundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreFoundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreGraphics.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Swift.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/IOKit.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/SwiftOnoneSupport.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionFetcherService.h"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionFetcherLogging.h"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionUploadFetcher.h"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionFetcher.h"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/dyld.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobufPluginLibrary.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/module.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/compact_unwind_encoding.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/xpc/XPC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Headers/ApplicationServices.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "5fc3f97209ad5b5071a3f36840715784"

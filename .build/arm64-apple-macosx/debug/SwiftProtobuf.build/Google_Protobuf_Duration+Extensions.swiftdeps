@@ -1,0 +1,563 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "-"
+- "+"
+- "-"
+- "-"
+provides-nominal:
+- "13SwiftProtobuf07Google_B9_DurationV"
+provides-member:
+- ["13SwiftProtobuf07Google_B9_DurationV", ""]
+- ["13SwiftProtobuf07Google_B9_DurationV", "init"]
+- ["13SwiftProtobuf07Google_B9_DurationV", "init"]
+- ["13SwiftProtobuf07Google_B9_DurationV", "timeInterval"]
+provides-dynamic-lookup:
+depends-top-level:
+- !private "!="
+- !private "%"
+- !private "&&"
+- !private "*"
+- "+"
+- !private "+="
+- "-"
+- !private "-="
+- !private "/"
+- !private "<"
+- !private "<="
+- !private ">"
+- !private ">="
+- "AssignmentPrecedence"
+- !private "Character"
+- "Double"
+- "ExpressibleByFloatLiteral"
+- !private "ExtendedGraphemeClusterType"
+- "FloatLiteralType"
+- "Google_Protobuf_Duration"
+- "Google_Protobuf_Timestamp"
+- "Int32"
+- "Int64"
+- "IntegerLiteralType"
+- "JSONDecoder"
+- !private "JSONDecodingError"
+- !private "JSONEncodingError"
+- "JSONEncodingOptions"
+- "String"
+- !private "StringLiteralType"
+- "TimeInterval"
+- !private "UnicodeScalarType"
+- "_CustomJSONCodable"
+- !private "formatDuration"
+- "maxDurationSeconds"
+- !private "minDurationSeconds"
+- !private "nanos"
+- !private "nanosPerSecond"
+- !private "nanosToString"
+- !private "normalizeForDuration"
+- !private "parseDuration"
+- !private "round"
+- !private "seconds"
+- !private "trunc"
+- !private "||"
+- !private "~="
+depends-member:
+- ["s18AdditiveArithmeticP", ""]
+- !private ["s18AdditiveArithmeticP", "init"]
+- !private ["Sa", "append"]
+- !private ["Sa", "init"]
+- !private ["Sa", "removeAll"]
+- !private ["Sa", "removeLast"]
+- !private ["SK", ""]
+- !private ["SK", "append"]
+- !private ["SK", "init"]
+- !private ["SK", "makeIterator"]
+- !private ["SK", "removeAll"]
+- !private ["SK", "removeLast"]
+- !private ["SB", "init"]
+- !private ["Sz", ""]
+- !private ["Sz", "init"]
+- !private ["s7CVarArgP", ""]
+- !private ["s7CVarArgP", "append"]
+- !private ["s7CVarArgP", "init"]
+- !private ["s7CVarArgP", "makeIterator"]
+- !private ["s7CVarArgP", "removeAll"]
+- !private ["s7CVarArgP", "removeLast"]
+- !private ["Sl", ""]
+- !private ["Sl", "append"]
+- !private ["Sl", "init"]
+- !private ["Sl", "makeIterator"]
+- !private ["Sl", "removeAll"]
+- !private ["Sl", "removeLast"]
+- !private ["SL", ""]
+- !private ["SL", "init"]
+- !private ["SL", "makeIterator"]
+- !private ["10Foundation15ContiguousBytesP", "append"]
+- !private ["10Foundation15ContiguousBytesP", "init"]
+- !private ["10Foundation15ContiguousBytesP", "removeAll"]
+- !private ["10Foundation15ContiguousBytesP", "removeLast"]
+- ["s28CustomDebugStringConvertibleP", "FloatLiteralType"]
+- !private ["s28CustomDebugStringConvertibleP", "Int32"]
+- !private ["s28CustomDebugStringConvertibleP", "Int64"]
+- !private ["s28CustomDebugStringConvertibleP", "JSONEncodingError"]
+- !private ["s28CustomDebugStringConvertibleP", "TimeInterval"]
+- ["s28CustomDebugStringConvertibleP", ""]
+- !private ["s28CustomDebugStringConvertibleP", "append"]
+- ["s28CustomDebugStringConvertibleP", "decodeJSON"]
+- ["s28CustomDebugStringConvertibleP", "decodedFromJSONNull"]
+- ["s28CustomDebugStringConvertibleP", "encodedJSONString"]
+- !private ["s28CustomDebugStringConvertibleP", "formatDuration"]
+- ["s28CustomDebugStringConvertibleP", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "makeIterator"]
+- !private ["s28CustomDebugStringConvertibleP", "nanos"]
+- !private ["s28CustomDebugStringConvertibleP", "nanosPerSecond"]
+- !private ["s28CustomDebugStringConvertibleP", "normalizeForDuration"]
+- !private ["s28CustomDebugStringConvertibleP", "parseDuration"]
+- !private ["s28CustomDebugStringConvertibleP", "removeAll"]
+- !private ["s28CustomDebugStringConvertibleP", "removeLast"]
+- !private ["s28CustomDebugStringConvertibleP", "round"]
+- !private ["s28CustomDebugStringConvertibleP", "seconds"]
+- !private ["s28CustomDebugStringConvertibleP", "trunc"]
+- !private ["s17CustomReflectableP", "append"]
+- !private ["s17CustomReflectableP", "init"]
+- !private ["s17CustomReflectableP", "makeIterator"]
+- !private ["s17CustomReflectableP", "removeAll"]
+- !private ["s17CustomReflectableP", "removeLast"]
+- !private ["s23CustomStringConvertibleP", ""]
+- !private ["s23CustomStringConvertibleP", "append"]
+- !private ["s23CustomStringConvertibleP", "appendInterpolation"]
+- !private ["s23CustomStringConvertibleP", "appendLiteral"]
+- !private ["s23CustomStringConvertibleP", "init"]
+- !private ["s23CustomStringConvertibleP", "makeIterator"]
+- !private ["s23CustomStringConvertibleP", "removeAll"]
+- !private ["s23CustomStringConvertibleP", "removeLast"]
+- !private ["10Foundation12DataProtocolP", ""]
+- !private ["10Foundation12DataProtocolP", "append"]
+- !private ["10Foundation12DataProtocolP", "init"]
+- !private ["10Foundation12DataProtocolP", "removeAll"]
+- !private ["10Foundation12DataProtocolP", "removeLast"]
+- !private ["Se", "append"]
+- !private ["Se", "init"]
+- !private ["Se", "makeIterator"]
+- !private ["Se", "removeAll"]
+- !private ["Se", "removeLast"]
+- !private ["13SwiftProtobuf7DecoderP", "scanner"]
+- !private ["s26DefaultStringInterpolationV", "appendInterpolation"]
+- !private ["s26DefaultStringInterpolationV", "appendLiteral"]
+- !private ["Sd", "init"]
+- !private ["SE", "append"]
+- !private ["SE", "init"]
+- !private ["SE", "makeIterator"]
+- !private ["SE", "removeAll"]
+- !private ["SE", "removeLast"]
+- ["SQ", "FloatLiteralType"]
+- !private ["SQ", "Int32"]
+- !private ["SQ", "Int64"]
+- !private ["SQ", "JSONEncodingError"]
+- !private ["SQ", "TimeInterval"]
+- ["SQ", ""]
+- !private ["SQ", "append"]
+- ["SQ", "decodeJSON"]
+- ["SQ", "decodedFromJSONNull"]
+- !private ["SQ", "durationRange"]
+- ["SQ", "encodedJSONString"]
+- !private ["SQ", "formatDuration"]
+- ["SQ", "init"]
+- !private ["SQ", "makeIterator"]
+- !private ["SQ", "nanos"]
+- !private ["SQ", "nanosPerSecond"]
+- !private ["SQ", "normalizeForDuration"]
+- !private ["SQ", "parseDuration"]
+- !private ["SQ", "removeAll"]
+- !private ["SQ", "removeLast"]
+- !private ["SQ", "round"]
+- !private ["SQ", "seconds"]
+- !private ["SQ", "trunc"]
+- !private ["s5ErrorP", "durationRange"]
+- !private ["s5ErrorP", "malformedDuration"]
+- !private ["s25ExpressibleByArrayLiteralP", ""]
+- !private ["s25ExpressibleByArrayLiteralP", "append"]
+- !private ["s25ExpressibleByArrayLiteralP", "init"]
+- !private ["s25ExpressibleByArrayLiteralP", "removeAll"]
+- !private ["s25ExpressibleByArrayLiteralP", "removeLast"]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", ""]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "init"]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "makeIterator"]
+- ["s25ExpressibleByFloatLiteralP", "FloatLiteralType"]
+- !private ["s25ExpressibleByFloatLiteralP", "Int32"]
+- !private ["s25ExpressibleByFloatLiteralP", "Int64"]
+- !private ["s25ExpressibleByFloatLiteralP", "JSONEncodingError"]
+- !private ["s25ExpressibleByFloatLiteralP", "TimeInterval"]
+- ["s25ExpressibleByFloatLiteralP", ""]
+- ["s25ExpressibleByFloatLiteralP", "decodeJSON"]
+- ["s25ExpressibleByFloatLiteralP", "decodedFromJSONNull"]
+- ["s25ExpressibleByFloatLiteralP", "encodedJSONString"]
+- !private ["s25ExpressibleByFloatLiteralP", "formatDuration"]
+- ["s25ExpressibleByFloatLiteralP", "init"]
+- !private ["s25ExpressibleByFloatLiteralP", "nanos"]
+- !private ["s25ExpressibleByFloatLiteralP", "nanosPerSecond"]
+- !private ["s25ExpressibleByFloatLiteralP", "normalizeForDuration"]
+- !private ["s25ExpressibleByFloatLiteralP", "parseDuration"]
+- !private ["s25ExpressibleByFloatLiteralP", "round"]
+- !private ["s25ExpressibleByFloatLiteralP", "seconds"]
+- !private ["s25ExpressibleByFloatLiteralP", "trunc"]
+- ["s27ExpressibleByIntegerLiteralP", ""]
+- !private ["s27ExpressibleByIntegerLiteralP", "init"]
+- !private ["s23ExpressibleByNilLiteralP", "init"]
+- !private ["s32ExpressibleByStringInterpolationP", "StringInterpolation"]
+- !private ["s32ExpressibleByStringInterpolationP", ""]
+- !private ["s32ExpressibleByStringInterpolationP", "init"]
+- !private ["s32ExpressibleByStringInterpolationP", "makeIterator"]
+- !private ["s26ExpressibleByStringLiteralP", ""]
+- !private ["s26ExpressibleByStringLiteralP", "init"]
+- !private ["s26ExpressibleByStringLiteralP", "makeIterator"]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", ""]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", "init"]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", "makeIterator"]
+- !private ["s17FixedWidthIntegerP", "init"]
+- !private ["SF", ""]
+- !private ["SF", "init"]
+- ["13SwiftProtobuf07Google_B9_DurationV", "Double"]
+- ["13SwiftProtobuf07Google_B9_DurationV", "FloatLiteralType"]
+- ["13SwiftProtobuf07Google_B9_DurationV", "Int32"]
+- ["13SwiftProtobuf07Google_B9_DurationV", "Int64"]
+- ["13SwiftProtobuf07Google_B9_DurationV", "JSONDecoder"]
+- !private ["13SwiftProtobuf07Google_B9_DurationV", "JSONEncodingError"]
+- ["13SwiftProtobuf07Google_B9_DurationV", "JSONEncodingOptions"]
+- ["13SwiftProtobuf07Google_B9_DurationV", "String"]
+- ["13SwiftProtobuf07Google_B9_DurationV", "TimeInterval"]
+- ["13SwiftProtobuf07Google_B9_DurationV", ""]
+- ["13SwiftProtobuf07Google_B9_DurationV", "decodeJSON"]
+- ["13SwiftProtobuf07Google_B9_DurationV", "decodedFromJSONNull"]
+- ["13SwiftProtobuf07Google_B9_DurationV", "encodedJSONString"]
+- !private ["13SwiftProtobuf07Google_B9_DurationV", "formatDuration"]
+- ["13SwiftProtobuf07Google_B9_DurationV", "init"]
+- !private ["13SwiftProtobuf07Google_B9_DurationV", "nanos"]
+- !private ["13SwiftProtobuf07Google_B9_DurationV", "nanosPerSecond"]
+- !private ["13SwiftProtobuf07Google_B9_DurationV", "normalizeForDuration"]
+- !private ["13SwiftProtobuf07Google_B9_DurationV", "parseDuration"]
+- !private ["13SwiftProtobuf07Google_B9_DurationV", "round"]
+- !private ["13SwiftProtobuf07Google_B9_DurationV", "seconds"]
+- ["13SwiftProtobuf07Google_B9_DurationV", "timeInterval"]
+- !private ["13SwiftProtobuf07Google_B9_DurationV", "trunc"]
+- !private ["13SwiftProtobuf07Google_B10_TimestampV", "nanos"]
+- !private ["13SwiftProtobuf07Google_B10_TimestampV", "seconds"]
+- ["SH", "FloatLiteralType"]
+- !private ["SH", "Int32"]
+- !private ["SH", "Int64"]
+- !private ["SH", "JSONEncodingError"]
+- !private ["SH", "TimeInterval"]
+- ["SH", ""]
+- !private ["SH", "append"]
+- ["SH", "decodeJSON"]
+- ["SH", "decodedFromJSONNull"]
+- !private ["SH", "durationRange"]
+- ["SH", "encodedJSONString"]
+- !private ["SH", "formatDuration"]
+- ["SH", "init"]
+- !private ["SH", "makeIterator"]
+- !private ["SH", "nanos"]
+- !private ["SH", "nanosPerSecond"]
+- !private ["SH", "normalizeForDuration"]
+- !private ["SH", "parseDuration"]
+- !private ["SH", "removeAll"]
+- !private ["SH", "removeLast"]
+- !private ["SH", "round"]
+- !private ["SH", "seconds"]
+- !private ["SH", "trunc"]
+- !private ["s5Int32V", "init"]
+- !private ["s5Int64V", "init"]
+- !private ["SS8IteratorV", "next"]
+- !private ["St", "next"]
+- !private ["13SwiftProtobuf11JSONDecoderV", "scanner"]
+- !private ["13SwiftProtobuf17JSONDecodingErrorO", ""]
+- !private ["13SwiftProtobuf17JSONDecodingErrorO", "malformedDuration"]
+- !private ["13SwiftProtobuf17JSONEncodingErrorO", ""]
+- !private ["13SwiftProtobuf17JSONEncodingErrorO", "durationRange"]
+- !private ["13SwiftProtobuf11JSONScannerV", "nextQuotedString"]
+- !private ["s25LosslessStringConvertibleP", ""]
+- !private ["s25LosslessStringConvertibleP", "init"]
+- !private ["s25LosslessStringConvertibleP", "makeIterator"]
+- ["13SwiftProtobuf7MessageP", "FloatLiteralType"]
+- !private ["13SwiftProtobuf7MessageP", "Int32"]
+- !private ["13SwiftProtobuf7MessageP", "Int64"]
+- !private ["13SwiftProtobuf7MessageP", "JSONEncodingError"]
+- !private ["13SwiftProtobuf7MessageP", "TimeInterval"]
+- ["13SwiftProtobuf7MessageP", ""]
+- ["13SwiftProtobuf7MessageP", "decodeJSON"]
+- ["13SwiftProtobuf7MessageP", "decodedFromJSONNull"]
+- ["13SwiftProtobuf7MessageP", "encodedJSONString"]
+- !private ["13SwiftProtobuf7MessageP", "formatDuration"]
+- ["13SwiftProtobuf7MessageP", "init"]
+- !private ["13SwiftProtobuf7MessageP", "nanos"]
+- !private ["13SwiftProtobuf7MessageP", "nanosPerSecond"]
+- !private ["13SwiftProtobuf7MessageP", "normalizeForDuration"]
+- !private ["13SwiftProtobuf7MessageP", "parseDuration"]
+- !private ["13SwiftProtobuf7MessageP", "round"]
+- !private ["13SwiftProtobuf7MessageP", "seconds"]
+- !private ["13SwiftProtobuf7MessageP", "trunc"]
+- !private ["s10MirrorPathP", "init"]
+- !private ["s10MirrorPathP", "makeIterator"]
+- !private ["SM", ""]
+- !private ["SM", "append"]
+- !private ["SM", "init"]
+- !private ["SM", "removeAll"]
+- !private ["SM", "removeLast"]
+- !private ["10Foundation19MutableDataProtocolP", "append"]
+- !private ["10Foundation19MutableDataProtocolP", "init"]
+- !private ["10Foundation19MutableDataProtocolP", "removeAll"]
+- !private ["10Foundation19MutableDataProtocolP", "removeLast"]
+- !private ["So8NSCodingP", ""]
+- !private ["So8NSCodingP", "makeIterator"]
+- !private ["So9NSCopyingP", "makeIterator"]
+- !private ["So21NSItemProviderReadingP", "makeIterator"]
+- !private ["So21NSItemProviderWritingP", "makeIterator"]
+- !private ["So16NSMutableCopyingP", "makeIterator"]
+- !private ["So8NSObjectC", "makeIterator"]
+- !private ["So8NSObjectP", ""]
+- !private ["So8NSObjectP", "makeIterator"]
+- !private ["So14NSSecureCodingP", "makeIterator"]
+- !private ["So8NSStringC", "makeIterator"]
+- ["Sj", ""]
+- !private ["Sj", "init"]
+- !private ["Sk", ""]
+- !private ["Sk", "append"]
+- !private ["Sk", "init"]
+- !private ["Sk", "removeAll"]
+- !private ["Sk", "removeLast"]
+- !private ["Sm", ""]
+- !private ["Sm", "append"]
+- !private ["Sm", "init"]
+- !private ["Sm", "makeIterator"]
+- !private ["Sm", "removeAll"]
+- !private ["Sm", "removeLast"]
+- !private ["s10SIMDScalarP", "init"]
+- !private ["ST", ""]
+- !private ["ST", "append"]
+- !private ["ST", "init"]
+- !private ["ST", "makeIterator"]
+- !private ["ST", "removeAll"]
+- !private ["ST", "removeLast"]
+- !private ["SZ", "init"]
+- !private ["s13SignedNumericP", ""]
+- !private ["s13SignedNumericP", "init"]
+- !private ["Sx", ""]
+- !private ["Sx", "init"]
+- !private ["SS", "init"]
+- !private ["SS", "makeIterator"]
+- !private ["s27StringInterpolationProtocolP", "appendInterpolation"]
+- !private ["s27StringInterpolationProtocolP", "appendLiteral"]
+- !private ["s27StringInterpolationProtocolP", "init"]
+- !private ["Sy", "init"]
+- !private ["Sy", "makeIterator"]
+- !private ["s16TextOutputStreamP", ""]
+- !private ["s16TextOutputStreamP", "appendInterpolation"]
+- !private ["s16TextOutputStreamP", "appendLiteral"]
+- !private ["s16TextOutputStreamP", "init"]
+- !private ["s16TextOutputStreamP", "makeIterator"]
+- !private ["s20TextOutputStreamableP", ""]
+- !private ["s20TextOutputStreamableP", "init"]
+- !private ["s20TextOutputStreamableP", "makeIterator"]
+- !private ["s14_ArrayProtocolP", "append"]
+- !private ["s14_ArrayProtocolP", "init"]
+- !private ["s14_ArrayProtocolP", "removeAll"]
+- !private ["s14_ArrayProtocolP", "removeLast"]
+- !private ["s15_CVarArgAlignedP", "init"]
+- !private ["s22_CVarArgPassedAsDoubleP", "init"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "FloatLiteralType"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "Int32"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "Int64"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "JSONEncodingError"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "TimeInterval"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", ""]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "decodeJSON"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "decodedFromJSONNull"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "encodedJSONString"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "formatDuration"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "init"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "nanos"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "nanosPerSecond"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "normalizeForDuration"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "parseDuration"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "round"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "seconds"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "trunc"]
+- !private ["s30_CustomPlaygroundQuickLookableP", "init"]
+- !private ["s30_CustomPlaygroundQuickLookableP", "makeIterator"]
+- !private ["s24_DestructorSafeContainerP", "append"]
+- !private ["s24_DestructorSafeContainerP", "init"]
+- !private ["s24_DestructorSafeContainerP", "removeAll"]
+- !private ["s24_DestructorSafeContainerP", "removeLast"]
+- !private ["s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP", ""]
+- !private ["s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP", "init"]
+- !private ["s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP", "makeIterator"]
+- !private ["s33_ExpressibleByBuiltinFloatLiteralP", "init"]
+- ["s35_ExpressibleByBuiltinIntegerLiteralP", "init"]
+- !private ["s34_ExpressibleByBuiltinStringLiteralP", "init"]
+- !private ["s34_ExpressibleByBuiltinStringLiteralP", "makeIterator"]
+- !private ["s41_ExpressibleByBuiltinUnicodeScalarLiteralP", ""]
+- !private ["s41_ExpressibleByBuiltinUnicodeScalarLiteralP", "init"]
+- !private ["s41_ExpressibleByBuiltinUnicodeScalarLiteralP", "makeIterator"]
+- !private ["s19_HasContiguousBytesP", "append"]
+- !private ["s19_HasContiguousBytesP", "init"]
+- !private ["s19_HasContiguousBytesP", "makeIterator"]
+- !private ["s19_HasContiguousBytesP", "removeAll"]
+- !private ["s19_HasContiguousBytesP", "removeLast"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "append"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "init"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "makeIterator"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "removeAll"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "removeLast"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "makeIterator"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "makeIterator"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "FloatLiteralType"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "Int32"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "Int64"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "JSONEncodingError"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "TimeInterval"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "decodeJSON"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "decodedFromJSONNull"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "encodedJSONString"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "formatDuration"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "init"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "nanos"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "nanosPerSecond"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "normalizeForDuration"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "parseDuration"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "round"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "seconds"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "trunc"]
+- !private ["s21_ObjectiveCBridgeableP", "_ObjectiveCType"]
+- !private ["s21_ObjectiveCBridgeableP", "append"]
+- !private ["s21_ObjectiveCBridgeableP", "init"]
+- !private ["s21_ObjectiveCBridgeableP", "makeIterator"]
+- !private ["s21_ObjectiveCBridgeableP", "removeAll"]
+- !private ["s21_ObjectiveCBridgeableP", "removeLast"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "FloatLiteralType"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "Int32"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "Int64"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "JSONEncodingError"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "TimeInterval"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "decodeJSON"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "decodedFromJSONNull"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "encodedJSONString"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "formatDuration"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "init"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "nanos"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "nanosPerSecond"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "normalizeForDuration"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "parseDuration"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "round"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "seconds"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "trunc"]
+depends-nominal:
+- "s18AdditiveArithmeticP"
+- !private "Sa"
+- !private "SK"
+- !private "SB"
+- !private "Sz"
+- !private "s7CVarArgP"
+- !private "Sl"
+- !private "SL"
+- !private "10Foundation15ContiguousBytesP"
+- "s28CustomDebugStringConvertibleP"
+- !private "s17CustomReflectableP"
+- !private "s23CustomStringConvertibleP"
+- !private "10Foundation12DataProtocolP"
+- !private "Se"
+- !private "13SwiftProtobuf7DecoderP"
+- !private "s26DefaultStringInterpolationV"
+- !private "Sd"
+- !private "SE"
+- "SQ"
+- !private "s5ErrorP"
+- !private "s25ExpressibleByArrayLiteralP"
+- !private "s43ExpressibleByExtendedGraphemeClusterLiteralP"
+- "s25ExpressibleByFloatLiteralP"
+- "s27ExpressibleByIntegerLiteralP"
+- !private "s23ExpressibleByNilLiteralP"
+- !private "s32ExpressibleByStringInterpolationP"
+- !private "s26ExpressibleByStringLiteralP"
+- !private "s33ExpressibleByUnicodeScalarLiteralP"
+- !private "s17FixedWidthIntegerP"
+- !private "SF"
+- "13SwiftProtobuf07Google_B9_DurationV"
+- !private "13SwiftProtobuf07Google_B10_TimestampV"
+- "SH"
+- !private "s5Int32V"
+- !private "s5Int64V"
+- !private "SS8IteratorV"
+- !private "St"
+- !private "13SwiftProtobuf11JSONDecoderV"
+- !private "13SwiftProtobuf17JSONDecodingErrorO"
+- !private "13SwiftProtobuf17JSONEncodingErrorO"
+- !private "13SwiftProtobuf11JSONScannerV"
+- !private "s25LosslessStringConvertibleP"
+- "13SwiftProtobuf7MessageP"
+- !private "s10MirrorPathP"
+- !private "SM"
+- !private "10Foundation19MutableDataProtocolP"
+- !private "So8NSCodingP"
+- !private "So9NSCopyingP"
+- !private "So21NSItemProviderReadingP"
+- !private "So21NSItemProviderWritingP"
+- !private "So16NSMutableCopyingP"
+- !private "So8NSObjectC"
+- !private "So8NSObjectP"
+- !private "So14NSSecureCodingP"
+- !private "So8NSStringC"
+- "Sj"
+- !private "Sk"
+- !private "Sm"
+- !private "s10SIMDScalarP"
+- !private "ST"
+- !private "SZ"
+- !private "s13SignedNumericP"
+- !private "Sx"
+- !private "SS"
+- !private "s27StringInterpolationProtocolP"
+- !private "Sy"
+- !private "s16TextOutputStreamP"
+- !private "s20TextOutputStreamableP"
+- !private "s14_ArrayProtocolP"
+- !private "s15_CVarArgAlignedP"
+- !private "s22_CVarArgPassedAsDoubleP"
+- "13SwiftProtobuf18_CustomJSONCodableP"
+- !private "s30_CustomPlaygroundQuickLookableP"
+- !private "s24_DestructorSafeContainerP"
+- !private "s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP"
+- !private "s33_ExpressibleByBuiltinFloatLiteralP"
+- "s35_ExpressibleByBuiltinIntegerLiteralP"
+- !private "s34_ExpressibleByBuiltinStringLiteralP"
+- !private "s41_ExpressibleByBuiltinUnicodeScalarLiteralP"
+- !private "s19_HasContiguousBytesP"
+- !private "s35_HasCustomAnyHashableRepresentationP"
+- !private "10Foundation27_KeyValueCodingAndObservingP"
+- !private "10Foundation37_KeyValueCodingAndObservingPublishingP"
+- "13SwiftProtobuf26_MessageImplementationBaseP"
+- !private "s21_ObjectiveCBridgeableP"
+- "13SwiftProtobuf19_ProtoNameProvidingP"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/XPC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/ObjectiveC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Dispatch.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreFoundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreGraphics.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Swift.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/IOKit.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/SwiftOnoneSupport.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/dyld.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobufPluginLibrary.build/module.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/compact_unwind_encoding.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/xpc/XPC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Headers/ApplicationServices.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "c0e5200925293d6b8cbf8a0596540862"

@@ -1,0 +1,113 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+provides-nominal:
+- "13SwiftProtobuf07Google_B10_NullValueO"
+provides-member:
+- ["13SwiftProtobuf07Google_B10_NullValueO", ""]
+provides-dynamic-lookup:
+depends-top-level:
+- "Google_Protobuf_NullValue"
+- "JSONDecoder"
+- "JSONEncodingOptions"
+- "String"
+- !private "StringLiteralType"
+- "_CustomJSONCodable"
+depends-member:
+- ["s12CaseIterableP", "decodeJSON"]
+- ["s12CaseIterableP", "decodedFromJSONNull"]
+- ["s12CaseIterableP", "encodedJSONString"]
+- !private ["s12CaseIterableP", "nullValue"]
+- !private ["s28CustomDebugStringConvertibleP", "nullValue"]
+- !private ["s17CustomReflectableP", "nullValue"]
+- !private ["Se", "nullValue"]
+- !private ["13SwiftProtobuf7DecoderP", "scanner"]
+- !private ["SE", "nullValue"]
+- ["13SwiftProtobuf4EnumP", "decodeJSON"]
+- ["13SwiftProtobuf4EnumP", "decodedFromJSONNull"]
+- ["13SwiftProtobuf4EnumP", "encodedJSONString"]
+- !private ["13SwiftProtobuf4EnumP", "nullValue"]
+- ["SQ", ""]
+- ["SQ", "decodeJSON"]
+- ["SQ", "decodedFromJSONNull"]
+- ["SQ", "encodedJSONString"]
+- !private ["SQ", "nullValue"]
+- !private ["s23ExpressibleByNilLiteralP", "nullValue"]
+- ["13SwiftProtobuf07Google_B10_NullValueO", "Google_Protobuf_NullValue"]
+- ["13SwiftProtobuf07Google_B10_NullValueO", "JSONDecoder"]
+- ["13SwiftProtobuf07Google_B10_NullValueO", "JSONEncodingOptions"]
+- ["13SwiftProtobuf07Google_B10_NullValueO", "String"]
+- ["13SwiftProtobuf07Google_B10_NullValueO", ""]
+- ["13SwiftProtobuf07Google_B10_NullValueO", "decodeJSON"]
+- ["13SwiftProtobuf07Google_B10_NullValueO", "decodedFromJSONNull"]
+- ["13SwiftProtobuf07Google_B10_NullValueO", "encodedJSONString"]
+- !private ["13SwiftProtobuf07Google_B10_NullValueO", "nullValue"]
+- ["SH", ""]
+- ["SH", "decodeJSON"]
+- ["SH", "decodedFromJSONNull"]
+- ["SH", "encodedJSONString"]
+- !private ["SH", "nullValue"]
+- !private ["13SwiftProtobuf11JSONDecoderV", "scanner"]
+- !private ["13SwiftProtobuf11JSONScannerV", "skipOptionalNull"]
+- !private ["Sq", "nullValue"]
+- ["SY", ""]
+- ["SY", "decodeJSON"]
+- ["SY", "decodedFromJSONNull"]
+- ["SY", "encodedJSONString"]
+- !private ["SY", "nullValue"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", ""]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "decodeJSON"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "decodedFromJSONNull"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "encodedJSONString"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "nullValue"]
+- !private ["s34_ExpressibleByBuiltinStringLiteralP", "init"]
+- !private ["s21_ObjectiveCBridgeableP", "nullValue"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "decodeJSON"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "decodedFromJSONNull"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "encodedJSONString"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "nullValue"]
+depends-nominal:
+- "s12CaseIterableP"
+- !private "s28CustomDebugStringConvertibleP"
+- !private "s17CustomReflectableP"
+- !private "Se"
+- !private "13SwiftProtobuf7DecoderP"
+- !private "SE"
+- "13SwiftProtobuf4EnumP"
+- "SQ"
+- !private "s23ExpressibleByNilLiteralP"
+- "13SwiftProtobuf07Google_B10_NullValueO"
+- "SH"
+- !private "13SwiftProtobuf11JSONDecoderV"
+- !private "13SwiftProtobuf11JSONScannerV"
+- !private "Sq"
+- "SY"
+- "13SwiftProtobuf18_CustomJSONCodableP"
+- !private "s34_ExpressibleByBuiltinStringLiteralP"
+- !private "s21_ObjectiveCBridgeableP"
+- "13SwiftProtobuf19_ProtoNameProvidingP"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/XPC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/ObjectiveC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Dispatch.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreFoundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreGraphics.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Swift.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/IOKit.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/SwiftOnoneSupport.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/dyld.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobufPluginLibrary.build/module.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/compact_unwind_encoding.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/xpc/XPC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Headers/ApplicationServices.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "4ea54e7c3f981302dd6386626ee5152d"

@@ -1,0 +1,312 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+provides-nominal:
+provides-member:
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", ""]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logImpression"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logNavigateAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logNavigateAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logNavigateAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logNavigateAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logAddToCartAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logRemoveFromCartAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logCheckoutAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logPurchaseAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logShareAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logLikeAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logUnlikeAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logCommentAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logMakeOfferAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logAskQuestionAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logAnswerQuestionAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logCompleteSignInAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logCompleteSignUpAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logView"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logView"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logView"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logView"]
+provides-dynamic-lookup:
+- "logAction"
+- "logAddToCartAction"
+- "logAnswerQuestionAction"
+- "logAskQuestionAction"
+- "logCheckoutAction"
+- "logCommentAction"
+- "logCompleteSignInAction"
+- "logCompleteSignUpAction"
+- "logImpression"
+- "logLikeAction"
+- "logMakeOfferAction"
+- "logNavigateAction"
+- "logPurchaseAction"
+- "logRemoveFromCartAction"
+- "logShareAction"
+- "logUnlikeAction"
+- "logView"
+depends-top-level:
+- "ActionType"
+- "Content"
+- "Item"
+- !private "LoggingNameFor"
+- "MetricsLogger"
+- "String"
+- !private "StringLiteralType"
+- "UseCase"
+- "ViewControllerType"
+- !private "logAction"
+- !private "logImpression"
+- !private "logNavigateAction"
+depends-member:
+- !private ["20PromotedAIMetricsSDK10ActionTypeO", "addToCart"]
+- !private ["20PromotedAIMetricsSDK10ActionTypeO", "answerQuestion"]
+- !private ["20PromotedAIMetricsSDK10ActionTypeO", "askQuestion"]
+- !private ["20PromotedAIMetricsSDK10ActionTypeO", "checkout"]
+- !private ["20PromotedAIMetricsSDK10ActionTypeO", "comment"]
+- !private ["20PromotedAIMetricsSDK10ActionTypeO", "completeSignIn"]
+- !private ["20PromotedAIMetricsSDK10ActionTypeO", "completeSignUp"]
+- !private ["20PromotedAIMetricsSDK10ActionTypeO", "customActionType"]
+- !private ["20PromotedAIMetricsSDK10ActionTypeO", "like"]
+- !private ["20PromotedAIMetricsSDK10ActionTypeO", "makeOffer"]
+- !private ["20PromotedAIMetricsSDK10ActionTypeO", "navigate"]
+- !private ["20PromotedAIMetricsSDK10ActionTypeO", "purchase"]
+- !private ["20PromotedAIMetricsSDK10ActionTypeO", "removeFromCart"]
+- !private ["20PromotedAIMetricsSDK10ActionTypeO", "share"]
+- !private ["20PromotedAIMetricsSDK10ActionTypeO", "unlike"]
+- !private ["s7CVarArgP", "LoggingNameFor"]
+- !private ["s7CVarArgP", "contentID"]
+- !private ["s7CVarArgP", "insertionID"]
+- !private ["s7CVarArgP", "logAction"]
+- !private ["s7CVarArgP", "logImpression"]
+- !private ["s7CVarArgP", "logNavigateAction"]
+- !private ["s7CVarArgP", "logView"]
+- ["20PromotedAIMetricsSDK7ContentC", ""]
+- !private ["20PromotedAIMetricsSDK7ContentC", "contentID"]
+- !private ["20PromotedAIMetricsSDK7ContentC", "insertionID"]
+- !private ["s28CustomDebugStringConvertibleP", "LoggingNameFor"]
+- !private ["s28CustomDebugStringConvertibleP", "contentID"]
+- !private ["s28CustomDebugStringConvertibleP", "insertionID"]
+- !private ["s28CustomDebugStringConvertibleP", "logAction"]
+- !private ["s28CustomDebugStringConvertibleP", "logImpression"]
+- !private ["s28CustomDebugStringConvertibleP", "logNavigateAction"]
+- !private ["s28CustomDebugStringConvertibleP", "logView"]
+- !private ["s23CustomStringConvertibleP", "LoggingNameFor"]
+- !private ["s23CustomStringConvertibleP", "contentID"]
+- !private ["s23CustomStringConvertibleP", "insertionID"]
+- !private ["s23CustomStringConvertibleP", "logAction"]
+- !private ["s23CustomStringConvertibleP", "logImpression"]
+- !private ["s23CustomStringConvertibleP", "logNavigateAction"]
+- !private ["s23CustomStringConvertibleP", "logView"]
+- !private ["SQ", "LoggingNameFor"]
+- !private ["SQ", ""]
+- !private ["SQ", "addToCart"]
+- !private ["SQ", "answerQuestion"]
+- !private ["SQ", "askQuestion"]
+- !private ["SQ", "checkout"]
+- !private ["SQ", "comment"]
+- !private ["SQ", "completeSignIn"]
+- !private ["SQ", "completeSignUp"]
+- !private ["SQ", "contentID"]
+- !private ["SQ", "customActionType"]
+- !private ["SQ", "insertionID"]
+- !private ["SQ", "like"]
+- !private ["SQ", "logAction"]
+- !private ["SQ", "logImpression"]
+- !private ["SQ", "logNavigateAction"]
+- !private ["SQ", "logView"]
+- !private ["SQ", "makeOffer"]
+- !private ["SQ", "navigate"]
+- !private ["SQ", "purchase"]
+- !private ["SQ", "reactNative"]
+- !private ["SQ", "removeFromCart"]
+- !private ["SQ", "share"]
+- !private ["SQ", "uiKit"]
+- !private ["SQ", "unlike"]
+- !private ["SH", "LoggingNameFor"]
+- !private ["SH", "addToCart"]
+- !private ["SH", "answerQuestion"]
+- !private ["SH", "askQuestion"]
+- !private ["SH", "checkout"]
+- !private ["SH", "comment"]
+- !private ["SH", "completeSignIn"]
+- !private ["SH", "completeSignUp"]
+- !private ["SH", "contentID"]
+- !private ["SH", "customActionType"]
+- !private ["SH", "insertionID"]
+- !private ["SH", "like"]
+- !private ["SH", "logAction"]
+- !private ["SH", "logImpression"]
+- !private ["SH", "logNavigateAction"]
+- !private ["SH", "logView"]
+- !private ["SH", "makeOffer"]
+- !private ["SH", "navigate"]
+- !private ["SH", "purchase"]
+- !private ["SH", "removeFromCart"]
+- !private ["SH", "share"]
+- !private ["SH", "unlike"]
+- !private ["20PromotedAIMetricsSDK4ItemC", "contentID"]
+- !private ["20PromotedAIMetricsSDK4ItemC", "insertionID"]
+- !private ["20PromotedAIMetricsSDK11ViewTrackerC3KeyO", "reactNative"]
+- !private ["20PromotedAIMetricsSDK11ViewTrackerC3KeyO", "uiKit"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "ActionType"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "Content"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "Item"]
+- !private ["20PromotedAIMetricsSDK13MetricsLoggerC", "LoggingNameFor"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "String"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "UseCase"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "ViewControllerType"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", ""]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logAddToCartAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logAnswerQuestionAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logAskQuestionAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logCheckoutAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logCommentAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logCompleteSignInAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logCompleteSignUpAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logImpression"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logLikeAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logMakeOfferAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logNavigateAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logPurchaseAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logRemoveFromCartAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logShareAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logUnlikeAction"]
+- ["20PromotedAIMetricsSDK13MetricsLoggerC", "logView"]
+- ["So8NSObjectC", "ActionType"]
+- ["So8NSObjectC", "Content"]
+- ["So8NSObjectC", "Item"]
+- !private ["So8NSObjectC", "LoggingNameFor"]
+- ["So8NSObjectC", "String"]
+- ["So8NSObjectC", "UseCase"]
+- ["So8NSObjectC", "ViewControllerType"]
+- ["So8NSObjectC", ""]
+- !private ["So8NSObjectC", "contentID"]
+- !private ["So8NSObjectC", "insertionID"]
+- ["So8NSObjectC", "logAction"]
+- ["So8NSObjectC", "logAddToCartAction"]
+- ["So8NSObjectC", "logAnswerQuestionAction"]
+- ["So8NSObjectC", "logAskQuestionAction"]
+- ["So8NSObjectC", "logCheckoutAction"]
+- ["So8NSObjectC", "logCommentAction"]
+- ["So8NSObjectC", "logCompleteSignInAction"]
+- ["So8NSObjectC", "logCompleteSignUpAction"]
+- ["So8NSObjectC", "logImpression"]
+- ["So8NSObjectC", "logLikeAction"]
+- ["So8NSObjectC", "logMakeOfferAction"]
+- ["So8NSObjectC", "logNavigateAction"]
+- ["So8NSObjectC", "logPurchaseAction"]
+- ["So8NSObjectC", "logRemoveFromCartAction"]
+- ["So8NSObjectC", "logShareAction"]
+- ["So8NSObjectC", "logUnlikeAction"]
+- ["So8NSObjectC", "logView"]
+- ["So8NSObjectP", "ActionType"]
+- ["So8NSObjectP", "Content"]
+- ["So8NSObjectP", "Item"]
+- !private ["So8NSObjectP", "LoggingNameFor"]
+- ["So8NSObjectP", "String"]
+- ["So8NSObjectP", "UseCase"]
+- ["So8NSObjectP", "ViewControllerType"]
+- !private ["So8NSObjectP", "contentID"]
+- !private ["So8NSObjectP", "insertionID"]
+- ["So8NSObjectP", "logAction"]
+- ["So8NSObjectP", "logAddToCartAction"]
+- ["So8NSObjectP", "logAnswerQuestionAction"]
+- ["So8NSObjectP", "logAskQuestionAction"]
+- ["So8NSObjectP", "logCheckoutAction"]
+- ["So8NSObjectP", "logCommentAction"]
+- ["So8NSObjectP", "logCompleteSignInAction"]
+- ["So8NSObjectP", "logCompleteSignUpAction"]
+- ["So8NSObjectP", "logImpression"]
+- ["So8NSObjectP", "logLikeAction"]
+- ["So8NSObjectP", "logMakeOfferAction"]
+- ["So8NSObjectP", "logNavigateAction"]
+- ["So8NSObjectP", "logPurchaseAction"]
+- ["So8NSObjectP", "logRemoveFromCartAction"]
+- ["So8NSObjectP", "logShareAction"]
+- ["So8NSObjectP", "logUnlikeAction"]
+- ["So8NSObjectP", "logView"]
+- !private ["SY", "addToCart"]
+- !private ["SY", "answerQuestion"]
+- !private ["SY", "askQuestion"]
+- !private ["SY", "checkout"]
+- !private ["SY", "comment"]
+- !private ["SY", "completeSignIn"]
+- !private ["SY", "completeSignUp"]
+- !private ["SY", "customActionType"]
+- !private ["SY", "like"]
+- !private ["SY", "makeOffer"]
+- !private ["SY", "navigate"]
+- !private ["SY", "purchase"]
+- !private ["SY", "removeFromCart"]
+- !private ["SY", "share"]
+- !private ["SY", "unlike"]
+- !private ["s34_ExpressibleByBuiltinStringLiteralP", "init"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "LoggingNameFor"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "contentID"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "insertionID"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "logAction"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "logImpression"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "logNavigateAction"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "logView"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "LoggingNameFor"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "contentID"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "insertionID"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "logAction"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "logImpression"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "logNavigateAction"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "logView"]
+depends-nominal:
+- !private "20PromotedAIMetricsSDK10ActionTypeO"
+- !private "s7CVarArgP"
+- "20PromotedAIMetricsSDK7ContentC"
+- !private "s28CustomDebugStringConvertibleP"
+- !private "s23CustomStringConvertibleP"
+- !private "SQ"
+- !private "SH"
+- !private "20PromotedAIMetricsSDK4ItemC"
+- !private "20PromotedAIMetricsSDK11ViewTrackerC3KeyO"
+- "20PromotedAIMetricsSDK13MetricsLoggerC"
+- "So8NSObjectC"
+- "So8NSObjectP"
+- !private "SY"
+- !private "s34_ExpressibleByBuiltinStringLiteralP"
+- !private "10Foundation27_KeyValueCodingAndObservingP"
+- !private "10Foundation37_KeyValueCodingAndObservingPublishingP"
+depends-dynamic-lookup:
+depends-external:
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/XPC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/ObjectiveC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Combine.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Dispatch.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Darwin.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Foundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreFoundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreGraphics.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Swift.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/IOKit.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/SwiftOnoneSupport.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionFetcherService.h"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionFetcherLogging.h"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionUploadFetcher.h"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/../GTMSessionFetcher.h"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/dyld.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobufPluginLibrary.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/checkouts/gtm-session-fetcher/Source/SwiftPackage/module.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/compact_unwind_encoding.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/xpc/XPC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Headers/ApplicationServices.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "e0c9c38b97f057a9e8fa619d2d860856"

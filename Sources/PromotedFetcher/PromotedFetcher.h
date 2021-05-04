@@ -1,0 +1,1 @@
+/* This file must be present when creating a package via Cocoapods. */

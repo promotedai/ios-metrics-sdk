@@ -1,0 +1,226 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "ExtensibleMessage"
+provides-nominal:
+- "13SwiftProtobuf17ExtensibleMessageP"
+provides-member:
+- ["13SwiftProtobuf17ExtensibleMessageP", ""]
+- ["13SwiftProtobuf17ExtensibleMessageP", "setExtensionValue"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "getExtensionValue"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "hasExtensionValue"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "clearExtensionValue"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "setExtensionValue"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "setExtensionValue"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "setExtensionValue"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "setExtensionValue"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "setExtensionValue"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "setExtensionValue"]
+provides-dynamic-lookup:
+depends-top-level:
+- "AssignmentPrecedence"
+- "Bool"
+- "CastingPrecedence"
+- "ExtensibleMessage"
+- "ExtensionField"
+- "ExtensionFieldValueSet"
+- "Message"
+- "MessageExtension"
+- "PackedEnumExtensionField"
+- "PackedExtensionField"
+- "RepeatedEnumExtensionField"
+- "RepeatedExtensionField"
+- "RepeatedGroupExtensionField"
+- "RepeatedMessageExtensionField"
+- "Self"
+- "TernaryPrecedence"
+- !private "_protobuf_extensionFieldValues"
+depends-member:
+- ["13SwiftProtobuf17AnyExtensionFieldP", "ValueType"]
+- ["13SwiftProtobuf17AnyExtensionFieldP", ""]
+- !private ["13SwiftProtobuf17AnyExtensionFieldP", "init"]
+- !private ["13SwiftProtobuf17AnyExtensionFieldP", "value"]
+- !private ["13SwiftProtobuf19AnyMessageExtensionP", "fieldNumber"]
+- !private ["Sa", "isEmpty"]
+- !private ["SK", ""]
+- !private ["SK", "isEmpty"]
+- !private ["s7CVarArgP", "isEmpty"]
+- !private ["Sl", ""]
+- !private ["Sl", "isEmpty"]
+- !private ["10Foundation15ContiguousBytesP", "isEmpty"]
+- ["s28CustomDebugStringConvertibleP", "Bool"]
+- ["s28CustomDebugStringConvertibleP", "ExtensionField"]
+- ["s28CustomDebugStringConvertibleP", "ExtensionFieldValueSet"]
+- ["s28CustomDebugStringConvertibleP", "MessageExtension"]
+- ["s28CustomDebugStringConvertibleP", "PackedEnumExtensionField"]
+- ["s28CustomDebugStringConvertibleP", "PackedExtensionField"]
+- ["s28CustomDebugStringConvertibleP", "RepeatedEnumExtensionField"]
+- ["s28CustomDebugStringConvertibleP", "RepeatedExtensionField"]
+- ["s28CustomDebugStringConvertibleP", "RepeatedGroupExtensionField"]
+- ["s28CustomDebugStringConvertibleP", "RepeatedMessageExtensionField"]
+- ["s28CustomDebugStringConvertibleP", "ValueType"]
+- ["s28CustomDebugStringConvertibleP", ""]
+- ["s28CustomDebugStringConvertibleP", "_protobuf_extensionFieldValues"]
+- !private ["s28CustomDebugStringConvertibleP", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "isEmpty"]
+- ["s28CustomDebugStringConvertibleP", "protobuf_extensionFieldValues"]
+- !private ["s28CustomDebugStringConvertibleP", "value"]
+- !private ["s17CustomReflectableP", "isEmpty"]
+- !private ["s23CustomStringConvertibleP", "isEmpty"]
+- !private ["10Foundation12DataProtocolP", ""]
+- !private ["10Foundation12DataProtocolP", "isEmpty"]
+- !private ["Se", "isEmpty"]
+- !private ["SE", "isEmpty"]
+- ["13SwiftProtobuf4EnumP", "RawValue"]
+- ["SQ", "RawValue"]
+- ["SQ", "ValueType"]
+- ["SQ", ""]
+- !private ["SQ", "init"]
+- !private ["SQ", "isEmpty"]
+- !private ["SQ", "subscript"]
+- !private ["SQ", "value"]
+- !private ["s25ExpressibleByArrayLiteralP", ""]
+- !private ["s25ExpressibleByArrayLiteralP", "isEmpty"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "Bool"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "ExtensionField"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "ExtensionFieldValueSet"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "MessageExtension"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "PackedEnumExtensionField"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "PackedExtensionField"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "RepeatedEnumExtensionField"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "RepeatedExtensionField"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "RepeatedGroupExtensionField"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "RepeatedMessageExtensionField"]
+- ["13SwiftProtobuf17ExtensibleMessageP", ""]
+- ["13SwiftProtobuf17ExtensibleMessageP", "_protobuf_extensionFieldValues"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "clearExtensionValue"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "getExtensionValue"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "hasExtensionValue"]
+- !private ["13SwiftProtobuf17ExtensibleMessageP", "protobuf_extensionFieldValues"]
+- ["13SwiftProtobuf17ExtensibleMessageP", "setExtensionValue"]
+- ["13SwiftProtobuf14ExtensionFieldP", "ValueType"]
+- !private ["13SwiftProtobuf14ExtensionFieldP", "init"]
+- !private ["13SwiftProtobuf14ExtensionFieldP", "value"]
+- !private ["13SwiftProtobuf22ExtensionFieldValueSetV", "subscript"]
+- ["13SwiftProtobuf9FieldTypeP", "BaseType"]
+- ["SH", "RawValue"]
+- ["SH", "ValueType"]
+- ["SH", ""]
+- !private ["SH", "init"]
+- !private ["SH", "isEmpty"]
+- !private ["SH", "subscript"]
+- !private ["SH", "value"]
+- ["13SwiftProtobuf7MessageP", "Bool"]
+- ["13SwiftProtobuf7MessageP", "ExtensionField"]
+- ["13SwiftProtobuf7MessageP", "ExtensionFieldValueSet"]
+- ["13SwiftProtobuf7MessageP", "MessageExtension"]
+- ["13SwiftProtobuf7MessageP", "PackedEnumExtensionField"]
+- ["13SwiftProtobuf7MessageP", "PackedExtensionField"]
+- ["13SwiftProtobuf7MessageP", "RepeatedEnumExtensionField"]
+- ["13SwiftProtobuf7MessageP", "RepeatedExtensionField"]
+- ["13SwiftProtobuf7MessageP", "RepeatedGroupExtensionField"]
+- ["13SwiftProtobuf7MessageP", "RepeatedMessageExtensionField"]
+- ["13SwiftProtobuf7MessageP", ""]
+- ["13SwiftProtobuf7MessageP", "_protobuf_extensionFieldValues"]
+- ["13SwiftProtobuf7MessageP", "protobuf_extensionFieldValues"]
+- !private ["13SwiftProtobuf16MessageExtensionC", ""]
+- !private ["13SwiftProtobuf16MessageExtensionC", "fieldNumber"]
+- !private ["SM", ""]
+- !private ["SM", "isEmpty"]
+- !private ["10Foundation19MutableDataProtocolP", "isEmpty"]
+- ["13SwiftProtobuf24PackedEnumExtensionFieldV", ""]
+- !private ["13SwiftProtobuf24PackedEnumExtensionFieldV", "init"]
+- ["13SwiftProtobuf20PackedExtensionFieldV", ""]
+- !private ["13SwiftProtobuf20PackedExtensionFieldV", "init"]
+- !private ["Sk", ""]
+- !private ["Sk", "isEmpty"]
+- !private ["Sm", ""]
+- !private ["Sm", "isEmpty"]
+- ["SY", "RawValue"]
+- ["SY", ""]
+- ["13SwiftProtobuf26RepeatedEnumExtensionFieldV", ""]
+- !private ["13SwiftProtobuf26RepeatedEnumExtensionFieldV", "init"]
+- ["13SwiftProtobuf22RepeatedExtensionFieldV", ""]
+- !private ["13SwiftProtobuf22RepeatedExtensionFieldV", "init"]
+- ["13SwiftProtobuf27RepeatedGroupExtensionFieldV", ""]
+- !private ["13SwiftProtobuf27RepeatedGroupExtensionFieldV", "init"]
+- ["13SwiftProtobuf29RepeatedMessageExtensionFieldV", ""]
+- !private ["13SwiftProtobuf29RepeatedMessageExtensionFieldV", "init"]
+- !private ["ST", ""]
+- !private ["ST", "isEmpty"]
+- !private ["s14_ArrayProtocolP", "isEmpty"]
+- !private ["s24_DestructorSafeContainerP", "isEmpty"]
+- !private ["s35_ExpressibleByBuiltinBooleanLiteralP", "init"]
+- !private ["s19_HasContiguousBytesP", "isEmpty"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "isEmpty"]
+- !private ["s21_ObjectiveCBridgeableP", "isEmpty"]
+depends-nominal:
+- "13SwiftProtobuf17AnyExtensionFieldP"
+- !private "13SwiftProtobuf19AnyMessageExtensionP"
+- !private "Sa"
+- !private "SK"
+- !private "s7CVarArgP"
+- !private "Sl"
+- !private "10Foundation15ContiguousBytesP"
+- "s28CustomDebugStringConvertibleP"
+- !private "s17CustomReflectableP"
+- !private "s23CustomStringConvertibleP"
+- !private "10Foundation12DataProtocolP"
+- !private "Se"
+- !private "SE"
+- "13SwiftProtobuf4EnumP"
+- "SQ"
+- !private "s25ExpressibleByArrayLiteralP"
+- "13SwiftProtobuf17ExtensibleMessageP"
+- "13SwiftProtobuf14ExtensionFieldP"
+- !private "13SwiftProtobuf22ExtensionFieldValueSetV"
+- "13SwiftProtobuf9FieldTypeP"
+- "SH"
+- "13SwiftProtobuf7MessageP"
+- !private "13SwiftProtobuf16MessageExtensionC"
+- !private "SM"
+- !private "10Foundation19MutableDataProtocolP"
+- "13SwiftProtobuf24PackedEnumExtensionFieldV"
+- "13SwiftProtobuf20PackedExtensionFieldV"
+- !private "Sk"
+- !private "Sm"
+- "SY"
+- "13SwiftProtobuf26RepeatedEnumExtensionFieldV"
+- "13SwiftProtobuf22RepeatedExtensionFieldV"
+- "13SwiftProtobuf27RepeatedGroupExtensionFieldV"
+- "13SwiftProtobuf29RepeatedMessageExtensionFieldV"
+- !private "ST"
+- !private "s14_ArrayProtocolP"
+- !private "s24_DestructorSafeContainerP"
+- !private "s35_ExpressibleByBuiltinBooleanLiteralP"
+- !private "s19_HasContiguousBytesP"
+- !private "s35_HasCustomAnyHashableRepresentationP"
+- !private "s21_ObjectiveCBridgeableP"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/XPC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/ObjectiveC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Combine.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Dispatch.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Darwin.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Foundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreFoundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreGraphics.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Swift.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/IOKit.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/SwiftOnoneSupport.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/dyld.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobufPluginLibrary.build/module.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/compact_unwind_encoding.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/xpc/XPC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Headers/ApplicationServices.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "292e669f1a9e954209a7f0dee868c41e"

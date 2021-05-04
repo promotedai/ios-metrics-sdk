@@ -1,0 +1,161 @@
+{
+  "": {
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/master.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/Base/Clock.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/Clock.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/Clock.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/Clock~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/Clock.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/Base/Dictionary+KeyArray.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/Dictionary+KeyArray.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/Dictionary+KeyArray.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/Dictionary+KeyArray~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/Dictionary+KeyArray.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/Base/Types.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/Types.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/Types.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/Types~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/Types.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/Base/UIViewController+MetricsLogger.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/UIViewController+MetricsLogger.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/UIViewController+MetricsLogger.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/UIViewController+MetricsLogger~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Base/UIViewController+MetricsLogger.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/ClientConfig/ClientConfig.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ClientConfig/ClientConfig.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ClientConfig/ClientConfig.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ClientConfig/ClientConfig~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ClientConfig/ClientConfig.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/ClientConfig/ClientConfigService.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ClientConfig/ClientConfigService.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ClientConfig/ClientConfigService.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ClientConfig/ClientConfigService~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ClientConfig/ClientConfigService.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/ImpressionLogger.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ImpressionLogger.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ImpressionLogger.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ImpressionLogger~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ImpressionLogger.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/IndexPathDataSource.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/IndexPathDataSource.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/IndexPathDataSource.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/IndexPathDataSource~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/IndexPathDataSource.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/MetricsLogger+Helpers.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/MetricsLogger+Helpers.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/MetricsLogger+Helpers.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/MetricsLogger+Helpers~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/MetricsLogger+Helpers.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/MetricsLogger.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/MetricsLogger.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/MetricsLogger.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/MetricsLogger~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/MetricsLogger.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/MetricsLoggerService.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/MetricsLoggerService.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/MetricsLoggerService.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/MetricsLoggerService~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/MetricsLoggerService.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/Model/ActionType.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/ActionType.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/ActionType.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/ActionType~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/ActionType.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/Model/Content.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/Content.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/Content.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/Content~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/Content.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/Model/DeviceInfo.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/DeviceInfo.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/DeviceInfo.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/DeviceInfo~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/DeviceInfo.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/Model/DeviceType.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/DeviceType.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/DeviceType.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/DeviceType~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/DeviceType.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/Model/IDMap.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/IDMap.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/IDMap.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/IDMap~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/IDMap.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/Model/IDProducer.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/IDProducer.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/IDProducer.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/IDProducer~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/IDProducer.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/Model/UseCase.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/UseCase.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/UseCase.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/UseCase~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/Model/UseCase.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/NetworkConnection.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/NetworkConnection.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/NetworkConnection.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/NetworkConnection~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/NetworkConnection.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/PersistentStore.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/PersistentStore.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/PersistentStore.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/PersistentStore~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/PersistentStore.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/SchemaProtos/proto_common_common.pb.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_common_common.pb.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_common_common.pb.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_common_common.pb~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_common_common.pb.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/SchemaProtos/proto_delivery_delivery.pb.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_delivery_delivery.pb.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_delivery_delivery.pb.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_delivery_delivery.pb~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_delivery_delivery.pb.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/SchemaProtos/proto_event_event.pb.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_event_event.pb.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_event_event.pb.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_event_event.pb~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_event_event.pb.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/SchemaProtos/proto_promotion_promotion.pb.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_promotion_promotion.pb.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_promotion_promotion.pb.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_promotion_promotion.pb~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/SchemaProtos/proto_promotion_promotion.pb.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/ScrollTracker.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ScrollTracker.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ScrollTracker.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ScrollTracker~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ScrollTracker.swiftdeps"
+  },
+  "/Users/yuhong/src/promotedai/ios-metrics-sdk/Sources/PromotedAIMetricsSDK/ViewTracker.swift": {
+    "dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ViewTracker.d",
+    "object": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ViewTracker.swift.o",
+    "swiftmodule": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ViewTracker~partial.swiftmodule",
+    "swift-dependencies": "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/ViewTracker.swiftdeps"
+  }
+}

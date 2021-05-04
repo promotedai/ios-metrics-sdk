@@ -1,0 +1,870 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "Google_Protobuf_DoubleValue"
+- "Google_Protobuf_FloatValue"
+- "Google_Protobuf_Int64Value"
+- "Google_Protobuf_UInt64Value"
+- "Google_Protobuf_Int32Value"
+- "Google_Protobuf_UInt32Value"
+- "Google_Protobuf_BoolValue"
+- "Google_Protobuf_StringValue"
+- "Google_Protobuf_BytesValue"
+- "=="
+- "=="
+- "=="
+- "=="
+- "=="
+- "=="
+- "=="
+- "=="
+- "=="
+provides-nominal:
+- "13SwiftProtobuf07Google_B12_DoubleValueV"
+- "13SwiftProtobuf07Google_B11_FloatValueV"
+- "13SwiftProtobuf07Google_B11_Int64ValueV"
+- "13SwiftProtobuf07Google_B12_UInt64ValueV"
+- "13SwiftProtobuf07Google_B11_Int32ValueV"
+- "13SwiftProtobuf07Google_B12_UInt32ValueV"
+- "13SwiftProtobuf07Google_B10_BoolValueV"
+- "13SwiftProtobuf07Google_B12_StringValueV"
+- "13SwiftProtobuf07Google_B11_BytesValueV"
+provides-member:
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", ""]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", ""]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", ""]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", ""]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", ""]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", ""]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", ""]
+- ["13SwiftProtobuf07Google_B12_StringValueV", ""]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", ""]
+provides-dynamic-lookup:
+depends-top-level:
+- !private "!"
+- !private "!="
+- "+"
+- "=="
+- "Bool"
+- "BooleanLiteralType"
+- "Data"
+- !private "Decoder"
+- "Dictionary"
+- "Double"
+- "Float"
+- "FloatLiteralType"
+- "Google_Protobuf_BoolValue"
+- "Google_Protobuf_BytesValue"
+- "Google_Protobuf_DoubleValue"
+- "Google_Protobuf_FloatValue"
+- "Google_Protobuf_Int32Value"
+- "Google_Protobuf_Int64Value"
+- "Google_Protobuf_StringValue"
+- "Google_Protobuf_UInt32Value"
+- "Google_Protobuf_UInt64Value"
+- "Int32"
+- "Int64"
+- "IntegerLiteralType"
+- !private "Message"
+- !private "ProtobufAPIVersionCheck"
+- !private "ProtobufAPIVersion_2"
+- "String"
+- "StringLiteralType"
+- "SwiftProtobuf"
+- "UInt32"
+- "UInt64"
+- !private "UnknownStorage"
+- !private "Visitor"
+- "_2"
+- !private "_GeneratedWithProtocGenSwiftVersion"
+- !private "_MessageImplementationBase"
+- !private "_NameMap"
+- !private "_ProtoNameProviding"
+- "_protobuf_package"
+- !private "unknownFields"
+- !private "~="
+depends-member:
+- ["SK", ""]
+- ["SK", "init"]
+- !private ["SK", "isEmpty"]
+- ["s7CVarArgP", "init"]
+- !private ["s7CVarArgP", "isEmpty"]
+- ["Sl", ""]
+- !private ["Sl", "_customIndexOfEquatableElement"]
+- !private ["Sl", "_customLastIndexOfEquatableElement"]
+- !private ["Sl", "_failEarlyRangeCheck"]
+- !private ["Sl", "count"]
+- !private ["Sl", "distance"]
+- !private ["Sl", "endIndex"]
+- !private ["Sl", "formIndex"]
+- !private ["Sl", "index"]
+- !private ["Sl", "indices"]
+- ["Sl", "init"]
+- !private ["Sl", "isEmpty"]
+- !private ["Sl", "makeIterator"]
+- !private ["Sl", "startIndex"]
+- !private ["Sl", "subscript"]
+- ["SL", ""]
+- ["SL", "init"]
+- !private ["SL", "isEmpty"]
+- ["10Foundation15ContiguousBytesP", "init"]
+- !private ["10Foundation15ContiguousBytesP", "isEmpty"]
+- ["s28CustomDebugStringConvertibleP", "=="]
+- ["s28CustomDebugStringConvertibleP", "Data"]
+- ["s28CustomDebugStringConvertibleP", "String"]
+- ["s28CustomDebugStringConvertibleP", "SwiftProtobuf"]
+- ["s28CustomDebugStringConvertibleP", ""]
+- ["s28CustomDebugStringConvertibleP", "_protobuf_generated_isEqualTo"]
+- ["s28CustomDebugStringConvertibleP", "_protobuf_nameMap"]
+- ["s28CustomDebugStringConvertibleP", "_protobuf_package"]
+- ["s28CustomDebugStringConvertibleP", "_rawHashValue"]
+- ["s28CustomDebugStringConvertibleP", "debugDescription"]
+- ["s28CustomDebugStringConvertibleP", "decodeMessage"]
+- ["s28CustomDebugStringConvertibleP", "hash"]
+- ["s28CustomDebugStringConvertibleP", "hashValue"]
+- ["s28CustomDebugStringConvertibleP", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "isEmpty"]
+- ["s28CustomDebugStringConvertibleP", "isEqualTo"]
+- ["s28CustomDebugStringConvertibleP", "isInitialized"]
+- ["s28CustomDebugStringConvertibleP", "protoMessageName"]
+- ["s28CustomDebugStringConvertibleP", "protobuf_nameMap"]
+- ["s28CustomDebugStringConvertibleP", "protobuf_package"]
+- ["s28CustomDebugStringConvertibleP", "traverse"]
+- ["s28CustomDebugStringConvertibleP", "unknownFields"]
+- !private ["s28CustomDebugStringConvertibleP", "value"]
+- ["s17CustomReflectableP", "init"]
+- !private ["s17CustomReflectableP", "isEmpty"]
+- ["s23CustomStringConvertibleP", ""]
+- ["s23CustomStringConvertibleP", "init"]
+- !private ["s23CustomStringConvertibleP", "isEmpty"]
+- ["10Foundation4DataV", "init"]
+- !private ["10Foundation4DataV", "isEmpty"]
+- ["10Foundation12DataProtocolP", ""]
+- ["10Foundation12DataProtocolP", "init"]
+- !private ["10Foundation12DataProtocolP", "isEmpty"]
+- ["Se", "init"]
+- !private ["Se", "isEmpty"]
+- !private ["13SwiftProtobuf7DecoderP", "decodeSingularBoolField"]
+- !private ["13SwiftProtobuf7DecoderP", "decodeSingularBytesField"]
+- !private ["13SwiftProtobuf7DecoderP", "decodeSingularDoubleField"]
+- !private ["13SwiftProtobuf7DecoderP", "decodeSingularFloatField"]
+- !private ["13SwiftProtobuf7DecoderP", "decodeSingularInt32Field"]
+- !private ["13SwiftProtobuf7DecoderP", "decodeSingularInt64Field"]
+- !private ["13SwiftProtobuf7DecoderP", "decodeSingularStringField"]
+- !private ["13SwiftProtobuf7DecoderP", "decodeSingularUInt32Field"]
+- !private ["13SwiftProtobuf7DecoderP", "decodeSingularUInt64Field"]
+- !private ["13SwiftProtobuf7DecoderP", "nextFieldNumber"]
+- ["SE", "init"]
+- !private ["SE", "isEmpty"]
+- ["SQ", "=="]
+- ["SQ", "Data"]
+- ["SQ", "String"]
+- ["SQ", "SwiftProtobuf"]
+- ["SQ", ""]
+- ["SQ", "_protobuf_generated_isEqualTo"]
+- ["SQ", "_protobuf_nameMap"]
+- ["SQ", "_protobuf_package"]
+- ["SQ", "_rawHashValue"]
+- ["SQ", "debugDescription"]
+- ["SQ", "decodeMessage"]
+- ["SQ", "hash"]
+- ["SQ", "hashValue"]
+- ["SQ", "init"]
+- !private ["SQ", "isEmpty"]
+- ["SQ", "isEqualTo"]
+- ["SQ", "isInitialized"]
+- ["SQ", "protoMessageName"]
+- ["SQ", "protobuf_nameMap"]
+- ["SQ", "protobuf_package"]
+- ["SQ", "traverse"]
+- ["SQ", "unknownFields"]
+- !private ["SQ", "value"]
+- ["s27ExpressibleByBooleanLiteralP", "=="]
+- ["s27ExpressibleByBooleanLiteralP", "SwiftProtobuf"]
+- ["s27ExpressibleByBooleanLiteralP", "_protobuf_generated_isEqualTo"]
+- ["s27ExpressibleByBooleanLiteralP", "_protobuf_nameMap"]
+- ["s27ExpressibleByBooleanLiteralP", "_protobuf_package"]
+- ["s27ExpressibleByBooleanLiteralP", "_rawHashValue"]
+- ["s27ExpressibleByBooleanLiteralP", "debugDescription"]
+- ["s27ExpressibleByBooleanLiteralP", "decodeMessage"]
+- ["s27ExpressibleByBooleanLiteralP", "hash"]
+- ["s27ExpressibleByBooleanLiteralP", "hashValue"]
+- ["s27ExpressibleByBooleanLiteralP", "init"]
+- ["s27ExpressibleByBooleanLiteralP", "isEqualTo"]
+- ["s27ExpressibleByBooleanLiteralP", "isInitialized"]
+- ["s27ExpressibleByBooleanLiteralP", "protoMessageName"]
+- ["s27ExpressibleByBooleanLiteralP", "protobuf_nameMap"]
+- ["s27ExpressibleByBooleanLiteralP", "protobuf_package"]
+- ["s27ExpressibleByBooleanLiteralP", "traverse"]
+- ["s27ExpressibleByBooleanLiteralP", "unknownFields"]
+- !private ["s27ExpressibleByBooleanLiteralP", "value"]
+- ["s30ExpressibleByDictionaryLiteralP", "Key"]
+- ["s30ExpressibleByDictionaryLiteralP", "Value"]
+- ["s30ExpressibleByDictionaryLiteralP", "init"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "=="]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "String"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "SwiftProtobuf"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", ""]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "_protobuf_generated_isEqualTo"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "_protobuf_nameMap"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "_protobuf_package"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "_rawHashValue"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "debugDescription"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "decodeMessage"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "hash"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "hashValue"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "init"]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "isEmpty"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "isEqualTo"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "isInitialized"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "protoMessageName"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "protobuf_nameMap"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "protobuf_package"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "traverse"]
+- ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "unknownFields"]
+- !private ["s43ExpressibleByExtendedGraphemeClusterLiteralP", "value"]
+- ["s25ExpressibleByFloatLiteralP", "=="]
+- ["s25ExpressibleByFloatLiteralP", "SwiftProtobuf"]
+- ["s25ExpressibleByFloatLiteralP", "_protobuf_generated_isEqualTo"]
+- ["s25ExpressibleByFloatLiteralP", "_protobuf_nameMap"]
+- ["s25ExpressibleByFloatLiteralP", "_protobuf_package"]
+- ["s25ExpressibleByFloatLiteralP", "_rawHashValue"]
+- ["s25ExpressibleByFloatLiteralP", "debugDescription"]
+- ["s25ExpressibleByFloatLiteralP", "decodeMessage"]
+- ["s25ExpressibleByFloatLiteralP", "hash"]
+- ["s25ExpressibleByFloatLiteralP", "hashValue"]
+- ["s25ExpressibleByFloatLiteralP", "init"]
+- ["s25ExpressibleByFloatLiteralP", "isEqualTo"]
+- ["s25ExpressibleByFloatLiteralP", "isInitialized"]
+- ["s25ExpressibleByFloatLiteralP", "protoMessageName"]
+- ["s25ExpressibleByFloatLiteralP", "protobuf_nameMap"]
+- ["s25ExpressibleByFloatLiteralP", "protobuf_package"]
+- ["s25ExpressibleByFloatLiteralP", "traverse"]
+- ["s25ExpressibleByFloatLiteralP", "unknownFields"]
+- !private ["s25ExpressibleByFloatLiteralP", "value"]
+- ["s27ExpressibleByIntegerLiteralP", "=="]
+- ["s27ExpressibleByIntegerLiteralP", "SwiftProtobuf"]
+- ["s27ExpressibleByIntegerLiteralP", "_protobuf_generated_isEqualTo"]
+- ["s27ExpressibleByIntegerLiteralP", "_protobuf_nameMap"]
+- ["s27ExpressibleByIntegerLiteralP", "_protobuf_package"]
+- ["s27ExpressibleByIntegerLiteralP", "_rawHashValue"]
+- ["s27ExpressibleByIntegerLiteralP", "debugDescription"]
+- ["s27ExpressibleByIntegerLiteralP", "decodeMessage"]
+- ["s27ExpressibleByIntegerLiteralP", "hash"]
+- ["s27ExpressibleByIntegerLiteralP", "hashValue"]
+- ["s27ExpressibleByIntegerLiteralP", "init"]
+- ["s27ExpressibleByIntegerLiteralP", "isEqualTo"]
+- ["s27ExpressibleByIntegerLiteralP", "isInitialized"]
+- ["s27ExpressibleByIntegerLiteralP", "protoMessageName"]
+- ["s27ExpressibleByIntegerLiteralP", "protobuf_nameMap"]
+- ["s27ExpressibleByIntegerLiteralP", "protobuf_package"]
+- ["s27ExpressibleByIntegerLiteralP", "traverse"]
+- ["s27ExpressibleByIntegerLiteralP", "unknownFields"]
+- !private ["s27ExpressibleByIntegerLiteralP", "value"]
+- ["s32ExpressibleByStringInterpolationP", ""]
+- ["s32ExpressibleByStringInterpolationP", "init"]
+- !private ["s32ExpressibleByStringInterpolationP", "isEmpty"]
+- ["s26ExpressibleByStringLiteralP", "=="]
+- ["s26ExpressibleByStringLiteralP", "String"]
+- ["s26ExpressibleByStringLiteralP", "SwiftProtobuf"]
+- ["s26ExpressibleByStringLiteralP", ""]
+- ["s26ExpressibleByStringLiteralP", "_protobuf_generated_isEqualTo"]
+- ["s26ExpressibleByStringLiteralP", "_protobuf_nameMap"]
+- ["s26ExpressibleByStringLiteralP", "_protobuf_package"]
+- ["s26ExpressibleByStringLiteralP", "_rawHashValue"]
+- ["s26ExpressibleByStringLiteralP", "debugDescription"]
+- ["s26ExpressibleByStringLiteralP", "decodeMessage"]
+- ["s26ExpressibleByStringLiteralP", "hash"]
+- ["s26ExpressibleByStringLiteralP", "hashValue"]
+- ["s26ExpressibleByStringLiteralP", "init"]
+- !private ["s26ExpressibleByStringLiteralP", "isEmpty"]
+- ["s26ExpressibleByStringLiteralP", "isEqualTo"]
+- ["s26ExpressibleByStringLiteralP", "isInitialized"]
+- ["s26ExpressibleByStringLiteralP", "protoMessageName"]
+- ["s26ExpressibleByStringLiteralP", "protobuf_nameMap"]
+- ["s26ExpressibleByStringLiteralP", "protobuf_package"]
+- ["s26ExpressibleByStringLiteralP", "traverse"]
+- ["s26ExpressibleByStringLiteralP", "unknownFields"]
+- !private ["s26ExpressibleByStringLiteralP", "value"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "=="]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "String"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "SwiftProtobuf"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", ""]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "_protobuf_generated_isEqualTo"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "_protobuf_nameMap"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "_protobuf_package"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "_rawHashValue"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "debugDescription"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "decodeMessage"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "hash"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "hashValue"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "init"]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", "isEmpty"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "isEqualTo"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "isInitialized"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "protoMessageName"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "protobuf_nameMap"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "protobuf_package"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "traverse"]
+- ["s33ExpressibleByUnicodeScalarLiteralP", "unknownFields"]
+- !private ["s33ExpressibleByUnicodeScalarLiteralP", "value"]
+- !private ["13SwiftProtobuf9FieldTypeP", "BaseType"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "=="]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "Bool"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "Google_Protobuf_BoolValue"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "String"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "SwiftProtobuf"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", ""]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "_protobuf_generated_isEqualTo"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "_protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "_protobuf_package"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "_rawHashValue"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "debugDescription"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "decodeMessage"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "hash"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "hashValue"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "init"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "isEqualTo"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "isInitialized"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "protoMessageName"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "protobuf_package"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "traverse"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "unknownFields"]
+- ["13SwiftProtobuf07Google_B10_BoolValueV", "value"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "=="]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "Bool"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "Data"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "Google_Protobuf_BytesValue"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "String"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "SwiftProtobuf"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", ""]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "_protobuf_generated_isEqualTo"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "_protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "_protobuf_package"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "_rawHashValue"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "debugDescription"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "decodeMessage"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "hash"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "hashValue"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "init"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "isEqualTo"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "isInitialized"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "protoMessageName"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "protobuf_package"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "traverse"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "unknownFields"]
+- ["13SwiftProtobuf07Google_B11_BytesValueV", "value"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "=="]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "Bool"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "Double"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "Google_Protobuf_DoubleValue"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "String"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "SwiftProtobuf"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", ""]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "_protobuf_generated_isEqualTo"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "_protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "_protobuf_package"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "_rawHashValue"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "debugDescription"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "decodeMessage"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "hash"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "hashValue"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "init"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "isEqualTo"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "isInitialized"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "protoMessageName"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "protobuf_package"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "traverse"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "unknownFields"]
+- ["13SwiftProtobuf07Google_B12_DoubleValueV", "value"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "=="]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "Bool"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "Float"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "Google_Protobuf_FloatValue"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "String"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "SwiftProtobuf"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", ""]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "_protobuf_generated_isEqualTo"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "_protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "_protobuf_package"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "_rawHashValue"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "debugDescription"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "decodeMessage"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "hash"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "hashValue"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "init"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "isEqualTo"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "isInitialized"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "protoMessageName"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "protobuf_package"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "traverse"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "unknownFields"]
+- ["13SwiftProtobuf07Google_B11_FloatValueV", "value"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "=="]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "Bool"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "Google_Protobuf_Int32Value"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "Int32"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "String"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "SwiftProtobuf"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", ""]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "_protobuf_generated_isEqualTo"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "_protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "_protobuf_package"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "_rawHashValue"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "debugDescription"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "decodeMessage"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "hash"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "hashValue"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "init"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "isEqualTo"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "isInitialized"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "protoMessageName"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "protobuf_package"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "traverse"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "unknownFields"]
+- ["13SwiftProtobuf07Google_B11_Int32ValueV", "value"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "=="]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "Bool"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "Google_Protobuf_Int64Value"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "Int64"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "String"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "SwiftProtobuf"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", ""]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "_protobuf_generated_isEqualTo"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "_protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "_protobuf_package"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "_rawHashValue"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "debugDescription"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "decodeMessage"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "hash"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "hashValue"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "init"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "isEqualTo"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "isInitialized"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "protoMessageName"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "protobuf_package"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "traverse"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "unknownFields"]
+- ["13SwiftProtobuf07Google_B11_Int64ValueV", "value"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "=="]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "Bool"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "Google_Protobuf_StringValue"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "String"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "SwiftProtobuf"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", ""]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "_protobuf_generated_isEqualTo"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "_protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "_protobuf_package"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "_rawHashValue"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "debugDescription"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "decodeMessage"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "hash"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "hashValue"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "init"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "isEqualTo"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "isInitialized"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "protoMessageName"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "protobuf_package"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "traverse"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "unknownFields"]
+- ["13SwiftProtobuf07Google_B12_StringValueV", "value"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "=="]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "Bool"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "Google_Protobuf_UInt32Value"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "String"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "SwiftProtobuf"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "UInt32"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", ""]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "_protobuf_generated_isEqualTo"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "_protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "_protobuf_package"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "_rawHashValue"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "debugDescription"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "decodeMessage"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "hash"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "hashValue"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "init"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "isEqualTo"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "isInitialized"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "protoMessageName"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "protobuf_package"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "traverse"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "unknownFields"]
+- ["13SwiftProtobuf07Google_B12_UInt32ValueV", "value"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "=="]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "Bool"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "Google_Protobuf_UInt64Value"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "String"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "SwiftProtobuf"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "UInt64"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", ""]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "_protobuf_generated_isEqualTo"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "_protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "_protobuf_package"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "_rawHashValue"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "debugDescription"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "decodeMessage"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "hash"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "hashValue"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "init"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "isEqualTo"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "isInitialized"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "protoMessageName"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "protobuf_nameMap"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "protobuf_package"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "traverse"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "unknownFields"]
+- ["13SwiftProtobuf07Google_B12_UInt64ValueV", "value"]
+- ["SH", "=="]
+- ["SH", "Data"]
+- ["SH", "String"]
+- ["SH", "SwiftProtobuf"]
+- ["SH", ""]
+- ["SH", "_protobuf_generated_isEqualTo"]
+- ["SH", "_protobuf_nameMap"]
+- ["SH", "_protobuf_package"]
+- ["SH", "_rawHashValue"]
+- ["SH", "debugDescription"]
+- ["SH", "decodeMessage"]
+- ["SH", "hash"]
+- ["SH", "hashValue"]
+- ["SH", "init"]
+- !private ["SH", "isEmpty"]
+- ["SH", "isEqualTo"]
+- ["SH", "isInitialized"]
+- ["SH", "protoMessageName"]
+- ["SH", "protobuf_nameMap"]
+- ["SH", "protobuf_package"]
+- ["SH", "traverse"]
+- ["SH", "unknownFields"]
+- !private ["SH", "value"]
+- ["s25LosslessStringConvertibleP", ""]
+- ["s25LosslessStringConvertibleP", "init"]
+- !private ["s25LosslessStringConvertibleP", "isEmpty"]
+- ["13SwiftProtobuf7MessageP", "=="]
+- ["13SwiftProtobuf7MessageP", "Data"]
+- ["13SwiftProtobuf7MessageP", "String"]
+- ["13SwiftProtobuf7MessageP", "SwiftProtobuf"]
+- ["13SwiftProtobuf7MessageP", ""]
+- ["13SwiftProtobuf7MessageP", "_protobuf_generated_isEqualTo"]
+- ["13SwiftProtobuf7MessageP", "_protobuf_nameMap"]
+- ["13SwiftProtobuf7MessageP", "_protobuf_package"]
+- ["13SwiftProtobuf7MessageP", "_rawHashValue"]
+- ["13SwiftProtobuf7MessageP", "debugDescription"]
+- ["13SwiftProtobuf7MessageP", "decodeMessage"]
+- ["13SwiftProtobuf7MessageP", "hash"]
+- ["13SwiftProtobuf7MessageP", "hashValue"]
+- ["13SwiftProtobuf7MessageP", "init"]
+- ["13SwiftProtobuf7MessageP", "isEqualTo"]
+- ["13SwiftProtobuf7MessageP", "isInitialized"]
+- ["13SwiftProtobuf7MessageP", "protoMessageName"]
+- ["13SwiftProtobuf7MessageP", "protobuf_nameMap"]
+- ["13SwiftProtobuf7MessageP", "protobuf_package"]
+- ["13SwiftProtobuf7MessageP", "traverse"]
+- ["13SwiftProtobuf7MessageP", "unknownFields"]
+- !private ["13SwiftProtobuf7MessageP", "value"]
+- ["s10MirrorPathP", "init"]
+- !private ["s10MirrorPathP", "isEmpty"]
+- ["SM", ""]
+- ["SM", "init"]
+- !private ["SM", "isEmpty"]
+- ["10Foundation19MutableDataProtocolP", "init"]
+- !private ["10Foundation19MutableDataProtocolP", "isEmpty"]
+- !private ["So8NSCodingP", ""]
+- !private ["So8NSCodingP", "isEmpty"]
+- !private ["So9NSCopyingP", "isEmpty"]
+- !private ["So21NSItemProviderReadingP", "isEmpty"]
+- !private ["So21NSItemProviderWritingP", "isEmpty"]
+- !private ["So16NSMutableCopyingP", "isEmpty"]
+- !private ["So8NSObjectC", "isEmpty"]
+- !private ["So8NSObjectP", ""]
+- !private ["So8NSObjectP", "isEmpty"]
+- !private ["So14NSSecureCodingP", "isEmpty"]
+- !private ["So8NSStringC", "isEmpty"]
+- ["13SwiftProtobuf8_NameMapV0C11DescriptionO", "same"]
+- !private ["Sj", ""]
+- ["13SwiftProtobuf0B15APIVersionCheckP", "SwiftProtobuf"]
+- ["13SwiftProtobuf0B15APIVersionCheckP", "Version"]
+- !private ["13SwiftProtobuf0B15APIVersionCheckP", ""]
+- ["13SwiftProtobuf0B12APIVersion_2P", ""]
+- !private ["13SwiftProtobuf0B4BoolV", ""]
+- !private ["13SwiftProtobuf0B5BytesV", ""]
+- !private ["13SwiftProtobuf0B6DoubleV", ""]
+- !private ["13SwiftProtobuf0B5FloatV", ""]
+- !private ["13SwiftProtobuf0B5Int32V", ""]
+- !private ["13SwiftProtobuf0B5Int64V", ""]
+- !private ["13SwiftProtobuf0B6StringV", ""]
+- !private ["13SwiftProtobuf0B6UInt32V", ""]
+- !private ["13SwiftProtobuf0B6UInt64V", ""]
+- ["13SwiftProtobuf0B7WrapperP", "=="]
+- ["13SwiftProtobuf0B7WrapperP", "Data"]
+- ["13SwiftProtobuf0B7WrapperP", "String"]
+- ["13SwiftProtobuf0B7WrapperP", "SwiftProtobuf"]
+- !private ["13SwiftProtobuf0B7WrapperP", "WrappedType"]
+- ["13SwiftProtobuf0B7WrapperP", "_protobuf_generated_isEqualTo"]
+- ["13SwiftProtobuf0B7WrapperP", "_protobuf_nameMap"]
+- ["13SwiftProtobuf0B7WrapperP", "_protobuf_package"]
+- ["13SwiftProtobuf0B7WrapperP", "_rawHashValue"]
+- ["13SwiftProtobuf0B7WrapperP", "debugDescription"]
+- ["13SwiftProtobuf0B7WrapperP", "decodeMessage"]
+- ["13SwiftProtobuf0B7WrapperP", "hash"]
+- ["13SwiftProtobuf0B7WrapperP", "hashValue"]
+- ["13SwiftProtobuf0B7WrapperP", "init"]
+- ["13SwiftProtobuf0B7WrapperP", "isEqualTo"]
+- ["13SwiftProtobuf0B7WrapperP", "isInitialized"]
+- ["13SwiftProtobuf0B7WrapperP", "protoMessageName"]
+- ["13SwiftProtobuf0B7WrapperP", "protobuf_nameMap"]
+- ["13SwiftProtobuf0B7WrapperP", "protobuf_package"]
+- ["13SwiftProtobuf0B7WrapperP", "traverse"]
+- ["13SwiftProtobuf0B7WrapperP", "unknownFields"]
+- !private ["13SwiftProtobuf0B7WrapperP", "value"]
+- ["Sk", ""]
+- !private ["Sk", "distance"]
+- !private ["Sk", "index"]
+- ["Sk", "init"]
+- !private ["Sk", "isEmpty"]
+- ["Sm", ""]
+- ["Sm", "init"]
+- !private ["Sm", "isEmpty"]
+- ["10Foundation20ReferenceConvertibleP", "init"]
+- !private ["10Foundation20ReferenceConvertibleP", "isEmpty"]
+- ["ST", ""]
+- ["ST", "init"]
+- !private ["ST", "isEmpty"]
+- !private ["Sx", ""]
+- ["SS", "init"]
+- !private ["SS", "isEmpty"]
+- ["Sy", "init"]
+- !private ["Sy", "isEmpty"]
+- ["s16TextOutputStreamP", ""]
+- ["s16TextOutputStreamP", "init"]
+- !private ["s16TextOutputStreamP", "isEmpty"]
+- ["s20TextOutputStreamableP", ""]
+- ["s20TextOutputStreamableP", "init"]
+- !private ["s20TextOutputStreamableP", "isEmpty"]
+- ["13SwiftProtobuf14UnknownStorageV", ""]
+- ["13SwiftProtobuf14UnknownStorageV", "init"]
+- !private ["13SwiftProtobuf14UnknownStorageV", "traverse"]
+- !private ["13SwiftProtobuf7VisitorP", "visitSingularBoolField"]
+- !private ["13SwiftProtobuf7VisitorP", "visitSingularBytesField"]
+- !private ["13SwiftProtobuf7VisitorP", "visitSingularDoubleField"]
+- !private ["13SwiftProtobuf7VisitorP", "visitSingularFloatField"]
+- !private ["13SwiftProtobuf7VisitorP", "visitSingularInt32Field"]
+- !private ["13SwiftProtobuf7VisitorP", "visitSingularInt64Field"]
+- !private ["13SwiftProtobuf7VisitorP", "visitSingularStringField"]
+- !private ["13SwiftProtobuf7VisitorP", "visitSingularUInt32Field"]
+- !private ["13SwiftProtobuf7VisitorP", "visitSingularUInt64Field"]
+- ["13SwiftProtobuf023_GeneratedWithProtocGenA7Version33_499EA248F32B4CCE09E92A45120A4C3ELLV2_2V", ""]
+- ["13SwiftProtobuf023_GeneratedWithProtocGenA7Version33_499EA248F32B4CCE09E92A45120A4C3ELLV2_2V", "init"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "=="]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "Data"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "String"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "SwiftProtobuf"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "_protobuf_generated_isEqualTo"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "_protobuf_nameMap"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "_protobuf_package"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "_rawHashValue"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "debugDescription"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "decodeMessage"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "hash"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "hashValue"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "init"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "isEqualTo"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "isInitialized"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "protoMessageName"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "protobuf_nameMap"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "protobuf_package"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "traverse"]
+- ["13SwiftProtobuf18_CustomJSONCodableP", "unknownFields"]
+- !private ["13SwiftProtobuf18_CustomJSONCodableP", "value"]
+- ["s30_CustomPlaygroundQuickLookableP", "init"]
+- !private ["s30_CustomPlaygroundQuickLookableP", "isEmpty"]
+- ["s35_ExpressibleByBuiltinBooleanLiteralP", "init"]
+- ["s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP", ""]
+- ["s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP", "init"]
+- !private ["s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP", "isEmpty"]
+- ["s35_ExpressibleByBuiltinIntegerLiteralP", "init"]
+- ["s34_ExpressibleByBuiltinStringLiteralP", "init"]
+- !private ["s34_ExpressibleByBuiltinStringLiteralP", "isEmpty"]
+- ["s41_ExpressibleByBuiltinUnicodeScalarLiteralP", ""]
+- ["s41_ExpressibleByBuiltinUnicodeScalarLiteralP", "init"]
+- !private ["s41_ExpressibleByBuiltinUnicodeScalarLiteralP", "isEmpty"]
+- ["s19_HasContiguousBytesP", "init"]
+- !private ["s19_HasContiguousBytesP", "isEmpty"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "isEmpty"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "isEmpty"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "isEmpty"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "=="]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "Data"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "String"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "SwiftProtobuf"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", ""]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "_protobuf_generated_isEqualTo"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "_protobuf_nameMap"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "_protobuf_package"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "_rawHashValue"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "debugDescription"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "decodeMessage"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "hash"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "hashValue"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "init"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "isEqualTo"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "isInitialized"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "protoMessageName"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "protobuf_nameMap"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "protobuf_package"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "traverse"]
+- ["13SwiftProtobuf26_MessageImplementationBaseP", "unknownFields"]
+- !private ["13SwiftProtobuf26_MessageImplementationBaseP", "value"]
+- ["13SwiftProtobuf8_NameMapV", ""]
+- ["s21_ObjectiveCBridgeableP", ""]
+- !private ["s21_ObjectiveCBridgeableP", "_ObjectiveCType"]
+- ["s21_ObjectiveCBridgeableP", "init"]
+- !private ["s21_ObjectiveCBridgeableP", "isEmpty"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "=="]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "Data"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "String"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "SwiftProtobuf"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", ""]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "_protobuf_generated_isEqualTo"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "_protobuf_nameMap"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "_protobuf_package"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "_rawHashValue"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "debugDescription"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "decodeMessage"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "hash"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "hashValue"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "init"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "isEqualTo"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "isInitialized"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "protoMessageName"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "protobuf_nameMap"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "protobuf_package"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "traverse"]
+- ["13SwiftProtobuf19_ProtoNameProvidingP", "unknownFields"]
+- !private ["13SwiftProtobuf19_ProtoNameProvidingP", "value"]
+depends-nominal:
+- "SK"
+- "s7CVarArgP"
+- "Sl"
+- "SL"
+- "10Foundation15ContiguousBytesP"
+- "s28CustomDebugStringConvertibleP"
+- "s17CustomReflectableP"
+- "s23CustomStringConvertibleP"
+- "10Foundation4DataV"
+- "10Foundation12DataProtocolP"
+- "Se"
+- !private "13SwiftProtobuf7DecoderP"
+- "SE"
+- "SQ"
+- "s27ExpressibleByBooleanLiteralP"
+- "s30ExpressibleByDictionaryLiteralP"
+- "s43ExpressibleByExtendedGraphemeClusterLiteralP"
+- "s25ExpressibleByFloatLiteralP"
+- "s27ExpressibleByIntegerLiteralP"
+- "s32ExpressibleByStringInterpolationP"
+- "s26ExpressibleByStringLiteralP"
+- "s33ExpressibleByUnicodeScalarLiteralP"
+- !private "13SwiftProtobuf9FieldTypeP"
+- "13SwiftProtobuf07Google_B10_BoolValueV"
+- "13SwiftProtobuf07Google_B11_BytesValueV"
+- "13SwiftProtobuf07Google_B12_DoubleValueV"
+- "13SwiftProtobuf07Google_B11_FloatValueV"
+- "13SwiftProtobuf07Google_B11_Int32ValueV"
+- "13SwiftProtobuf07Google_B11_Int64ValueV"
+- "13SwiftProtobuf07Google_B12_StringValueV"
+- "13SwiftProtobuf07Google_B12_UInt32ValueV"
+- "13SwiftProtobuf07Google_B12_UInt64ValueV"
+- "SH"
+- "s25LosslessStringConvertibleP"
+- "13SwiftProtobuf7MessageP"
+- "s10MirrorPathP"
+- "SM"
+- "10Foundation19MutableDataProtocolP"
+- !private "So8NSCodingP"
+- !private "So9NSCopyingP"
+- !private "So21NSItemProviderReadingP"
+- !private "So21NSItemProviderWritingP"
+- !private "So16NSMutableCopyingP"
+- !private "So8NSObjectC"
+- !private "So8NSObjectP"
+- !private "So14NSSecureCodingP"
+- !private "So8NSStringC"
+- "13SwiftProtobuf8_NameMapV0C11DescriptionO"
+- !private "Sj"
+- "13SwiftProtobuf0B15APIVersionCheckP"
+- "13SwiftProtobuf0B12APIVersion_2P"
+- !private "13SwiftProtobuf0B4BoolV"
+- !private "13SwiftProtobuf0B5BytesV"
+- !private "13SwiftProtobuf0B6DoubleV"
+- !private "13SwiftProtobuf0B5FloatV"
+- !private "13SwiftProtobuf0B5Int32V"
+- !private "13SwiftProtobuf0B5Int64V"
+- !private "13SwiftProtobuf0B6StringV"
+- !private "13SwiftProtobuf0B6UInt32V"
+- !private "13SwiftProtobuf0B6UInt64V"
+- "13SwiftProtobuf0B7WrapperP"
+- "Sk"
+- "Sm"
+- "10Foundation20ReferenceConvertibleP"
+- "ST"
+- !private "Sx"
+- "SS"
+- "Sy"
+- "s16TextOutputStreamP"
+- "s20TextOutputStreamableP"
+- "13SwiftProtobuf14UnknownStorageV"
+- !private "13SwiftProtobuf7VisitorP"
+- "13SwiftProtobuf023_GeneratedWithProtocGenA7Version33_499EA248F32B4CCE09E92A45120A4C3ELLV2_2V"
+- "13SwiftProtobuf18_CustomJSONCodableP"
+- "s30_CustomPlaygroundQuickLookableP"
+- "s35_ExpressibleByBuiltinBooleanLiteralP"
+- "s51_ExpressibleByBuiltinExtendedGraphemeClusterLiteralP"
+- "s35_ExpressibleByBuiltinIntegerLiteralP"
+- "s34_ExpressibleByBuiltinStringLiteralP"
+- "s41_ExpressibleByBuiltinUnicodeScalarLiteralP"
+- "s19_HasContiguousBytesP"
+- !private "s35_HasCustomAnyHashableRepresentationP"
+- !private "10Foundation27_KeyValueCodingAndObservingP"
+- !private "10Foundation37_KeyValueCodingAndObservingPublishingP"
+- "13SwiftProtobuf26_MessageImplementationBaseP"
+- "13SwiftProtobuf8_NameMapV"
+- "s21_ObjectiveCBridgeableP"
+- "13SwiftProtobuf19_ProtoNameProvidingP"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/XPC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/ObjectiveC.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Combine.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Dispatch.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Darwin.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Foundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreFoundation.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/CoreGraphics.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/Swift.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/IOKit.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/prebuilt-modules/SwiftOnoneSupport.swiftmodule/arm64e-apple-macos.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/dyld.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/module.modulemap"
+- "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobufPluginLibrary.build/module.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/mach-o/compact_unwind_encoding.modulemap"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/xpc/XPC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Headers/ApplicationServices.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "835c887dbf94900f69c698554b292d8b"
