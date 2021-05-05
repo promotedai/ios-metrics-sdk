@@ -1,4 +1,0 @@
-module SwiftProtobuf {
-    header "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/SwiftProtobuf.build/SwiftProtobuf-Swift.h"
-    requires objc
-}

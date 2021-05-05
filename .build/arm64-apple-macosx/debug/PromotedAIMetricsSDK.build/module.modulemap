@@ -1,4 +1,0 @@
-module PromotedAIMetricsSDK {
-    header "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/PromotedAIMetricsSDK.build/PromotedAIMetricsSDK-Swift.h"
-    requires objc
-}

@@ -1,4 +1,0 @@
-module TestHelpers {
-    header "/Users/yuhong/src/promotedai/ios-metrics-sdk/.build/arm64-apple-macosx/debug/TestHelpers.build/TestHelpers-Swift.h"
-    requires objc
-}
