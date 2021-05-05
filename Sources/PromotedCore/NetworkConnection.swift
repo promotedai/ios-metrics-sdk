@@ -82,7 +82,7 @@ public extension NetworkConnection {
 
 // MARK: - NoOpNetworkConnection
 /** Used to avoid runtime error if no `NetworkConnection` is provided. */
-class NoOpNetworkConnection: NetworkConnection {
+final class NoOpNetworkConnection: NetworkConnection {
   func sendMessage(_ message: Message,
                    clientConfig: ClientConfig,
                    xray: Xray?,

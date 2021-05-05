@@ -4,7 +4,7 @@ import os.log
 @testable import PromotedCore
 
 /** Module for use with testing with convenient fakes. */
-class TestModule: AllDeps {
+final class TestModule: AllDeps {
   // MARK: - Fakes
   var fakeClock = FakeClock()
 

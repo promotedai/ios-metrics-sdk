@@ -2,7 +2,7 @@ import Foundation
 
 @testable import PromotedCore
 
-class CapturedScheduledTimer: ScheduledTimer {
+final class CapturedScheduledTimer: ScheduledTimer {
   var timeInterval: TimeInterval
   var callback: Clock.Callback
   init(timeInterval: TimeInterval, callback: @escaping Clock.Callback) {
@@ -11,7 +11,7 @@ class CapturedScheduledTimer: ScheduledTimer {
   }
 }
 
-class FakeClock: Clock {
+final class FakeClock: Clock {
 
   var now: TimeInterval
   var scheduledTimers: [CapturedScheduledTimer]

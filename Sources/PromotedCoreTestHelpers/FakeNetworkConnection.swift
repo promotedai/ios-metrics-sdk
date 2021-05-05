@@ -3,7 +3,7 @@ import SwiftProtobuf
 
 @testable import PromotedCore
 
-class FakeNetworkConnection: NetworkConnection {
+final class FakeNetworkConnection: NetworkConnection {
   
   struct SendMessageArguments {
     let message: Message?

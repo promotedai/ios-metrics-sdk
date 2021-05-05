@@ -12,7 +12,7 @@ import os.log
  becomes problematic, we will revisit.)
  */
 @objc(PROModuleConfig)
-public class ModuleConfig: NSObject {
+public final class ModuleConfig: NSObject {
   @objc public var initialConfig = ClientConfig()
   public var clientConfigService: ClientConfigService? = nil
   public var networkConnection: NetworkConnection? = nil

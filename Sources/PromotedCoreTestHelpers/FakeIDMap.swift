@@ -2,7 +2,7 @@ import Foundation
 
 @testable import PromotedCore
 
-class FakeIDMap: AbstractIDMap {
+final class FakeIDMap: AbstractIDMap {
   var incrementCounts: Bool = false
   
   override func deterministicUUIDString(value: String?) -> String {

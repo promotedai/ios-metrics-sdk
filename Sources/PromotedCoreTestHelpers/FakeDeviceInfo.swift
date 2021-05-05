@@ -2,7 +2,7 @@ import Foundation
 
 @testable import PromotedCore
 
-class FakeDeviceInfo: DeviceInfo {
+final class FakeDeviceInfo: DeviceInfo {
 
   var deviceType: DeviceType {
     return .mobile
