@@ -22,7 +22,7 @@ public class ModuleConfig: NSObject {
 
   /// Returns a new, unpopulated `ModuleConfig`.
   /// This does not provide a `NetworkConnection`. If you are not
-  /// supplying your own network connection, you should use
+  /// supplying your own `NetworkConnection`, you should use
   /// `defaultConfig()` from the `PromotedMetrics` dependency.
   @objc public static func coreConfig() -> ModuleConfig { ModuleConfig() }
 }

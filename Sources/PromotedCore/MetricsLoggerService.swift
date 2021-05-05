@@ -72,7 +72,7 @@ public final class MetricsLoggerService: NSObject {
 
   /// Creates a new service with a core configuration.
   /// This does not provide a `NetworkConnection`. If you are not
-  /// supplying your own network connection, you should use
+  /// supplying your own `NetworkConnection`, you should use
   /// `init(initialConfig:)` from the `PromotedMetrics` dependency.
   @objc public init(coreInitialConfig: ClientConfig) {
     self.module = Module(initialConfig: coreInitialConfig)
@@ -133,7 +133,7 @@ public extension MetricsLoggerService {
 
   /// Call this to start logging services, prior to accessing `sharedService`.
   /// This does not provide a `NetworkConnection`. If you are not
-  /// supplying your own network connection, you should use
+  /// supplying your own `NetworkConnection`, you should use
   /// `startServices(initialConfig:)` from the `PromotedMetrics` dependency.
   ///
   /// Equivalent to calling `init`, then `startLoggingServices()` on
