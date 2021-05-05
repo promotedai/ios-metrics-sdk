@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 import XCTest
 
-@testable import PromotedAIMetricsSDK
+@testable import PromotedCore
 
 final class UIKitStateTests: XCTestCase {
   

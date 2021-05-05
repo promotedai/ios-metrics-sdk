@@ -12,18 +12,18 @@ import GTMSessionFetcher
 #endif
 
 /** Uses `GTMSessionFetcher` to perform the network connection. */
-final class GTMSessionFetcherConnection: NetworkConnection {
+final class GTMSessionFetcherConnection: AbstractNetworkConnection {
   
   private let fetcherService: GTMSessionFetcherService
 
-  init() {
+  override init() {
     fetcherService = GTMSessionFetcherService()
   }
-  
-  func sendRequest(_ request: URLRequest,
-                   data: Data,
-                   clientConfig: ClientConfig,
-                   callback: Callback?) throws {
+
+  override func sendRequest(_ request: URLRequest,
+                            data: Data,
+                            clientConfig: ClientConfig,
+                            callback: Callback?) throws {
     let fetcher = fetcherService.fetcher(with: request)
     fetcher.isRetryEnabled = true
     fetcher.bodyData = data

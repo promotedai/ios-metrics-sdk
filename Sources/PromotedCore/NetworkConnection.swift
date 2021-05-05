@@ -12,6 +12,11 @@ public protocol NetworkConnection {
                    data: Data,
                    clientConfig: ClientConfig,
                    callback: Callback?) throws
+  
+  func sendMessage(_ message: Message,
+                   clientConfig: ClientConfig,
+                   xray: Xray?,
+                   callback: Callback?) throws
 }
 
 protocol NetworkConnectionSource {
@@ -56,7 +61,13 @@ public extension NetworkConnection {
     }
     return request
   }
-  
+}
+
+// MARK: - AbstractNetworkConnection
+open class AbstractNetworkConnection: NetworkConnection {
+
+  public init() {}
+
   /// Sends the given message using the given configuration.
   /// Implementations should automatically retry within reason, so that
   /// callers should not need to perform retry on fail.
@@ -75,10 +86,10 @@ public extension NetworkConnection {
   ///   any errors that occurred in protobuf serialization *prior to*
   ///   the network operation. Errors resulting from the network operation
   ///   are passed through `callback`.
-  func sendMessage(_ message: Message,
-                   clientConfig: ClientConfig,
-                   xray: Xray?,
-                   callback: Callback?) throws {
+  public func sendMessage(_ message: Message,
+                          clientConfig: ClientConfig,
+                          xray: Xray?,
+                          callback: Callback?) throws {
     do {
       let url = try metricsLoggingURL(clientConfig: clientConfig)
       let data = try bodyData(message: message, clientConfig: clientConfig)
@@ -93,9 +104,16 @@ public extension NetworkConnection {
       throw NetworkConnectionError.unknownError
     }
   }
+  
+  open func sendRequest(_ request: URLRequest,
+                        data: Data,
+                        clientConfig: ClientConfig,
+                        callback: Callback?) throws {
+    assertionFailure("Don't instantiate AbstractNetworkConnection")
+  }
 }
 
-// MARK: -
+// MARK: - NetworkConnectionError
 /** Class of errors produced by `NetworkConnection`. */
 public enum NetworkConnectionError: Error {
   

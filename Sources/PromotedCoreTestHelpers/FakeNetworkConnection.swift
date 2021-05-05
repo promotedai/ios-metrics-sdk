@@ -15,11 +15,18 @@ class FakeNetworkConnection: NetworkConnection {
   init() {
     messages = []
   }
-
+  
+  func sendMessage(_ message: Message,
+                   clientConfig: ClientConfig,
+                   xray: Xray?,
+                   callback: Callback?) throws {
+    messages.append(SendMessageArguments(message: message, callback: callback))
+  }
+  
   func sendRequest(_ request: URLRequest,
                    data: Data,
                    clientConfig: ClientConfig,
                    callback: Callback?) throws {
-    //messages.append(SendMessageArguments(message: message, callback: callback))
+    assertionFailure("Don't call FakeNetworkConnection." + #function)
   }
 }

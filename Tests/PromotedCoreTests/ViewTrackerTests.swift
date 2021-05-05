@@ -2,8 +2,8 @@ import Foundation
 import UIKit
 import XCTest
 
-@testable import PromotedAIMetricsSDK
-@testable import TestHelpers
+@testable import PromotedCore
+@testable import PromotedCoreTestHelpers
 
 final class ViewTrackerTests: ModuleTestCase {
 
