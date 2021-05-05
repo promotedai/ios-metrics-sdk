@@ -150,7 +150,7 @@ typealias AllDeps = InternalDeps &
  If you need to use these dependencies in a unit test, see `TestModule`
  and `ModuleTestCase`.
  */
-public final class Module: AllDeps {
+final class Module: AllDeps {
   var clientConfig: ClientConfig {
     clientConfigService.config
   }
