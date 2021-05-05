@@ -18,7 +18,7 @@ public class ModuleConfig: NSObject {
   public var networkConnection: NetworkConnection? = nil
   public var persistentStore: PersistentStore? = nil
 
-  private init() {}
+  private override init() {}
 
   @objc public static func coreConfig() -> ModuleConfig {
     return ModuleConfig()
@@ -148,7 +148,7 @@ typealias AllDeps = InternalDeps &
  If you need to use these dependencies in a unit test, see `TestModule`
  and `ModuleTestCase`.
  */
-final class Module: AllDeps {
+public final class Module: AllDeps {
   var clientConfig: ClientConfig {
     clientConfigService.config
   }

@@ -1,7 +1,7 @@
 import Foundation
 import os.log
 
-@testable import PromotedAIMetricsSDK
+@testable import PromotedCore
 
 /** Module for use with testing with convenient fakes. */
 class TestModule: AllDeps {

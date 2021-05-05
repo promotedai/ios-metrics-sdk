@@ -1,7 +1,7 @@
 import Foundation
 import SwiftProtobuf
 
-@testable import PromotedAIMetricsSDK
+@testable import PromotedCore
 
 class FakeNetworkConnection: NetworkConnection {
   
@@ -16,10 +16,10 @@ class FakeNetworkConnection: NetworkConnection {
     messages = []
   }
 
-  func sendMessage(_ message: Message,
-                          clientConfig: ClientConfig,
-                          xray: Xray?,
-                          callback: Callback?) throws {
-    messages.append(SendMessageArguments(message: message, callback: callback))
+  func sendRequest(_ request: URLRequest,
+                   data: Data,
+                   clientConfig: ClientConfig,
+                   callback: Callback?) throws {
+    //messages.append(SendMessageArguments(message: message, callback: callback))
   }
 }

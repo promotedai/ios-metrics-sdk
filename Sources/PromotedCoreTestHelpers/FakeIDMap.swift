@@ -1,6 +1,6 @@
 import Foundation
 
-@testable import PromotedAIMetricsSDK
+@testable import PromotedCore
 
 class FakeIDMap: AbstractIDMap {
   var incrementCounts: Bool = false

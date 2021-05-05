@@ -4,14 +4,14 @@ import Foundation
 import PromotedCore
 #endif
 
-public extension Module {
-  @objc public static func fetcherConfig() -> ModuleConfig {
-    let config = Self.coreConfig()
+public extension ModuleConfig {
+  @objc static func fetcherConfig() -> ModuleConfig {
+    let config = coreConfig()
     config.useFetcher()
     return config
   }
 
-  @objc public func useFetcher() {
+  @objc func useFetcher() {
     networkConnection = GTMSessionFetcherConnection()
   }
 }

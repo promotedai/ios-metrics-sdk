@@ -1,6 +1,6 @@
 import Foundation
 
-@testable import PromotedAIMetricsSDK
+@testable import PromotedCore
 
 class CapturedScheduledTimer: ScheduledTimer {
   var timeInterval: TimeInterval

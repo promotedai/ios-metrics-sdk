@@ -5,9 +5,9 @@ import PromotedCore
 import PromotedFetcher
 #endif
 
-public extension Module {
-  @objc public static func defaultConfig() -> ModuleConfig {
-    let config = Self.coreConfig()
+public extension ModuleConfig {
+  @objc static func defaultConfig() -> ModuleConfig {
+    let config = coreConfig()
     config.useFetcher()
     return config
   }
