@@ -80,6 +80,15 @@ public extension NetworkConnection {
   }
 }
 
+// MARK: - NoOpNetworkConnection
+/** Used to avoid runtime error if no `NetworkConnection` is provided. */
+class NoOpNetworkConnection: NetworkConnection {
+  func sendMessage(_ message: Message,
+                   clientConfig: ClientConfig,
+                   xray: Xray?,
+                   callback: Callback?) throws {}
+}
+
 // MARK: - NetworkConnectionError
 /** Class of errors produced by `NetworkConnection`. */
 public enum NetworkConnectionError: Error {

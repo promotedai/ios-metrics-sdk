@@ -170,7 +170,7 @@ public final class Module: AllDeps {
 
   private(set) lazy var networkConnection: NetworkConnection = {
     assert(networkConnectionSpec != nil, "Missing NetworkConnection")
-    return networkConnectionSpec!
+    return networkConnectionSpec ?? NoOpNetworkConnection()
   } ()
   private let networkConnectionSpec: NetworkConnection?
 
