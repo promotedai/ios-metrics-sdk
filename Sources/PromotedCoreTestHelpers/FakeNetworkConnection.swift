@@ -22,11 +22,4 @@ class FakeNetworkConnection: NetworkConnection {
                    callback: Callback?) throws {
     messages.append(SendMessageArguments(message: message, callback: callback))
   }
-  
-  func sendRequest(_ request: URLRequest,
-                   data: Data,
-                   clientConfig: ClientConfig,
-                   callback: Callback?) throws {
-    assertionFailure("Don't call FakeNetworkConnection." + #function)
-  }
 }

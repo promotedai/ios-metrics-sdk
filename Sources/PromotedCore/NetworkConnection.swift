@@ -3,7 +3,7 @@ import SwiftProtobuf
 
 // MARK: -
 /** Network connection used to send log messages to server. */
-public protocol NetworkConnection {
+public protocol NetworkConnection: AnyObject {
   
   /// Callback for `sendMessage`. Will be invoked on main thread.
   typealias Callback = (Data?, Error?) -> Void
@@ -29,11 +29,6 @@ public protocol NetworkConnection {
   func sendMessage(_ message: Message,
                    clientConfig: ClientConfig,
                    xray: Xray?,
-                   callback: Callback?) throws
-
-  func sendRequest(_ request: URLRequest,
-                   data: Data,
-                   clientConfig: ClientConfig,
                    callback: Callback?) throws
 }
 
@@ -79,38 +74,9 @@ public extension NetworkConnection {
     }
     return request
   }
-}
 
-// MARK: - AbstractNetworkConnection
-/** DO NOT INSTANTIATE. Base class for NetworkConnection. */
-open class AbstractNetworkConnection: NetworkConnection {
-
-  public init() {}
-
-  public func sendMessage(_ message: Message,
-                          clientConfig: ClientConfig,
-                          xray: Xray?,
-                          callback: Callback?) throws {
-    do {
-      let url = try metricsLoggingURL(clientConfig: clientConfig)
-      let data = try bodyData(message: message, clientConfig: clientConfig)
-      let request = urlRequest(url: url, data: data, clientConfig: clientConfig)
-      xray?.metricsLoggerBatchWillSend(data: data)
-      try sendRequest(request, data: data, clientConfig: clientConfig, callback: callback)
-    } catch BinaryEncodingError.missingRequiredFields {
-      throw NetworkConnectionError.messageSerializationError(message: "Missing required fields.")
-    } catch BinaryEncodingError.anyTranscodeFailure {
-      throw NetworkConnectionError.messageSerializationError(message: "`Any` transcode failed.")
-    } catch {
-      throw NetworkConnectionError.unknownError
-    }
-  }
-
-  open func sendRequest(_ request: URLRequest,
-                        data: Data,
-                        clientConfig: ClientConfig,
-                        callback: Callback?) throws {
-    assertionFailure("Don't instantiate AbstractNetworkConnection")
+  func recordBytesToSend(_ data: Data, xray: Xray?) {
+    xray?.metricsLoggerBatchWillSend(data: data)
   }
 }
 
