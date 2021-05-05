@@ -53,7 +53,7 @@ import UIKit
  scroll events, the more accurately impressions are tracked, but this comes
  at a performance cost. Although this cost is usually negligible relative
  to the amount of computation in most UI updates, `ScrollTracker` minimizes
- this overhead by updating at a fixed frequency rather than in respose to
+ this overhead by updating at a fixed frequency rather than in response to
  every scroll event. This update frequency is controlled via
  `ClientConfig.scrollTrackerUpdateFrequency`.
  
@@ -139,16 +139,6 @@ public final class ScrollTracker: NSObject {
     self.viewport = CGRect.zero
   }
 
-  private func clearAllState() {
-    clearContent()
-    collectionViewLayoutObservation = nil
-    scrollViewOffsetObservation = nil
-    if timer != nil {
-      clock.cancel(scheduledTimer: timer!)
-      timer = nil
-    }
-  }
-  
   @objc public func clearContent() {
     content.removeAll()
   }
