@@ -1,8 +1,8 @@
 import Foundation
 
-@testable import PromotedAIMetricsSDK
+@testable import PromotedCore
 
-class FakeDeviceInfo: DeviceInfo {
+final class FakeDeviceInfo: DeviceInfo {
 
   var deviceType: DeviceType {
     return .mobile

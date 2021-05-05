@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-@testable import PromotedAIMetricsSDK
+@testable import PromotedCore
 
 /**
  Base class that provides a `TestModule` with convenience properties.

@@ -1,9 +1,8 @@
 import Foundation
-import TestHelpers
 import XCTest
 
-@testable import PromotedAIMetricsSDK
-@testable import TestHelpers
+@testable import PromotedCore
+@testable import PromotedCoreTestHelpers
 
 final class XrayTests: ModuleTestCase {
   

@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: -
 /** Delegate to be notified when impressions start or end. */
-public protocol ImpressionLoggerDelegate: class {
+public protocol ImpressionLoggerDelegate: AnyObject {
 
   /// Notifies delegate of impression starts.
   func impressionLogger(

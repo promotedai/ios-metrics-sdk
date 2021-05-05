@@ -9,37 +9,54 @@ let package = Package(
   ],
   products: [
     .library(
-      name: "PromotedAIMetricsSDK",
+      name: "PromotedCore",
       targets: [
-        "PromotedAIMetricsSDK",
+        "PromotedCore",
       ]),
     .library(
-      name: "TestHelpers",
+      name: "PromotedFetcher",
       targets: [
-        "TestHelpers",
+        "PromotedFetcher",
+      ]),
+    .library(
+      name: "PromotedMetrics",
+      targets: [
+        "PromotedMetrics",
       ]),
   ],
   dependencies: [
+    // .package(name: "Firebase", url: "https://github.com/firebase/firebase-ios-sdk", from: "7.0.0"),
     .package(name: "GTMSessionFetcher", url: "https://github.com/google/gtm-session-fetcher", from: "1.5.0"),
     .package(name: "SwiftProtobuf", url: "https://github.com/apple/swift-protobuf", from: "1.15.0"),
   ],
   targets: [
     .target(
-      name: "PromotedAIMetricsSDK",
+      name: "PromotedCore",
       dependencies: [
-        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
         "SwiftProtobuf",
       ]),
     .target(
-      name: "TestHelpers",
+      name: "PromotedFetcher",
       dependencies: [
-        "PromotedAIMetricsSDK",
+        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
+        .target(name: "PromotedCore"),
+      ]),
+    .target(
+      name: "PromotedMetrics",
+      dependencies: [
+        .target(name: "PromotedCore"),
+        .target(name: "PromotedFetcher"),
+      ]),
+    .target(
+      name: "PromotedCoreTestHelpers",
+      dependencies: [
+        .target(name: "PromotedCore"),
       ]),
     .testTarget(
-      name: "PromotedAIMetricsSDKTests",
+      name: "PromotedCoreTests",
       dependencies: [
-        "PromotedAIMetricsSDK",
-        "TestHelpers",
+        .target(name: "PromotedCore"),
+        .target(name: "PromotedCoreTestHelpers"),
       ]),
   ]
 )

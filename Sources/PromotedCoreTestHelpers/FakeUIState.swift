@@ -1,9 +1,9 @@
 import Foundation
 import UIKit
 
-@testable import PromotedAIMetricsSDK
+@testable import PromotedCore
 
-class FakeUIState: UIState {
+final class FakeUIState: UIState {
   var viewControllers: [UIViewController] = []
   func viewControllerStack() -> [UIViewController] {
     return viewControllers

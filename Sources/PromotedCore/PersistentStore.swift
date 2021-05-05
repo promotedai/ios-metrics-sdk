@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: -
 /** Stores information between invocations of the app. */
-public protocol PersistentStore: class {
+public protocol PersistentStore: AnyObject {
   
   /// User ID of last signed-in user. `nil` if user was signed out.
   var userID: String? { get set }

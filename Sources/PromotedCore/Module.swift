@@ -5,14 +5,26 @@ import os.log
  Client-facing configuration for Promoted metrics logging library.
  Use this to provide custom or specific implementations of several
  library components.
+ 
+ Custom implementations of the classes exposed in `ModuleConfig` can't
+ use internal dependencies. If you need any internal deps, pass them in
+ as arguments instead of constructing the object with them. (If this
+ becomes problematic, we will revisit.)
  */
 @objc(PROModuleConfig)
-public class ModuleConfig: NSObject {
+public final class ModuleConfig: NSObject {
   @objc public var initialConfig = ClientConfig()
-  // TODO: What if some specialization has dependencies?
   public var clientConfigService: ClientConfigService? = nil
   public var networkConnection: NetworkConnection? = nil
   public var persistentStore: PersistentStore? = nil
+
+  private override init() {}
+
+  /// Returns a new, unpopulated `ModuleConfig`.
+  /// This does not provide a `NetworkConnection`. If you are not
+  /// supplying your own `NetworkConnection`, you should use
+  /// `defaultConfig()` from the `PromotedMetrics` dependency.
+  @objc public static func coreConfig() -> ModuleConfig { ModuleConfig() }
 }
 
 typealias ClientConfigDeps = ClientConfigSource & ClientConfigServiceSource
@@ -138,7 +150,7 @@ typealias AllDeps = InternalDeps &
  If you need to use these dependencies in a unit test, see `TestModule`
  and `ModuleTestCase`.
  */
-class Module: AllDeps {
+final class Module: AllDeps {
   var clientConfig: ClientConfig {
     clientConfigService.config
   }
@@ -157,7 +169,8 @@ class Module: AllDeps {
   let initialConfig: ClientConfig
 
   private(set) lazy var networkConnection: NetworkConnection = {
-    networkConnectionSpec ?? GTMSessionFetcherConnection()
+    assert(networkConnectionSpec != nil, "Missing NetworkConnection")
+    return networkConnectionSpec ?? NoOpNetworkConnection()
   } ()
   private let networkConnectionSpec: NetworkConnection?
 
@@ -199,5 +212,13 @@ class Module: AllDeps {
     self.clientConfigServiceSpec = clientConfigService
     self.networkConnectionSpec = networkConnection
     self.persistentStoreSpec = persistentStore
+  }
+
+  /// Loads all dependencies from `ModuleConfig`. Ensures that any
+  /// runtime errors occur early on in initialization.
+  func verifyModuleConfigDependencies() {
+    _ = clientConfigService
+    _ = networkConnection
+    _ = persistentStore
   }
 }

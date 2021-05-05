@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-@testable import PromotedAIMetricsSDK
+@testable import PromotedCore
 
 final class OperationMonitorTests: XCTestCase {
   

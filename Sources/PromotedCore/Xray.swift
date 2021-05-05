@@ -220,7 +220,7 @@ public final class Xray: NSObject {
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.message = message
   }
-  
+
   func metricsLoggerBatchWillSend(data: Data) {
     let size = data.count
     osLog?.signpostEvent(name: "batch", format: "sendURLRequest: %{public}d bytes", size)

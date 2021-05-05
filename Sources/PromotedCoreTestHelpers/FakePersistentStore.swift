@@ -1,8 +1,8 @@
 import Foundation
 
-@testable import PromotedAIMetricsSDK
+@testable import PromotedCore
 
-class FakePersistentStore: PersistentStore {
+final class FakePersistentStore: PersistentStore {
   var userID: String? = nil
   var logUserID: String? = nil
   var clientConfigMessage: Data? = nil

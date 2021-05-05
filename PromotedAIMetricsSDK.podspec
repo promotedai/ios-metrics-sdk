@@ -1,5 +1,4 @@
-# Be sure to run `pod lib lint PromotedAIMetricsSDK.podspec' to ensure this is a
-# valid spec before submitting.
+# Run `pod lib lint PromotedAIMetricsSDK.podspec' before submitting.
 #
 # https://guides.cocoapods.org/syntax/podspec.html
 
@@ -19,10 +18,27 @@ Pod::Spec.new do |s|
   s.source           = { :git => 'https://github.com/promotedai/ios-metrics-sdk.git', :tag => s.version.to_s }
   
   s.ios.deployment_target = '11.0'
-  
-  s.source_files = ['Sources/PromotedAIMetricsSDK/**/*.{h,m,swift}']
   s.swift_version = '5.2'
+  
+  # By default we bring in GTMSessionFetcher for networking.
+  # If you provide your own network implementation, depend on
+  # 'PromotedAIMetricsSDK/Core' instead.
+  s.default_subspecs = 'Metrics'
 
-  s.dependency 'GTMSessionFetcher/Core', '~> 1.5.0'
-  s.dependency 'SwiftProtobuf', '~> 1.15.0'
+  s.subspec 'Core' do |core|
+    core.source_files = ['Sources/PromotedCore/**/*.{h,m,swift}']
+    core.dependency 'SwiftProtobuf', '~> 1.15.0'
+  end
+
+  s.subspec 'Fetcher' do |fetcher|
+    fetcher.source_files = ['Sources/PromotedFetcher/**/*.{h,m,swift}']
+    fetcher.dependency 'GTMSessionFetcher/Core', '~> 1.5.0'
+    fetcher.dependency 'PromotedAIMetricsSDK/Core'
+  end
+  
+  s.subspec 'Metrics' do |metrics|
+    metrics.source_files = ['Sources/PromotedMetrics/**/*.{h,m,swift}']
+    metrics.dependency 'PromotedAIMetricsSDK/Core'
+    metrics.dependency 'PromotedAIMetricsSDK/Fetcher'
+  end
 end
