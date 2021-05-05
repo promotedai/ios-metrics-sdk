@@ -11,6 +11,7 @@ final class ScrollTrackerTests: ModuleTestCase {
   
   override func setUp() {
     super.setUp()
+    idMap.incrementCounts = true
     store.userID = "foobar"
     store.logUserID = "fake-log-user-id"
     metricsLogger = MetricsLogger(deps: module)
@@ -28,21 +29,18 @@ final class ScrollTrackerTests: ModuleTestCase {
     
     // Top two views on screen, second view is 50% visible.
     do {
+      func assertEqualUnordered(_ expected: [String], _ actual: [String]) {
+        XCTAssertEqual(Set(expected), Set(actual))
+      }
       scrollTracker.viewport = CGRect(x: 0, y: 0, width: 20, height: 30)
       clock.advance(to: 1)
       let logMessages = metricsLogger.logMessagesForTesting
       XCTAssertEqual(2, logMessages.count)
       let impression0 = logMessages[0] as! Event_Impression
       let impression1 = logMessages[1] as! Event_Impression
-      let actualSet = Set(arrayLiteral: impression0.impressionID, impression1.impressionID)
-      let expectedSet = Set(arrayLiteral:
-          idMap.impressionIDOrNil(insertionID: nil,
-                                  contentID: "id0",
-                                  logUserID: "fake-log-user-id"),
-          idMap.impressionIDOrNil(insertionID: nil,
-                                  contentID: "id1",
-                                  logUserID: "fake-log-user-id"))
-      XCTAssertEqual(expectedSet, actualSet)
+      assertEqualUnordered(["fake-impression-id-1", "fake-impression-id-2"],
+                           [impression0.impressionID, impression1.impressionID])
+      assertEqualUnordered(["id0", "id1"], [impression0.contentID, impression1.contentID])
     }
 
     // Reset viewport to force all views visible on next pass.
@@ -57,10 +55,9 @@ final class ScrollTrackerTests: ModuleTestCase {
       let logMessages = metricsLogger.logMessagesForTesting
       XCTAssertEqual(1, logMessages.count)
       let impression = logMessages[0] as! Event_Impression
-      XCTAssertEqual(idMap.impressionIDOrNil(insertionID: nil,
-                                             contentID: "id1",
-                                             logUserID: "fake-log-user-id"),
-                     impression.impressionID)
+      // This should generate a new impressionID.
+      XCTAssertEqual("fake-impression-id-3", impression.impressionID)
+      XCTAssertEqual("id1", impression.contentID)
     }
   }
   
@@ -78,10 +75,8 @@ final class ScrollTrackerTests: ModuleTestCase {
     let logMessages = metricsLogger.logMessagesForTesting
     XCTAssertEqual(1, logMessages.count)
     let impression0 = logMessages[0] as! Event_Impression
-    XCTAssertEqual(idMap.impressionIDOrNil(insertionID: nil,
-                                           contentID: "id0",
-                                           logUserID: "fake-log-user-id"),
-                   impression0.impressionID)
+    XCTAssertEqual("fake-impression-id-1", impression0.impressionID)
+    XCTAssertEqual("id0", impression0.contentID)
   }
   
   /// Make sure that frames with 0 area don't cause division by 0.

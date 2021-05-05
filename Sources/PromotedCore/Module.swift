@@ -164,7 +164,7 @@ final class Module: AllDeps {
   
   let deviceInfo: DeviceInfo = IOSDeviceInfo()
   
-  let idMap: IDMap = SHA1IDMap()
+  let idMap: IDMap = DefaultIDMap()
   
   let initialConfig: ClientConfig
 

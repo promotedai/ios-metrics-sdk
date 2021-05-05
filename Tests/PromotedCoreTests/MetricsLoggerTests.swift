@@ -246,15 +246,12 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.logImpression(content: item)
     let message = metricsLogger.logMessagesForTesting[0]
     XCTAssertTrue(message is Event_Impression)
-    let impressionID = idMap.impressionIDOrNil(insertionID: "insertion!",
-                                               contentID: "foobar",
-                                               logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
       "timing": {
         "client_log_timestamp": 123000
       },
-      "impression_id": "\(impressionID)",
+      "impression_id": "fake-impression-id",
       "insertion_id": "insertion!",
       "content_id": "foobar",
       "session_id": "fake-session-id",
@@ -271,15 +268,12 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.logImpression(content: item)
     let message = metricsLogger.logMessagesForTesting[0]
     XCTAssertTrue(message is Event_Impression)
-    let impressionID = idMap.impressionIDOrNil(insertionID: nil,
-                                               contentID: "foobar",
-                                               logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
       "timing": {
         "client_log_timestamp": 123000
       },
-      "impression_id": "\(impressionID)",
+      "impression_id": "fake-impression-id",
       "content_id": "foobar",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id"
@@ -296,16 +290,12 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.logNavigateAction(viewController: viewController, forContent: item)
     let message = metricsLogger.logMessagesForTesting[0]
     XCTAssertTrue(message is Event_Action)
-    let impressionID = idMap.impressionIDOrNil(insertionID: nil,
-                                               contentID: "foobar",
-                                               logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
       "timing": {
         "client_log_timestamp": 123000
       },
       "action_id": "fake-action-id",
-      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
       "name": "FakeScreen",
@@ -325,16 +315,12 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.logAddToCartAction(item: item)
     let message = metricsLogger.logMessagesForTesting[0]
     XCTAssertTrue(message is Event_Action)
-    let impressionID = idMap.impressionIDOrNil(insertionID: nil,
-                                               contentID: "foobar",
-                                               logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
       "timing": {
         "client_log_timestamp": 123000
       },
       "action_id": "fake-action-id",
-      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
       "name": "add-to-cart",
@@ -352,16 +338,12 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.logRemoveFromCartAction(item: item)
     let message = metricsLogger.logMessagesForTesting[0]
     XCTAssertTrue(message is Event_Action)
-    let impressionID = idMap.impressionIDOrNil(insertionID: nil,
-                                               contentID: "foobar",
-                                               logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
       "timing": {
         "client_log_timestamp": 123000
       },
       "action_id": "fake-action-id",
-      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
       "name": "remove-from-cart",
@@ -401,16 +383,12 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.logPurchaseAction(item: item)
     let message = metricsLogger.logMessagesForTesting[0]
     XCTAssertTrue(message is Event_Action)
-    let impressionID = idMap.impressionIDOrNil(insertionID: nil,
-                                               contentID: "foobar",
-                                               logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
       "timing": {
         "client_log_timestamp": 123000
       },
       "action_id": "fake-action-id",
-      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
       "name": "purchase",
@@ -428,16 +406,12 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.logShareAction(content: item)
     let message = metricsLogger.logMessagesForTesting[0]
     XCTAssertTrue(message is Event_Action)
-    let impressionID = idMap.impressionIDOrNil(insertionID: nil,
-                                               contentID: "foobar",
-                                               logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
       "timing": {
         "client_log_timestamp": 123000
       },
       "action_id": "fake-action-id",
-      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
       "name": "share",
@@ -455,16 +429,12 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.logLikeAction(content: item)
     let message = metricsLogger.logMessagesForTesting[0]
     XCTAssertTrue(message is Event_Action)
-    let impressionID = idMap.impressionIDOrNil(insertionID: nil,
-                                               contentID: "foobar",
-                                               logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
       "timing": {
         "client_log_timestamp": 123000
       },
       "action_id": "fake-action-id",
-      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
       "name": "like",
@@ -482,16 +452,12 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.logUnlikeAction(content: item)
     let message = metricsLogger.logMessagesForTesting[0]
     XCTAssertTrue(message is Event_Action)
-    let impressionID = idMap.impressionIDOrNil(insertionID: nil,
-                                               contentID: "foobar",
-                                               logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
       "timing": {
         "client_log_timestamp": 123000
       },
       "action_id": "fake-action-id",
-      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
       "name": "unlike",
@@ -509,16 +475,12 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.logCommentAction(content: item)
     let message = metricsLogger.logMessagesForTesting[0]
     XCTAssertTrue(message is Event_Action)
-    let impressionID = idMap.impressionIDOrNil(insertionID: nil,
-                                               contentID: "foobar",
-                                               logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
       "timing": {
         "client_log_timestamp": 123000
       },
       "action_id": "fake-action-id",
-      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
       "name": "comment",
@@ -536,16 +498,12 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.logMakeOfferAction(item: item)
     let message = metricsLogger.logMessagesForTesting[0]
     XCTAssertTrue(message is Event_Action)
-    let impressionID = idMap.impressionIDOrNil(insertionID: nil,
-                                               contentID: "foobar",
-                                               logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
       "timing": {
         "client_log_timestamp": 123000
       },
       "action_id": "fake-action-id",
-      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
       "name": "make-offer",
@@ -563,16 +521,12 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.logAskQuestionAction(content: item)
     let message = metricsLogger.logMessagesForTesting[0]
     XCTAssertTrue(message is Event_Action)
-    let impressionID = idMap.impressionIDOrNil(insertionID: nil,
-                                               contentID: "foobar",
-                                               logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
       "timing": {
         "client_log_timestamp": 123000
       },
       "action_id": "fake-action-id",
-      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
       "name": "ask-question",
@@ -590,16 +544,12 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.logAnswerQuestionAction(content: item)
     let message = metricsLogger.logMessagesForTesting[0]
     XCTAssertTrue(message is Event_Action)
-    let impressionID = idMap.impressionIDOrNil(insertionID: nil,
-                                               contentID: "foobar",
-                                               logUserID: "fake-log-user-id")!
     let expectedJSON = """
     {
       "timing": {
         "client_log_timestamp": 123000
       },
       "action_id": "fake-action-id",
-      "impression_id": "\(impressionID)",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
       "name": "answer-question",
@@ -739,14 +689,15 @@ final class MetricsLoggerTests: ModuleTestCase {
     XCTAssertEqual("fake-view-id-2", action1.viewID)
 
     // Logger should notice vc2 was popped off stack and log a
-    // synthetic view event for vc1
+    // synthetic view event for vc1. This view event should have
+    // a new viewID.
     let message2 = metricsLogger.logMessagesForTesting[1]
     guard let view = message2 as? Event_View else { XCTFail(); return }
-    XCTAssertEqual("fake-view-id-1", view.viewID)
+    XCTAssertEqual("fake-view-id-3", view.viewID)
 
     // Second action should be logged against vc1.
     let message3 = metricsLogger.logMessagesForTesting[2]
     guard let action2 = message3 as? Event_Action else { XCTFail(); return }
-    XCTAssertEqual("fake-view-id-1", action2.viewID)
+    XCTAssertEqual("fake-view-id-3", action2.viewID)
   }
 }
