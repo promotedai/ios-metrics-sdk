@@ -47,6 +47,14 @@ import os.log
  let logger = service.metricsLogger
  let impressionLogger = service.impressionLogger()
  ~~~
+ 
+ # PromotedCore vs PromotedMetrics
+ The above example uses the `PromotedMetrics` dependency. It's assumed
+ that most client integrations will bring in `PromotedMetrics`, which
+ supplies a default implementation for `NetworkConnection`. If you pull
+ in `PromotedCore`, then the various method/parameter names will have
+ `core` in the name (`init(coreInitialConfig:)`,
+ `startServices(coreInitialConfig:)`).
  */
 @objc(PROMetricsLoggerService)
 public final class MetricsLoggerService: NSObject {
@@ -62,7 +70,11 @@ public final class MetricsLoggerService: NSObject {
 
   private let module: Module
 
-  @objc public init(initialConfig: ClientConfig) {
+  /// Creates a new service with a core configuration.
+  /// This does not provide a `NetworkConnection`. If you are not
+  /// supplying your own network connection, you should use
+  /// `init(initialConfig:)` from the `PromotedMetrics` dependency.
+  @objc public init(coreInitialConfig: ClientConfig) {
     self.module = Module(initialConfig: initialConfig)
   }
 
@@ -75,6 +87,7 @@ public final class MetricsLoggerService: NSObject {
   /// startup without performance penalty. For example, in
   /// `application(_:didFinishLaunchingWithOptions:)`.
   @objc public func startLoggingServices() {
+    module.verifyModuleConfigDependencies()
     module.clientConfigService.fetchClientConfig()
   }
 
@@ -119,9 +132,13 @@ public extension MetricsLoggerService {
   private static var moduleConfig: ModuleConfig?
 
   /// Call this to start logging services, prior to accessing `sharedService`.
+  /// This does not provide a `NetworkConnection`. If you are not
+  /// supplying your own network connection, you should use
+  /// `startServices(initialConfig:)` from the `PromotedMetrics` dependency.
   ///
-  /// - SeeAlso: `startLoggingServices()`
-  @objc static func startCoreServices(initialConfig: ClientConfig) {
+  /// Equivalent to calling `init`, then `startLoggingServices()` on
+  /// the shared service.
+  @objc static func startServices(coreInitialConfig: ClientConfig) {
     let moduleConfig = ModuleConfig.coreConfig()
     moduleConfig.initialConfig = initialConfig
     startServices(moduleConfig: moduleConfig)
@@ -129,8 +146,9 @@ public extension MetricsLoggerService {
 
   /// Call this to start logging services, prior to accessing `sharedService`.
   ///
-  /// - SeeAlso: `startLoggingServices()`
-  static func startServices(moduleConfig: ModuleConfig) {
+  /// Equivalent to calling `init`, then `startLoggingServices()` on
+  /// the shared service.
+  @objc static func startServices(moduleConfig: ModuleConfig) {
     self.moduleConfig = moduleConfig
     self.shared.startLoggingServices()
   }

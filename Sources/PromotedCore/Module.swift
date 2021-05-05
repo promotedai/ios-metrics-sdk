@@ -6,10 +6,10 @@ import os.log
  Use this to provide custom or specific implementations of several
  library components.
  
- Custom implementations of these classes can't use internal dependencies.
- If you need any internal deps, then pass them in as arguments instead
- of constructing the object with them. If this becomes problematic, we
- will revisit.
+ Custom implementations of the classes exposed in `ModuleConfig` can't
+ use internal dependencies. If you need any internal deps, pass them in
+ as arguments instead of constructing the object with them. (If this
+ becomes problematic, we will revisit.)
  */
 @objc(PROModuleConfig)
 public class ModuleConfig: NSObject {
@@ -20,9 +20,11 @@ public class ModuleConfig: NSObject {
 
   private override init() {}
 
-  @objc public static func coreConfig() -> ModuleConfig {
-    return ModuleConfig()
-  }
+  /// Returns a new, unpopulated `ModuleConfig`.
+  /// This does not provide a `NetworkConnection`. If you are not
+  /// supplying your own network connection, you should use
+  /// `defaultConfig()` from the `PromotedMetrics` dependency.
+  @objc public static func coreConfig() -> ModuleConfig { ModuleConfig() }
 }
 
 typealias ClientConfigDeps = ClientConfigSource & ClientConfigServiceSource
@@ -167,12 +169,8 @@ public final class Module: AllDeps {
   let initialConfig: ClientConfig
 
   private(set) lazy var networkConnection: NetworkConnection = {
-    #if canImport(GTMSessionFetcherCore) || canImport(GTMSessionFetcher)
-    networkConnectionSpec ?? GTMSessionFetcherConnection()
-    #else
     assert(networkConnectionSpec != nil, "Missing NetworkConnection")
     return networkConnectionSpec!
-    #endif
   } ()
   private let networkConnectionSpec: NetworkConnection?
 
@@ -214,5 +212,13 @@ public final class Module: AllDeps {
     self.clientConfigServiceSpec = clientConfigService
     self.networkConnectionSpec = networkConnection
     self.persistentStoreSpec = persistentStore
+  }
+
+  /// Loads all dependencies from `ModuleConfig`. Ensures that any
+  /// runtime errors occur early on in initialization.
+  func verifyModuleConfigDependencies() {
+    _ = clientConfigService
+    _ = networkConnection
+    _ = persistentStore
   }
 }
