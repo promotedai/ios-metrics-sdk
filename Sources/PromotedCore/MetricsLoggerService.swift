@@ -75,7 +75,7 @@ public final class MetricsLoggerService: NSObject {
   /// supplying your own network connection, you should use
   /// `init(initialConfig:)` from the `PromotedMetrics` dependency.
   @objc public init(coreInitialConfig: ClientConfig) {
-    self.module = Module(initialConfig: initialConfig)
+    self.module = Module(initialConfig: coreInitialConfig)
   }
 
   @objc public init(moduleConfig: ModuleConfig) {
@@ -140,7 +140,7 @@ public extension MetricsLoggerService {
   /// the shared service.
   @objc static func startServices(coreInitialConfig: ClientConfig) {
     let moduleConfig = ModuleConfig.coreConfig()
-    moduleConfig.initialConfig = initialConfig
+    moduleConfig.initialConfig = coreInitialConfig
     startServices(moduleConfig: moduleConfig)
   }
 
