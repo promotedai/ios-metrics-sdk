@@ -145,21 +145,8 @@ public final class ImpressionLogger: NSObject {
   public func collectionViewDidChangeVisibleContent(_ contentArray: [Content]) {
     monitor.execute {
       let now = clock.now
-
-      var newlyShownContent = [Content]()
-      for content in contentArray {
-        if impressionStarts[content] == nil {
-          newlyShownContent.append(content)
-        }
-      }
-
-      var newlyHiddenContent = [Content]()
-      for content in impressionStarts.keys {
-        if !contentArray.contains(content) {
-          newlyHiddenContent.append(content)
-        }
-      }
-
+      let newlyShownContent = contentArray.filter { impressionStarts[$0] == nil }
+      let newlyHiddenContent = impressionStarts.keys.filter { !contentArray.contains($0) }
       broadcastStartAndAddImpressions(contentArray: newlyShownContent, now: now)
       broadcastEndAndRemoveImpressions(contentArray: newlyHiddenContent, now: now)
     }
