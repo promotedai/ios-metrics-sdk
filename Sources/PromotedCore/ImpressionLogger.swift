@@ -124,7 +124,7 @@ public final class ImpressionLogger: NSObject {
   @objc(collectionViewWillDisplayContent:)
   public func collectionViewWillDisplay(content: Content) {
     monitor.execute {
-      broadcastStartAndAddImpressions(contentArray: [content], now: clock.now)
+      broadcastStartAndAddImpressions(contents: [content], now: clock.now)
     }
   }
 
@@ -134,7 +134,7 @@ public final class ImpressionLogger: NSObject {
   @objc(collectionViewDidHideContent:)
   public func collectionViewDidHide(content: Content) {
     monitor.execute {
-      broadcastEndAndRemoveImpressions(contentArray: [content], now: clock.now)
+      broadcastEndAndRemoveImpressions(contents: [content], now: clock.now)
     }
   }
 
@@ -145,38 +145,27 @@ public final class ImpressionLogger: NSObject {
   public func collectionViewDidChangeVisibleContent(_ contentArray: [Content]) {
     monitor.execute {
       let now = clock.now
-
-      var newlyShownContent = [Content]()
-      for content in contentArray {
-        if impressionStarts[content] == nil {
-          newlyShownContent.append(content)
-        }
-      }
-
-      var newlyHiddenContent = [Content]()
-      for content in impressionStarts.keys {
-        if !contentArray.contains(content) {
-          newlyHiddenContent.append(content)
-        }
-      }
-
-      broadcastStartAndAddImpressions(contentArray: newlyShownContent, now: now)
-      broadcastEndAndRemoveImpressions(contentArray: newlyHiddenContent, now: now)
+      let newlyShownContent = contentArray.filter { impressionStarts[$0] == nil }
+      // TODO(yu-hong): Below is potentially O(n^2), but in practice,
+      // the arrays are pretty small.
+      let newlyHiddenContent = impressionStarts.keys.filter { !contentArray.contains($0) }
+      broadcastStartAndAddImpressions(contents: newlyShownContent, now: now)
+      broadcastEndAndRemoveImpressions(contents: newlyHiddenContent, now: now)
     }
   }
 
   /// Call this method when the collection view hides.
   @objc public func collectionViewDidHideAllContent() {
     monitor.execute {
-      let keys = [Content](impressionStarts.keys)
-      broadcastEndAndRemoveImpressions(contentArray: keys, now: clock.now)
+      broadcastEndAndRemoveImpressions(contents: impressionStarts.keys, now: clock.now)
     }
   }
-  
-  private func broadcastStartAndAddImpressions(contentArray: [Content], now: TimeInterval) {
-    guard !contentArray.isEmpty else { return }
+
+  private func broadcastStartAndAddImpressions<T: Collection>(
+      contents: T, now: TimeInterval) where T.Element == Content {
+    guard !contents.isEmpty else { return }
     var impressions = [Impression]()
-    for content in contentArray {
+    for content in contents {
       let impression = Impression(content: content, startTime: now, endTime: nil)
       impressions.append(impression)
       impressionStarts[content] = now
@@ -189,10 +178,11 @@ public final class ImpressionLogger: NSObject {
     delegate?.impressionLogger(self, didStartImpressions: impressions)
   }
   
-  private func broadcastEndAndRemoveImpressions(contentArray: [Content], now: TimeInterval) {
-    guard !contentArray.isEmpty else { return }
+  private func broadcastEndAndRemoveImpressions<T: Collection>(
+      contents: T, now: TimeInterval) where T.Element == Content {
+    guard !contents.isEmpty else { return }
     var impressions = [Impression]()
-    for content in contentArray {
+    for content in contents {
       guard let start = impressionStarts.removeValue(forKey: content) else { continue }
       let impression = Impression(content: content, startTime: start, endTime: now)
       impressions.append(impression)
