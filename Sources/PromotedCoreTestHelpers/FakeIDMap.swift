@@ -2,15 +2,12 @@ import Foundation
 
 @testable import PromotedCore
 
-final class FakeIDMap: AbstractIDMap {
+final class FakeIDMap: IDMap {
+
   var incrementCounts: Bool = false
-  
-  override func deterministicUUIDString(value: String?) -> String {
-    return String(format: "%02x", (value?.hashValue ?? 0))
-  }
 
   private(set) var logUserIDCount: Int = 0
-  override func logUserID() -> String {
+  func logUserID() -> String {
     if incrementCounts {
       logUserIDCount += 1
       return "fake-log-user-id-\(logUserIDCount)"
@@ -18,8 +15,28 @@ final class FakeIDMap: AbstractIDMap {
     return "fake-log-user-id"
   }
 
+  private(set) var sessionIDCount: Int = 0
+  func sessionID() -> String {
+    if incrementCounts {
+      sessionIDCount += 1
+      return "fake-session-id-\(sessionIDCount)"
+    }
+    return "fake-session-id"
+  }
+
+  private(set) var impressionIDCount: Int = 0
+  func impressionID() -> String {
+    if incrementCounts {
+      impressionIDCount += 1
+      return "fake-impression-id-\(impressionIDCount)"
+    }
+    return "fake-impression-id"
+  }
+
+  func contentID(clientID: String) -> String { clientID }
+
   private(set) var actionIDCount: Int = 0
-  override func actionID() -> String {
+  func actionID() -> String {
     if incrementCounts {
       actionIDCount += 1
       return "fake-action-id-\(actionIDCount)"
@@ -27,17 +44,8 @@ final class FakeIDMap: AbstractIDMap {
     return "fake-action-id"
   }
 
-  private(set) var sessionIDCount: Int = 0
-  override func sessionID() -> String {
-    if incrementCounts {
-      sessionIDCount += 1
-      return "fake-session-id-\(sessionIDCount)"
-    }
-    return "fake-session-id"
-  }
-  
   private(set) var viewIDCount: Int = 0
-  override func viewID() -> String {
+  func viewID() -> String {
     if incrementCounts {
       viewIDCount += 1
       return "fake-view-id-\(viewIDCount)"

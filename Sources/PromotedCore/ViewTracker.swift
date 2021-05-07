@@ -14,8 +14,7 @@ final class ViewTracker {
   struct State: Equatable {
     let viewKey: Key
     let useCase: UseCase?
-    let viewID: String
-    
+
     var name: String {
       switch viewKey {
       case .uiKit(let viewController):
@@ -33,7 +32,7 @@ final class ViewTracker {
   private let uiState: UIState
   private let isReactNativeHint: Bool
   
-  var viewID: String { viewStack.top?.viewID ?? viewIDProducer.currentValue }
+  var viewID: String { viewIDProducer.currentValue }
   
   typealias Deps = IDMapSource & UIStateSource
 
@@ -51,11 +50,11 @@ final class ViewTracker {
     if key == viewStack.top?.viewKey {
       return nil
     }
+    viewIDProducer.nextValue()
     if viewStack.popTo(key: key) {
       return viewStack.top!
     }
-    let viewID = viewIDProducer.nextValue()
-    let top = State(viewKey: key, useCase: useCase, viewID: viewID)
+    let top = State(viewKey: key, useCase: useCase)
     viewStack.push(top)
     return top
   }
@@ -67,6 +66,7 @@ final class ViewTracker {
     viewStack = updateViewStack(previousStack: previousStack)
     let newTop = viewStack.top
     if previousStack.top == newTop { return nil }
+    viewIDProducer.nextValue()
     return newTop
   }
 
@@ -121,7 +121,7 @@ extension ViewTracker.Key: CustomDebugStringConvertible {
 }
 
 extension ViewTracker.State: CustomDebugStringConvertible {
-  var debugDescription: String { "\(viewKey.debugDescription)-\(viewID.suffix(5))" }
+  var debugDescription: String { viewKey.debugDescription }
 }
 
 // MARK: - Stack

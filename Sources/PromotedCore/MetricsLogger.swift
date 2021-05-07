@@ -304,13 +304,9 @@ public extension MetricsLogger {
                      requestID: String? = nil,
                      properties: Message? = nil) {
     monitor.execute {
-      let optionalID = idMap.impressionIDOrNil(insertionID: insertionID,
-                                               contentID: contentID,
-                                               logUserID: logUserID)
-      guard let impressionID = optionalID else { return }
       var impression = Event_Impression()
       impression.timing = timingMessage()
-      impression.impressionID = impressionID
+      impression.impressionID = idMap.impressionID()
       if let id = insertionID { impression.insertionID = id }
       if let id = requestID { impression.requestID = id }
       impression.sessionID = sessionID
@@ -350,10 +346,6 @@ public extension MetricsLogger {
       var action = Event_Action()
       action.timing = timingMessage()
       action.actionID = idMap.actionID()
-      let impressionID = idMap.impressionIDOrNil(insertionID: insertionID,
-                                                 contentID: contentID,
-                                                 logUserID: logUserID)
-      if let id = impressionID { action.impressionID = id }
       if let id = insertionID { action.insertionID = id }
       if let id = requestID { action.requestID = id }
       action.sessionID = sessionID
@@ -399,7 +391,7 @@ public extension MetricsLogger {
     monitor.execute {
       var view = Event_View()
       view.timing = timingMessage()
-      view.viewID = trackerState.viewID
+      view.viewID = viewTracker.viewID  // Access ViewTracker property to avoid update.
       view.sessionID = sessionID
       view.name = trackerState.name
       if let use = trackerState.useCase?.protoValue { view.useCase = use }
