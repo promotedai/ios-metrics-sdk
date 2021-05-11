@@ -18,9 +18,9 @@ public extension MetricsLoggerService {
 
   /// Creates a new service with a core configuration.
   /// Creates a default implementation for `NetworkConnection`.
-  @objc convenience init(initialConfig: ClientConfig) {
+  @objc convenience init(initialConfig: ClientConfig) throws {
     let moduleConfig = ModuleConfig.defaultConfig()
     moduleConfig.initialConfig = initialConfig
-    self.init(moduleConfig: moduleConfig)
+    try self.init(moduleConfig: moduleConfig)
   }
 }

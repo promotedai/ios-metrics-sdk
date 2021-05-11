@@ -18,20 +18,30 @@ protocol NSErrorProperties {
   var domain: String { get }
   
   var code: Int { get }
-  
-  var message: String? { get }
 }
 
 extension NSErrorProperties {
 
   var promotedAIDomain: String { "ai.promoted" }
 
+  var debugDescription: String {
+    let description = String(describing: self)
+    return description.prefix(1).capitalized + description.dropFirst()
+  }
+
   func asNSError() -> NSError {
-    var userInfo: [String: Any]? = nil
-    if let message = self.message {
-      userInfo = ["message": message]
+    return NSError(domain: self.domain, code: self.code,
+                   userInfo: [NSDebugDescriptionErrorKey: debugDescription])
+  }
+}
+
+// MARK: - Error
+extension Error {
+  func asExternalError() -> Error {
+    if let e = self as? NSErrorProperties {
+      return e.asNSError()
     }
-    return NSError(domain: self.domain, code: self.code, userInfo: userInfo)
+    return self
   }
 }
 
@@ -63,15 +73,6 @@ extension ClientConfigError: NSErrorProperties {
       return 103
     }
   }
-
-  var message: String? {
-    switch self {
-    case .invalidURL(let urlString):
-      return urlString
-    case .missingAPIKey, .missingDevAPIKey:
-      return nil
-    }
-  }
 }
 
 // MARK: - ModuleConfigError
@@ -90,8 +91,6 @@ extension ModuleConfigError: NSErrorProperties {
       return 201
     }
   }
-
-  var message: String? { nil }
 }
 
 // MARK: - BinaryEncodingError
@@ -106,11 +105,4 @@ extension BinaryEncodingError: NSErrorProperties {
       return 302
     }
   }
-
-  var message: String? { nil }
-}
-
-func NSErrorForUnspecifiedError(_ error: Error) -> NSError {
-  return NSError(domain: "ai.promoted", code: 500,
-                 userInfo: ["message": error.localizedDescription])
 }

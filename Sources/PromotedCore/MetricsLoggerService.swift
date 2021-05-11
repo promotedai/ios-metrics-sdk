@@ -31,18 +31,18 @@ import os.log
  Use from main thread only.
  
  ## Example (using instance):
- ~~~
- let service = MetricsLoggerService(initialConfig: ...)
- service.startLoggingServices()
+ ~~~swift
+ let service = try MetricsLoggerService(initialConfig: ...)
+ try service.startLoggingServices()
  let logger = service.metricsLogger
  let impressionLogger = service.impressionLogger()
  let scrollTracker = service.scrollTracker(collectionView: ...)
  ~~~
  
  ## Example (using shared service):
- ~~~
+ ~~~swift
  // Call this first before accessing the instance.
- MetricsLoggerService.startServices(initialConfig: ...)
+ try MetricsLoggerService.startServices(initialConfig: ...)
  let service = MetricsLoggerService.shared
  let logger = service.metricsLogger
  let impressionLogger = service.impressionLogger()
@@ -55,6 +55,39 @@ import os.log
  in `PromotedCore`, then the various method/parameter names will have
  `core` in the name (`init(coreInitialConfig:)`,
  `startServices(coreInitialConfig:)`).
+ 
+ # Initialization and error handling
+ This service becomes a no-op if it encounters initialization errors,
+ either from its initializers or from `startLoggingServices()`.
+ It's safe to ignore any errors from `startLoggingServices()`.
+ 
+ Initialization errors may not be logged to analytics.
+ 
+ ## Example (Objective C full error handling):
+ ~~~objc
+ NSError *error = nil;
+ PROMetricsLoggerService *service =
+   [[PROMetricsLoggerService alloc] initWithInitialConfig:config error:&error];
+ if (error != nil) {
+   LogInitializationError(error);
+   return nil;
+ }
+ error = nil;
+ [service startLoggingServicesAndReturnError:&error];
+ if (error != nil) {
+   LogInitializationError(error);
+   return nil;
+ }
+ return service;
+ ~~~
+ 
+ ## Example (Objective C ignoring errors):
+ ~~~objc
+ PROMetricsLoggerService *service =
+   [[PROMetricsLoggerService alloc] initWithInitialConfig:config error:nil];
+ [service startLoggingServicesAndReturnError:nil];
+ return service;
+ ~~~
  */
 @objc(PROMetricsLoggerService)
 public final class MetricsLoggerService: NSObject {
@@ -83,15 +116,25 @@ public final class MetricsLoggerService: NSObject {
   /// This does not provide a `NetworkConnection`. If you are not
   /// supplying your own `NetworkConnection`, you should use
   /// `init(initialConfig:)` from the `PromotedMetrics` dependency.
-  @objc public convenience init(coreInitialConfig: ClientConfig) {
+  ///
+  /// Initialization errors may not be logged to analytics.
+  @objc public convenience init(coreInitialConfig: ClientConfig) throws {
     let moduleConfig = ModuleConfig.coreConfig()
     moduleConfig.initialConfig = coreInitialConfig
-    self.init(moduleConfig: moduleConfig)
+    try self.init(moduleConfig: moduleConfig)
   }
 
-  @objc public init(moduleConfig: ModuleConfig) {
+  /// Creates a new service with given `ModuleConfig`.
+  /// Initialization errors may not be logged to analytics.
+  @objc public init(moduleConfig: ModuleConfig) throws {
     self.module = Module(moduleConfig: moduleConfig)
     self.startupResult = .pending
+    do {
+      try module.initialConfig.validateConfig()
+      try module.validateModuleConfigDependencies()
+    } catch {
+      throw error.asExternalError()
+    }
   }
 }
 
@@ -102,22 +145,22 @@ public extension MetricsLoggerService {
   /// startup without performance penalty. For example, in
   /// `application(_:didFinishLaunchingWithOptions:)`.
   ///
-  /// If this method throws an error, then the service becomes a no-op
-  /// object that returns `nil` for `metricsLogger`, `impressionLogger()`,
-  /// and `scrollTracker()`.
+  /// If this method fails or throws an error, then the service becomes
+  /// a no-op object that returns `nil` for `metricsLogger`,
+  /// `impressionLogger()`, and `scrollTracker()`. In Swift, it's safe
+  /// to ignore the thrown error, with `try? service.startLoggingServices()`.
+  /// In Objective C, it's safe to ignore the failure/error from
+  /// `[service startLoggingServicesAndReturnError:]`.
+  ///
+  /// Initialization errors may not be logged to analytics.
   @objc func startLoggingServices() throws {
     guard case .pending = startupResult else { return }
     do {
-      try module.initialConfig.validateConfig()
-      try module.validateModuleConfigDependencies()
-      module.clientConfigService.fetchClientConfig()
+      try module.clientConfigService.fetchClientConfig()
       startupResult = .success
     } catch {
       startupResult = .failure(error: error)
-      if let nsError = error as? NSErrorProperties {
-        throw nsError.asNSError()
-      }
-      throw error
+      throw error.asExternalError()
     }
   }
 }
@@ -189,6 +232,6 @@ public extension MetricsLoggerService {
   @objc(sharedService)
   static let shared: MetricsLoggerService = {
     assert(moduleConfig != nil, "Call startServices() before accessing shared service")
-    return MetricsLoggerService(moduleConfig: moduleConfig!)
+    return try! MetricsLoggerService(moduleConfig: moduleConfig!)
   } ()
 }

@@ -35,7 +35,7 @@ public protocol ClientConfigService: AnyObject {
   func removeClientConfigListener(_ listener: ClientConfigListener)
   
   /// Initiates asynchronous load of client properties.
-  func fetchClientConfig()
+  func fetchClientConfig() throws
 }
 
 protocol ClientConfigServiceSource {
@@ -63,7 +63,7 @@ open class AbstractClientConfigService: ClientConfigService {
     listeners.removeAll(identicalTo: listener)
   }
 
-  open func fetchClientConfig() {
+  open func fetchClientConfig() throws {
     assertionFailure("Don't instantiate AbstractClientConfigService")
   }
 }
@@ -79,7 +79,7 @@ public extension AbstractClientConfigService {
 // MARK: - LocalClientConfigService
 /** Loads from local device. */
 final class LocalClientConfigService: AbstractClientConfigService {
-  public override func fetchClientConfig() {
+  public override func fetchClientConfig() throws {
     // No-op for local config.
   }
 }
