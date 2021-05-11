@@ -216,9 +216,9 @@ final class Module: AllDeps {
 
   /// Loads all dependencies from `ModuleConfig`. Ensures that any
   /// runtime errors occur early on in initialization.
-  func verifyModuleConfigDependencies() {
-    _ = clientConfigService
-    _ = networkConnection
-    _ = persistentStore
+  func validateModuleConfigDependencies() throws {
+    if networkConnectionSpec == nil {
+      throw ModuleConfigError.missingNetworkConnection
+    }
   }
 }

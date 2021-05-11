@@ -126,7 +126,7 @@ extension ViewTracker.State: CustomDebugStringConvertible {
 
 // MARK: - Stack
 fileprivate extension ViewTracker.Stack {
-  var top: ViewTracker.State? { return last }
+  var top: ViewTracker.State? { last }
   
   mutating func push(_ entry: ViewTracker.State) {
     append(entry)

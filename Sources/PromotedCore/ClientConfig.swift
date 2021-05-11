@@ -67,19 +67,27 @@ public final class ClientConfig: NSObject {
   /// Interval at which log messages are sent over the network.
   /// Setting this to lower values will increase the frequency
   /// at which log messages are sent.
-  public var loggingFlushInterval: TimeInterval = 10.0
+  public var loggingFlushInterval: TimeInterval = 10.0 {
+    didSet { bound(&loggingFlushInterval, min: 1.0, max: 300.0) }
+  }
   
   /// Ratio of the view that must be visible to log impression
   /// with `ScrollTracker`.
-  public var scrollTrackerVisibilityThreshold: Float = 0.5
+  public var scrollTrackerVisibilityThreshold: Float = 0.5 {
+    didSet { bound(&scrollTrackerVisibilityThreshold, min: 0.0, max: 1.0) }
+  }
 
   /// Time on screen required to log impression with `ScrollTracker`.
-  public var scrollTrackerDurationThreshold: TimeInterval = 1.0
+  public var scrollTrackerDurationThreshold: TimeInterval = 1.0 {
+    didSet { bound(&scrollTrackerDurationThreshold, min: 0.0) }
+  }
 
   /// Frequency at which `ScrollTracker` calculates impressions.
   /// Setting this to lower values will increase the amount of
   /// processing that `ScrollTracker` performs.
-  public var scrollTrackerUpdateFrequency: TimeInterval = 0.5
+  public var scrollTrackerUpdateFrequency: TimeInterval = 0.5 {
+    didSet { bound(&scrollTrackerUpdateFrequency, min: 0.1, max: 30.0) }
+  }
   
   /// Whether to enable Xray profiling for this session.
   @objc public var xrayEnabled: Bool = false
@@ -96,6 +104,35 @@ public final class ClientConfig: NSObject {
   @objc public var osLogEnabled: Bool = false
 
   @objc public override init() {}
+
+  func bound<T: Comparable>(_ value: inout T, min: T? = nil, max: T? = nil,
+                            function: String = #function) {
+    if let min = min {
+      assert(value >= min, "\(function): min value \(min) (> \(value))")
+      value = Swift.max(min, value)
+    }
+    if let max = max {
+      assert(value <= max, "\(function): max value \(max) (< \(value))")
+      value = Swift.min(max, value)
+    }
+  }
+
+  func validateConfig() throws {
+    if URL(string: metricsLoggingURL) == nil {
+      throw ClientConfigError.invalidURL(urlString: metricsLoggingURL)
+    }
+    if metricsLoggingAPIKey.isEmpty {
+      throw ClientConfigError.missingAPIKey
+    }
+    if !devMetricsLoggingURL.isEmpty {
+      if URL(string: devMetricsLoggingURL) == nil {
+        throw ClientConfigError.invalidURL(urlString: devMetricsLoggingURL)
+      }
+      if devMetricsLoggingAPIKey.isEmpty {
+        throw ClientConfigError.missingDevAPIKey
+      }
+    }
+  }
 }
 
 protocol ClientConfigSource {
