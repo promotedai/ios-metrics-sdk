@@ -67,12 +67,12 @@ import os.log
  ~~~objc
  NSError *error = nil;
  PROMetricsLoggerService *service =
-   [[PROMetricsLoggerService alloc] initWithInitialConfig:config error:&error];
+     [[PROMetricsLoggerService alloc]
+         initWithInitialConfig:config error:&error];
  if (error != nil) {
    LogInitializationError(error);
    return nil;
  }
- error = nil;
  [service startLoggingServicesAndReturnError:&error];
  if (error != nil) {
    LogInitializationError(error);
@@ -84,7 +84,8 @@ import os.log
  ## Example (Objective C ignoring errors):
  ~~~objc
  PROMetricsLoggerService *service =
-   [[PROMetricsLoggerService alloc] initWithInitialConfig:config error:nil];
+     [[PROMetricsLoggerService alloc]
+         initWithInitialConfig:config error:nil];
  [service startLoggingServicesAndReturnError:nil];
  return service;
  ~~~
@@ -156,7 +157,7 @@ public extension MetricsLoggerService {
   @objc func startLoggingServices() throws {
     guard case .pending = startupResult else { return }
     do {
-      try module.clientConfigService.fetchClientConfig()
+      try module.startLoggingServices()
       startupResult = .success
     } catch {
       startupResult = .failure(error: error)

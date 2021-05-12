@@ -221,4 +221,12 @@ final class Module: AllDeps {
       throw ModuleConfigError.missingNetworkConnection
     }
   }
+
+  /// Starts any services among dependencies.
+  func startLoggingServices() throws {
+    if let xray = xray {
+      operationMonitor.addOperationMonitorListener(xray)
+    }
+    try clientConfigService.fetchClientConfig()
+  }
 }

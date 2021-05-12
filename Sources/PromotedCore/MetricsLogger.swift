@@ -99,14 +99,13 @@ public final class MetricsLogger: NSObject {
   private var needsViewStateCheck: Bool
 
   private unowned var monitor: OperationMonitor!
-  private unowned let xray: Xray?
   private let osLog: OSLog?
 
   private lazy var cachedDeviceMessage: Event_Device = deviceMessage()
 
   typealias Deps = ClientConfigSource & ClockSource & NetworkConnectionSource &
                    DeviceInfoSource & IDMapSource & OperationMonitorSource &
-                   OSLogSource & PersistentStoreSource & ViewTrackerSource & XraySource
+                   OSLogSource & PersistentStoreSource & ViewTrackerSource
 
   init(deps: Deps) {
     self.clock = deps.clock
@@ -116,7 +115,6 @@ public final class MetricsLogger: NSObject {
     self.idMap = deps.idMap
     self.monitor = deps.operationMonitor
     self.store = deps.persistentStore
-    self.xray = deps.xray
     self.osLog = deps.osLog(category: "MetricsLogger")
 
     self.logMessages = []
@@ -417,7 +415,7 @@ public extension MetricsLogger {
       return
     }
     logMessages.append(message)
-    xray?.callDidLog(message: message)
+    monitor.executionDidLog(.protobuf(message: message))
     maybeSchedulePendingBatchLoggingFlush()
   }
   
@@ -479,31 +477,34 @@ public extension MetricsLogger {
     cancelPendingBatchLoggingFlush()
     guard !logMessages.isEmpty else { return }
 
-    xray?.metricsLoggerBatchWillStart()
-    defer { xray?.metricsLoggerBatchDidComplete() }
-
-    let eventsCopy = logMessages
-    logMessages.removeAll()
-    let request = logRequestMessage(events: eventsCopy)
-    xray?.metricsLoggerBatchWillSend(message: request)
-    do {
-      try connection.sendMessage(request, clientConfig: config, xray: xray) {
-        [weak self] (data, error) in
-        self?.handleFlushResponse(data: data, error: error)
+    monitor.execute(context: .batch) {
+      let eventsCopy = logMessages
+      logMessages.removeAll()
+      let request = logRequestMessage(events: eventsCopy)
+      monitor.executionDidLog(.protobuf(message: request))
+      do {
+        try connection.sendMessage(request, clientConfig: config, monitor: monitor) {
+          [weak self] (data, error) in
+          self?.handleFlushResponse(data: data, error: error)
+        }
+      } catch {
+        osLog?.error("flush: %{public}@", error.localizedDescription)
+        monitor.executionDidError(error)
       }
-    } catch {
-      osLog?.error("flush: %{public}@", error.localizedDescription)
-      xray?.metricsLoggerBatchDidError(error)
     }
   }
   
   private func handleFlushResponse(data: Data?, error: Error?) {
-    osLog?.info("Logging finished")
-    if let e = error {
-      osLog?.error("flush/sendMessage: %{public}@", e.localizedDescription)
-      xray?.metricsLoggerBatchResponseDidError(e)
+    monitor.execute(context: .batchResponse) {
+      osLog?.info("Logging finished")
+      if let d = data {
+        monitor.executionDidLog(.bytes(data: d))
+      }
+      if let e = error {
+        osLog?.error("flush/sendMessage: %{public}@", e.localizedDescription)
+        monitor.executionDidError(e)
+      }
     }
-    xray?.metricsLoggerBatchResponseDidComplete()
   }
 }
 
@@ -516,13 +517,18 @@ extension MetricsLogger: OperationMonitorListener {
   /// on the first access of the `viewID` property. When called
   /// re-entrantly, only the first (outermost) call causes this
   /// view state check, since that check is relatively expensive.
-  func executionWillStart(context: String) {
+  func executionWillStart(context: OperationMonitor.Context) {
     needsViewStateCheck = true
   }
 
-  func executionDidEnd(context: String) {
+  func executionDidEnd(context: OperationMonitor.Context) {
     needsViewStateCheck = false
   }
+  
+  func execution(context: OperationMonitor.Context, didError error: Error) {}
+
+  func execution(context: OperationMonitor.Context,
+                 didLog loggingActivity: OperationMonitor.LoggingActivity) {}
 }
 
 // MARK: - Testing

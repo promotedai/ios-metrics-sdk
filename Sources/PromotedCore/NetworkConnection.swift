@@ -17,7 +17,7 @@ public protocol NetworkConnection: AnyObject {
   ///     `metricsLoggingWireFormat` property of `clientConfig`, may
   ///     be serialized as JSON or binary format.
   ///   - clientConfig: Configuration to use to send message.
-  ///   - xray: Xray instance to analyze network traffic.
+  ///   - monitor: Records any sent data or errors.
   ///   - callback: Invoked on completion of the network op.
   ///     `NetworkConnection`s should manage their own retry logic, so
   ///     if `callback` is invoked with an error, that error indicates
@@ -28,7 +28,7 @@ public protocol NetworkConnection: AnyObject {
   ///   are passed through `callback`.
   func sendMessage(_ message: Message,
                    clientConfig: ClientConfig,
-                   xray: Xray?,
+                   monitor: OperationMonitor,
                    callback: Callback?) throws
 }
 
@@ -86,12 +86,6 @@ public extension NetworkConnection {
     }
     return request
   }
-
-  /// Records the data that will be sent over network, for the purpose
-  /// of client introspection via `Xray`. Optional.
-  func recordBytesToSend(_ data: Data, xray: Xray?) {
-    xray?.metricsLoggerBatchWillSend(data: data)
-  }
 }
 
 // MARK: - NoOpNetworkConnection
@@ -99,6 +93,6 @@ public extension NetworkConnection {
 final class NoOpNetworkConnection: NetworkConnection {
   func sendMessage(_ message: Message,
                    clientConfig: ClientConfig,
-                   xray: Xray?,
+                   monitor: OperationMonitor,
                    callback: Callback?) throws {}
 }

@@ -9,7 +9,7 @@ public protocol ErrorListener {
   /// Called once per error after call to Promoted logging finishes.
   /// Internal errors are surfaced to clients as `NSError` (see
   /// `ClientConfigError`).
-  @objc func metricsLoggerDidError(_ error: NSError)
+  @objc func promotedLoggerDidError(_ error: NSError)
 }
 
 // MARK: - NSErrorProperties
