@@ -104,6 +104,24 @@ public final class ClientConfig: NSObject {
   @objc public var osLogEnabled: Bool = false
 
   @objc public override init() {}
+  
+  public init(_ config: ClientConfig) {
+    // ClientConfig really should be a struct, but isn't because
+    // of Objective C compatibility.
+    self.loggingEnabled = config.loggingEnabled
+    self.metricsLoggingURL = config.metricsLoggingURL
+    self.metricsLoggingAPIKey = config.metricsLoggingAPIKey
+    self.devMetricsLoggingURL = config.devMetricsLoggingURL
+    self.devMetricsLoggingAPIKey = config.devMetricsLoggingAPIKey
+    self.metricsLoggingWireFormat = config.metricsLoggingWireFormat
+    self.loggingFlushInterval = config.loggingFlushInterval
+    self.scrollTrackerVisibilityThreshold = config.scrollTrackerVisibilityThreshold
+    self.scrollTrackerDurationThreshold = config.scrollTrackerDurationThreshold
+    self.scrollTrackerUpdateFrequency = config.scrollTrackerUpdateFrequency
+    self.xrayEnabled = config.xrayEnabled
+    self.xrayExpensiveThreadCallStacksEnabled = config.xrayExpensiveThreadCallStacksEnabled
+    self.osLogEnabled = config.osLogEnabled
+  }
 
   func bound<T: Comparable>(_ value: inout T, min: T? = nil, max: T? = nil,
                             function: String = #function) {
@@ -138,4 +156,11 @@ public final class ClientConfig: NSObject {
 protocol ClientConfigSource {
   var clientConfig: ClientConfig { get }
   var initialConfig: ClientConfig { get }
+}
+
+extension ClientConfig: NSCopying {
+
+  public func copy(with zone: NSZone? = nil) -> Any {
+    return ClientConfig(self)
+  }
 }

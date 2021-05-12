@@ -208,7 +208,7 @@ final class Module: AllDeps {
        clientConfigService: ClientConfigService? = nil,
        networkConnection: NetworkConnection? = nil,
        persistentStore: PersistentStore? = nil) {
-    self.initialConfig = initialConfig
+    self.initialConfig = initialConfig.copy()
     self.clientConfigServiceSpec = clientConfigService
     self.networkConnectionSpec = networkConnection
     self.persistentStoreSpec = persistentStore
