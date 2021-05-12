@@ -155,7 +155,8 @@ public final class Xray: NSObject {
   private let callStacksEnabled: Bool
   private let osLog: OSLog?
 
-  typealias Deps = ClockSource & ClientConfigSource & OperationMonitorSource & OSLogSource
+  typealias Deps = ClockSource & ClientConfigSource &
+      OperationMonitorSource & OSLogSource
 
   init(deps: Deps) {
     self.clock = deps.clock
@@ -169,7 +170,7 @@ public final class Xray: NSObject {
     self.networkBatches = []
     self.pendingCalls = []
     self.pendingBatch = nil
-
+    
     super.init()
     deps.operationMonitor.addOperationMonitorListener(self)
   }

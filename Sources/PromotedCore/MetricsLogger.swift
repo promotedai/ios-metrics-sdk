@@ -524,11 +524,6 @@ extension MetricsLogger: OperationMonitorListener {
   func executionDidEnd(context: OperationMonitor.Context) {
     needsViewStateCheck = false
   }
-  
-  func execution(context: OperationMonitor.Context, didError error: Error) {}
-
-  func execution(context: OperationMonitor.Context,
-                 didLog loggingActivity: OperationMonitor.LoggingActivity) {}
 }
 
 // MARK: - Testing

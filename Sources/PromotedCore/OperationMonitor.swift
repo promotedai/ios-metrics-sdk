@@ -12,10 +12,22 @@ protocol OperationMonitorListener: AnyObject {
   /// Called when an error is reported.
   func execution(context: OperationMonitor.Context, didError error: Error)
 
-  /// Called when
+  /// Called when a log message is sent.
   func execution(context: OperationMonitor.Context,
                  didLog loggingActivity: OperationMonitor.LoggingActivity)
 }
+
+extension OperationMonitorListener {
+  func executionWillStart(context: OperationMonitor.Context) {}
+
+  func executionDidEnd(context: OperationMonitor.Context) {}
+
+  func execution(context: OperationMonitor.Context, didError error: Error) {}
+
+  func execution(context: OperationMonitor.Context,
+                 didLog loggingActivity: OperationMonitor.LoggingActivity) {}
+}
+
 
 /**
  Wraps all public, client-facing operations. Provides context and
