@@ -36,21 +36,21 @@ extension OperationMonitorListener {
  state for a series of grouped logging operations, performance
  monitoring, and respecting state of kill switch.
  */
-public final class OperationMonitor {
+final class OperationMonitor {
 
-  public enum Context {
+  enum Context {
     case clientInitiated(function: String)
     case batch
     case batchResponse
   }
-  fileprivate typealias Stack = [Context]
 
-  public enum LoggingActivity {
+  enum LoggingActivity {
     case message(_ message: Message)
     case data(_ data: Data)
   }
 
-  public typealias Operation = () -> Void
+  typealias Operation = () -> Void
+  fileprivate typealias Stack = [Context]
 
   private var listeners: WeakArray<OperationMonitorListener>
   private var contextStack: Stack
@@ -109,13 +109,13 @@ public final class OperationMonitor {
   }
 
   /// Call when library operation produces an error.
-  public func executionDidError(_ error: Error) {
+  func executionDidError(_ error: Error) {
     guard let context = contextStack.bottom else { return }
     listeners.forEach { $0.execution(context: context, didError: error) }
   }
 
   /// Call when library operation logs a message.
-  public func executionDidLog(_ loggingActivity: LoggingActivity) {
+  func executionDidLog(_ loggingActivity: LoggingActivity) {
     guard let context = contextStack.bottom else { return }
     listeners.forEach { $0.execution(context: context, willLog: loggingActivity) }
   }

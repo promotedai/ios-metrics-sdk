@@ -17,19 +17,16 @@ public protocol NetworkConnection: AnyObject {
   ///     `metricsLoggingWireFormat` property of `clientConfig`, may
   ///     be serialized as JSON or binary format.
   ///   - clientConfig: Configuration to use to send message.
-  ///   - monitor: Records any sent data or errors.
   ///   - callback: Invoked on completion of the network op.
   ///     `NetworkConnection`s should manage their own retry logic, so
   ///     if `callback` is invoked with an error, that error indicates
   ///     a failure *after* retrying. Clients should not retry further.
-  /// - Throws: `ClientConfigError.messageSerializationError` for
-  ///   any errors that occurred in protobuf serialization *prior to*
-  ///   the network operation. Errors resulting from the network operation
-  ///   are passed through `callback`.
+  /// - Returns: Data sent over network connection.
+  /// - Throws: Propagate any errors thrown by underlying network
+  //    connection or by the methods in `NetworkConnection` extension.
   func sendMessage(_ message: Message,
                    clientConfig: ClientConfig,
-                   monitor: OperationMonitor,
-                   callback: Callback?) throws
+                   callback: Callback?) throws -> Data
 }
 
 protocol NetworkConnectionSource {
@@ -93,6 +90,5 @@ public extension NetworkConnection {
 final class NoOpNetworkConnection: NetworkConnection {
   func sendMessage(_ message: Message,
                    clientConfig: ClientConfig,
-                   monitor: OperationMonitor,
-                   callback: Callback?) throws {}
+                   callback: Callback?) throws -> Data { Data() }
 }

@@ -483,10 +483,11 @@ public extension MetricsLogger {
       let request = logRequestMessage(events: eventsCopy)
       monitor.executionDidLog(.message(request))
       do {
-        try connection.sendMessage(request, clientConfig: config, monitor: monitor) {
+        let data = try connection.sendMessage(request, clientConfig: config) {
           [weak self] (data, error) in
           self?.handleFlushResponse(data: data, error: error)
         }
+        monitor.executionDidLog(.data(data))
       } catch {
         osLog?.error("flush: %{public}@", error.localizedDescription)
         monitor.executionDidError(error)

@@ -18,8 +18,8 @@ final class FakeNetworkConnection: NetworkConnection {
   
   func sendMessage(_ message: Message,
                    clientConfig: ClientConfig,
-                   monitor: OperationMonitor,
-                   callback: Callback?) throws {
+                   callback: Callback?) throws -> Data {
     messages.append(SendMessageArguments(message: message, callback: callback))
+    return try message.serializedData()
   }
 }

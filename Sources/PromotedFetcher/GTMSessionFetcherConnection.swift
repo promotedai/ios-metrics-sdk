@@ -22,15 +22,14 @@ final class GTMSessionFetcherConnection: NetworkConnection {
 
   func sendMessage(_ message: Message,
                    clientConfig: ClientConfig,
-                   monitor: OperationMonitor,
-                   callback: Callback?) throws {
+                   callback: Callback?) throws -> Data {
     let url = try metricsLoggingURL(clientConfig: clientConfig)
     let data = try bodyData(message: message, clientConfig: clientConfig)
     let request = try urlRequest(url: url, data: data, clientConfig: clientConfig)
-    monitor.executionDidLog(.data(data))
     let fetcher = fetcherService.fetcher(with: request)
     fetcher.isRetryEnabled = true
     fetcher.bodyData = data
     fetcher.beginFetch { (data, error) in callback?(data, error) }
+    return data
   }
 }
