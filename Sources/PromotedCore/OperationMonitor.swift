@@ -39,7 +39,7 @@ extension OperationMonitorListener {
 final class OperationMonitor {
 
   enum Context {
-    case clientInitiated(function: String)
+    case function(_ function: String)
     case batch
     case batchResponse
   }
@@ -86,14 +86,14 @@ final class OperationMonitor {
   ///   - context: Identifier for execution context for Xray
   ///   - function: Function from which call was made
   ///   - operation: Block to execute if logging enabled
-  func execute(context: Context = .clientInitiated(function: ""),
+  func execute(context: Context = .function(""),
                function: String = #function,
                operation: Operation) {
     var executionContext = context
     // Fill in function here because the #function macro doesn't
     // work from inside the enum.
-    if case .clientInitiated(_) = context {
-      executionContext = .clientInitiated(function: function)
+    if case .function(_) = context {
+      executionContext = .function(function)
     }
     if contextStack.isEmpty {
       listeners.forEach { $0.executionWillStart(context: executionContext) }
@@ -144,7 +144,7 @@ fileprivate extension OperationMonitor.Stack {
 extension OperationMonitor.Context: CustomDebugStringConvertible {
   public var debugDescription: String {
     switch self {
-    case .clientInitiated(let function):
+    case .function(let function):
       return function
     default:
       return String(describing: self)

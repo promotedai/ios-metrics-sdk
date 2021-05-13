@@ -17,7 +17,7 @@ final class XrayTests: ModuleTestCase {
   
   func testSingleBatch() {
     clock.advance(toMillis: 0)
-    let actionContext = Context.clientInitiated(function: "logAction")
+    let actionContext = Context.function("logAction")
     xray.executionWillStart(context: actionContext)
     var action = Event_Action()
     action.actionID = "fake-action-id"
@@ -26,7 +26,7 @@ final class XrayTests: ModuleTestCase {
     xray.executionDidEnd(context: actionContext)
     
     clock.advance(toMillis: 200)
-    let impressionContext = Context.clientInitiated(function: "logImpression")
+    let impressionContext = Context.function("logImpression")
     xray.executionWillStart(context: impressionContext)
     var impression = Event_Impression()
     impression.impressionID = "fake-impression-id"
@@ -83,7 +83,7 @@ final class XrayTests: ModuleTestCase {
   func testCalls() {
 
     func callXray(_ function: String) -> Context {
-      let context = Context.clientInitiated(function: function)
+      let context = Context.function(function)
       xray.executionWillStart(context: context)
       xray.executionDidEnd(context: context)
       return context
@@ -123,7 +123,7 @@ final class XrayTests: ModuleTestCase {
       xray.executionDidEnd(context: .batchResponse)
     }
 
-    let context1 = Context.clientInitiated(function: "f1")
+    let context1 = Context.function("f1")
     let error1 = NSError(domain: "ai.promoted", code: -1, userInfo: nil)
     xray.executionWillStart(context: context1)
     xray.execution(context: context1, didError: error1)
@@ -131,7 +131,7 @@ final class XrayTests: ModuleTestCase {
 
     batchXray()
 
-    let context2 = Context.clientInitiated(function: "f2")
+    let context2 = Context.function("f2")
     let error2 = NSError(domain: "ai.promoted", code: -2, userInfo: nil)
     xray.executionWillStart(context: context2)
     xray.execution(context: context2, didError: error2)
@@ -140,7 +140,7 @@ final class XrayTests: ModuleTestCase {
     let error3 = NSError(domain: "ai.promoted", code: -3, userInfo: nil)
     batchXray(batchError: error3)
 
-    let context3 = Context.clientInitiated(function: "f3")
+    let context3 = Context.function("f3")
     xray.executionWillStart(context: context3)
     xray.executionDidEnd(context: context3)
 

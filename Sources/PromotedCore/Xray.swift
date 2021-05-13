@@ -326,7 +326,7 @@ fileprivate extension Xray {
 extension Xray: OperationMonitorListener {
   func executionWillStart(context: OperationMonitor.Context) {
     switch context {
-    case .clientInitiated(let function):
+    case .function(let function):
       callWillStart(context: function)
     case .batch:
       metricsLoggerBatchWillStart()
@@ -337,7 +337,7 @@ extension Xray: OperationMonitorListener {
 
   func executionDidEnd(context: OperationMonitor.Context) {
     switch context {
-    case .clientInitiated(_):
+    case .function(_):
       callDidComplete()
     case .batch:
       metricsLoggerBatchDidComplete()
@@ -348,7 +348,7 @@ extension Xray: OperationMonitorListener {
 
   func execution(context: OperationMonitor.Context, didError error: Error) {
     switch context {
-    case .clientInitiated(_):
+    case .function(_):
       callDidError(error)
     case .batch:
       metricsLoggerBatchDidError(error)
@@ -360,7 +360,7 @@ extension Xray: OperationMonitorListener {
   func execution(context: OperationMonitor.Context,
                  willLog loggingActivity: OperationMonitor.LoggingActivity) {
     switch context {
-    case .clientInitiated(_):
+    case .function(_):
       if case let .message(message) = loggingActivity {
         callDidLog(message: message)
       }
