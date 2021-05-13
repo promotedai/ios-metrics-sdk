@@ -21,7 +21,7 @@ final class XrayTests: ModuleTestCase {
     xray.executionWillStart(context: actionContext)
     var action = Event_Action()
     action.actionID = "fake-action-id"
-    xray.execution(context: actionContext, willLog: .message(action))
+    xray.execution(context: actionContext, willLogMessage: action)
     clock.advance(toMillis: 123)
     xray.executionDidEnd(context: actionContext)
     
@@ -30,7 +30,7 @@ final class XrayTests: ModuleTestCase {
     xray.executionWillStart(context: impressionContext)
     var impression = Event_Impression()
     impression.impressionID = "fake-impression-id"
-    xray.execution(context: impressionContext, willLog: .message(impression))
+    xray.execution(context: impressionContext, willLogMessage: impression)
     clock.advance(toMillis: 250)
     xray.executionDidEnd(context: impressionContext)
     
@@ -38,13 +38,15 @@ final class XrayTests: ModuleTestCase {
     xray.executionWillStart(context: .batch)
     var logRequest = Event_LogRequest()
     logRequest.action.append(action)
-    xray.execution(context: .batch, willLog: .message(logRequest))
+    xray.execution(context: .batch, willLogMessage: logRequest)
     let data = "fake http body".data(using: .utf8)!
-    xray.execution(context: .batch, willLog: .data(data))
+    xray.execution(context: .batch, willLogData: data)
     clock.advance(toMillis: 789)
     xray.executionDidEnd(context: .batch)
     clock.advance(toMillis: 1234)
     xray.executionWillStart(context: .batchResponse)
+    xray.executionDidLog(context: .batchResponse)
+    xray.execution(context: .batch, willLogData: data)
     xray.executionDidEnd(context: .batchResponse)
 
     let networkTime: TimeIntervalMillis = 1234
@@ -119,6 +121,8 @@ final class XrayTests: ModuleTestCase {
       xray.executionWillStart(context: .batchResponse)
       if let e = batchResponseError {
         xray.execution(context: .batchResponse, didError: e)
+      } else {
+        xray.executionDidLog(context: .batchResponse)
       }
       xray.executionDidEnd(context: .batchResponse)
     }

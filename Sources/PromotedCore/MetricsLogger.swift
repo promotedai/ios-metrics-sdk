@@ -415,10 +415,10 @@ public extension MetricsLogger {
       return
     }
     logMessages.append(message)
-    monitor.executionDidLog(.message(message))
+    monitor.executionWillLog(message: message)
     maybeSchedulePendingBatchLoggingFlush()
   }
-  
+
   private func maybeSchedulePendingBatchLoggingFlush() {
     if batchLoggingTimer != nil { return }
     let interval = config.loggingFlushInterval
@@ -429,7 +429,7 @@ public extension MetricsLogger {
       self.flush()
     }
   }
-  
+
   private func cancelPendingBatchLoggingFlush() {
     if let timer = batchLoggingTimer {
       clock.cancel(scheduledTimer: timer)
@@ -482,25 +482,25 @@ public extension MetricsLogger {
       let eventsCopy = logMessages
       logMessages.removeAll()
       let request = logRequestMessage(events: eventsCopy)
-      monitor.executionDidLog(.message(request))
       do {
         let data = try connection.sendMessage(request, clientConfig: config) {
           [weak self] (data, error) in
           self?.handleFlushResponse(data: data, error: error)
         }
-        monitor.executionDidLog(.data(data))
+        monitor.executionWillLog(message: request)
+        monitor.executionWillLog(data: data)
       } catch {
         osLog?.error("flush: %{public}@", error.localizedDescription)
         monitor.executionDidError(error)
       }
     }
   }
-  
+
   private func handleFlushResponse(data: Data?, error: Error?) {
     monitor.execute(context: .batchResponse) {
       osLog?.info("Logging finished")
-      if let d = data {
-        monitor.executionDidLog(.data(d))
+      if let _ = data {
+        monitor.executionDidLog()
       }
       if let e = error {
         osLog?.error("flush/sendMessage: %{public}@", e.localizedDescription)

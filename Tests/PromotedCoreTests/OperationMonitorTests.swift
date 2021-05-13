@@ -1,4 +1,5 @@
 import Foundation
+import SwiftProtobuf
 import XCTest
 
 @testable import PromotedCore
@@ -9,28 +10,22 @@ final class OperationMonitorTests: XCTestCase {
     var starts: [String] = []
     var ends: [String] = []
     var errors: [(String, Error)] = []
-    var activities: [(String, Data)] = []
+    var data: [(String, Data)] = []
 
-    func executionWillStart(context: OperationMonitor.Context) {
+    func executionWillStart(context: Context) {
       starts.append(context.debugDescription)
     }
 
-    func executionDidEnd(context: OperationMonitor.Context) {
+    func executionDidEnd(context: Context) {
       ends.append(context.debugDescription)
     }
 
-    func execution(context: OperationMonitor.Context, didError error: Error) {
+    func execution(context: Context, didError error: Error) {
       errors.append((context.debugDescription, error))
     }
 
-    func execution(context: OperationMonitor.Context,
-                   willLog loggingActivity: OperationMonitor.LoggingActivity) {
-      switch loggingActivity {
-      case .message(let message):
-        XCTFail("Unexpected call to log \(message)")
-      case .data(let data):
-        activities.append((context.debugDescription, data))
-      }
+    func execution(context: Context, willLogData data: Data) {
+      self.data.append((context.debugDescription, data))
     }
   }
   
@@ -80,15 +75,15 @@ final class OperationMonitorTests: XCTestCase {
         monitor.executionDidError(error2)
       }
       monitor.execute(function: "inner2") {
-        monitor.executionDidLog(.data(data))
+        monitor.executionWillLog(data: data)
       }
     }
     let actualErrors = listener.errors
     XCTAssertEqual(["outer", "outer"], actualErrors.map(\.0))
     XCTAssertEqual(error1, actualErrors[0].1 as NSError)
     XCTAssertEqual(error2, actualErrors[1].1 as NSError)
-    let actualLoggingActivities = listener.activities
-    XCTAssertEqual(["outer"], actualLoggingActivities.map(\.0))
-    XCTAssertEqual([data], actualLoggingActivities.map(\.1))
+    let actualData = listener.data
+    XCTAssertEqual(["outer"], actualData.map(\.0))
+    XCTAssertEqual([data], actualData.map(\.1))
   }
 }

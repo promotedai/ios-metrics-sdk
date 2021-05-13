@@ -230,7 +230,7 @@ fileprivate extension Xray {
 // MARK: - Batch
 fileprivate extension Xray {
 
-  private func metricsLoggerBatchWillStart() {
+  private func batchWillStart() {
     if let leftoverBatch = pendingBatch {
       // Might be left over if previous batch didn't make
       // any network calls.
@@ -244,28 +244,28 @@ fileprivate extension Xray {
     osLog?.signpostBegin(name: "batch")
   }
 
-  private func metricsLoggerBatchWillSend(message: Message) {
+  private func batchWillSend(message: Message) {
     osLog?.signpostEvent(name: "batch", format: "sendMessage")
+    osLog?.signpostBegin(name: "network")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.message = message
   }
 
-  private func metricsLoggerBatchWillSend(data: Data) {
+  private func batchWillSend(data: Data) {
     let size = data.count
     osLog?.signpostEvent(name: "batch", format: "sendURLRequest: %{public}d bytes", size)
-    osLog?.signpostBegin(name: "network")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.messageSizeBytes = UInt64(size)
   }
 
-  private func metricsLoggerBatchDidError(_ error: Error) {
+  private func batchDidError(_ error: Error) {
     osLog?.signpostEvent(name: "batch", format: "error: %{public}@",
                          error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.error = error
   }
 
-  private func metricsLoggerBatchDidComplete() {
+  private func batchDidComplete() {
     osLog?.signpostEnd(name: "batch")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.endTime = clock.now
@@ -276,7 +276,7 @@ fileprivate extension Xray {
     }
   }
 
-  private func metricsLoggerBatchResponseDidError(_ error: Error) {
+  private func batchResponseDidError(_ error: Error) {
     osLog?.signpostEvent(name: "network", format: "error: %{public}@",
                          error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
@@ -284,7 +284,7 @@ fileprivate extension Xray {
     pendingBatch.error = error
   }
 
-  private func metricsLoggerBatchResponseDidComplete() {
+  private func batchResponseDidComplete() {
     osLog?.signpostEnd(name: "network")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.networkEndTime = clock.now
@@ -324,55 +324,53 @@ fileprivate extension Xray {
 }
 
 extension Xray: OperationMonitorListener {
-  func executionWillStart(context: OperationMonitor.Context) {
+  func executionWillStart(context: Context) {
     switch context {
     case .function(let function):
       callWillStart(context: function)
     case .batch:
-      metricsLoggerBatchWillStart()
+      batchWillStart()
     case .batchResponse:
       break  // We don't record this start, only the end.
     }
   }
 
-  func executionDidEnd(context: OperationMonitor.Context) {
+  func executionDidEnd(context: Context) {
     switch context {
     case .function(_):
       callDidComplete()
     case .batch:
-      metricsLoggerBatchDidComplete()
+      batchDidComplete()
     case .batchResponse:
-      metricsLoggerBatchResponseDidComplete()
+      batchResponseDidComplete()
     }
   }
 
-  func execution(context: OperationMonitor.Context, didError error: Error) {
+  func execution(context: Context, didError error: Error) {
     switch context {
     case .function(_):
       callDidError(error)
     case .batch:
-      metricsLoggerBatchDidError(error)
+      batchDidError(error)
     case .batchResponse:
-      metricsLoggerBatchResponseDidError(error)
+      batchResponseDidError(error)
     }
   }
   
-  func execution(context: OperationMonitor.Context,
-                 willLog loggingActivity: OperationMonitor.LoggingActivity) {
+  func execution(context: Context, willLogMessage message: Message) {
     switch context {
     case .function(_):
-      if case let .message(message) = loggingActivity {
-        callDidLog(message: message)
-      }
+      callDidLog(message: message)
     case .batch:
-      switch loggingActivity {
-      case .message(let message):
-        metricsLoggerBatchWillSend(message: message)
-      case .data(let data):
-        metricsLoggerBatchWillSend(data: data)
-      }
+      batchWillSend(message: message)
     case .batchResponse:
       break  // No messages associated with batch response.
+    }
+  }
+
+  func execution(context: Context, willLogData data: Data) {
+    if case .batch = context {
+      batchWillSend(data: data)
     }
   }
 }
