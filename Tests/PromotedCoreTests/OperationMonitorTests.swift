@@ -10,7 +10,7 @@ final class OperationMonitorTests: XCTestCase {
     var starts: [String] = []
     var ends: [String] = []
     var errors: [(String, Error)] = []
-    var activities: [(String, Data)] = []
+    var data: [(String, Data)] = []
 
     func executionWillStart(context: Context) {
       starts.append(context.debugDescription)
@@ -25,7 +25,7 @@ final class OperationMonitorTests: XCTestCase {
     }
 
     func execution(context: Context, willLogData data: Data) {
-      activities.append((context.debugDescription, data))
+      data.append((context.debugDescription, data))
     }
   }
   
@@ -82,8 +82,8 @@ final class OperationMonitorTests: XCTestCase {
     XCTAssertEqual(["outer", "outer"], actualErrors.map(\.0))
     XCTAssertEqual(error1, actualErrors[0].1 as NSError)
     XCTAssertEqual(error2, actualErrors[1].1 as NSError)
-    let actualLoggingActivities = listener.activities
-    XCTAssertEqual(["outer"], actualLoggingActivities.map(\.0))
-    XCTAssertEqual([data], actualLoggingActivities.map(\.1))
+    let actualData = listener.data
+    XCTAssertEqual(["outer"], actualData.map(\.0))
+    XCTAssertEqual([data], actualData.map(\.1))
   }
 }
