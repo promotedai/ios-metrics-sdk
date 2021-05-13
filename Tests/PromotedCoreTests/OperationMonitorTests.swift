@@ -25,7 +25,7 @@ final class OperationMonitorTests: XCTestCase {
     }
 
     func execution(context: Context, willLogData data: Data) {
-      data.append((context.debugDescription, data))
+      self.data.append((context.debugDescription, data))
     }
   }
   

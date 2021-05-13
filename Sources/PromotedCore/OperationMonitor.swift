@@ -135,17 +135,13 @@ final class OperationMonitor {
   /// Call when batch will send a serialized proto.
   func executionWillLog(data: Data) {
     guard let context = contextStack.bottom else { return }
-    listeners.forEach {
-      $0.execution(context: context, willLogData: data)
-    }
+    listeners.forEach { $0.execution(context: context, willLogData: data) }
   }
 
   /// Call when batch operation has logged a message successfully.
   func executionDidLog() {
     guard let context = contextStack.bottom else { return }
-    listeners.forEach {
-      $0.executionDidLog(context: context)
-    }
+    listeners.forEach { $0.executionDidLog(context: context) }
   }
 }
 
