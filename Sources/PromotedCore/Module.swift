@@ -14,6 +14,7 @@ import os.log
 @objc(PROModuleConfig)
 public final class ModuleConfig: NSObject {
   @objc public var initialConfig = ClientConfig()
+  public var analyticsConnection: AnalyticsConnection? = nil
   public var clientConfigService: ClientConfigService? = nil
   public var networkConnection: NetworkConnection? = nil
   public var persistentStore: PersistentStore? = nil
@@ -29,7 +30,8 @@ public final class ModuleConfig: NSObject {
 
 typealias ClientConfigDeps = ClientConfigSource & ClientConfigServiceSource
 
-typealias InternalDeps = ClientConfigDeps &
+typealias InternalDeps = AnalyticsSource &
+                         ClientConfigDeps &
                          ClockSource &
                          DeviceInfoSource &
                          IDMapSource &
@@ -39,11 +41,14 @@ typealias InternalDeps = ClientConfigDeps &
                          ViewTrackerSource &
                          XraySource
 
+typealias AnalyticsConnectionDeps = InternalDeps & AnalyticsConnectionSource
+
 typealias NetworkConnectionDeps = InternalDeps & NetworkConnectionSource
 
 typealias PersistentStoreDeps = InternalDeps & PersistentStoreSource
 
 typealias AllDeps = InternalDeps &
+                    AnalyticsConnectionDeps &
                     ClientConfigDeps &
                     NetworkConnectionDeps &
                     PersistentStoreDeps
@@ -151,13 +156,17 @@ typealias AllDeps = InternalDeps &
  and `ModuleTestCase`.
  */
 final class Module: AllDeps {
+  private(set) lazy var analytics: Analytics? =
+    analyticsConnection != nil ? Analytics(deps: self) : nil
+
+  private(set) var analyticsConnection: AnalyticsConnection?
+
   var clientConfig: ClientConfig {
     clientConfigService.config
   }
 
-  private(set) lazy var clientConfigService: ClientConfigService = {
+  private(set) lazy var clientConfigService: ClientConfigService =
     clientConfigServiceSpec ?? LocalClientConfigService(initialConfig: initialConfig)
-  } ()
   private let clientConfigServiceSpec: ClientConfigService?
 
   let clock: Clock = SystemClock()
@@ -180,22 +189,19 @@ final class Module: AllDeps {
     osLogSource?.osLog(category: category)
   }
 
-  private(set) lazy var osLogSource: OSLogSource? = {
+  private(set) lazy var osLogSource: OSLogSource? =
     clientConfig.osLogEnabled ? SystemOSLogSource() : nil
-  } ()
 
-  private(set) lazy var persistentStore: PersistentStore = {
+  private(set) lazy var persistentStore: PersistentStore =
     persistentStoreSpec ?? UserDefaultsPersistentStore()
-  } ()
   private let persistentStoreSpec: PersistentStore?
 
   let uiState: UIState = UIKitState()
 
   private(set) lazy var viewTracker: ViewTracker = ViewTracker(deps: self)
 
-  private(set) lazy var xray: Xray? = {
+  private(set) lazy var xray: Xray? =
     clientConfig.xrayEnabled ? Xray(deps: self) : nil
-  } ()
 
   convenience init(moduleConfig: ModuleConfig) {
     self.init(initialConfig: moduleConfig.initialConfig,

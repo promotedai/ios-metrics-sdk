@@ -230,7 +230,7 @@ fileprivate extension Xray {
 // MARK: - Batch
 fileprivate extension Xray {
 
-  private func metricsLoggerBatchWillStart() {
+  private func batchWillStart() {
     if let leftoverBatch = pendingBatch {
       // Might be left over if previous batch didn't make
       // any network calls.
@@ -244,13 +244,13 @@ fileprivate extension Xray {
     osLog?.signpostBegin(name: "batch")
   }
 
-  private func metricsLoggerBatchWillSend(message: Message) {
+  private func batchWillSend(message: Message) {
     osLog?.signpostEvent(name: "batch", format: "sendMessage")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.message = message
   }
 
-  private func metricsLoggerBatchWillSend(data: Data) {
+  private func batchWillSend(data: Data) {
     let size = data.count
     osLog?.signpostEvent(name: "batch", format: "sendURLRequest: %{public}d bytes", size)
     osLog?.signpostBegin(name: "network")
@@ -258,14 +258,14 @@ fileprivate extension Xray {
     pendingBatch.messageSizeBytes = UInt64(size)
   }
 
-  private func metricsLoggerBatchDidError(_ error: Error) {
+  private func batchDidError(_ error: Error) {
     osLog?.signpostEvent(name: "batch", format: "error: %{public}@",
                          error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.error = error
   }
 
-  private func metricsLoggerBatchDidComplete() {
+  private func batchDidComplete() {
     osLog?.signpostEnd(name: "batch")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.endTime = clock.now
@@ -276,7 +276,7 @@ fileprivate extension Xray {
     }
   }
 
-  private func metricsLoggerBatchResponseDidError(_ error: Error) {
+  private func batchResponseDidError(_ error: Error) {
     osLog?.signpostEvent(name: "network", format: "error: %{public}@",
                          error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
@@ -284,7 +284,7 @@ fileprivate extension Xray {
     pendingBatch.error = error
   }
 
-  private func metricsLoggerBatchResponseDidComplete() {
+  private func batchResponseDidComplete() {
     osLog?.signpostEnd(name: "network")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.networkEndTime = clock.now
@@ -329,7 +329,7 @@ extension Xray: OperationMonitorListener {
     case .function(let function):
       callWillStart(context: function)
     case .batch:
-      metricsLoggerBatchWillStart()
+      batchWillStart()
     case .batchResponse:
       break  // We don't record this start, only the end.
     }
@@ -340,9 +340,9 @@ extension Xray: OperationMonitorListener {
     case .function(_):
       callDidComplete()
     case .batch:
-      metricsLoggerBatchDidComplete()
+      batchDidComplete()
     case .batchResponse:
-      metricsLoggerBatchResponseDidComplete()
+      batchResponseDidComplete()
     }
   }
 
@@ -351,9 +351,9 @@ extension Xray: OperationMonitorListener {
     case .function(_):
       callDidError(error)
     case .batch:
-      metricsLoggerBatchDidError(error)
+      batchDidError(error)
     case .batchResponse:
-      metricsLoggerBatchResponseDidError(error)
+      batchResponseDidError(error)
     }
   }
   
@@ -361,15 +361,15 @@ extension Xray: OperationMonitorListener {
                  willLog loggingActivity: OperationMonitor.LoggingActivity) {
     switch context {
     case .function(_):
-      if case let .message(message) = loggingActivity {
+      if case .message(let message) = loggingActivity {
         callDidLog(message: message)
       }
     case .batch:
       switch loggingActivity {
       case .message(let message):
-        metricsLoggerBatchWillSend(message: message)
+        batchWillSend(message: message)
       case .data(let data):
-        metricsLoggerBatchWillSend(data: data)
+        batchWillSend(data: data)
       }
     case .batchResponse:
       break  // No messages associated with batch response.

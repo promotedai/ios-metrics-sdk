@@ -6,6 +6,8 @@ import os.log
 /** Module for use with testing with convenient fakes. */
 final class TestModule: AllDeps {
   // MARK: - Fakes
+  var fakeAnalyticsConnection = FakeAnalyticsConnection()
+
   var fakeClock = FakeClock()
 
   var fakeDeviceInfo = FakeDeviceInfo()
@@ -19,6 +21,10 @@ final class TestModule: AllDeps {
   var fakeUIState = FakeUIState()
 
   // MARK: - AllDeps
+  var analytics: Analytics? = nil
+
+  lazy var analyticsConnection: AnalyticsConnection? = fakeAnalyticsConnection
+
   var clientConfigService: ClientConfigService {
     LocalClientConfigService(initialConfig: initialConfig)
   }

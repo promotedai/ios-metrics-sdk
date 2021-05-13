@@ -485,8 +485,8 @@ public extension MetricsLogger {
       monitor.executionDidLog(.message(request))
       do {
         let data = try connection.sendMessage(request, clientConfig: config) {
-          [weak self] (data, error) in
-          self?.handleFlushResponse(data: data, error: error)
+          [weak self, request] (data, error) in
+          self?.handleFlushResponse(message: request, data: data, error: error)
         }
         monitor.executionDidLog(.data(data))
       } catch {
@@ -495,8 +495,8 @@ public extension MetricsLogger {
       }
     }
   }
-  
-  private func handleFlushResponse(data: Data?, error: Error?) {
+
+  private func handleFlushResponse(message: Message, data: Data?, error: Error?) {
     monitor.execute(context: .batchResponse) {
       osLog?.info("Logging finished")
       if let d = data {

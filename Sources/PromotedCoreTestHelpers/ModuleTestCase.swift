@@ -9,6 +9,7 @@ import XCTest
  */
 open class ModuleTestCase: XCTestCase {
   var module: TestModule!
+  var analyticsConnection: FakeAnalyticsConnection { module.fakeAnalyticsConnection }
   var config: ClientConfig { module.clientConfig }
   var connection: FakeNetworkConnection { module.fakeNetworkConnection }
   var clock: FakeClock { module.fakeClock }

@@ -11,6 +11,7 @@ final class FakeNetworkConnection: NetworkConnection {
   }
   
   var messages: [SendMessageArguments]
+  var throwOnNextSendMessage: Error?
 
   init() {
     messages = []
@@ -19,6 +20,12 @@ final class FakeNetworkConnection: NetworkConnection {
   func sendMessage(_ message: Message,
                    clientConfig: ClientConfig,
                    callback: Callback?) throws -> Data {
+    if let error = throwOnNextSendMessage {
+      // If we need to throw an error, then don't include
+      // the message/callback in the capture list.
+      throwOnNextSendMessage = nil
+      throw error
+    }
     messages.append(SendMessageArguments(message: message, callback: callback))
     return try message.serializedData()
   }
