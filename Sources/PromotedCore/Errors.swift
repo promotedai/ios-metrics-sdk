@@ -106,3 +106,31 @@ extension BinaryEncodingError: NSErrorProperties {
     }
   }
 }
+
+// MARK: - MetricsLoggerError
+/** Errors produced by `MetricsLogger`. */
+public enum MetricsLoggerError: Error {
+  /// Properties message serialization failed. Non-fatal.
+  case propertiesSerializationError(underlying: Error)
+
+  /// Logging invoked from non-main thread.
+  case calledFromWrongThread
+
+  /// An unexpected event type was logged. Non-fatal.
+  case unexpectedEvent(_ event: Message)
+}
+
+extension MetricsLoggerError: NSErrorProperties {
+  var domain: String { promotedAIDomain }
+  
+  var code: Int {
+    switch self {
+    case .propertiesSerializationError(_):
+      return 401
+    case .calledFromWrongThread:
+      return 402
+    case .unexpectedEvent(_):
+      return 403
+    }
+  }
+}

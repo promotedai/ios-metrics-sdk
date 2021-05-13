@@ -236,11 +236,10 @@ fileprivate extension MetricsLogger {
         dataMessage.structBytes = try message.serializedData()
         return dataMessage
       }
-    } catch BinaryEncodingError.missingRequiredFields {
-      osLog?.error("propertiesMessage: Missing required fields: %{private}@",
-                   String(describing: message))
     } catch {
       osLog?.error("propertiesMessage: %{private}@", error.localizedDescription)
+      let wrapped = MetricsLoggerError.propertiesSerializationError(underlying: error)
+      monitor.executionDidError(wrapped)
     }
     return nil
   }
@@ -412,6 +411,7 @@ public extension MetricsLogger {
   func log(message: Message) {
     guard Thread.isMainThread else {
       osLog?.error("Logging must be done on main thread")
+      monitor.executionDidError(MetricsLoggerError.calledFromWrongThread)
       return
     }
     logMessages.append(message)
@@ -460,6 +460,7 @@ public extension MetricsLogger {
         logRequest.action.append(action)
       default:
         osLog?.debug("Unknown event: %{private}@", String(describing: event))
+        monitor.executionDidError(MetricsLoggerError.unexpectedEvent(event))
       }
     }
     return logRequest
