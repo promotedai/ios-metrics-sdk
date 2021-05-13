@@ -17,7 +17,7 @@ final class NetworkConnectionTests: ModuleTestCase {
       let jsonString = String(data: jsonData, encoding: .utf8)!
       XCTAssertEqual("{\"actionId\":\"foo\"}", jsonString)
     } catch {
-      XCTFail("JSON serialization threw an exception.")
+      XCTFail("JSON serialization threw an error: \(error)")
     }
   }
   
@@ -30,7 +30,7 @@ final class NetworkConnectionTests: ModuleTestCase {
       let binaryData = try connection.bodyData(message: message, clientConfig: config)
       XCTAssertGreaterThan(binaryData.count, 0)
     } catch {
-      XCTFail("Binary serialization threw an exception.")
+      XCTFail("Binary serialization threw an error: \(error)")
     }
   }
     
@@ -39,7 +39,11 @@ final class NetworkConnectionTests: ModuleTestCase {
     config.metricsLoggingAPIKey = config.devMetricsLoggingAPIKey
     let url = URL(string: "http://promoted.ai")!
     let data = "foobar".data(using: .utf8)!
-    let request = connection.urlRequest(url: url, data: data, clientConfig: config)
-    XCTAssertEqual("key!", request.allHTTPHeaderFields!["x-api-key"]!)
+    do {
+      let request = try connection.urlRequest(url: url, data: data, clientConfig: config)
+      XCTAssertEqual("key!", request.allHTTPHeaderFields!["x-api-key"]!)
+    } catch {
+      XCTFail("URL request threw an error: \(error)")
+    }
   }
 }

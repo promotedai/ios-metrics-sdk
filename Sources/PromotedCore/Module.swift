@@ -208,7 +208,7 @@ final class Module: AllDeps {
        clientConfigService: ClientConfigService? = nil,
        networkConnection: NetworkConnection? = nil,
        persistentStore: PersistentStore? = nil) {
-    self.initialConfig = initialConfig
+    self.initialConfig = ClientConfig(initialConfig)
     self.clientConfigServiceSpec = clientConfigService
     self.networkConnectionSpec = networkConnection
     self.persistentStoreSpec = persistentStore
@@ -216,9 +216,14 @@ final class Module: AllDeps {
 
   /// Loads all dependencies from `ModuleConfig`. Ensures that any
   /// runtime errors occur early on in initialization.
-  func verifyModuleConfigDependencies() {
-    _ = clientConfigService
-    _ = networkConnection
-    _ = persistentStore
+  func validateModuleConfigDependencies() throws {
+    if networkConnectionSpec == nil {
+      throw ModuleConfigError.missingNetworkConnection
+    }
+  }
+
+  /// Starts any services among dependencies.
+  func startLoggingServices() throws {
+    try clientConfigService.fetchClientConfig()
   }
 }

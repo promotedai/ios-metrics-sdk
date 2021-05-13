@@ -60,6 +60,9 @@ public final class Xray: NSObject {
     @objc public var messagesSizeBytes: UInt64 {
       UInt64(messagesBytes.map(\.count).reduce(0, +))
     }
+
+    /// Errors that resulted from this logging call.
+    @objc public fileprivate(set) var error: Error? = nil
   }
 
   /** Batched logging call. */
@@ -106,6 +109,12 @@ public final class Xray: NSObject {
 
     /// Errors that resulted from this batch.
     @objc public fileprivate(set) var error: Error? = nil
+
+    /// Errors that arose from this batch and across all calls
+    /// contained therein.
+    @objc public var errorsAcrossCalls: [Error] {
+      calls.compactMap(\.error) + [error].compactMap { $0 }
+    }
   }
   
   public static let networkBatchWindowMaxSize: Int = 100
@@ -146,7 +155,9 @@ public final class Xray: NSObject {
   @objc public var calls: [Call] { networkBatches.flatMap(\.calls) }
 
   /// Flattened errors across `networkBatches`.
-  @objc public var errors: [Error] { networkBatches.compactMap(\.error) }
+  @objc public var errors: [Error] {
+    networkBatches.flatMap(\.errorsAcrossCalls)
+  }
 
   private var pendingCalls: [Call]
   private var pendingBatch: NetworkBatch?
@@ -155,7 +166,8 @@ public final class Xray: NSObject {
   private let callStacksEnabled: Bool
   private let osLog: OSLog?
 
-  typealias Deps = ClockSource & ClientConfigSource & OperationMonitorSource & OSLogSource
+  typealias Deps = ClockSource & ClientConfigSource &
+      OperationMonitorSource & OSLogSource
 
   init(deps: Deps) {
     self.clock = deps.clock
@@ -169,13 +181,20 @@ public final class Xray: NSObject {
     self.networkBatches = []
     self.pendingCalls = []
     self.pendingBatch = nil
-
+    
     super.init()
     deps.operationMonitor.addOperationMonitorListener(self)
   }
+}
 
-  // MARK: - Call
-  func callWillStart(context: String) {
+protocol XraySource {
+  var xray: Xray? { get }
+}
+
+// MARK: - Call
+fileprivate extension Xray {
+
+  private func callWillStart(context: String) {
     let call = Call()
     call.context = context
     if callStacksEnabled {
@@ -188,20 +207,30 @@ public final class Xray: NSObject {
     osLog?.signpostBegin(name: "call")
   }
   
-  func callDidLog(message: Message) {
+  private func callDidLog(message: Message) {
     osLog?.signpostEvent(name: "call", format: "log")
     guard let lastCall = pendingCalls.last else { return }
     lastCall.messages.append(message)
   }
 
-  func callDidComplete() {
+  private func callDidError(_ error: Error) {
+    osLog?.signpostEvent(name: "call", format: "error: %{public}@",
+                         error.localizedDescription)
+    guard let lastCall = pendingCalls.last else { return }
+    lastCall.error = error
+  }
+
+  private func callDidComplete() {
     osLog?.signpostEnd(name: "call")
     guard let lastCall = pendingCalls.last else { return }
     lastCall.endTime = clock.now
   }
-  
-  // MARK: - Batch
-  func metricsLoggerBatchWillStart() {
+}
+
+// MARK: - Batch
+fileprivate extension Xray {
+
+  private func metricsLoggerBatchWillStart() {
     if let leftoverBatch = pendingBatch {
       // Might be left over if previous batch didn't make
       // any network calls.
@@ -214,29 +243,29 @@ public final class Xray: NSObject {
     self.pendingCalls.removeAll()
     osLog?.signpostBegin(name: "batch")
   }
-  
-  func metricsLoggerBatchWillSend(message: Message) {
+
+  private func metricsLoggerBatchWillSend(message: Message) {
     osLog?.signpostEvent(name: "batch", format: "sendMessage")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.message = message
   }
 
-  func metricsLoggerBatchWillSend(data: Data) {
+  private func metricsLoggerBatchWillSend(data: Data) {
     let size = data.count
     osLog?.signpostEvent(name: "batch", format: "sendURLRequest: %{public}d bytes", size)
     osLog?.signpostBegin(name: "network")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.messageSizeBytes = UInt64(size)
   }
-  
-  func metricsLoggerBatchDidError(_ error: Error) {
+
+  private func metricsLoggerBatchDidError(_ error: Error) {
     osLog?.signpostEvent(name: "batch", format: "error: %{public}@",
                          error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.error = error
   }
 
-  func metricsLoggerBatchDidComplete() {
+  private func metricsLoggerBatchDidComplete() {
     osLog?.signpostEnd(name: "batch")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.endTime = clock.now
@@ -246,16 +275,16 @@ public final class Xray: NSObject {
       self.pendingBatch = nil
     }
   }
-  
-  func metricsLoggerBatchResponseDidError(_ error: Error) {
+
+  private func metricsLoggerBatchResponseDidError(_ error: Error) {
     osLog?.signpostEvent(name: "network", format: "error: %{public}@",
                          error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.networkEndTime = clock.now
     pendingBatch.error = error
   }
-  
-  func metricsLoggerBatchResponseDidComplete() {
+
+  private func metricsLoggerBatchResponseDidComplete() {
     osLog?.signpostEnd(name: "network")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.networkEndTime = clock.now
@@ -265,12 +294,12 @@ public final class Xray: NSObject {
     self.pendingBatch = nil
     logBatchResponseCompleteStats()
   }
-  
+
   private func add(batch: NetworkBatch) {
     networkBatches.append(batch)
     trimNetworkBatches()
   }
-  
+
   private func trimNetworkBatches() {
     let excess = networkBatches.count - networkBatchWindowSize
     if excess > 0 {
@@ -280,11 +309,11 @@ public final class Xray: NSObject {
       networkBatches.removeFirst(excess)
     }
   }
-  
+
   private func logBatchResponseCompleteStats() {
     guard let osLog = osLog else { return }
     if Self.timingMayBeInaccurate {
-      osLog.info("WARNING! Timing may be inaccurate when running in debug or simulator.")
+      osLog.info("WARNING: Timing may be inaccurate when running in debug or simulator.")
     }
     if let batch = networkBatches.last {
       osLog.info("Latest batch: %{private}@", String(describing: batch))
@@ -294,17 +323,57 @@ public final class Xray: NSObject {
   }
 }
 
-protocol XraySource {
-  var xray: Xray? { get }
-}
-
 extension Xray: OperationMonitorListener {
-  func executionWillStart(context: String) {
-    callWillStart(context: context)
+  func executionWillStart(context: OperationMonitor.Context) {
+    switch context {
+    case .function(let function):
+      callWillStart(context: function)
+    case .batch:
+      metricsLoggerBatchWillStart()
+    case .batchResponse:
+      break  // We don't record this start, only the end.
+    }
   }
 
-  func executionDidEnd(context: String) {
-    callDidComplete()
+  func executionDidEnd(context: OperationMonitor.Context) {
+    switch context {
+    case .function(_):
+      callDidComplete()
+    case .batch:
+      metricsLoggerBatchDidComplete()
+    case .batchResponse:
+      metricsLoggerBatchResponseDidComplete()
+    }
+  }
+
+  func execution(context: OperationMonitor.Context, didError error: Error) {
+    switch context {
+    case .function(_):
+      callDidError(error)
+    case .batch:
+      metricsLoggerBatchDidError(error)
+    case .batchResponse:
+      metricsLoggerBatchResponseDidError(error)
+    }
+  }
+  
+  func execution(context: OperationMonitor.Context,
+                 willLog loggingActivity: OperationMonitor.LoggingActivity) {
+    switch context {
+    case .function(_):
+      if case let .message(message) = loggingActivity {
+        callDidLog(message: message)
+      }
+    case .batch:
+      switch loggingActivity {
+      case .message(let message):
+        metricsLoggerBatchWillSend(message: message)
+      case .data(let data):
+        metricsLoggerBatchWillSend(data: data)
+      }
+    case .batchResponse:
+      break  // No messages associated with batch response.
+    }
   }
 }
 

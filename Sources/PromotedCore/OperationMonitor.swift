@@ -1,14 +1,35 @@
 import Foundation
+import SwiftProtobuf
 
+// MARK: -
 /** Listens for execution scopes. */
 protocol OperationMonitorListener: AnyObject {
   /// Called when the outermost `execute()` starts.
-  func executionWillStart(context: String)
+  func executionWillStart(context: OperationMonitor.Context)
 
   /// Called when the outermost `execute()` ends.
-  func executionDidEnd(context: String)
+  func executionDidEnd(context: OperationMonitor.Context)
+
+  /// Called when an error is reported.
+  func execution(context: OperationMonitor.Context, didError error: Error)
+
+  /// Called when a log message will be sent.
+  func execution(context: OperationMonitor.Context,
+                 willLog loggingActivity: OperationMonitor.LoggingActivity)
 }
 
+extension OperationMonitorListener {
+  func executionWillStart(context: OperationMonitor.Context) {}
+
+  func executionDidEnd(context: OperationMonitor.Context) {}
+
+  func execution(context: OperationMonitor.Context, didError error: Error) {}
+
+  func execution(context: OperationMonitor.Context,
+                 willLog loggingActivity: OperationMonitor.LoggingActivity) {}
+}
+
+// MARK: -
 /**
  Wraps all public, client-facing operations. Provides context and
  monitoring for these operations. This includes setting up logging
@@ -17,14 +38,26 @@ protocol OperationMonitorListener: AnyObject {
  */
 final class OperationMonitor {
 
+  enum Context {
+    case function(_ function: String)
+    case batch
+    case batchResponse
+  }
+
+  enum LoggingActivity {
+    case message(_ message: Message)
+    case data(_ data: Data)
+  }
+
   typealias Operation = () -> Void
+  fileprivate typealias Stack = [Context]
 
   private var listeners: WeakArray<OperationMonitorListener>
-  private var exectionDepth: Int
-  
+  private var contextStack: Stack
+
   init() {
     self.listeners = []
-    self.exectionDepth = 0
+    self.contextStack = []
   }
   
   func addOperationMonitorListener(_ listener: OperationMonitorListener) {
@@ -51,22 +84,70 @@ final class OperationMonitor {
   ///
   /// - Parameters:
   ///   - context: Identifier for execution context for Xray
+  ///   - function: Function from which call was made
   ///   - operation: Block to execute if logging enabled
-  func execute(context: String = #function, operation: Operation) {
-    if exectionDepth == 0 {
-      listeners.forEach { $0.executionWillStart(context: context) }
+  func execute(context: Context = .function(""),
+               function: String = #function,
+               operation: Operation) {
+    var executionContext = context
+    // Fill in function here because the #function macro doesn't
+    // work from inside the enum.
+    if case .function(_) = context {
+      executionContext = .function(function)
     }
-    exectionDepth += 1
+    if contextStack.isEmpty {
+      listeners.forEach { $0.executionWillStart(context: executionContext) }
+    }
+    contextStack.push(executionContext)
     defer {
-      exectionDepth -= 1
-      if exectionDepth == 0 {
-        listeners.forEach { $0.executionDidEnd(context: context) }
+      contextStack.pop()
+      if contextStack.isEmpty {
+        listeners.forEach { $0.executionDidEnd(context: executionContext) }
       }
     }
     operation()
+  }
+
+  /// Call when library operation produces an error.
+  func executionDidError(_ error: Error) {
+    guard let context = contextStack.bottom else { return }
+    listeners.forEach { $0.execution(context: context, didError: error) }
+  }
+
+  /// Call when library operation logs a message.
+  func executionDidLog(_ loggingActivity: LoggingActivity) {
+    guard let context = contextStack.bottom else { return }
+    listeners.forEach { $0.execution(context: context, willLog: loggingActivity) }
   }
 }
 
 protocol OperationMonitorSource {
   var operationMonitor: OperationMonitor { get }
+}
+
+// MARK: -
+fileprivate extension OperationMonitor.Stack {
+
+  var top: OperationMonitor.Context? { last }
+  var bottom: OperationMonitor.Context? { first }
+
+  mutating func push(_ context: OperationMonitor.Context) {
+    append(context)
+  }
+
+  @discardableResult mutating func pop() -> OperationMonitor.Context {
+    return removeLast()
+  }
+}
+
+// MARK: -
+extension OperationMonitor.Context: CustomDebugStringConvertible {
+  public var debugDescription: String {
+    switch self {
+    case .function(let function):
+      return function
+    default:
+      return String(describing: self)
+    }
+  }
 }
