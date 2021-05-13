@@ -230,6 +230,7 @@ final class Module: AllDeps {
 
   /// Starts any services among dependencies.
   func startLoggingServices() throws {
+    try analyticsConnection?.startServices()
     try clientConfigService.fetchClientConfig()
   }
 }

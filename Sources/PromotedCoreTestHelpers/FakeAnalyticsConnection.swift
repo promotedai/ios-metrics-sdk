@@ -14,6 +14,8 @@ final class FakeAnalyticsConnection: AnalyticsConnection {
     lastErrors = []
   }
 
+  func startServices() throws {}
+
   func log(eventCount: Int) {
     lastEventCount = eventCount
   }

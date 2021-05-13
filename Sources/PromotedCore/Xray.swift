@@ -246,6 +246,7 @@ fileprivate extension Xray {
 
   private func batchWillSend(message: Message) {
     osLog?.signpostEvent(name: "batch", format: "sendMessage")
+    osLog?.signpostBegin(name: "network")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.message = message
   }
@@ -253,7 +254,6 @@ fileprivate extension Xray {
   private func batchWillSend(data: Data) {
     let size = data.count
     osLog?.signpostEvent(name: "batch", format: "sendURLRequest: %{public}d bytes", size)
-    osLog?.signpostBegin(name: "network")
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.messageSizeBytes = UInt64(size)
   }
@@ -324,7 +324,7 @@ fileprivate extension Xray {
 }
 
 extension Xray: OperationMonitorListener {
-  func executionWillStart(context: OperationMonitor.Context) {
+  func executionWillStart(context: Context) {
     switch context {
     case .function(let function):
       callWillStart(context: function)
@@ -335,7 +335,7 @@ extension Xray: OperationMonitorListener {
     }
   }
 
-  func executionDidEnd(context: OperationMonitor.Context) {
+  func executionDidEnd(context: Context) {
     switch context {
     case .function(_):
       callDidComplete()
@@ -346,7 +346,7 @@ extension Xray: OperationMonitorListener {
     }
   }
 
-  func execution(context: OperationMonitor.Context, didError error: Error) {
+  func execution(context: Context, didError error: Error) {
     switch context {
     case .function(_):
       callDidError(error)
@@ -357,22 +357,20 @@ extension Xray: OperationMonitorListener {
     }
   }
   
-  func execution(context: OperationMonitor.Context,
-                 willLog loggingActivity: OperationMonitor.LoggingActivity) {
+  func execution(context: Context, willLogMessage message: Message) {
     switch context {
     case .function(_):
-      if case .message(let message) = loggingActivity {
-        callDidLog(message: message)
-      }
+      callDidLog(message: message)
     case .batch:
-      switch loggingActivity {
-      case .message(let message):
-        batchWillSend(message: message)
-      case .data(let data):
-        batchWillSend(data: data)
-      }
+      batchWillSend(message: message)
     case .batchResponse:
       break  // No messages associated with batch response.
+    }
+  }
+
+  func execution(context: Context, willLogData data: Data) {
+    if case .batch = context {
+      batchWillSend(data: data)
     }
   }
 }

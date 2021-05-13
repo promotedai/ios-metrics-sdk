@@ -1,4 +1,5 @@
 import Foundation
+import SwiftProtobuf
 import XCTest
 
 @testable import PromotedCore
@@ -11,26 +12,20 @@ final class OperationMonitorTests: XCTestCase {
     var errors: [(String, Error)] = []
     var activities: [(String, Data)] = []
 
-    func executionWillStart(context: OperationMonitor.Context) {
+    func executionWillStart(context: Context) {
       starts.append(context.debugDescription)
     }
 
-    func executionDidEnd(context: OperationMonitor.Context) {
+    func executionDidEnd(context: Context) {
       ends.append(context.debugDescription)
     }
 
-    func execution(context: OperationMonitor.Context, didError error: Error) {
+    func execution(context: Context, didError error: Error) {
       errors.append((context.debugDescription, error))
     }
 
-    func execution(context: OperationMonitor.Context,
-                   willLog loggingActivity: OperationMonitor.LoggingActivity) {
-      switch loggingActivity {
-      case .message(let message):
-        XCTFail("Unexpected call to log \(message)")
-      case .data(let data):
-        activities.append((context.debugDescription, data))
-      }
+    func execution(context: Context, willLogData data: Data) {
+      activities.append((context.debugDescription, data))
     }
   }
   
@@ -80,7 +75,7 @@ final class OperationMonitorTests: XCTestCase {
         monitor.executionDidError(error2)
       }
       monitor.execute(function: "inner2") {
-        monitor.executionDidLog(.data(data))
+        monitor.executionWillLog(data: data)
       }
     }
     let actualErrors = listener.errors

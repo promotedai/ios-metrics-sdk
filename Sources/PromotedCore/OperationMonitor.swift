@@ -4,29 +4,42 @@ import SwiftProtobuf
 // MARK: -
 /** Listens for execution scopes. */
 protocol OperationMonitorListener: AnyObject {
+  typealias Context = OperationMonitor.Context
+
   /// Called when the outermost `execute()` starts.
-  func executionWillStart(context: OperationMonitor.Context)
+  func executionWillStart(context: Context)
 
   /// Called when the outermost `execute()` ends.
-  func executionDidEnd(context: OperationMonitor.Context)
+  func executionDidEnd(context: Context)
 
   /// Called when an error is reported.
-  func execution(context: OperationMonitor.Context, didError error: Error)
+  func execution(context: Context, didError error: Error)
 
   /// Called when a log message will be sent.
-  func execution(context: OperationMonitor.Context,
-                 willLog loggingActivity: OperationMonitor.LoggingActivity)
+  /// In the function context, the message should be an event.
+  /// In the batch context, the message should be the LogRequest.
+  func execution(context: Context, willLogMessage message: Message)
+
+  /// Called when data will be sent over connection.
+  func execution(context: Context, willLogData data: Data)
+
+  /// Called when a log message has been sent successfully.
+  /// Context here will always be batchResponse.
+  func executionDidLog(context: Context)
 }
 
 extension OperationMonitorListener {
-  func executionWillStart(context: OperationMonitor.Context) {}
+  func executionWillStart(context: Context) {}
 
-  func executionDidEnd(context: OperationMonitor.Context) {}
+  func executionDidEnd(context: Context) {}
 
-  func execution(context: OperationMonitor.Context, didError error: Error) {}
+  func execution(context: Context, didError error: Error) {}
 
-  func execution(context: OperationMonitor.Context,
-                 willLog loggingActivity: OperationMonitor.LoggingActivity) {}
+  func execution(context: Context, willLogMessage message: Message) {}
+
+  func execution(context: Context, willLogData data: Data) {}
+
+  func executionDidLog(context: Context) {}
 }
 
 // MARK: -
@@ -42,11 +55,6 @@ final class OperationMonitor {
     case function(_ function: String)
     case batch
     case batchResponse
-  }
-
-  enum LoggingActivity {
-    case message(_ message: Message)
-    case data(_ data: Data)
   }
 
   typealias Operation = () -> Void
@@ -115,9 +123,29 @@ final class OperationMonitor {
   }
 
   /// Call when library operation logs a message.
-  func executionDidLog(_ loggingActivity: LoggingActivity) {
+  /// In the function context, the message should be an event.
+  /// In the batch context, the message should be the LogRequest.
+  func executionWillLog(message: Message) {
     guard let context = contextStack.bottom else { return }
-    listeners.forEach { $0.execution(context: context, willLog: loggingActivity) }
+    listeners.forEach {
+      $0.execution(context: context, willLogMessage: message)
+    }
+  }
+
+  /// Call when batch will send a serialized proto.
+  func executionWillLog(data: Data) {
+    guard let context = contextStack.bottom else { return }
+    listeners.forEach {
+      $0.execution(context: context, willLogData: data)
+    }
+  }
+
+  /// Call when batch operation has logged a message successfully.
+  func executionDidLog() {
+    guard let context = contextStack.bottom else { return }
+    listeners.forEach {
+      $0.executionDidLog(context: context)
+    }
   }
 }
 
