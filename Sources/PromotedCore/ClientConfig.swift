@@ -157,10 +157,3 @@ protocol ClientConfigSource {
   var clientConfig: ClientConfig { get }
   var initialConfig: ClientConfig { get }
 }
-
-extension ClientConfig: NSCopying {
-
-  public func copy(with zone: NSZone? = nil) -> Any {
-    return ClientConfig(self)
-  }
-}

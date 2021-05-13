@@ -60,6 +60,9 @@ public final class Xray: NSObject {
     @objc public var messagesSizeBytes: UInt64 {
       UInt64(messagesBytes.map(\.count).reduce(0, +))
     }
+
+    /// Errors that resulted from this logging call.
+    @objc public fileprivate(set) var error: Error? = nil
   }
 
   /** Batched logging call. */
@@ -106,6 +109,12 @@ public final class Xray: NSObject {
 
     /// Errors that resulted from this batch.
     @objc public fileprivate(set) var error: Error? = nil
+
+    /// Errors that arose from this batch and across all calls
+    /// contained therein.
+    @objc public var errorsAcrossCalls: [Error] {
+      calls.compactMap(\.error) + [error].compactMap { $0 }
+    }
   }
   
   public static let networkBatchWindowMaxSize: Int = 100
@@ -146,7 +155,9 @@ public final class Xray: NSObject {
   @objc public var calls: [Call] { networkBatches.flatMap(\.calls) }
 
   /// Flattened errors across `networkBatches`.
-  @objc public var errors: [Error] { networkBatches.compactMap(\.error) }
+  @objc public var errors: [Error] {
+    networkBatches.flatMap(\.errorsAcrossCalls)
+  }
 
   private var pendingCalls: [Call]
   private var pendingBatch: NetworkBatch?
@@ -200,6 +211,13 @@ fileprivate extension Xray {
     osLog?.signpostEvent(name: "call", format: "log")
     guard let lastCall = pendingCalls.last else { return }
     lastCall.messages.append(message)
+  }
+
+  private func callDidError(_ error: Error) {
+    osLog?.signpostEvent(name: "call", format: "error: %{public}@",
+                         error.localizedDescription)
+    guard let lastCall = pendingCalls.last else { return }
+    lastCall.error = error
   }
 
   private func callDidComplete() {
@@ -331,7 +349,7 @@ extension Xray: OperationMonitorListener {
   func execution(context: OperationMonitor.Context, didError error: Error) {
     switch context {
     case .clientInitiated(_):
-      break
+      callDidError(error)
     case .batch:
       metricsLoggerBatchDidError(error)
     case .batchResponse:
@@ -340,17 +358,17 @@ extension Xray: OperationMonitorListener {
   }
   
   func execution(context: OperationMonitor.Context,
-                 didLog loggingActivity: OperationMonitor.LoggingActivity) {
+                 willLog loggingActivity: OperationMonitor.LoggingActivity) {
     switch context {
     case .clientInitiated(_):
-      if case let .protobuf(message) = loggingActivity {
+      if case let .message(message) = loggingActivity {
         callDidLog(message: message)
       }
     case .batch:
       switch loggingActivity {
-      case .protobuf(let message):
+      case .message(let message):
         metricsLoggerBatchWillSend(message: message)
-      case .bytes(let data):
+      case .data(let data):
         metricsLoggerBatchWillSend(data: data)
       }
     case .batchResponse:

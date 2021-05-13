@@ -415,7 +415,7 @@ public extension MetricsLogger {
       return
     }
     logMessages.append(message)
-    monitor.executionDidLog(.protobuf(message: message))
+    monitor.executionDidLog(.message(message))
     maybeSchedulePendingBatchLoggingFlush()
   }
   
@@ -481,7 +481,7 @@ public extension MetricsLogger {
       let eventsCopy = logMessages
       logMessages.removeAll()
       let request = logRequestMessage(events: eventsCopy)
-      monitor.executionDidLog(.protobuf(message: request))
+      monitor.executionDidLog(.message(request))
       do {
         try connection.sendMessage(request, clientConfig: config, monitor: monitor) {
           [weak self] (data, error) in
@@ -498,7 +498,7 @@ public extension MetricsLogger {
     monitor.execute(context: .batchResponse) {
       osLog?.info("Logging finished")
       if let d = data {
-        monitor.executionDidLog(.bytes(data: d))
+        monitor.executionDidLog(.data(d))
       }
       if let e = error {
         osLog?.error("flush/sendMessage: %{public}@", e.localizedDescription)

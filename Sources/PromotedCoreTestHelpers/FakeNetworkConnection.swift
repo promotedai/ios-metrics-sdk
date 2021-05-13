@@ -18,7 +18,7 @@ final class FakeNetworkConnection: NetworkConnection {
   
   func sendMessage(_ message: Message,
                    clientConfig: ClientConfig,
-                   xray: Xray?,
+                   monitor: OperationMonitor,
                    callback: Callback?) throws {
     messages.append(SendMessageArguments(message: message, callback: callback))
   }

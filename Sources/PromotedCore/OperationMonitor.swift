@@ -1,6 +1,7 @@
 import Foundation
 import SwiftProtobuf
 
+// MARK: -
 /** Listens for execution scopes. */
 protocol OperationMonitorListener: AnyObject {
   /// Called when the outermost `execute()` starts.
@@ -12,9 +13,9 @@ protocol OperationMonitorListener: AnyObject {
   /// Called when an error is reported.
   func execution(context: OperationMonitor.Context, didError error: Error)
 
-  /// Called when a log message is sent.
+  /// Called when a log message will be sent.
   func execution(context: OperationMonitor.Context,
-                 didLog loggingActivity: OperationMonitor.LoggingActivity)
+                 willLog loggingActivity: OperationMonitor.LoggingActivity)
 }
 
 extension OperationMonitorListener {
@@ -25,10 +26,10 @@ extension OperationMonitorListener {
   func execution(context: OperationMonitor.Context, didError error: Error) {}
 
   func execution(context: OperationMonitor.Context,
-                 didLog loggingActivity: OperationMonitor.LoggingActivity) {}
+                 willLog loggingActivity: OperationMonitor.LoggingActivity) {}
 }
 
-
+// MARK: -
 /**
  Wraps all public, client-facing operations. Provides context and
  monitoring for these operations. This includes setting up logging
@@ -45,8 +46,8 @@ public final class OperationMonitor {
   fileprivate typealias Stack = [Context]
 
   public enum LoggingActivity {
-    case protobuf(message: Message)
-    case bytes(data: Data)
+    case message(_ message: Message)
+    case data(_ data: Data)
   }
 
   public typealias Operation = () -> Void
@@ -90,7 +91,7 @@ public final class OperationMonitor {
                operation: Operation) {
     var executionContext = context
     // Fill in function here because the #function macro doesn't
-    // work from inside the enum call.
+    // work from inside the enum.
     if case .clientInitiated(_) = context {
       executionContext = .clientInitiated(function: function)
     }
@@ -116,7 +117,7 @@ public final class OperationMonitor {
   /// Call when library operation logs a message.
   public func executionDidLog(_ loggingActivity: LoggingActivity) {
     guard let context = contextStack.bottom else { return }
-    listeners.forEach { $0.execution(context: context, didLog: loggingActivity) }
+    listeners.forEach { $0.execution(context: context, willLog: loggingActivity) }
   }
 }
 
@@ -124,6 +125,7 @@ protocol OperationMonitorSource {
   var operationMonitor: OperationMonitor { get }
 }
 
+// MARK: -
 fileprivate extension OperationMonitor.Stack {
 
   var top: OperationMonitor.Context? { last }
@@ -135,5 +137,17 @@ fileprivate extension OperationMonitor.Stack {
 
   @discardableResult mutating func pop() -> OperationMonitor.Context {
     return removeLast()
+  }
+}
+
+// MARK: -
+extension OperationMonitor.Context: CustomDebugStringConvertible {
+  public var debugDescription: String {
+    switch self {
+    case .clientInitiated(let function):
+      return function
+    default:
+      return String(describing: self)
+    }
   }
 }
