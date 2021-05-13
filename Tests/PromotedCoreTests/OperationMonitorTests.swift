@@ -85,8 +85,8 @@ final class OperationMonitorTests: XCTestCase {
     }
     let actualErrors = listener.errors
     XCTAssertEqual(["outer", "outer"], actualErrors.map(\.0))
-    XCTAssertIdentical(error1, actualErrors[0].1 as AnyObject)
-    XCTAssertIdentical(error2, actualErrors[1].1 as AnyObject)
+    XCTAssertEqual(error1, actualErrors[0].1 as NSError)
+    XCTAssertEqual(error2, actualErrors[1].1 as NSError)
     let actualLoggingActivities = listener.activities
     XCTAssertEqual(["outer"], actualLoggingActivities.map(\.0))
     XCTAssertEqual([data], actualLoggingActivities.map(\.1))
