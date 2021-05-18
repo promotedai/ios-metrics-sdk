@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   s.author           = { 'Yu-Hong Wang' => 'yu-hong@promoted.ai' }
   s.source           = { :git => 'https://github.com/promotedai/ios-metrics-sdk.git', :tag => s.version.to_s }
   
-  s.ios.deployment_target = '11.0'
+  s.ios.deployment_target = '10.0'
   s.swift_version = '5.2'
   
   # By default we bring in GTMSessionFetcher for networking.
