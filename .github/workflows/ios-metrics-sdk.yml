@@ -12,9 +12,6 @@ jobs:
       matrix:
         macos: [macos-latest, macos-10.15]
         xcode: ['12.4', '11.7']
-        exclude:
-          - macos: macos-10.15
-            xcode: '12.4'
     runs-on: ${{ matrix.macos }}
     steps:
     - uses: actions/checkout@v2
