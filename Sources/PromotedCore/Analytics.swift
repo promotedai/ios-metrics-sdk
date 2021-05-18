@@ -3,21 +3,20 @@ import SwiftProtobuf
 
 // MARK: - AnalyticsConnection
 /** Wraps an Analytics package. */
-@objc(PROAnalyticsConnection)
 public protocol AnalyticsConnection: AnyObject {
 
   /// Starts analytics services.
   /// Will be called at `startLoggingServices()` time.
-  @objc func startServices() throws
+  func startServices() throws
 
   /// Logs a count of events successfully logged.
-  @objc(logEventCount:) func log(eventCount: Int)
+  func log(eventCount: Int)
 
   /// Logs a count of bytes successfully sent.
-  @objc(logBytesSent:) func log(bytesSent: UInt64)
+  func log(bytesSent: UInt64)
 
   /// Logs errors that occurred during logging.
-  @objc(logErrors:) func log(errors: [Error])
+  func log(errors: [Error])
 }
 
 protocol AnalyticsConnectionSource {

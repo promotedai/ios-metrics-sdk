@@ -14,7 +14,7 @@ import os.log
 @objc(PROModuleConfig)
 public final class ModuleConfig: NSObject {
   @objc public var initialConfig = ClientConfig()
-  @objc public var analyticsConnection: AnalyticsConnection? = nil
+  public var analyticsConnection: AnalyticsConnection? = nil
   public var clientConfigService: ClientConfigService? = nil
   public var networkConnection: NetworkConnection? = nil
   public var persistentStore: PersistentStore? = nil
