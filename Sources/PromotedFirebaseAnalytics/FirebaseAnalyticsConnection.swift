@@ -5,27 +5,18 @@ import Foundation
 import PromotedCore
 #endif
 
+/**
+ Sends analytics through Firebase Analytics.
+
+ - Event counts are logged with key `event-count`.
+ - Bytes sent is logged with key `bytes-sent`.
+ - Errors are logged with key `errors`.
+
+ Firebase Analytics only logs to the default app.
+ */
 final class FirebaseAnalyticsConnection: AnalyticsConnection {
 
-  private let configFilename: String?
-
-  init() {
-    self.configFilename = nil
-  }
-
-  init(configFilename: String) {
-    self.configFilename = configFilename
-  }
-
-  func startServices() throws {
-    if configFilename == nil { return }
-    let path = Bundle.main.path(forResource: configFilename, ofType: "plist")
-    guard let path = path,
-          let options = FirebaseOptions(contentsOfFile: path) else {
-      return
-    }
-    FirebaseApp.configure(options: options)
-  }
+  func startServices() throws {}
 
   func log(eventCount: Int) {
     FirebaseAnalytics.Analytics.logEvent("event-count", parameters: [

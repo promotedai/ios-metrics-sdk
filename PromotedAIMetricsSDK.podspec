@@ -38,8 +38,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'FirebaseAnalytics' do |a|
     a.source_files = ['Sources/PromotedFirebaseAnalytics/**/*.{h,m,swift}']
-    a.dependency 'Firebase', '~> 7.11.0'
-    a.dependency 'Firebase/Analytics', '~> 7.11.0'
+    a.dependency 'Firebase/AnalyticsWithoutAdIdSupport', '~> 7.11.0'
     a.dependency 'PromotedAIMetricsSDK/Core'
     a.xcconfig = { 'USER_HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/Firebase/CoreOnly/Sources"' }
   end
