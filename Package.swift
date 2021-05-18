@@ -49,7 +49,7 @@ let package = Package(
     .target(
       name: "PromotedFirebaseAnalytics",
       dependencies: [
-        .product(name: "FirebaseAnalyticsWithoutAdIdSupport", package: "Firebase"),
+        .product(name: "FirebaseAnalytics", package: "Firebase"),
         .target(name: "PromotedCore"),
       ]),
     .target(
