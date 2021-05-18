@@ -9,6 +9,8 @@ import PromotedCore
 import GTMSessionFetcherCore
 #elseif canImport(GTMSessionFetcher)
 import GTMSessionFetcher
+#else
+#error("Can't import GTMSessionFetcher")
 #endif
 
 /** Uses `GTMSessionFetcher` to perform the network connection. */

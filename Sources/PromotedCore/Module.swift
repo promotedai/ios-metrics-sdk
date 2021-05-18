@@ -205,16 +205,19 @@ final class Module: AllDeps {
 
   convenience init(moduleConfig: ModuleConfig) {
     self.init(initialConfig: moduleConfig.initialConfig,
+              analyticsConnection: moduleConfig.analyticsConnection,
               clientConfigService: moduleConfig.clientConfigService,
               networkConnection: moduleConfig.networkConnection,
               persistentStore: moduleConfig.persistentStore)
   }
 
   init(initialConfig: ClientConfig,
+       analyticsConnection: AnalyticsConnection? = nil,
        clientConfigService: ClientConfigService? = nil,
        networkConnection: NetworkConnection? = nil,
        persistentStore: PersistentStore? = nil) {
     self.initialConfig = ClientConfig(initialConfig)
+    self.analyticsConnection = analyticsConnection
     self.clientConfigServiceSpec = clientConfigService
     self.networkConnectionSpec = networkConnection
     self.persistentStoreSpec = persistentStore

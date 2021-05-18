@@ -134,7 +134,7 @@ public final class MetricsLoggerService: NSObject {
       try module.initialConfig.validateConfig()
       try module.validateModuleConfigDependencies()
     } catch {
-      throw error.asExternalError()
+      throw error
     }
   }
 }
@@ -161,7 +161,7 @@ public extension MetricsLoggerService {
       startupResult = .success
     } catch {
       startupResult = .failure(error: error)
-      throw error.asExternalError()
+      throw error
     }
   }
 }

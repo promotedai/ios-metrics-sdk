@@ -13,35 +13,50 @@ public protocol ErrorListener {
 }
 
 // MARK: - NSErrorProperties
-protocol NSErrorProperties {
+public protocol NSErrorProperties {
   
   var domain: String { get }
   
   var code: Int { get }
+
+  var externalDescription: String { get }
 }
 
 extension NSErrorProperties {
 
   var promotedAIDomain: String { "ai.promoted" }
+}
 
-  var debugDescription: String {
+// MARK: - Error
+public extension Error {
+
+  var externalDescription: String {
     let description = String(describing: self)
     return description.prefix(1).capitalized + description.dropFirst()
   }
 
-  func asNSError() -> NSError {
-    return NSError(domain: self.domain, code: self.code,
-                   userInfo: [NSDebugDescriptionErrorKey: debugDescription])
+  func asErrorProperties() -> NSErrorProperties {
+    switch self {
+    case let e as NSErrorProperties:
+      return e
+    case let e as NSError:
+      return NSErrorPropertiesWrapper(error: e)
+    }
   }
 }
 
-// MARK: - Error
-extension Error {
-  func asExternalError() -> Error {
-    if let e = self as? NSErrorProperties {
-      return e.asNSError()
-    }
-    return self
+class NSErrorPropertiesWrapper: NSErrorProperties {
+
+  public let domain: String
+
+  public let code: Int
+
+  public let externalDescription: String
+
+  init(error: NSError) {
+    self.domain = error.domain
+    self.code = error.code
+    self.externalDescription = error.debugDescription
   }
 }
 
@@ -61,9 +76,9 @@ public enum ClientConfigError: Error {
 }
 
 extension ClientConfigError: NSErrorProperties {
-  var domain: String { promotedAIDomain }
+  public var domain: String { promotedAIDomain }
 
-  var code: Int {
+  public var code: Int {
     switch self {
     case .invalidURL(_):
       return 101
@@ -83,9 +98,9 @@ public enum ModuleConfigError: Error {
 }
 
 extension ModuleConfigError: NSErrorProperties {
-  var domain: String { promotedAIDomain }
+  public var domain: String { promotedAIDomain }
 
-  var code: Int {
+  public var code: Int {
     switch self {
     case .missingNetworkConnection:
       return 201
@@ -95,9 +110,9 @@ extension ModuleConfigError: NSErrorProperties {
 
 // MARK: - BinaryEncodingError
 extension BinaryEncodingError: NSErrorProperties {
-  var domain: String { "com.google.protobuf" }
+  public var domain: String { "com.google.protobuf" }
 
-  var code: Int {
+  public var code: Int {
     switch self {
     case .missingRequiredFields:
       return 301
@@ -121,9 +136,9 @@ public enum MetricsLoggerError: Error {
 }
 
 extension MetricsLoggerError: NSErrorProperties {
-  var domain: String { promotedAIDomain }
+  public var domain: String { promotedAIDomain }
   
-  var code: Int {
+  public var code: Int {
     switch self {
     case .propertiesSerializationError(_):
       return 401
