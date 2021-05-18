@@ -19,22 +19,22 @@ final class FirebaseAnalyticsConnection: AnalyticsConnection {
   func startServices() throws {}
 
   func log(eventCount: Int) {
-    Firebase.Analytics.logEvent("ai-promoted-event-count", parameters: [
+    Firebase.Analytics.logEvent("ai_promoted_event_count", parameters: [
       AnalyticsParameterValue: eventCount
     ])
   }
 
   func log(bytesSent: UInt64) {
-    Firebase.Analytics.logEvent("ai-promoted-bytes-sent", parameters: [
+    Firebase.Analytics.logEvent("ai_promoted_bytes_sent", parameters: [
       AnalyticsParameterValue: bytesSent
     ])
   }
 
   func log(errors: [Error]) {
     for error in errors {
-      guard let externalError = error.asExternalError() as? NSErrorProperties else { continue }
-      Firebase.Analytics.logEvent("ai-promoted-error", parameters: [
-        "description": externalError.debugDescription.prefix(100),
+      let externalError = error.asErrorProperties()
+      Firebase.Analytics.logEvent("ai_promoted_error", parameters: [
+        "description": externalError.externalDescription.prefix(100),
         "domain": externalError.domain,
         "error-code": externalError.code
       ])

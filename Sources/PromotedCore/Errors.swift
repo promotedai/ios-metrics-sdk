@@ -13,38 +13,50 @@ public protocol ErrorListener {
 }
 
 // MARK: - NSErrorProperties
-public protocol NSErrorProperties: CustomDebugStringConvertible {
+public protocol NSErrorProperties {
   
   var domain: String { get }
   
   var code: Int { get }
-}
 
-public extension NSErrorProperties {
-
-  var debugDescription: String {
-    let description = String(describing: self)
-    return description.prefix(1).capitalized + description.dropFirst()
-  }
+  var externalDescription: String { get }
 }
 
 extension NSErrorProperties {
 
   var promotedAIDomain: String { "ai.promoted" }
-
-  func asNSError() -> NSError {
-    return NSError(domain: self.domain, code: self.code,
-                   userInfo: [NSDebugDescriptionErrorKey: debugDescription])
-  }
 }
 
 // MARK: - Error
 public extension Error {
-  func asExternalError() -> Error {
-    if let e = self as? NSErrorProperties {
-      return e.asNSError()
+
+  var externalDescription: String {
+    let description = String(describing: self)
+    return description.prefix(1).capitalized + description.dropFirst()
+  }
+
+  func asErrorProperties() -> NSErrorProperties {
+    switch self {
+    case let e as NSErrorProperties:
+      return e
+    case let e as NSError:
+      return NSErrorPropertiesWrapper(error: e)
     }
-    return self
+  }
+}
+
+class NSErrorPropertiesWrapper: NSErrorProperties {
+
+  public let domain: String
+
+  public let code: Int
+
+  public let externalDescription: String
+
+  init(error: NSError) {
+    self.domain = error.domain
+    self.code = error.code
+    self.externalDescription = error.debugDescription
   }
 }
 
