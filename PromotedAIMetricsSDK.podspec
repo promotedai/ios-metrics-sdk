@@ -11,13 +11,13 @@ Pod::Spec.new do |s|
   iOS client library for Promoted.ai metrics tracking.
   Provided as both a Cocoapod and Swift Package.
   DESC
-  
+
   s.homepage         = 'https://github.com/promotedai/ios-metrics-sdk'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'Yu-Hong Wang' => 'yu-hong@promoted.ai' }
   s.source           = { :git => 'https://github.com/promotedai/ios-metrics-sdk.git', :tag => s.version.to_s }
   
-  s.ios.deployment_target = '11.0'
+  s.ios.deployment_target = '10.0'
   s.swift_version = '5.2'
   
   # By default we bring in GTMSessionFetcher for networking.
@@ -35,7 +35,15 @@ Pod::Spec.new do |s|
     fetcher.dependency 'GTMSessionFetcher/Core', '~> 1.5.0'
     fetcher.dependency 'PromotedAIMetricsSDK/Core'
   end
-  
+
+  s.subspec 'FirebaseAnalytics' do |a|
+    a.source_files = ['Sources/PromotedFirebaseAnalytics/**/*.{h,m,swift}']
+    a.dependency 'Firebase', '~> 7.11.0'
+    a.dependency 'Firebase/Analytics', '~> 7.11.0'
+    a.dependency 'PromotedAIMetricsSDK/Core'
+    a.xcconfig = { 'USER_HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/Firebase/CoreOnly/Sources"' }
+  end
+
   s.subspec 'Metrics' do |metrics|
     metrics.source_files = ['Sources/PromotedMetrics/**/*.{h,m,swift}']
     metrics.dependency 'PromotedAIMetricsSDK/Core'

@@ -13,21 +13,24 @@ public protocol ErrorListener {
 }
 
 // MARK: - NSErrorProperties
-protocol NSErrorProperties {
+public protocol NSErrorProperties: CustomDebugStringConvertible {
   
   var domain: String { get }
   
   var code: Int { get }
 }
 
-extension NSErrorProperties {
-
-  var promotedAIDomain: String { "ai.promoted" }
+public extension NSErrorProperties {
 
   var debugDescription: String {
     let description = String(describing: self)
     return description.prefix(1).capitalized + description.dropFirst()
   }
+}
+
+extension NSErrorProperties {
+
+  var promotedAIDomain: String { "ai.promoted" }
 
   func asNSError() -> NSError {
     return NSError(domain: self.domain, code: self.code,
@@ -36,7 +39,7 @@ extension NSErrorProperties {
 }
 
 // MARK: - Error
-extension Error {
+public extension Error {
   func asExternalError() -> Error {
     if let e = self as? NSErrorProperties {
       return e.asNSError()
@@ -61,9 +64,9 @@ public enum ClientConfigError: Error {
 }
 
 extension ClientConfigError: NSErrorProperties {
-  var domain: String { promotedAIDomain }
+  public var domain: String { promotedAIDomain }
 
-  var code: Int {
+  public var code: Int {
     switch self {
     case .invalidURL(_):
       return 101
@@ -83,9 +86,9 @@ public enum ModuleConfigError: Error {
 }
 
 extension ModuleConfigError: NSErrorProperties {
-  var domain: String { promotedAIDomain }
+  public var domain: String { promotedAIDomain }
 
-  var code: Int {
+  public var code: Int {
     switch self {
     case .missingNetworkConnection:
       return 201
@@ -95,9 +98,9 @@ extension ModuleConfigError: NSErrorProperties {
 
 // MARK: - BinaryEncodingError
 extension BinaryEncodingError: NSErrorProperties {
-  var domain: String { "com.google.protobuf" }
+  public var domain: String { "com.google.protobuf" }
 
-  var code: Int {
+  public var code: Int {
     switch self {
     case .missingRequiredFields:
       return 301
@@ -121,9 +124,9 @@ public enum MetricsLoggerError: Error {
 }
 
 extension MetricsLoggerError: NSErrorProperties {
-  var domain: String { promotedAIDomain }
+  public var domain: String { promotedAIDomain }
   
-  var code: Int {
+  public var code: Int {
     switch self {
     case .propertiesSerializationError(_):
       return 401
