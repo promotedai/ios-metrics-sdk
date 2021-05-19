@@ -60,7 +60,6 @@ let package = Package(
   ]
 )
 
-
 #if swift(>=5.3)
 // Firebase dependencies require Swift 5.3.
 package.products.append(
