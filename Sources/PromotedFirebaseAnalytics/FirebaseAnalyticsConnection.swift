@@ -8,9 +8,9 @@ import PromotedCore
 /**
  Sends analytics through Firebase Analytics.
 
- - Event counts are logged with key `event-count`.
- - Bytes sent is logged with key `bytes-sent`.
- - Errors are logged with key `errors`.
+ - Event counts are logged with key `ai_promoted_event_count`.
+ - Bytes sent is logged with key `ai_promoted_bytes_sent`.
+ - Errors are logged with key `ai_promoted_error`.
 
  Firebase Analytics only logs to the default app.
  */
