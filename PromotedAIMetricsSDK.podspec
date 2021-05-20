@@ -1,7 +1,3 @@
-# Run `pod spec lint PromotedAIMetricsSDK.podspec' before submitting.
-#
-# https://guides.cocoapods.org/syntax/podspec.html
-
 Pod::Spec.new do |s|
   s.name             = 'PromotedAIMetricsSDK'
   s.version          = ENV['LIB_VERSION'] || '0.4.1'
