@@ -1,0 +1,22 @@
+name: cocoapods
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  pod-spec-lint:
+    strategy:
+      matrix:
+        macos: [macos-latest, macos-10.15]
+        xcode: ['12.4', '11.7']
+    runs-on: ${{ matrix.macos }}
+    steps:
+    - uses: actions/checkout@v2
+    - uses: sinoru/actions-setup-xcode@v1.1.2
+      with:
+        xcode-version: ${{ matrix.xcode }}
+    - name: Lint
+      run: pod spec lint --verbose
