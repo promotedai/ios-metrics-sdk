@@ -98,7 +98,7 @@ public final class MetricsLogger: NSObject {
   let viewTracker: ViewTracker
   private var needsViewStateCheck: Bool
 
-  private unowned var monitor: OperationMonitor
+  private unowned let monitor: OperationMonitor
   private let osLog: OSLog?
 
   private lazy var cachedDeviceMessage: Event_Device = deviceMessage()
