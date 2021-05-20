@@ -1,4 +1,4 @@
-name: ios-metrics-sdk
+name: swiftpm
 
 on:
   push:
