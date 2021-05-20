@@ -1,4 +1,4 @@
-name: ios-metrics-sdk
+name: cocoapods
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  pod-spec-lint:
     strategy:
       matrix:
         macos: [macos-latest, macos-10.15]
