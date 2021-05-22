@@ -182,7 +182,7 @@ public extension MetricsLogger {
 
   /// Logs a view with the given route name and key (React Native).
   func logViewReady(routeName: String, routeKey: String, useCase: UseCase? = nil) {
-    viewTracker.reset()
+    viewTracker?.reset()
     logView(trackerKey: .reactNative(routeName: routeName, routeKey: routeKey),
             useCase: useCase)
   }
