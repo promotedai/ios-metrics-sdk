@@ -57,19 +57,6 @@ final class MetricsLoggerTests: ModuleTestCase {
     assertLoggerAndStoreInSync()
   }
 
-  func testStartSessionNoLogUserIDs() {
-    config.metricsLoggerIncludesLogUserIDs = false
-    metricsLogger = MetricsLogger(deps: module)
-    store.userID = nil
-    store.logUserID = nil
-    idMap.incrementCounts = true
-    metricsLogger.startSessionForTesting(userID: "foobar")
-    XCTAssertEqual("foobar", store.userID)
-    XCTAssertNil(store.logUserID)
-    XCTAssertNil(metricsLogger.logUserID)
-    assertLoggerAndStoreInSync()
-  }
-
   func testStartSessionSignedOut() {
     store.userID = nil
     store.logUserID = nil
@@ -229,7 +216,6 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger = MetricsLogger(deps: module)
 
     let flushInterval = config.loggingFlushInterval
-    metricsLogger.startSessionForTesting(userID: "foobar")
 
     let e = Event_Action()
     clock.advance(to: 0.0)
@@ -250,7 +236,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     properties.impressionID = "foobar"
     metricsLogger.logUser(properties: properties)
     XCTAssertEqual(1, metricsLogger.logMessagesForTesting.count)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_User)
     let propertiesData = (message as! Event_User).properties.structBytes
     do {
@@ -265,7 +251,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.startSessionForTesting(userID: "foo")
     metricsLogger.logUser()
     XCTAssertEqual(1, metricsLogger.logMessagesForTesting.count)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_User)
     let expectedJSON = """
     {
@@ -280,9 +266,10 @@ final class MetricsLoggerTests: ModuleTestCase {
 
   func testLogImpressionInsertionID() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     let item = Item(contentID: "foobar", insertionID: "insertion!")
     metricsLogger.logImpression(content: item)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Impression)
     let expectedJSON = """
     {
@@ -302,9 +289,10 @@ final class MetricsLoggerTests: ModuleTestCase {
 
   func testLogImpressionNoInsertionID() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     let item = Item(contentID: "foobar")
     metricsLogger.logImpression(content: item)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Impression)
     let expectedJSON = """
     {
@@ -322,14 +310,9 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testLogImpressionNoLogUserSessionViewIDs() {
-    config.metricsLoggerIncludesLogUserIDs = false
-    config.metricsLoggerIncludesSessionIDs = false
-    config.metricsLoggerIncludesViewIDs = false
-    metricsLogger = MetricsLogger(deps: module)
-    metricsLogger.startSessionForTesting(userID: "foo")
     let item = Item(contentID: "foobar", insertionID: "insertion!")
     metricsLogger.logImpression(content: item)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Impression)
     let expectedJSON = """
     {
@@ -347,10 +330,11 @@ final class MetricsLoggerTests: ModuleTestCase {
 
   func testLogNavigateAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     let viewController = FakeScreenViewController()
     let item = Item(contentID: "foobar")
     metricsLogger.logNavigateAction(viewController: viewController, forContent: item)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
@@ -373,9 +357,10 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogAddToCartAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     let item = Item(contentID: "foobar")
     metricsLogger.logAddToCartAction(item: item)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
@@ -396,9 +381,10 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogRemoveFromCartAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     let item = Item(contentID: "foobar")
     metricsLogger.logRemoveFromCartAction(item: item)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
@@ -419,8 +405,9 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogCheckoutAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     metricsLogger.logCheckoutAction()
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
@@ -441,9 +428,10 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogPurchaseAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     let item = Item(contentID: "foobar")
     metricsLogger.logPurchaseAction(item: item)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
@@ -464,9 +452,10 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogShareAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     let item = Item(contentID: "foobar")
     metricsLogger.logShareAction(content: item)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
@@ -487,9 +476,10 @@ final class MetricsLoggerTests: ModuleTestCase {
 
   func testLogLikeAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     let item = Item(contentID: "foobar")
     metricsLogger.logLikeAction(content: item)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
@@ -510,9 +500,10 @@ final class MetricsLoggerTests: ModuleTestCase {
 
   func testLogUnlikeAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     let item = Item(contentID: "foobar")
     metricsLogger.logUnlikeAction(content: item)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
@@ -533,9 +524,10 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogCommentAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     let item = Item(contentID: "foobar")
     metricsLogger.logCommentAction(content: item)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
@@ -556,9 +548,10 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogMakeOfferAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     let item = Item(contentID: "foobar")
     metricsLogger.logMakeOfferAction(item: item)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
@@ -579,9 +572,10 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogAskQuestionAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     let item = Item(contentID: "foobar")
     metricsLogger.logAskQuestionAction(content: item)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
@@ -602,9 +596,10 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogAnswerQuestionAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     let item = Item(contentID: "foobar")
     metricsLogger.logAnswerQuestionAction(content: item)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
@@ -625,8 +620,9 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogCompleteSignInAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     metricsLogger.logCompleteSignInAction()
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
@@ -647,8 +643,9 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogCompleteSignUpAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logView(viewController: FakeScreenViewController())
     metricsLogger.logCompleteSignUpAction()
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Action)
     let expectedJSON = """
     {
@@ -671,7 +668,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.startSessionForTesting(userID: "foo")
     let viewController = FakeScreenViewController()
     metricsLogger.logView(viewController: viewController, useCase: .search)
-    let message = metricsLogger.logMessagesForTesting[0]
+    let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_View)
     let expectedJSON = """
     {
