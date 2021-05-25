@@ -212,7 +212,6 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testFlushNoLogUserIDs() {
-    config.metricsLoggerIncludesLogUserIDs = false
     metricsLogger = MetricsLogger(deps: module)
 
     let flushInterval = config.loggingFlushInterval
