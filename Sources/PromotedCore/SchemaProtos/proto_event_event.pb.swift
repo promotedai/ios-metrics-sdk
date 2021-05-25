@@ -293,8 +293,6 @@ public struct Event_JoinedIdentifiers {
 /// Clients can update each User multiple times by logging the User with the same
 /// user_id.  Unset fields will not be updated. Repeated fields will act like a
 /// merge if the item has a key.  Otherwise, it'll act like an append.
-///
-/// TODO - when we want this on Request, move this to delivery.
 /// Next ID = 7.
 public struct Event_User {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
@@ -377,7 +375,9 @@ public struct Event_CohortMembership {
   /// Clears the value of `timing`. Subsequent reads from it will return its default value.
   public mutating func clearTiming() {self._timing = nil}
 
-  /// Optional.  This can contain a log UUID to help track down log records.
+  /// Optional.  Primary key.
+  /// SDKs usually handles this automatically. For details, see
+  /// https://github.com/promotedai/schema#setting-primary-keys
   public var membershipID: String = String()
 
   /// Optional.  This field refers to the cohort (currently stored as an enum).
@@ -412,9 +412,11 @@ public struct Event_Locale {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
+  /// CodeReview - Which ISO code is this?  ISO 639-1? 2? 3?
   /// "en", "zh_Hant", "fr"
   public var languageCode: String = String()
 
+  /// CodeReview - Which ISO code?  ISO 3166-1?
   /// "US", "CA", "FR"
   public var regionCode: String = String()
 
@@ -497,6 +499,7 @@ public struct Event_Device {
   /// iOS: "14.4.1"
   public var osVersion: String = String()
 
+  /// Deprecated.
   public var locale: Event_Locale {
     get {return _locale ?? Event_Locale()}
     set {_locale = newValue}
@@ -617,136 +620,6 @@ public struct Event_Location {
   public init() {}
 }
 
-/// ** Not currently used **
-/// Profile (contains pii) version of Session.
-/// Next ID = 9.
-public struct Event_SessionProfile {
-  // SwiftProtobuf.Message conformance is added in an extension below. See the
-  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-  // methods supported on all messages.
-
-  /// Optional.  If not set, set by API servers.
-  /// If not set, API server uses LogRequest.platform_id.
-  public var platformID: UInt64 = 0
-
-  /// Optional.  Must be set on LogRequest or here.
-  public var userInfo: Common_UserInfo {
-    get {return _userInfo ?? Common_UserInfo()}
-    set {_userInfo = newValue}
-  }
-  /// Returns true if `userInfo` has been explicitly set.
-  public var hasUserInfo: Bool {return self._userInfo != nil}
-  /// Clears the value of `userInfo`. Subsequent reads from it will return its default value.
-  public mutating func clearUserInfo() {self._userInfo = nil}
-
-  /// Optional.  If not set, set by API servers.
-  /// If not set, API server uses LogRequest.timing.
-  public var timing: Common_Timing {
-    get {return _timing ?? Common_Timing()}
-    set {_timing = newValue}
-  }
-  /// Returns true if `timing` has been explicitly set.
-  public var hasTiming: Bool {return self._timing != nil}
-  /// Clears the value of `timing`. Subsequent reads from it will return its default value.
-  public mutating func clearTiming() {self._timing = nil}
-
-  /// Required. This is the primary ID.
-  public var sessionID: String = String()
-
-  /// Optional.
-  public var location: Event_Location {
-    get {return _location ?? Event_Location()}
-    set {_location = newValue}
-  }
-  /// Returns true if `location` has been explicitly set.
-  public var hasLocation: Bool {return self._location != nil}
-  /// Clears the value of `location`. Subsequent reads from it will return its default value.
-  public mutating func clearLocation() {self._location = nil}
-
-  /// Optional.  Custom properties per platform.
-  public var properties: Common_Properties {
-    get {return _properties ?? Common_Properties()}
-    set {_properties = newValue}
-  }
-  /// Returns true if `properties` has been explicitly set.
-  public var hasProperties: Bool {return self._properties != nil}
-  /// Clears the value of `properties`. Subsequent reads from it will return its default value.
-  public mutating func clearProperties() {self._properties = nil}
-
-  public var unknownFields = SwiftProtobuf.UnknownStorage()
-
-  public init() {}
-
-  fileprivate var _userInfo: Common_UserInfo? = nil
-  fileprivate var _timing: Common_Timing? = nil
-  fileprivate var _location: Event_Location? = nil
-  fileprivate var _properties: Common_Properties? = nil
-}
-
-/// ** Not currently used **
-/// A period of activity by a single User.  Users can have multiple Sessions.
-/// Clients can update a Session multiple times by logging multiple Sessions with
-/// the same session_id.  Unset fields will not be updated.  Repeated fields will
-/// act like a merge if the item has a key.  Otherwise, it'll act like an append.
-/// Next ID = 10.
-public struct Event_Session {
-  // SwiftProtobuf.Message conformance is added in an extension below. See the
-  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-  // methods supported on all messages.
-
-  /// Optional.  If not set, set by API servers.
-  /// If not set, API server uses LogRequest.platform_id.
-  public var platformID: UInt64 = 0
-
-  /// Optional.  Must be set on LogRequest or here.
-  public var userInfo: Common_UserInfo {
-    get {return _userInfo ?? Common_UserInfo()}
-    set {_userInfo = newValue}
-  }
-  /// Returns true if `userInfo` has been explicitly set.
-  public var hasUserInfo: Bool {return self._userInfo != nil}
-  /// Clears the value of `userInfo`. Subsequent reads from it will return its default value.
-  public mutating func clearUserInfo() {self._userInfo = nil}
-
-  /// Optional.  If not set, set by API servers.
-  /// If not set, API server uses LogRequest.timing.
-  public var timing: Common_Timing {
-    get {return _timing ?? Common_Timing()}
-    set {_timing = newValue}
-  }
-  /// Returns true if `timing` has been explicitly set.
-  public var hasTiming: Bool {return self._timing != nil}
-  /// Clears the value of `timing`. Subsequent reads from it will return its default value.
-  public mutating func clearTiming() {self._timing = nil}
-
-  /// Required. This is the primary ID.
-  public var sessionID: String = String()
-
-  /// Optional. Start time. If not set, we'll infer this from the API calls.
-  public var startEpochMillis: UInt64 = 0
-
-  /// Optional. End time. If not set, we'll infer this from the API calls.
-  public var exclusiveEndEpochMillis: UInt64 = 0
-
-  /// Optional.  Custom properties per platform.
-  public var properties: Common_Properties {
-    get {return _properties ?? Common_Properties()}
-    set {_properties = newValue}
-  }
-  /// Returns true if `properties` has been explicitly set.
-  public var hasProperties: Bool {return self._properties != nil}
-  /// Clears the value of `properties`. Subsequent reads from it will return its default value.
-  public mutating func clearProperties() {self._properties = nil}
-
-  public var unknownFields = SwiftProtobuf.UnknownStorage()
-
-  public init() {}
-
-  fileprivate var _userInfo: Common_UserInfo? = nil
-  fileprivate var _timing: Common_Timing? = nil
-  fileprivate var _properties: Common_Properties? = nil
-}
-
 /// Submessage on View for Web page visits.
 /// Next ID = 5.
 public struct Event_WebPageView {
@@ -800,9 +673,7 @@ public struct Event_AppScreenView {
 }
 
 /// A view of a single page/screen (e.g. feed, search results, etc).
-///
-/// TODO - when we want this on Request, move this to delivery.
-/// Next ID = 16.
+/// Next ID = 17.
 public struct Event_View {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -836,7 +707,9 @@ public struct Event_View {
   /// Clears the value of `timing`. Subsequent reads from it will return its default value.
   public mutating func clearTiming() {_uniqueStorage()._timing = nil}
 
-  /// Required.  This is a UUID that is generated by the client.
+  /// Optional.  Primary key.
+  /// SDKs usually handles this automatically. For details, see
+  /// https://github.com/promotedai/schema#setting-primary-keys
   public var viewID: String {
     get {return _storage._viewID}
     set {_uniqueStorage()._viewID = newValue}
@@ -885,6 +758,15 @@ public struct Event_View {
   public var hasDevice: Bool {return _storage._device != nil}
   /// Clears the value of `device`. Subsequent reads from it will return its default value.
   public mutating func clearDevice() {_uniqueStorage()._device = nil}
+
+  public var locale: Event_Locale {
+    get {return _storage._locale ?? Event_Locale()}
+    set {_uniqueStorage()._locale = newValue}
+  }
+  /// Returns true if `locale` has been explicitly set.
+  public var hasLocale: Bool {return _storage._locale != nil}
+  /// Clears the value of `locale`. Subsequent reads from it will return its default value.
+  public mutating func clearLocale() {_uniqueStorage()._locale = nil}
 
   /// Next ID = 5.
   public var viewType: Event_View.ViewType {
@@ -1021,7 +903,9 @@ public struct Event_Impression {
   /// Clears the value of `timing`. Subsequent reads from it will return its default value.
   public mutating func clearTiming() {self._timing = nil}
 
-  /// Required.  This is a UUID that is generated by the client.
+  /// Optional.  Primary key.
+  /// SDKs usually handles this automatically. For details, see
+  /// https://github.com/promotedai/schema#setting-primary-keys
   public var impressionID: String = String()
 
   /// Optional.
@@ -1075,7 +959,7 @@ public struct Event_NavigateAction {
 
 /// Actions are user actions.  Example: Click.
 /// Actions are immutable.
-/// Next ID = 21.
+/// Next ID = 22.
 public struct Event_Action {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -1109,7 +993,9 @@ public struct Event_Action {
   /// Clears the value of `timing`. Subsequent reads from it will return its default value.
   public mutating func clearTiming() {_uniqueStorage()._timing = nil}
 
-  /// Required.  This is a UUID for the click.
+  /// Optional.  Primary key.
+  /// SDKs usually handles this automatically. For details, see
+  /// https://github.com/promotedai/schema#setting-primary-keys
   public var actionID: String {
     get {return _storage._actionID}
     set {_uniqueStorage()._actionID = newValue}
@@ -1145,6 +1031,13 @@ public struct Event_Action {
     set {_uniqueStorage()._sessionID = newValue}
   }
 
+  /// Optional. content_id is used as a hint when impression_id is not set.
+  /// For more accurate results, set impression_id if available.
+  public var contentID: String {
+    get {return _storage._contentID}
+    set {_uniqueStorage()._contentID = newValue}
+  }
+
   /// Optional.  Custom name of the action that the user performed.
   /// E.g. "Product clicked".  Do not stick parameters or pii in this name.
   public var name: String {
@@ -1174,11 +1067,6 @@ public struct Event_Action {
     set {_uniqueStorage()._action = newValue}
   }
 
-  /// TODO - add PURCHASE details.
-  /// TODO - add ADD_TO_CART details.
-  /// TODO - add SHARE details.
-  /// TODO - add LIKE details.
-  /// TODO - add COMMENT details.
   public var navigateAction: Event_NavigateAction {
     get {
       if case .navigateAction(let v)? = _storage._action {return v}
@@ -1200,11 +1088,6 @@ public struct Event_Action {
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public enum OneOf_Action: Equatable {
-    /// TODO - add PURCHASE details.
-    /// TODO - add ADD_TO_CART details.
-    /// TODO - add SHARE details.
-    /// TODO - add LIKE details.
-    /// TODO - add COMMENT details.
     case navigateAction(Event_NavigateAction)
 
   #if !swift(>=4.1)
@@ -1225,52 +1108,6 @@ public struct Event_Action {
   public init() {}
 
   fileprivate var _storage = _StorageClass.defaultInstance
-}
-
-/// Contains a list of recent impressions for a flat event.
-/// The list is wrapped in this message so (1) we can differentiate between null
-/// and zero and (2) we can add more fields later.
-/// For Promoted-internal use only.
-/// Next ID = 2.
-public struct Event_LatestImpressions {
-  // SwiftProtobuf.Message conformance is added in an extension below. See the
-  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-  // methods supported on all messages.
-
-  /// Ordered with latest impressions at the end of the repeated list.
-  public var impression: [Event_LatestImpression] = []
-
-  public var unknownFields = SwiftProtobuf.UnknownStorage()
-
-  public init() {}
-}
-
-/// A smaller Impression to be used on LatestImpressions.
-/// For Promoted-internal use only.
-/// Next ID = 6.
-public struct Event_LatestImpression {
-  // SwiftProtobuf.Message conformance is added in an extension below. See the
-  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-  // methods supported on all messages.
-
-  public var impressionID: String = String()
-
-  public var contentID: String = String()
-
-  /// Optional.  Depends on if the client sets it.  This can be impacted by
-  /// client clock skew.
-  public var clientLogTimestamp: UInt64 = 0
-
-  /// Required.  Generated in Event API.
-  public var eventApiTimestamp: UInt64 = 0
-
-  /// Required.  This is the event timestamp in our stream job (currently the
-  /// Kafka insertion timestamp).
-  public var eventTimestamp: UInt64 = 0
-
-  public var unknownFields = SwiftProtobuf.UnknownStorage()
-
-  public init() {}
 }
 
 /// A way to batch up log requests into the same request.
@@ -1310,10 +1147,6 @@ public struct Event_LogRequest {
 
   public var cohortMembership: [Event_CohortMembership] = []
 
-  public var sessionProfile: [Event_SessionProfile] = []
-
-  public var session: [Event_Session] = []
-
   public var view: [Event_View] = []
 
   public var request: [Delivery_Request] = []
@@ -1330,112 +1163,6 @@ public struct Event_LogRequest {
 
   fileprivate var _userInfo: Common_UserInfo? = nil
   fileprivate var _timing: Common_Timing? = nil
-}
-
-/// Internal Proto used for flattened events.
-/// Keep proto IDs matching LogRequest.
-/// Next ID = 17.
-public struct Event_FlatEvent {
-  // SwiftProtobuf.Message conformance is added in an extension below. See the
-  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-  // methods supported on all messages.
-
-  public var ids: Event_JoinedIdentifiers {
-    get {return _storage._ids ?? Event_JoinedIdentifiers()}
-    set {_uniqueStorage()._ids = newValue}
-  }
-  /// Returns true if `ids` has been explicitly set.
-  public var hasIds: Bool {return _storage._ids != nil}
-  /// Clears the value of `ids`. Subsequent reads from it will return its default value.
-  public mutating func clearIds() {_uniqueStorage()._ids = nil}
-
-  public var user: Event_User {
-    get {return _storage._user ?? Event_User()}
-    set {_uniqueStorage()._user = newValue}
-  }
-  /// Returns true if `user` has been explicitly set.
-  public var hasUser: Bool {return _storage._user != nil}
-  /// Clears the value of `user`. Subsequent reads from it will return its default value.
-  public mutating func clearUser() {_uniqueStorage()._user = nil}
-
-  public var sessionProfile: Event_SessionProfile {
-    get {return _storage._sessionProfile ?? Event_SessionProfile()}
-    set {_uniqueStorage()._sessionProfile = newValue}
-  }
-  /// Returns true if `sessionProfile` has been explicitly set.
-  public var hasSessionProfile: Bool {return _storage._sessionProfile != nil}
-  /// Clears the value of `sessionProfile`. Subsequent reads from it will return its default value.
-  public mutating func clearSessionProfile() {_uniqueStorage()._sessionProfile = nil}
-
-  public var session: Event_Session {
-    get {return _storage._session ?? Event_Session()}
-    set {_uniqueStorage()._session = newValue}
-  }
-  /// Returns true if `session` has been explicitly set.
-  public var hasSession: Bool {return _storage._session != nil}
-  /// Clears the value of `session`. Subsequent reads from it will return its default value.
-  public mutating func clearSession() {_uniqueStorage()._session = nil}
-
-  public var view: Event_View {
-    get {return _storage._view ?? Event_View()}
-    set {_uniqueStorage()._view = newValue}
-  }
-  /// Returns true if `view` has been explicitly set.
-  public var hasView: Bool {return _storage._view != nil}
-  /// Clears the value of `view`. Subsequent reads from it will return its default value.
-  public mutating func clearView() {_uniqueStorage()._view = nil}
-
-  public var request: Delivery_Request {
-    get {return _storage._request ?? Delivery_Request()}
-    set {_uniqueStorage()._request = newValue}
-  }
-  /// Returns true if `request` has been explicitly set.
-  public var hasRequest: Bool {return _storage._request != nil}
-  /// Clears the value of `request`. Subsequent reads from it will return its default value.
-  public mutating func clearRequest() {_uniqueStorage()._request = nil}
-
-  public var insertion: Delivery_Insertion {
-    get {return _storage._insertion ?? Delivery_Insertion()}
-    set {_uniqueStorage()._insertion = newValue}
-  }
-  /// Returns true if `insertion` has been explicitly set.
-  public var hasInsertion: Bool {return _storage._insertion != nil}
-  /// Clears the value of `insertion`. Subsequent reads from it will return its default value.
-  public mutating func clearInsertion() {_uniqueStorage()._insertion = nil}
-
-  public var impression: Event_Impression {
-    get {return _storage._impression ?? Event_Impression()}
-    set {_uniqueStorage()._impression = newValue}
-  }
-  /// Returns true if `impression` has been explicitly set.
-  public var hasImpression: Bool {return _storage._impression != nil}
-  /// Clears the value of `impression`. Subsequent reads from it will return its default value.
-  public mutating func clearImpression() {_uniqueStorage()._impression = nil}
-
-  public var action: Event_Action {
-    get {return _storage._action ?? Event_Action()}
-    set {_uniqueStorage()._action = newValue}
-  }
-  /// Returns true if `action` has been explicitly set.
-  public var hasAction: Bool {return _storage._action != nil}
-  /// Clears the value of `action`. Subsequent reads from it will return its default value.
-  public mutating func clearAction() {_uniqueStorage()._action = nil}
-
-  /// For Promoted-internal use only.
-  public var latestImpressions: Event_LatestImpressions {
-    get {return _storage._latestImpressions ?? Event_LatestImpressions()}
-    set {_uniqueStorage()._latestImpressions = newValue}
-  }
-  /// Returns true if `latestImpressions` has been explicitly set.
-  public var hasLatestImpressions: Bool {return _storage._latestImpressions != nil}
-  /// Clears the value of `latestImpressions`. Subsequent reads from it will return its default value.
-  public mutating func clearLatestImpressions() {_uniqueStorage()._latestImpressions = nil}
-
-  public var unknownFields = SwiftProtobuf.UnknownStorage()
-
-  public init() {}
-
-  fileprivate var _storage = _StorageClass.defaultInstance
 }
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -2045,136 +1772,6 @@ extension Event_Location: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
   }
 }
 
-extension Event_SessionProfile: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  public static let protoMessageName: String = _protobuf_package + ".SessionProfile"
-  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .standard(proto: "platform_id"),
-    2: .standard(proto: "user_info"),
-    3: .same(proto: "timing"),
-    6: .standard(proto: "session_id"),
-    7: .same(proto: "location"),
-    8: .same(proto: "properties"),
-  ]
-
-  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeSingularUInt64Field(value: &self.platformID) }()
-      case 2: try { try decoder.decodeSingularMessageField(value: &self._userInfo) }()
-      case 3: try { try decoder.decodeSingularMessageField(value: &self._timing) }()
-      case 6: try { try decoder.decodeSingularStringField(value: &self.sessionID) }()
-      case 7: try { try decoder.decodeSingularMessageField(value: &self._location) }()
-      case 8: try { try decoder.decodeSingularMessageField(value: &self._properties) }()
-      default: break
-      }
-    }
-  }
-
-  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.platformID != 0 {
-      try visitor.visitSingularUInt64Field(value: self.platformID, fieldNumber: 1)
-    }
-    if let v = self._userInfo {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
-    }
-    if let v = self._timing {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
-    }
-    if !self.sessionID.isEmpty {
-      try visitor.visitSingularStringField(value: self.sessionID, fieldNumber: 6)
-    }
-    if let v = self._location {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 7)
-    }
-    if let v = self._properties {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 8)
-    }
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  public static func ==(lhs: Event_SessionProfile, rhs: Event_SessionProfile) -> Bool {
-    if lhs.platformID != rhs.platformID {return false}
-    if lhs._userInfo != rhs._userInfo {return false}
-    if lhs._timing != rhs._timing {return false}
-    if lhs.sessionID != rhs.sessionID {return false}
-    if lhs._location != rhs._location {return false}
-    if lhs._properties != rhs._properties {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension Event_Session: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  public static let protoMessageName: String = _protobuf_package + ".Session"
-  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .standard(proto: "platform_id"),
-    2: .standard(proto: "user_info"),
-    3: .same(proto: "timing"),
-    6: .standard(proto: "session_id"),
-    7: .standard(proto: "start_epoch_millis"),
-    8: .standard(proto: "exclusive_end_epoch_millis"),
-    9: .same(proto: "properties"),
-  ]
-
-  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeSingularUInt64Field(value: &self.platformID) }()
-      case 2: try { try decoder.decodeSingularMessageField(value: &self._userInfo) }()
-      case 3: try { try decoder.decodeSingularMessageField(value: &self._timing) }()
-      case 6: try { try decoder.decodeSingularStringField(value: &self.sessionID) }()
-      case 7: try { try decoder.decodeSingularUInt64Field(value: &self.startEpochMillis) }()
-      case 8: try { try decoder.decodeSingularUInt64Field(value: &self.exclusiveEndEpochMillis) }()
-      case 9: try { try decoder.decodeSingularMessageField(value: &self._properties) }()
-      default: break
-      }
-    }
-  }
-
-  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.platformID != 0 {
-      try visitor.visitSingularUInt64Field(value: self.platformID, fieldNumber: 1)
-    }
-    if let v = self._userInfo {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
-    }
-    if let v = self._timing {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
-    }
-    if !self.sessionID.isEmpty {
-      try visitor.visitSingularStringField(value: self.sessionID, fieldNumber: 6)
-    }
-    if self.startEpochMillis != 0 {
-      try visitor.visitSingularUInt64Field(value: self.startEpochMillis, fieldNumber: 7)
-    }
-    if self.exclusiveEndEpochMillis != 0 {
-      try visitor.visitSingularUInt64Field(value: self.exclusiveEndEpochMillis, fieldNumber: 8)
-    }
-    if let v = self._properties {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 9)
-    }
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  public static func ==(lhs: Event_Session, rhs: Event_Session) -> Bool {
-    if lhs.platformID != rhs.platformID {return false}
-    if lhs._userInfo != rhs._userInfo {return false}
-    if lhs._timing != rhs._timing {return false}
-    if lhs.sessionID != rhs.sessionID {return false}
-    if lhs.startEpochMillis != rhs.startEpochMillis {return false}
-    if lhs.exclusiveEndEpochMillis != rhs.exclusiveEndEpochMillis {return false}
-    if lhs._properties != rhs._properties {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
 extension Event_WebPageView: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".WebPageView"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -2257,6 +1854,7 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
     10: .standard(proto: "search_query"),
     11: .same(proto: "properties"),
     12: .same(proto: "device"),
+    16: .same(proto: "locale"),
     13: .standard(proto: "view_type"),
     14: .standard(proto: "web_page_view"),
     15: .standard(proto: "app_screen_view"),
@@ -2273,6 +1871,7 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
     var _searchQuery: String = String()
     var _properties: Common_Properties? = nil
     var _device: Event_Device? = nil
+    var _locale: Event_Locale? = nil
     var _viewType: Event_View.ViewType = .unknownViewType
     var _uiType: Event_View.OneOf_UiType?
 
@@ -2291,6 +1890,7 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
       _searchQuery = source._searchQuery
       _properties = source._properties
       _device = source._device
+      _locale = source._locale
       _viewType = source._viewType
       _uiType = source._uiType
     }
@@ -2340,6 +1940,7 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
           try decoder.decodeSingularMessageField(value: &v)
           if let v = v {_storage._uiType = .appScreenView(v)}
         }()
+        case 16: try { try decoder.decodeSingularMessageField(value: &_storage._locale) }()
         default: break
         }
       }
@@ -2395,6 +1996,9 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
       }()
       case nil: break
       }
+      if let v = _storage._locale {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 16)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -2414,6 +2018,7 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
         if _storage._searchQuery != rhs_storage._searchQuery {return false}
         if _storage._properties != rhs_storage._properties {return false}
         if _storage._device != rhs_storage._device {return false}
+        if _storage._locale != rhs_storage._locale {return false}
         if _storage._viewType != rhs_storage._viewType {return false}
         if _storage._uiType != rhs_storage._uiType {return false}
         return true
@@ -2563,6 +2168,7 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
     9: .standard(proto: "request_id"),
     11: .standard(proto: "view_id"),
     10: .standard(proto: "session_id"),
+    21: .standard(proto: "content_id"),
     12: .same(proto: "name"),
     14: .standard(proto: "action_type"),
     15: .standard(proto: "custom_action_type"),
@@ -2581,6 +2187,7 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
     var _requestID: String = String()
     var _viewID: String = String()
     var _sessionID: String = String()
+    var _contentID: String = String()
     var _name: String = String()
     var _actionType: Event_ActionType = .unknownActionType
     var _customActionType: String = String()
@@ -2602,6 +2209,7 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
       _requestID = source._requestID
       _viewID = source._viewID
       _sessionID = source._sessionID
+      _contentID = source._contentID
       _name = source._name
       _actionType = source._actionType
       _customActionType = source._customActionType
@@ -2649,6 +2257,7 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
           if let v = v {_storage._action = .navigateAction(v)}
         }()
         case 20: try { try decoder.decodeSingularMessageField(value: &_storage._properties) }()
+        case 21: try { try decoder.decodeSingularStringField(value: &_storage._contentID) }()
         default: break
         }
       }
@@ -2702,6 +2311,9 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
       if let v = _storage._properties {
         try visitor.visitSingularMessageField(value: v, fieldNumber: 20)
       }
+      if !_storage._contentID.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._contentID, fieldNumber: 21)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -2720,6 +2332,7 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
         if _storage._requestID != rhs_storage._requestID {return false}
         if _storage._viewID != rhs_storage._viewID {return false}
         if _storage._sessionID != rhs_storage._sessionID {return false}
+        if _storage._contentID != rhs_storage._contentID {return false}
         if _storage._name != rhs_storage._name {return false}
         if _storage._actionType != rhs_storage._actionType {return false}
         if _storage._customActionType != rhs_storage._customActionType {return false}
@@ -2735,94 +2348,6 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
   }
 }
 
-extension Event_LatestImpressions: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  public static let protoMessageName: String = _protobuf_package + ".LatestImpressions"
-  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "impression"),
-  ]
-
-  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeRepeatedMessageField(value: &self.impression) }()
-      default: break
-      }
-    }
-  }
-
-  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if !self.impression.isEmpty {
-      try visitor.visitRepeatedMessageField(value: self.impression, fieldNumber: 1)
-    }
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  public static func ==(lhs: Event_LatestImpressions, rhs: Event_LatestImpressions) -> Bool {
-    if lhs.impression != rhs.impression {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension Event_LatestImpression: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  public static let protoMessageName: String = _protobuf_package + ".LatestImpression"
-  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .standard(proto: "impression_id"),
-    2: .standard(proto: "content_id"),
-    3: .standard(proto: "client_log_timestamp"),
-    4: .standard(proto: "event_api_timestamp"),
-    5: .standard(proto: "event_timestamp"),
-  ]
-
-  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeSingularStringField(value: &self.impressionID) }()
-      case 2: try { try decoder.decodeSingularStringField(value: &self.contentID) }()
-      case 3: try { try decoder.decodeSingularUInt64Field(value: &self.clientLogTimestamp) }()
-      case 4: try { try decoder.decodeSingularUInt64Field(value: &self.eventApiTimestamp) }()
-      case 5: try { try decoder.decodeSingularUInt64Field(value: &self.eventTimestamp) }()
-      default: break
-      }
-    }
-  }
-
-  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if !self.impressionID.isEmpty {
-      try visitor.visitSingularStringField(value: self.impressionID, fieldNumber: 1)
-    }
-    if !self.contentID.isEmpty {
-      try visitor.visitSingularStringField(value: self.contentID, fieldNumber: 2)
-    }
-    if self.clientLogTimestamp != 0 {
-      try visitor.visitSingularUInt64Field(value: self.clientLogTimestamp, fieldNumber: 3)
-    }
-    if self.eventApiTimestamp != 0 {
-      try visitor.visitSingularUInt64Field(value: self.eventApiTimestamp, fieldNumber: 4)
-    }
-    if self.eventTimestamp != 0 {
-      try visitor.visitSingularUInt64Field(value: self.eventTimestamp, fieldNumber: 5)
-    }
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  public static func ==(lhs: Event_LatestImpression, rhs: Event_LatestImpression) -> Bool {
-    if lhs.impressionID != rhs.impressionID {return false}
-    if lhs.contentID != rhs.contentID {return false}
-    if lhs.clientLogTimestamp != rhs.clientLogTimestamp {return false}
-    if lhs.eventApiTimestamp != rhs.eventApiTimestamp {return false}
-    if lhs.eventTimestamp != rhs.eventTimestamp {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
 extension Event_LogRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".LogRequest"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -2831,8 +2356,6 @@ extension Event_LogRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     3: .same(proto: "timing"),
     7: .same(proto: "user"),
     8: .standard(proto: "cohort_membership"),
-    9: .standard(proto: "session_profile"),
-    10: .same(proto: "session"),
     11: .same(proto: "view"),
     12: .same(proto: "request"),
     13: .same(proto: "insertion"),
@@ -2851,8 +2374,6 @@ extension Event_LogRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       case 3: try { try decoder.decodeSingularMessageField(value: &self._timing) }()
       case 7: try { try decoder.decodeRepeatedMessageField(value: &self.user) }()
       case 8: try { try decoder.decodeRepeatedMessageField(value: &self.cohortMembership) }()
-      case 9: try { try decoder.decodeRepeatedMessageField(value: &self.sessionProfile) }()
-      case 10: try { try decoder.decodeRepeatedMessageField(value: &self.session) }()
       case 11: try { try decoder.decodeRepeatedMessageField(value: &self.view) }()
       case 12: try { try decoder.decodeRepeatedMessageField(value: &self.request) }()
       case 13: try { try decoder.decodeRepeatedMessageField(value: &self.insertion) }()
@@ -2879,12 +2400,6 @@ extension Event_LogRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     if !self.cohortMembership.isEmpty {
       try visitor.visitRepeatedMessageField(value: self.cohortMembership, fieldNumber: 8)
     }
-    if !self.sessionProfile.isEmpty {
-      try visitor.visitRepeatedMessageField(value: self.sessionProfile, fieldNumber: 9)
-    }
-    if !self.session.isEmpty {
-      try visitor.visitRepeatedMessageField(value: self.session, fieldNumber: 10)
-    }
     if !self.view.isEmpty {
       try visitor.visitRepeatedMessageField(value: self.view, fieldNumber: 11)
     }
@@ -2909,149 +2424,11 @@ extension Event_LogRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     if lhs._timing != rhs._timing {return false}
     if lhs.user != rhs.user {return false}
     if lhs.cohortMembership != rhs.cohortMembership {return false}
-    if lhs.sessionProfile != rhs.sessionProfile {return false}
-    if lhs.session != rhs.session {return false}
     if lhs.view != rhs.view {return false}
     if lhs.request != rhs.request {return false}
     if lhs.insertion != rhs.insertion {return false}
     if lhs.impression != rhs.impression {return false}
     if lhs.action != rhs.action {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension Event_FlatEvent: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  public static let protoMessageName: String = _protobuf_package + ".FlatEvent"
-  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    6: .same(proto: "ids"),
-    7: .same(proto: "user"),
-    9: .standard(proto: "session_profile"),
-    10: .same(proto: "session"),
-    11: .same(proto: "view"),
-    12: .same(proto: "request"),
-    13: .same(proto: "insertion"),
-    14: .same(proto: "impression"),
-    15: .same(proto: "action"),
-    16: .standard(proto: "latest_impressions"),
-  ]
-
-  fileprivate class _StorageClass {
-    var _ids: Event_JoinedIdentifiers? = nil
-    var _user: Event_User? = nil
-    var _sessionProfile: Event_SessionProfile? = nil
-    var _session: Event_Session? = nil
-    var _view: Event_View? = nil
-    var _request: Delivery_Request? = nil
-    var _insertion: Delivery_Insertion? = nil
-    var _impression: Event_Impression? = nil
-    var _action: Event_Action? = nil
-    var _latestImpressions: Event_LatestImpressions? = nil
-
-    static let defaultInstance = _StorageClass()
-
-    private init() {}
-
-    init(copying source: _StorageClass) {
-      _ids = source._ids
-      _user = source._user
-      _sessionProfile = source._sessionProfile
-      _session = source._session
-      _view = source._view
-      _request = source._request
-      _insertion = source._insertion
-      _impression = source._impression
-      _action = source._action
-      _latestImpressions = source._latestImpressions
-    }
-  }
-
-  fileprivate mutating func _uniqueStorage() -> _StorageClass {
-    if !isKnownUniquelyReferenced(&_storage) {
-      _storage = _StorageClass(copying: _storage)
-    }
-    return _storage
-  }
-
-  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    _ = _uniqueStorage()
-    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
-      while let fieldNumber = try decoder.nextFieldNumber() {
-        // The use of inline closures is to circumvent an issue where the compiler
-        // allocates stack space for every case branch when no optimizations are
-        // enabled. https://github.com/apple/swift-protobuf/issues/1034
-        switch fieldNumber {
-        case 6: try { try decoder.decodeSingularMessageField(value: &_storage._ids) }()
-        case 7: try { try decoder.decodeSingularMessageField(value: &_storage._user) }()
-        case 9: try { try decoder.decodeSingularMessageField(value: &_storage._sessionProfile) }()
-        case 10: try { try decoder.decodeSingularMessageField(value: &_storage._session) }()
-        case 11: try { try decoder.decodeSingularMessageField(value: &_storage._view) }()
-        case 12: try { try decoder.decodeSingularMessageField(value: &_storage._request) }()
-        case 13: try { try decoder.decodeSingularMessageField(value: &_storage._insertion) }()
-        case 14: try { try decoder.decodeSingularMessageField(value: &_storage._impression) }()
-        case 15: try { try decoder.decodeSingularMessageField(value: &_storage._action) }()
-        case 16: try { try decoder.decodeSingularMessageField(value: &_storage._latestImpressions) }()
-        default: break
-        }
-      }
-    }
-  }
-
-  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
-      if let v = _storage._ids {
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 6)
-      }
-      if let v = _storage._user {
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 7)
-      }
-      if let v = _storage._sessionProfile {
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 9)
-      }
-      if let v = _storage._session {
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 10)
-      }
-      if let v = _storage._view {
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 11)
-      }
-      if let v = _storage._request {
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 12)
-      }
-      if let v = _storage._insertion {
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 13)
-      }
-      if let v = _storage._impression {
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 14)
-      }
-      if let v = _storage._action {
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 15)
-      }
-      if let v = _storage._latestImpressions {
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 16)
-      }
-    }
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  public static func ==(lhs: Event_FlatEvent, rhs: Event_FlatEvent) -> Bool {
-    if lhs._storage !== rhs._storage {
-      let storagesAreEqual: Bool = withExtendedLifetime((lhs._storage, rhs._storage)) { (_args: (_StorageClass, _StorageClass)) in
-        let _storage = _args.0
-        let rhs_storage = _args.1
-        if _storage._ids != rhs_storage._ids {return false}
-        if _storage._user != rhs_storage._user {return false}
-        if _storage._sessionProfile != rhs_storage._sessionProfile {return false}
-        if _storage._session != rhs_storage._session {return false}
-        if _storage._view != rhs_storage._view {return false}
-        if _storage._request != rhs_storage._request {return false}
-        if _storage._insertion != rhs_storage._insertion {return false}
-        if _storage._impression != rhs_storage._impression {return false}
-        if _storage._action != rhs_storage._action {return false}
-        if _storage._latestImpressions != rhs_storage._latestImpressions {return false}
-        return true
-      }
-      if !storagesAreEqual {return false}
-    }
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

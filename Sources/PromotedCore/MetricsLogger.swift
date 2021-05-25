@@ -113,6 +113,7 @@ public final class MetricsLogger: NSObject {
   private let osLog: OSLog?
 
   private lazy var cachedDeviceMessage: Event_Device = deviceMessage()
+  private lazy var cachedLocaleMessage: Event_Locale = localeMessage()
 
   typealias Deps = ClientConfigSource & ClockSource & NetworkConnectionSource &
                    DeviceInfoSource & IDMapSource & OperationMonitorSource &
@@ -153,7 +154,6 @@ public final class MetricsLogger: NSObject {
     monitor.execute {
       startSession(userID: userID)
       logUser()
-      logSession()
     }
   }
 
@@ -164,7 +164,6 @@ public final class MetricsLogger: NSObject {
     monitor.execute {
       startSessionSignedOut()
       logUser()
-      logSession()
     }
   }
 
@@ -219,13 +218,18 @@ fileprivate extension MetricsLogger {
     device.manufacturer = deviceInfo.manufacturer
     device.identifier = deviceInfo.identifier
     device.osVersion = deviceInfo.osVersion
-    device.locale.languageCode = deviceInfo.languageCode
-    device.locale.regionCode = deviceInfo.regionCode
     let (width, height) = deviceInfo.screenSizePx
     device.screen.size.width = width
     device.screen.size.height = height
     device.screen.scale = deviceInfo.screenScale
     return device
+  }
+
+  private func localeMessage() -> Event_Locale {
+    var locale = Event_Locale()
+    locale.languageCode = deviceInfo.languageCode
+    locale.regionCode = deviceInfo.regionCode
+    return locale
   }
 
   private func userInfoMessage() -> Common_UserInfo {
@@ -272,26 +276,6 @@ public extension MetricsLogger {
       user.timing = timingMessage()
       if let p = propertiesMessage(properties) { user.properties = p }
       log(message: user)
-    }
-  }
-  
-  /// Logs a session event.
-  ///
-  /// Autogenerates the following fields:
-  /// - `timing` from `clock.nowMillis`
-  /// - `sessionID` from state in this logger
-  /// - `startEpochMillis` from `clock.nowMillis`
-  ///
-  /// - Parameters:
-  ///   - properties: Client-specific message
-  func logSession(properties: Message? = nil) {
-    monitor.execute {
-      var session = Event_Session()
-      session.timing = timingMessage()
-      if let id = internalSessionID { session.sessionID = id }
-      session.startEpochMillis = UInt64(clock.nowMillis)
-      if let p = propertiesMessage(properties) { session.properties = p }
-      log(message: session)
     }
   }
 
@@ -407,6 +391,7 @@ public extension MetricsLogger {
       if let use = trackerState.useCase?.protoValue { view.useCase = use }
       if let p = propertiesMessage(properties) { view.properties = p }
       view.device = cachedDeviceMessage
+      view.locale = cachedLocaleMessage
       view.viewType = .appScreen
       let appScreenView = Event_AppScreenView()
       // TODO(yu-hong): Fill out AppScreenView.
@@ -457,10 +442,6 @@ public extension MetricsLogger {
       switch event {
       case let user as Event_User:
         logRequest.user.append(user)
-      case let sessionProfile as Event_SessionProfile:
-        logRequest.sessionProfile.append(sessionProfile)
-      case let session as Event_Session:
-        logRequest.session.append(session)
       case let view as Event_View:
         logRequest.view.append(view)
       case let request as Delivery_Request:

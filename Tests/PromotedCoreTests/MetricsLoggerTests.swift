@@ -684,10 +684,6 @@ final class MetricsLoggerTests: ModuleTestCase {
         "manufacturer": "Apple",
         "identifier": "iPhone",
         "os_version": "14.4.1",
-        "locale": {
-          "language_code": "en",
-          "region_code": "US"
-        },
         "screen": {
           "size": {
             "width": 1024,
@@ -695,6 +691,10 @@ final class MetricsLoggerTests: ModuleTestCase {
           },
           "scale": 2.0
         }
+      },
+      "locale": {
+        "language_code": "en",
+        "region_code": "US"
       },
       "view_type": "APP_SCREEN",
       "app_screen_view": {
