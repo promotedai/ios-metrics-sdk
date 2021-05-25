@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'PromotedAIMetricsSDK'
-  s.version          = ENV['LIB_VERSION'] || '0.4.1'
+  s.version          = ENV['LIB_VERSION'] || '0.4.2'
   s.summary          = 'iOS client library for Promoted.ai metrics tracking.'
 
   s.description      = <<-DESC
