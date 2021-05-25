@@ -132,10 +132,10 @@ public final class MetricsLogger: NSObject {
     self.userID = nil
 
     self.logUserIDProducer = IDProducer(initialValueProducer: {
-        [store, idMap] in store.logUserID ?? idMap.logUserID()
-      }, nextValueProducer: {
-        [idMap] in idMap.logUserID()
-      })
+      [store, idMap] in store.logUserID ?? idMap.logUserID()
+    }, nextValueProducer: {
+      [idMap] in idMap.logUserID()
+    })
     self.sessionIDProducer = IDProducer { [idMap] in idMap.sessionID() }
     self.viewTracker = deps.viewTracker
     self.needsViewStateCheck = false
