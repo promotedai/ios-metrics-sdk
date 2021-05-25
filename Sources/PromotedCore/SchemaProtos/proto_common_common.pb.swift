@@ -188,7 +188,7 @@ public struct Common_UserInfo {
 /// make more specific Timing messages (e.g. MetricsTiming).  We can reuse
 /// the field numbers.
 ///
-/// Next ID = 3.
+/// Next ID = 4.
 public struct Common_Timing {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -199,6 +199,10 @@ public struct Common_Timing {
 
   /// Read-only.  This is set in the Event API.
   public var eventApiTimestamp: UInt64 = 0
+
+  /// Internal to our metrics pipeline.  Currently set by kafka and used to
+  /// manage state for event joining.
+  public var logTimestamp: UInt64 = 0
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -398,6 +402,7 @@ extension Common_Timing: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .standard(proto: "client_log_timestamp"),
     2: .standard(proto: "event_api_timestamp"),
+    3: .standard(proto: "log_timestamp"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -408,6 +413,7 @@ extension Common_Timing: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularUInt64Field(value: &self.clientLogTimestamp) }()
       case 2: try { try decoder.decodeSingularUInt64Field(value: &self.eventApiTimestamp) }()
+      case 3: try { try decoder.decodeSingularUInt64Field(value: &self.logTimestamp) }()
       default: break
       }
     }
@@ -420,12 +426,16 @@ extension Common_Timing: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     if self.eventApiTimestamp != 0 {
       try visitor.visitSingularUInt64Field(value: self.eventApiTimestamp, fieldNumber: 2)
     }
+    if self.logTimestamp != 0 {
+      try visitor.visitSingularUInt64Field(value: self.logTimestamp, fieldNumber: 3)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   public static func ==(lhs: Common_Timing, rhs: Common_Timing) -> Bool {
     if lhs.clientLogTimestamp != rhs.clientLogTimestamp {return false}
     if lhs.eventApiTimestamp != rhs.eventApiTimestamp {return false}
+    if lhs.logTimestamp != rhs.logTimestamp {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

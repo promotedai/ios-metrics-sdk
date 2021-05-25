@@ -43,7 +43,7 @@ final class AnalyticsTests: ModuleTestCase {
     withMetricsLoggerBatch {
       metricsLogger.startSessionAndLogUser(userID: "foobar")
     }
-    XCTAssertEqual(2, analyticsConnection.lastEventCount)
+    XCTAssertEqual(1, analyticsConnection.lastEventCount)
     XCTAssertGreaterThan(analyticsConnection.lastBytesSent, 0)
     XCTAssertEqual(0, analyticsConnection.lastErrors.count)
 
@@ -67,7 +67,7 @@ final class AnalyticsTests: ModuleTestCase {
         module.operationMonitor.executionDidError(error)
       }
     }
-    XCTAssertEqual(2, analyticsConnection.lastEventCount)
+    XCTAssertEqual(1, analyticsConnection.lastEventCount)
     XCTAssertGreaterThan(analyticsConnection.lastBytesSent, 0)
     XCTAssertEqual([error], analyticsConnection.lastErrors as [NSError])
   }
