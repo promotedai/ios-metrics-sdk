@@ -103,16 +103,6 @@ public final class ClientConfig: NSObject {
   /// turns on signposts in Instruments.
   @objc public var osLogEnabled: Bool = false
 
-  /// Whether to set `log_user_id` on logged events (on
-  /// outer `LogRequest`).
-  @objc public var metricsLoggerIncludesLogUserIDs: Bool = true
-
-  /// Whether to set `session_id` on logged events.
-  @objc public var metricsLoggerIncludesSessionIDs: Bool = true
-
-  /// Whether to set `view_id` on logged events.
-  @objc public var metricsLoggerIncludesViewIDs: Bool = true
-
   @objc public override init() {}
   
   public init(_ config: ClientConfig) {
@@ -131,9 +121,6 @@ public final class ClientConfig: NSObject {
     self.xrayEnabled = config.xrayEnabled
     self.xrayExpensiveThreadCallStacksEnabled = config.xrayExpensiveThreadCallStacksEnabled
     self.osLogEnabled = config.osLogEnabled
-    self.metricsLoggerIncludesLogUserIDs = config.metricsLoggerIncludesLogUserIDs
-    self.metricsLoggerIncludesSessionIDs = config.metricsLoggerIncludesSessionIDs
-    self.metricsLoggerIncludesViewIDs = config.metricsLoggerIncludesViewIDs
   }
 
   func bound<T: Comparable>(_ value: inout T, min: T? = nil, max: T? = nil,
