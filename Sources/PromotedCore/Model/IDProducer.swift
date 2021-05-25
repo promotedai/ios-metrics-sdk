@@ -11,14 +11,14 @@ final class IDProducer {
   
   private let initialValueProducer: Producer
   private let nextValueProducer: Producer
-  private var hasAdvancedFromInitialValue: Bool
+  private(set) var hasAdvancedFromInitialValue: Bool
   lazy var currentValue: String = { initialValueProducer() } ()
   
   convenience init(producer: @escaping Producer) {
     self.init(initialValueProducer: producer,
               nextValueProducer: producer)
   }
-  
+
   init(initialValueProducer: @escaping Producer,
        nextValueProducer: @escaping Producer) {
     self.initialValueProducer = initialValueProducer

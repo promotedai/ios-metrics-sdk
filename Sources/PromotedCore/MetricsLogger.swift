@@ -71,6 +71,10 @@ public final class MetricsLogger: NSObject {
   /// returns the cached ID from the previous session from
   /// `PeristentStore`.
   public var logUserID: String { logUserIDProducer.currentValue }
+  private var internalLogUserID: String? {
+    logUserIDProducer.hasAdvancedFromInitialValue ?
+      logUserIDProducer.currentValue : nil
+  }
   private let logUserIDProducer: IDProducer
   
   /// Session ID for this session. Updated when
@@ -78,6 +82,10 @@ public final class MetricsLogger: NSObject {
   /// called. If read before the first call to `startSession*`,
   /// returns an ID that will be used for the first session.
   public var sessionID: String { sessionIDProducer.currentValue }
+  private var internalSessionID: String? {
+    sessionIDProducer.hasAdvancedFromInitialValue ?
+      sessionIDProducer.currentValue : nil
+  }
   private let sessionIDProducer: IDProducer
   
   /// View ID for current view. Updated when `logView()` is
@@ -94,6 +102,9 @@ public final class MetricsLogger: NSObject {
       }
     }
     return viewTracker.viewID
+  }
+  private var internalViewID: String? {
+    viewTracker.hasAdvancedFromInitialValue ? viewID : nil
   }
   let viewTracker: ViewTracker
   private var needsViewStateCheck: Bool
@@ -119,6 +130,7 @@ public final class MetricsLogger: NSObject {
 
     self.logMessages = []
     self.userID = nil
+
     self.logUserIDProducer = IDProducer(initialValueProducer: {
       [store, idMap] in store.logUserID ?? idMap.logUserID()
     }, nextValueProducer: {
@@ -127,7 +139,7 @@ public final class MetricsLogger: NSObject {
     self.sessionIDProducer = IDProducer { [idMap] in idMap.sessionID() }
     self.viewTracker = deps.viewTracker
     self.needsViewStateCheck = false
-    
+
     super.init()
     self.monitor.addOperationMonitorListener(self)
   }
@@ -219,7 +231,7 @@ fileprivate extension MetricsLogger {
   private func userInfoMessage() -> Common_UserInfo {
     var userInfo = Common_UserInfo()
     if let id = userID { userInfo.userID = id }
-    userInfo.logUserID = logUserID
+    if let id = internalLogUserID { userInfo.logUserID = id }
     return userInfo
   }
   
@@ -276,7 +288,7 @@ public extension MetricsLogger {
     monitor.execute {
       var session = Event_Session()
       session.timing = timingMessage()
-      session.sessionID = sessionID
+      if let id = internalSessionID { session.sessionID = id }
       session.startEpochMillis = UInt64(clock.nowMillis)
       if let p = propertiesMessage(properties) { session.properties = p }
       log(message: session)
@@ -306,8 +318,8 @@ public extension MetricsLogger {
       impression.impressionID = idMap.impressionID()
       if let id = insertionID { impression.insertionID = id }
       if let id = requestID { impression.requestID = id }
-      impression.sessionID = sessionID
-      impression.viewID = viewID
+      if let id = internalSessionID { impression.sessionID = id }
+      if let id = internalViewID { impression.viewID = id }
       if let id = contentID { impression.contentID = idMap.contentID(clientID: id) }
       if let p = propertiesMessage(properties) { impression.properties = p }
       log(message: impression)
@@ -345,8 +357,8 @@ public extension MetricsLogger {
       action.actionID = idMap.actionID()
       if let id = insertionID { action.insertionID = id }
       if let id = requestID { action.requestID = id }
-      action.sessionID = sessionID
-      action.viewID = viewID
+      if let id = internalSessionID { action.sessionID = id }
+      if let id = internalViewID { action.viewID = id }
       action.name = name
       if let type = type.protoValue { action.actionType = type }
       action.elementID = elementID ?? name
@@ -388,8 +400,9 @@ public extension MetricsLogger {
     monitor.execute {
       var view = Event_View()
       view.timing = timingMessage()
-      view.viewID = viewTracker.viewID  // Access ViewTracker property to avoid update.
-      view.sessionID = sessionID
+      needsViewStateCheck = false  // No need for check when logging view.
+      if let id = internalViewID { view.viewID = id }
+      if let id = internalSessionID { view.sessionID = id }
       view.name = trackerState.name
       if let use = trackerState.useCase?.protoValue { view.useCase = use }
       if let p = propertiesMessage(properties) { view.properties = p }

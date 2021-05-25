@@ -33,11 +33,15 @@ final class ViewTracker {
   private let isReactNativeHint: Bool
   
   var viewID: String { viewIDProducer.currentValue }
+  var hasAdvancedFromInitialValue: Bool {
+    viewIDProducer.hasAdvancedFromInitialValue
+  }
   
   typealias Deps = IDMapSource & UIStateSource
 
   init(deps: Deps) {
-    self.viewIDProducer = IDProducer { deps.idMap.viewID() }
+    let idMap = deps.idMap
+    self.viewIDProducer = IDProducer { idMap.viewID() }
     self.viewStack = []
     self.uiState = deps.uiState
     self.isReactNativeHint = (NSClassFromString("PromotedMetricsModule") != nil)
