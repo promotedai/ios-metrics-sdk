@@ -23,7 +23,7 @@ public protocol NetworkConnection: AnyObject {
   ///     a failure *after* retrying. Clients should not retry further.
   /// - Returns: Data sent over network connection.
   /// - Throws: Propagate any errors thrown by underlying network
-  //    connection or by the methods in `NetworkConnection` extension.
+  ///    connection or by the methods in `NetworkConnection` extension.
   func sendMessage(_ message: Message,
                    clientConfig: ClientConfig,
                    callback: Callback?) throws -> Data
