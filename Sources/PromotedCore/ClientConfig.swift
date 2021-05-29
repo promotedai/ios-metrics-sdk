@@ -54,6 +54,9 @@ public final class ClientConfig: NSObject {
   /// Used when the app is running in debug configuration.
   @objc public var devMetricsLoggingAPIKey: String = ""
 
+  /// HTTP header field for API key.
+  @objc public var apiKeyHTTPHeaderField: String = "x-api-key"
+
   /// Format to use when sending protobuf log messages over network.
   public enum MetricsLoggingWireFormat: Int {
     /// https://developers.google.com/protocol-buffers/docs/proto3#json

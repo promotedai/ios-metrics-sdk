@@ -39,10 +39,11 @@ public extension NetworkConnection {
   /// Optional convenience method.
   /// Implementations should propagate `ClientConfigError`s.
   func metricsLoggingURL(clientConfig: ClientConfig) throws -> URL {
+    var urlString = clientConfig.metricsLoggingURL
     #if DEBUG
-    let urlString = clientConfig.devMetricsLoggingURL
-    #else
-    let urlString = clientConfig.metricsLoggingURL
+    if !clientConfig.devMetricsLoggingURL.isEmpty {
+      urlString = clientConfig.devMetricsLoggingURL
+    }
     #endif
 
     guard let url = URL(string: urlString) else {
@@ -68,16 +69,18 @@ public extension NetworkConnection {
   /// Implementations should propagate `ClientConfigError`s.
   func urlRequest(url: URL, data: Data, clientConfig: ClientConfig) throws -> URLRequest {
     var request = URLRequest(url: url)
+    var apiKey = clientConfig.metricsLoggingAPIKey
     #if DEBUG
-    let apiKey = clientConfig.devMetricsLoggingAPIKey
-    #else
-    let apiKey = clientConfig.metricsLoggingAPIKey
+    if !clientConfig.devMetricsLoggingAPIKey.isEmpty {
+      apiKey = clientConfig.devMetricsLoggingAPIKey
+    }
     #endif
 
     guard !apiKey.isEmpty else {
       throw ClientConfigError.missingAPIKey
     }
-    request.addValue(apiKey, forHTTPHeaderField: "x-api-key")
+    let field = clientConfig.apiKeyHTTPHeaderField
+    request.addValue(apiKey, forHTTPHeaderField: field)
     if clientConfig.metricsLoggingWireFormat == .binary {
       request.addValue("application/protobuf", forHTTPHeaderField: "content-type")
     }
