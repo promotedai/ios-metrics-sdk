@@ -39,6 +39,10 @@ public final class ClientConfig: NSObject {
   /// URL for logging endpoint as used by `NetworkConnection`
   /// for debug/staging purposes. Used when the app is running
   /// in debug configuration.
+  ///
+  /// If this property is not set, then debug builds will use
+  /// `metricsLoggingURL` for logging endpoint URL.
+  ///
   /// Implementations of `NetworkConnection` from Promoted will
   /// use this field. Custom implementations of `NetworkConnection`
   /// may vary in behavior.
@@ -52,6 +56,13 @@ public final class ClientConfig: NSObject {
   
   /// API key for logging endpoint for debug/staging purposes.
   /// Used when the app is running in debug configuration.
+  ///
+  /// If this property is not set, then debug builds will use
+  /// `metricsLoggingAPIKey` for logging endpoint API key.
+  ///
+  /// Implementations of `NetworkConnection` from Promoted will
+  /// use this field. Custom implementations of `NetworkConnection`
+  /// may vary in behavior.
   @objc public var devMetricsLoggingAPIKey: String = ""
 
   /// HTTP header field for API key.
