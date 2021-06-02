@@ -11,9 +11,24 @@ final class IDProducer {
   
   private let initialValueProducer: Producer
   private let nextValueProducer: Producer
-  private(set) var hasAdvancedFromInitialValue: Bool
-  lazy var currentValue: String = { initialValueProducer() } ()
-  
+  private var hasAdvancedFromInitialValue: Bool
+
+  /// Reads the current ID from this producer.
+  /// If `nextValue()` has never been called, returns the
+  /// initial value. Use this to read the pending initial
+  /// ID before the corresponding ancestor event has been
+  /// logged.
+  lazy var currentValue: String = initialValueProducer() {
+    didSet { hasAdvancedFromInitialValue = true }
+  }
+
+  /// Reads the current ID for use as an ancestor ID
+  /// in an event message.
+  /// If `nextValue()` has never been called, return `nil`.
+  var currentValueForAncestorID: String? {
+    hasAdvancedFromInitialValue ? currentValue : nil
+  }
+
   convenience init(producer: @escaping Producer) {
     self.init(initialValueProducer: producer,
               nextValueProducer: producer)

@@ -33,10 +33,8 @@ final class ViewTracker {
   private let isReactNativeHint: Bool
   
   var viewID: String { viewIDProducer.currentValue }
-  var hasAdvancedFromInitialValue: Bool {
-    viewIDProducer.hasAdvancedFromInitialValue
-  }
-  
+  var viewIDForAncestorID: String? { viewIDProducer.currentValueForAncestorID }
+
   typealias Deps = IDMapSource & UIStateSource
 
   init(deps: Deps) {
