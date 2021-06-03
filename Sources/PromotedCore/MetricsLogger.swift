@@ -114,45 +114,45 @@ public extension MetricsLogger {
   /// called. If read before the first call to `startSession*`,
   /// returns the cached ID from the previous session from
   /// `PeristentStore`.
-  var logUserID: String {
+  var logUserID: String? {
     get { logUserIDProducer.currentValue }
     set { logUserIDProducer.currentValue = newValue }
   }
 
-  private var ancestorLogUserID: String? {
-    logUserIDProducer.currentValueAsAncestorID
+  var pendingLogUserID: String? {
+    logUserIDProducer.currentOrPendingValue
   }
 
   /// Session ID for this session. Updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
   /// called. If read before the first call to `startSession*`,
   /// returns an ID that will be used for the first session.
-  var sessionID: String {
+  var sessionID: String? {
     get { sessionIDProducer.currentValue }
     set { sessionIDProducer.currentValue = newValue }
   }
 
-  private var ancestorSessionID: String? {
-    sessionIDProducer.currentValueAsAncestorID
+  var pendingSessionID: String? {
+    sessionIDProducer.currentOrPendingValue
   }
 
   /// View ID for current view. Updated when `logView()` is
   /// called. If read before the first call to `logView()`,
   /// returns an ID that will be used for the first view.
-  var viewID: String {
-    get { viewTracker.viewID }
+  var viewID: String? {
+    get {
+      if needsViewStateCheck {
+        needsViewStateCheck = false
+        if let state = viewTracker.updateState() {
+          logView(trackerState: state)
+        }
+      }
+      return viewTracker.viewID
+    }
     set { viewTracker.viewID = newValue }
   }
 
-  private var ancestorViewID: String? {
-    if needsViewStateCheck {
-      needsViewStateCheck = false
-      if let state = viewTracker.updateState() {
-        logView(trackerState: state)
-      }
-    }
-    return viewTracker.viewIDAsAncestorID
-  }
+  var pendingViewID: String? { viewTracker.pendingViewID }
 }
 
 // MARK: - Starting new sessions
@@ -246,7 +246,7 @@ fileprivate extension MetricsLogger {
   private func userInfoMessage() -> Common_UserInfo {
     var userInfo = Common_UserInfo()
     if let id = userID { userInfo.userID = id }
-    if let id = ancestorLogUserID { userInfo.logUserID = id }
+    if let id = logUserID { userInfo.logUserID = id }
     return userInfo
   }
   
@@ -313,8 +313,8 @@ public extension MetricsLogger {
       impression.impressionID = idMap.impressionID()
       if let id = insertionID { impression.insertionID = id }
       if let id = requestID { impression.requestID = id }
-      if let id = ancestorSessionID { impression.sessionID = id }
-      if let id = ancestorViewID { impression.viewID = id }
+      if let id = sessionID { impression.sessionID = id }
+      if let id = viewID { impression.viewID = id }
       if let id = contentID { impression.contentID = idMap.contentID(clientID: id) }
       if let p = propertiesMessage(properties) { impression.properties = p }
       log(message: impression)
@@ -352,8 +352,8 @@ public extension MetricsLogger {
       action.actionID = idMap.actionID()
       if let id = insertionID { action.insertionID = id }
       if let id = requestID { action.requestID = id }
-      if let id = ancestorSessionID { action.sessionID = id }
-      if let id = ancestorViewID { action.viewID = id }
+      if let id = sessionID { action.sessionID = id }
+      if let id = viewID { action.viewID = id }
       action.name = name
       if let type = type.protoValue { action.actionType = type }
       action.elementID = elementID ?? name
@@ -396,8 +396,8 @@ public extension MetricsLogger {
       var view = Event_View()
       view.timing = timingMessage()
       needsViewStateCheck = false  // No need for check when logging view.
-      if let id = ancestorViewID { view.viewID = id }
-      if let id = ancestorSessionID { view.sessionID = id }
+      if let id = viewID { view.viewID = id }
+      if let id = sessionID { view.sessionID = id }
       view.name = trackerState.name
       if let use = trackerState.useCase?.protoValue { view.useCase = use }
       if let p = propertiesMessage(properties) { view.properties = p }

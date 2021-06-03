@@ -18,19 +18,19 @@ final class IDProducerTests: XCTestCase {
   }
 
   func testInitialValue() {
-    XCTAssertEqual("initial-id", idProducer.currentValue)
+    XCTAssertEqual("initial-id", idProducer.currentOrPendingValue)
   }
 
   func testCurrentValue() {
-    XCTAssertEqual("initial-id", idProducer.currentValue)
-    XCTAssertNil(idProducer.currentValueAsAncestorID)
+    XCTAssertEqual("initial-id", idProducer.currentOrPendingValue)
+    XCTAssertNil(idProducer.currentValue)
     idProducer.nextValue()
     XCTAssertEqual("initial-id", idProducer.currentValue)
-    XCTAssertEqual("initial-id", idProducer.currentValueAsAncestorID)
+    XCTAssertEqual("initial-id", idProducer.currentValue)
   }
 
   func testNextValue() {
-    XCTAssertEqual("initial-id", idProducer.currentValue)
+    XCTAssertEqual("initial-id", idProducer.currentOrPendingValue)
 
     // First call to nextValue() should use initial value.
     XCTAssertEqual("initial-id", idProducer.nextValue())
@@ -44,25 +44,26 @@ final class IDProducerTests: XCTestCase {
   }
 
   func testCustomValues() {
-    XCTAssertEqual("initial-id", idProducer.currentValue)
-    XCTAssertNil(idProducer.currentValueAsAncestorID)
+    XCTAssertEqual("initial-id", idProducer.currentOrPendingValue)
+    XCTAssertNil(idProducer.currentValue)
 
     // Custom values should be ancestor IDs immediately.
     idProducer.currentValue = "my-custom-value"
+    XCTAssertEqual("my-custom-value", idProducer.currentOrPendingValue)
     XCTAssertEqual("my-custom-value", idProducer.currentValue)
-    XCTAssertEqual("my-custom-value", idProducer.currentValueAsAncestorID)
 
     idProducer.currentValue = "my-new-value"
+    XCTAssertEqual("my-new-value", idProducer.currentOrPendingValue)
     XCTAssertEqual("my-new-value", idProducer.currentValue)
-    XCTAssertEqual("my-new-value", idProducer.currentValueAsAncestorID)
 
     // Calls to nextValue() should drop custom values.
     XCTAssertEqual("fake-action-id-1", idProducer.nextValue())
+    XCTAssertEqual("fake-action-id-1", idProducer.currentOrPendingValue)
     XCTAssertEqual("fake-action-id-1", idProducer.currentValue)
 
     // A new custom value should override internal value.
     idProducer.currentValue = "my-custom-value"
+    XCTAssertEqual("my-custom-value", idProducer.currentOrPendingValue)
     XCTAssertEqual("my-custom-value", idProducer.currentValue)
-    XCTAssertEqual("my-custom-value", idProducer.currentValueAsAncestorID)
   }
 }
