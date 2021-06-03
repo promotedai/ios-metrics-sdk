@@ -7,7 +7,6 @@ import XCTest
 final class IDProducerTests: XCTestCase {
 
   private var idProducer: IDProducer!
-  private var idCount: Int = 0
 
   override func setUp() {
     super.setUp()
@@ -19,14 +18,7 @@ final class IDProducerTests: XCTestCase {
 
   func testInitialValue() {
     XCTAssertEqual("initial-id", idProducer.currentOrPendingValue)
-  }
-
-  func testCurrentValue() {
-    XCTAssertEqual("initial-id", idProducer.currentOrPendingValue)
     XCTAssertNil(idProducer.currentValue)
-    idProducer.nextValue()
-    XCTAssertEqual("initial-id", idProducer.currentValue)
-    XCTAssertEqual("initial-id", idProducer.currentValue)
   }
 
   func testNextValue() {
@@ -65,5 +57,20 @@ final class IDProducerTests: XCTestCase {
     idProducer.currentValue = "my-custom-value"
     XCTAssertEqual("my-custom-value", idProducer.currentOrPendingValue)
     XCTAssertEqual("my-custom-value", idProducer.currentValue)
+  }
+
+  func testNilCustomValue() {
+    // Setting an explicit nil value should cause the pending
+    // value to return nil (and not initial value).
+    idProducer.currentValue = nil
+    XCTAssertNil(idProducer.currentValue)
+    XCTAssertNil(idProducer.currentOrPendingValue)
+  }
+
+  func testReset() {
+    idProducer.currentValue = "my-custom-value"
+    idProducer.reset()
+    XCTAssertNil(idProducer.currentValue)
+    XCTAssertEqual("initial-id", idProducer.currentOrPendingValue)
   }
 }

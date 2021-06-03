@@ -23,7 +23,9 @@ final class IDProducer {
   /// If `nextValue()` has never been called, and this
   /// hasn't been set to an external value, returns `nil`.
   /// Set this value to assign an external ID for use as
-  /// this ancestor ID.
+  /// this ancestor ID. The external ID you assign will
+  /// remain until either you set a new external value,
+  /// or you call `nextValue()` on this producer.
   /// You can also set this value to `nil` to clear this ID
   /// on subsequent logged events.
   var currentValue: String? {
@@ -77,8 +79,10 @@ final class IDProducer {
   }
 
   func reset() {
-    valueHasBeenSet = false
     currentValue = nil
     initialValue = initialValueProducer()
+    // Set this after `currentValue = nil` to avoid triggering
+    // the observer on `currentValue`.
+    valueHasBeenSet = false
   }
 }
