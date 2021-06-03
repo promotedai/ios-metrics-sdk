@@ -139,10 +139,10 @@ public extension MetricsLogger {
   /// View ID for current view. Updated when `logView()` is
   /// called. If read before the first call to `logView()`,
   /// returns an ID that will be used for the first view.
-  ///
-  /// When called internally by `MetricsLogger`, may cause
-  /// a View event to be logged.
-  var viewID: String { viewTracker.viewID }
+  var viewID: String {
+    get { viewTracker.viewID }
+    set { viewTracker.viewID = newValue }
+  }
 
   private var ancestorViewID: String? {
     if needsViewStateCheck {
