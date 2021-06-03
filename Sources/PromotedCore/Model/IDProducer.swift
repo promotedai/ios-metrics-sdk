@@ -26,9 +26,15 @@ final class IDProducer {
   ///   value.
   /// - Otherwise, this value is managed internally by this
   ///   class and updated when `nextValue()` is called.
+  #if swift(>=5.3)
   lazy var currentValue: String = initialValueProducer() {
     didSet { valueHasBeenSet = true }
   }
+  #else
+  var currentValue: String {
+    didSet { valueHasBeenSet = true }
+  }
+  #endif
 
   /// Reads the current ID for use as an ancestor ID
   /// in an event message.
@@ -57,6 +63,9 @@ final class IDProducer {
     self.initialValueProducer = initialValueProducer
     self.nextValueProducer = nextValueProducer
     self.valueHasBeenSet = false
+    #if swift(<5.3)
+    self.currentValue = initialValueProducer()
+    #endif
   }
 
   @discardableResult func nextValue() -> String {
