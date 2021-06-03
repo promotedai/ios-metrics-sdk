@@ -2,6 +2,7 @@ import Foundation
 import XCTest
 
 @testable import PromotedCore
+@testable import PromotedCoreTestHelpers
 
 final class IDProducerTests: XCTestCase {
 
@@ -10,15 +11,10 @@ final class IDProducerTests: XCTestCase {
 
   override func setUp() {
     super.setUp()
-    idCount = 0
-    idProducer = IDProducer(initialValueProducer: {
-      return "initial-id"
-    }, nextValueProducer: {
-      [weak self] in
-      guard let self = self else { return "error" }
-      self.idCount += 1
-      return "id-\(self.idCount)"
-    })
+    let idMap = FakeIDMap()
+    idMap.incrementCounts = true
+    idProducer = IDProducer(initialValueProducer: { "initial-id" },
+                            nextValueProducer: { idMap.actionID() })
   }
 
   func testInitialValue() {
@@ -27,10 +23,10 @@ final class IDProducerTests: XCTestCase {
 
   func testCurrentValue() {
     XCTAssertEqual("initial-id", idProducer.currentValue)
-    XCTAssertNil(idProducer.currentValueForAncestorID)
+    XCTAssertNil(idProducer.currentValueAsAncestorID)
     idProducer.nextValue()
     XCTAssertEqual("initial-id", idProducer.currentValue)
-    XCTAssertEqual("initial-id", idProducer.currentValueForAncestorID)
+    XCTAssertEqual("initial-id", idProducer.currentValueAsAncestorID)
   }
 
   func testNextValue() {
@@ -41,9 +37,32 @@ final class IDProducerTests: XCTestCase {
     XCTAssertEqual("initial-id", idProducer.currentValue)
 
     // Subsequent calls to nextValue() should advance id.
-    XCTAssertEqual("id-1", idProducer.nextValue())
-    XCTAssertEqual("id-1", idProducer.currentValue)
-    XCTAssertEqual("id-2", idProducer.nextValue())
-    XCTAssertEqual("id-2", idProducer.currentValue)
+    XCTAssertEqual("fake-action-id-1", idProducer.nextValue())
+    XCTAssertEqual("fake-action-id-1", idProducer.currentValue)
+    XCTAssertEqual("fake-action-id-2", idProducer.nextValue())
+    XCTAssertEqual("fake-action-id-2", idProducer.currentValue)
+  }
+
+  func testCustomValues() {
+    XCTAssertEqual("initial-id", idProducer.currentValue)
+    XCTAssertNil(idProducer.currentValueAsAncestorID)
+
+    // Custom values should be ancestor IDs immediately.
+    idProducer.currentValue = "my-custom-value"
+    XCTAssertEqual("my-custom-value", idProducer.currentValue)
+    XCTAssertEqual("my-custom-value", idProducer.currentValueAsAncestorID)
+
+    idProducer.currentValue = "my-new-value"
+    XCTAssertEqual("my-new-value", idProducer.currentValue)
+    XCTAssertEqual("my-new-value", idProducer.currentValueAsAncestorID)
+
+    // Calls to nextValue() should drop custom values.
+    XCTAssertEqual("fake-action-id-1", idProducer.nextValue())
+    XCTAssertEqual("fake-action-id-1", idProducer.currentValue)
+
+    // A new custom value should override internal value.
+    idProducer.currentValue = "my-custom-value"
+    XCTAssertEqual("my-custom-value", idProducer.currentValue)
+    XCTAssertEqual("my-custom-value", idProducer.currentValueAsAncestorID)
   }
 }

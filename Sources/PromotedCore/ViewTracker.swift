@@ -33,7 +33,7 @@ final class ViewTracker {
   private let isReactNativeHint: Bool
   
   var viewID: String { viewIDProducer.currentValue }
-  var viewIDForAncestorID: String? { viewIDProducer.currentValueForAncestorID }
+  var viewIDAsAncestorID: String? { viewIDProducer.currentValueAsAncestorID }
 
   typealias Deps = IDMapSource & UIStateSource
 
@@ -75,7 +75,7 @@ final class ViewTracker {
   /// Removes all tracked views and resets to original state.
   func reset() {
     viewStack.removeAll()
-    viewIDProducer.nextValue()
+    viewIDProducer.reset()
   }
 
   private func updateViewStack(previousStack: Stack) -> Stack {

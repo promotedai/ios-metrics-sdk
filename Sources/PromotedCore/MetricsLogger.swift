@@ -120,7 +120,7 @@ public extension MetricsLogger {
   }
 
   private var ancestorLogUserID: String? {
-    logUserIDProducer.currentValueForAncestorID
+    logUserIDProducer.currentValueAsAncestorID
   }
 
   /// Session ID for this session. Updated when
@@ -133,7 +133,7 @@ public extension MetricsLogger {
   }
 
   private var ancestorSessionID: String? {
-    sessionIDProducer.currentValueForAncestorID
+    sessionIDProducer.currentValueAsAncestorID
   }
 
   /// View ID for current view. Updated when `logView()` is
@@ -142,9 +142,7 @@ public extension MetricsLogger {
   ///
   /// When called internally by `MetricsLogger`, may cause
   /// a View event to be logged.
-  var viewID: String {
-    return viewTracker.viewID
-  }
+  var viewID: String { viewTracker.viewID }
 
   private var ancestorViewID: String? {
     if needsViewStateCheck {
@@ -153,7 +151,7 @@ public extension MetricsLogger {
         logView(trackerState: state)
       }
     }
-    return viewTracker.viewIDForAncestorID
+    return viewTracker.viewIDAsAncestorID
   }
 }
 
