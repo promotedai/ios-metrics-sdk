@@ -327,6 +327,34 @@ final class MetricsLoggerTests: ModuleTestCase {
                    message as! Event_Impression)
   }
 
+  func testLogImpressionExternalLogUserID() {
+    let item = Item(contentID: "foobar", insertionID: "insertion!")
+    metricsLogger.logUserID = "batman"
+    metricsLogger.logImpression(content: item)
+    metricsLogger.flush()
+    let message = connection.messages.last?.message
+    XCTAssertTrue(message is Event_LogRequest)
+    let expectedJSON = """
+    {
+      "user_info": {
+        "log_user_id": "batman"
+      },
+      "impression": [
+        {
+          "timing": {
+            "client_log_timestamp": 123000
+          },
+          "impression_id": "fake-impression-id",
+          "insertion_id": "insertion!",
+          "content_id": "foobar"
+        }
+      ]
+    }
+    """
+    XCTAssertEqual(try Event_LogRequest(jsonString: expectedJSON),
+                   message as! Event_LogRequest)
+  }
+
   func testLogNavigateAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
     metricsLogger.logView(viewController: FakeScreenViewController())
