@@ -111,9 +111,7 @@ public final class MetricsLogger: NSObject {
 public extension MetricsLogger {
   /// Log user ID for this session. Updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
-  /// called. If read before the first call to `startSession*`,
-  /// returns the cached ID from the previous session from
-  /// `PeristentStore`.
+  /// called.
   var logUserID: String? {
     get { logUserIDProducer.currentValue }
     set { logUserIDProducer.currentValue = newValue }
