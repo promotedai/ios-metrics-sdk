@@ -119,26 +119,31 @@ public extension MetricsLogger {
     set { logUserIDProducer.currentValue = newValue }
   }
 
+  /// Log user ID for this session.
+  /// If read before the first call to `startSession*`,
+  /// returns the cached ID from the previous session from
+  /// `PeristentStore`.
   var pendingLogUserID: String? {
     logUserIDProducer.currentOrPendingValue
   }
 
   /// Session ID for this session. Updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
-  /// called. If read before the first call to `startSession*`,
-  /// returns an ID that will be used for the first session.
+  /// called.
   var sessionID: String? {
     get { sessionIDProducer.currentValue }
     set { sessionIDProducer.currentValue = newValue }
   }
 
+  /// Session ID for this session.
+  /// If read before the first call to `startSession*`,
+  /// returns an ID that will be used for the first session.
   var pendingSessionID: String? {
     sessionIDProducer.currentOrPendingValue
   }
 
   /// View ID for current view. Updated when `logView()` is
-  /// called. If read before the first call to `logView()`,
-  /// returns an ID that will be used for the first view.
+  /// called.
   var viewID: String? {
     get {
       if needsViewStateCheck {
@@ -152,6 +157,9 @@ public extension MetricsLogger {
     set { viewTracker.viewID = newValue }
   }
 
+  /// View ID for current view.
+  /// If read before the first call to `logView()`,
+  /// returns an ID that will be used for the first view.
   var pendingViewID: String? { viewTracker.pendingViewID }
 }
 
