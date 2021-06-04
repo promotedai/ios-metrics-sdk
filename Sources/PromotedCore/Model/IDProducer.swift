@@ -43,7 +43,8 @@ final class IDProducer {
   ///   ID before the corresponding ancestor event has been
   ///   logged.
   /// - Otherwise, returns `currentValue`.
-  lazy var currentOrPendingValue: String? = initialValueProducer()
+  private(set) lazy var currentOrPendingValue: String? =
+    initialValueProducer()
 
   /// Uses given producer in all cases.
   convenience init(producer: @escaping Producer) {
