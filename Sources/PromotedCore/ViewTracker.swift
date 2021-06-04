@@ -36,7 +36,9 @@ final class ViewTracker {
     get { viewIDProducer.currentValue }
     set { viewIDProducer.currentValue = newValue }
   }
-  var pendingViewID: String? { viewIDProducer.currentOrPendingValue }
+  var currentOrPendingViewID: String? {
+    viewIDProducer.currentOrPendingValue
+  }
 
   typealias Deps = IDMapSource & UIStateSource
 
