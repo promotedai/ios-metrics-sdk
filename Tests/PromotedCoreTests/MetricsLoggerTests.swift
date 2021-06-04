@@ -105,9 +105,9 @@ final class MetricsLoggerTests: ModuleTestCase {
     store.userID = "foobar"
     store.logUserID = "fake-initial-id"
     idMap.incrementCounts = true
-    let initialLogUserID = metricsLogger.pendingLogUserID
+    let initialLogUserID = metricsLogger.currentOrPendingLogUserID
     XCTAssertEqual("fake-initial-id", initialLogUserID)
-    let initialSessionID = metricsLogger.pendingSessionID
+    let initialSessionID = metricsLogger.currentOrPendingSessionID
     XCTAssertEqual("fake-session-id-1", initialSessionID)
 
     metricsLogger.startSessionForTesting(userID: "foobar")
@@ -123,9 +123,9 @@ final class MetricsLoggerTests: ModuleTestCase {
     store.userID = "foobar"
     store.logUserID = "fake-initial-id"
     idMap.incrementCounts = true
-    let initialLogUserID = metricsLogger.pendingLogUserID
+    let initialLogUserID = metricsLogger.currentOrPendingLogUserID
     XCTAssertEqual("fake-initial-id", initialLogUserID)
-    let initialSessionID = metricsLogger.pendingSessionID
+    let initialSessionID = metricsLogger.currentOrPendingSessionID
     XCTAssertEqual("fake-session-id-1", initialSessionID)
 
     metricsLogger.startSessionSignedOutForTesting()
@@ -142,9 +142,9 @@ final class MetricsLoggerTests: ModuleTestCase {
     store.logUserID = nil
     idMap.incrementCounts = true
     // This should generate a new, non-nil logUserID.
-    let initialLogUserID = metricsLogger.pendingLogUserID
+    let initialLogUserID = metricsLogger.currentOrPendingLogUserID
     XCTAssertEqual("fake-log-user-id-1", initialLogUserID)
-    let initialSessionID = metricsLogger.pendingSessionID
+    let initialSessionID = metricsLogger.currentOrPendingSessionID
     XCTAssertEqual("fake-session-id-1", initialSessionID)
 
     metricsLogger.startSessionSignedOutForTesting()
@@ -161,9 +161,9 @@ final class MetricsLoggerTests: ModuleTestCase {
     store.logUserID = nil
     idMap.incrementCounts = true
     // This should generate a new, non-nil logUserID.
-    let initialLogUserID = metricsLogger.pendingLogUserID
+    let initialLogUserID = metricsLogger.currentOrPendingLogUserID
     XCTAssertEqual("fake-log-user-id-1", initialLogUserID)
-    let initialSessionID = metricsLogger.pendingSessionID
+    let initialSessionID = metricsLogger.currentOrPendingSessionID
     XCTAssertEqual("fake-session-id-1", initialSessionID)
 
     metricsLogger.startSessionSignedOutForTesting()
@@ -767,13 +767,13 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testReadViewIDBeforeLogView() {
     idMap.incrementCounts = true
-    let initialViewID = metricsLogger.pendingViewID
+    let initialViewID = metricsLogger.currentOrPendingViewID
     XCTAssertEqual("fake-view-id-1", initialViewID)
     metricsLogger.startSessionForTesting(userID: "foo")
 
     let viewController = FakeScreenViewController()
     metricsLogger.logView(viewController: viewController, useCase: .search)
-    XCTAssertEqual(initialViewID, metricsLogger.pendingViewID)
+    XCTAssertEqual(initialViewID, metricsLogger.currentOrPendingViewID)
   
     let viewController2 = FakeScreenViewController()
     metricsLogger.logView(viewController: viewController2, useCase: .search)
