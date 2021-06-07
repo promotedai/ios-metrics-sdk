@@ -3,6 +3,27 @@ Promoted.ai provides an iOS logging library for integration with iOS apps. This 
 
 Our client library is available for iOS 11+, and works with both Swift and Objective C apps.
 
+## App Privacy
+
+Pursuant to [Apple's app privacy questions](https://developer.apple.com/app-store/app-privacy-details/), Promoted's logging library collects the following kinds of data:
+
+- Search history (linked to user via account)[1]
+- User ID (linked to user via account)
+- Purchase history (linked to user via account)
+- Product interaction (linked to user via account)
+- Advertising data (linked to user via account)
+- Crash data
+- Performance data
+
+This data is used for the following purposes:
+
+- Developer’s advertising or marketing
+- Analytics
+- Product personalization
+- App functionality
+
+[1] This linkage can be easily broken if the user wants to be forgotten.
+
 ## Technology
 Our client library is built on a number of proven technologies:
 
