@@ -32,11 +32,14 @@ final class ViewTracker {
   private let uiState: UIState
   private let isReactNativeHint: Bool
   
-  var viewID: String { viewIDProducer.currentValue }
-  var hasAdvancedFromInitialValue: Bool {
-    viewIDProducer.hasAdvancedFromInitialValue
+  var viewID: String? {
+    get { viewIDProducer.currentValue }
+    set { viewIDProducer.currentValue = newValue }
   }
-  
+  var currentOrPendingViewID: String? {
+    viewIDProducer.currentOrPendingValue
+  }
+
   typealias Deps = IDMapSource & UIStateSource
 
   init(deps: Deps) {
@@ -77,7 +80,7 @@ final class ViewTracker {
   /// Removes all tracked views and resets to original state.
   func reset() {
     viewStack.removeAll()
-    viewIDProducer.nextValue()
+    viewIDProducer.reset()
   }
 
   private func updateViewStack(previousStack: Stack) -> Stack {

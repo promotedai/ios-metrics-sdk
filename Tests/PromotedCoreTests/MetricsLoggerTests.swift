@@ -105,9 +105,9 @@ final class MetricsLoggerTests: ModuleTestCase {
     store.userID = "foobar"
     store.logUserID = "fake-initial-id"
     idMap.incrementCounts = true
-    let initialLogUserID = metricsLogger.logUserID
+    let initialLogUserID = metricsLogger.currentOrPendingLogUserID
     XCTAssertEqual("fake-initial-id", initialLogUserID)
-    let initialSessionID = metricsLogger.sessionID
+    let initialSessionID = metricsLogger.currentOrPendingSessionID
     XCTAssertEqual("fake-session-id-1", initialSessionID)
 
     metricsLogger.startSessionForTesting(userID: "foobar")
@@ -123,9 +123,9 @@ final class MetricsLoggerTests: ModuleTestCase {
     store.userID = "foobar"
     store.logUserID = "fake-initial-id"
     idMap.incrementCounts = true
-    let initialLogUserID = metricsLogger.logUserID
+    let initialLogUserID = metricsLogger.currentOrPendingLogUserID
     XCTAssertEqual("fake-initial-id", initialLogUserID)
-    let initialSessionID = metricsLogger.sessionID
+    let initialSessionID = metricsLogger.currentOrPendingSessionID
     XCTAssertEqual("fake-session-id-1", initialSessionID)
 
     metricsLogger.startSessionSignedOutForTesting()
@@ -142,9 +142,9 @@ final class MetricsLoggerTests: ModuleTestCase {
     store.logUserID = nil
     idMap.incrementCounts = true
     // This should generate a new, non-nil logUserID.
-    let initialLogUserID = metricsLogger.logUserID
+    let initialLogUserID = metricsLogger.currentOrPendingLogUserID
     XCTAssertEqual("fake-log-user-id-1", initialLogUserID)
-    let initialSessionID = metricsLogger.sessionID
+    let initialSessionID = metricsLogger.currentOrPendingSessionID
     XCTAssertEqual("fake-session-id-1", initialSessionID)
 
     metricsLogger.startSessionSignedOutForTesting()
@@ -161,9 +161,9 @@ final class MetricsLoggerTests: ModuleTestCase {
     store.logUserID = nil
     idMap.incrementCounts = true
     // This should generate a new, non-nil logUserID.
-    let initialLogUserID = metricsLogger.logUserID
+    let initialLogUserID = metricsLogger.currentOrPendingLogUserID
     XCTAssertEqual("fake-log-user-id-1", initialLogUserID)
-    let initialSessionID = metricsLogger.sessionID
+    let initialSessionID = metricsLogger.currentOrPendingSessionID
     XCTAssertEqual("fake-session-id-1", initialSessionID)
 
     metricsLogger.startSessionSignedOutForTesting()
@@ -325,6 +325,66 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(try Event_Impression(jsonString: expectedJSON),
                    message as! Event_Impression)
+  }
+
+  func testLogImpressionExternalLogUserID() {
+    let item = Item(contentID: "foobar", insertionID: "insertion!")
+    metricsLogger.logUserID = "batman"
+    metricsLogger.logImpression(content: item)
+    metricsLogger.flush()
+    let message = connection.messages.last?.message
+    XCTAssertTrue(message is Event_LogRequest)
+    let expectedJSON = """
+    {
+      "user_info": {
+        "log_user_id": "batman"
+      },
+      "impression": [
+        {
+          "timing": {
+            "client_log_timestamp": 123000
+          },
+          "impression_id": "fake-impression-id",
+          "insertion_id": "insertion!",
+          "content_id": "foobar"
+        }
+      ]
+    }
+    """
+    XCTAssertEqual(try Event_LogRequest(jsonString: expectedJSON),
+                   message as! Event_LogRequest)
+  }
+
+  func testLogImpressionMultipleExternalIDs() {
+    let item = Item(contentID: "foobar", insertionID: "insertion!")
+    metricsLogger.logUserID = "batman"
+    metricsLogger.sessionID = "gotham"
+    metricsLogger.viewID = "joker"
+    metricsLogger.logImpression(content: item)
+    metricsLogger.flush()
+    let message = connection.messages.last?.message
+    XCTAssertTrue(message is Event_LogRequest)
+    let expectedJSON = """
+    {
+      "user_info": {
+        "log_user_id": "batman"
+      },
+      "impression": [
+        {
+          "timing": {
+            "client_log_timestamp": 123000
+          },
+          "impression_id": "fake-impression-id",
+          "insertion_id": "insertion!",
+          "content_id": "foobar",
+          "session_id": "gotham",
+          "view_id": "joker"
+        }
+      ]
+    }
+    """
+    XCTAssertEqual(try Event_LogRequest(jsonString: expectedJSON),
+                   message as! Event_LogRequest)
   }
 
   func testLogNavigateAction() {
@@ -707,13 +767,13 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testReadViewIDBeforeLogView() {
     idMap.incrementCounts = true
-    let initialViewID = metricsLogger.viewID
+    let initialViewID = metricsLogger.currentOrPendingViewID
     XCTAssertEqual("fake-view-id-1", initialViewID)
     metricsLogger.startSessionForTesting(userID: "foo")
 
     let viewController = FakeScreenViewController()
     metricsLogger.logView(viewController: viewController, useCase: .search)
-    XCTAssertEqual(initialViewID, metricsLogger.viewID)
+    XCTAssertEqual(initialViewID, metricsLogger.currentOrPendingViewID)
   
     let viewController2 = FakeScreenViewController()
     metricsLogger.logView(viewController: viewController2, useCase: .search)

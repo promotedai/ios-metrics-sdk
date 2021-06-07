@@ -13,7 +13,8 @@ final class ViewTrackerTests: ModuleTestCase {
   }
 
   func testTrackViewUIKit() {
-    let viewIDBefore = viewTracker.viewID
+    XCTAssertNil(viewTracker.viewID)
+    let viewIDBefore = viewTracker.currentOrPendingViewID
     let vc = UIViewController()
     let state = viewTracker.trackView(key: .uiKit(viewController: vc), useCase: .feed)!
     let viewIDAfter = viewTracker.viewID
@@ -23,7 +24,8 @@ final class ViewTrackerTests: ModuleTestCase {
   }
   
   func testTrackSameViewUIKit() {
-    let viewIDBefore = viewTracker.viewID
+    XCTAssertNil(viewTracker.viewID)
+    let viewIDBefore = viewTracker.currentOrPendingViewID
 
     let vc1 = UIViewController()
     let state1 = viewTracker.trackView(key: .uiKit(viewController: vc1), useCase: .feed)
@@ -37,7 +39,8 @@ final class ViewTrackerTests: ModuleTestCase {
   }
   
   func testTrackViewUIKitMultiple() {
-    let viewIDBefore = viewTracker.viewID
+    XCTAssertNil(viewTracker.viewID)
+    let viewIDBefore = viewTracker.currentOrPendingViewID
 
     let vc1 = UIViewController()
     let state1 = viewTracker.trackView(key: .uiKit(viewController: vc1), useCase: .feed)!
@@ -153,7 +156,8 @@ final class ViewTrackerTests: ModuleTestCase {
   }
   
   func testTrackViewReactNative() {
-    let viewIDBefore = viewTracker.viewID
+    XCTAssertNil(viewTracker.viewID)
+    let viewIDBefore = viewTracker.currentOrPendingViewID
     let key = ViewTracker.Key.reactNative(routeName: "foo", routeKey: "bar")
     let state = viewTracker.trackView(key: key, useCase: .categoryContent)!
     let viewIDAfter = viewTracker.viewID
