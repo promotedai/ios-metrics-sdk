@@ -22,7 +22,7 @@ fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAP
 
 /// Used to indicate the client's use case.  Used on both View and Request.
 ///
-/// Next ID = 11.
+/// Next ID = 12.
 public enum Delivery_UseCase: SwiftProtobuf.Enum {
   public typealias RawValue = Int
   case unknownUseCase // = 0
@@ -38,6 +38,7 @@ public enum Delivery_UseCase: SwiftProtobuf.Enum {
   case myContent // = 8
   case mySavedContent // = 9
   case sellerContent // = 10
+  case discover // = 11
   case UNRECOGNIZED(Int)
 
   public init() {
@@ -57,6 +58,7 @@ public enum Delivery_UseCase: SwiftProtobuf.Enum {
     case 8: self = .myContent
     case 9: self = .mySavedContent
     case 10: self = .sellerContent
+    case 11: self = .discover
     default: self = .UNRECOGNIZED(rawValue)
     }
   }
@@ -74,6 +76,7 @@ public enum Delivery_UseCase: SwiftProtobuf.Enum {
     case .myContent: return 8
     case .mySavedContent: return 9
     case .sellerContent: return 10
+    case .discover: return 11
     case .UNRECOGNIZED(let i): return i
     }
   }
@@ -96,6 +99,7 @@ extension Delivery_UseCase: CaseIterable {
     .myContent,
     .mySavedContent,
     .sellerContent,
+    .discover,
   ]
 }
 
@@ -105,7 +109,7 @@ extension Delivery_UseCase: CaseIterable {
 /// Can be used to log existing ranking (not Promoted) or Promoted's Delivery
 /// API requests.
 ///
-/// Next ID = 17.
+/// Next ID = 18.
 public struct Delivery_Request {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -138,6 +142,16 @@ public struct Delivery_Request {
   public var hasTiming: Bool {return _storage._timing != nil}
   /// Clears the value of `timing`. Subsequent reads from it will return its default value.
   public mutating func clearTiming() {_uniqueStorage()._timing = nil}
+
+  /// Optional.  If not set, API server uses LogRequest.client_info.
+  public var clientInfo: Common_ClientInfo {
+    get {return _storage._clientInfo ?? Common_ClientInfo()}
+    set {_uniqueStorage()._clientInfo = newValue}
+  }
+  /// Returns true if `clientInfo` has been explicitly set.
+  public var hasClientInfo: Bool {return _storage._clientInfo != nil}
+  /// Clears the value of `clientInfo`. Subsequent reads from it will return its default value.
+  public mutating func clearClientInfo() {_uniqueStorage()._clientInfo = nil}
 
   /// Optional.  Primary key.
   /// SDKs usually handles this automatically. For details, see
@@ -184,10 +198,21 @@ public struct Delivery_Request {
   }
 
   /// Optional. Number of Insertions to return.
+  /// DEPRECATED: use paging intead.
   public var limit: Int32 {
     get {return _storage._limit}
     set {_uniqueStorage()._limit = newValue}
   }
+
+  /// Optional. Set to request a specific "page" of results.
+  public var paging: Delivery_Paging {
+    get {return _storage._paging ?? Delivery_Paging()}
+    set {_uniqueStorage()._paging = newValue}
+  }
+  /// Returns true if `paging` has been explicitly set.
+  public var hasPaging: Bool {return _storage._paging != nil}
+  /// Clears the value of `paging`. Subsequent reads from it will return its default value.
+  public mutating func clearPaging() {_uniqueStorage()._paging = nil}
 
   /// Optional.
   /// If set in Delivery API, Promoted will re-rank this list of Content.
@@ -226,7 +251,91 @@ public struct Delivery_Request {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-/// Next ID = 3.
+/// Next ID = 5.
+public struct Delivery_Paging {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// Identity for the paging request (opaque token).
+  /// A single paging_id will have many associated requests to get the fully
+  /// paged response set (hence, many request_id's and client_request_id's).
+  ///
+  /// Required if using the cursor for the last_index; optional if using offset.
+  /// Setting this value provides better paging consistency/stability.  Ideally,
+  /// it should be set from the initial paging response
+  /// (Response.paging_info.paging_id).
+  ///
+  /// An external value can be used when *not* using promoted.ai's item
+  /// datastore.  The value must be specific enough to be globally unique, yet
+  /// general enough to ignore paging parameters.  A good example of a useful,
+  /// externally set paging_id is to use the paging token or identifiers returned
+  /// by your item datastore retrieval while passing the eligible insertions in
+  /// the Request.  If in doubt, rely on the Response.paging_info.paging_id or
+  /// contact us.
+  public var pagingID: String = String()
+
+  /// Required.  The number of items (insertions) to return.
+  public var size: Int32 = 0
+
+  /// Required.  The position of the first item of this page.
+  /// For example, to get the 5th page of results with a paging size of 10:
+  /// * cursor is an opaque token, so it should be the value returned
+  ///   by the 4th page response (Response.paging_info.cursor).
+  /// * offset is a 0-based index, so it should be set to 40.
+  public var starting: Delivery_Paging.OneOf_Starting? = nil
+
+  public var cursor: String {
+    get {
+      if case .cursor(let v)? = starting {return v}
+      return String()
+    }
+    set {starting = .cursor(newValue)}
+  }
+
+  public var offset: Int32 {
+    get {
+      if case .offset(let v)? = starting {return v}
+      return 0
+    }
+    set {starting = .offset(newValue)}
+  }
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  /// Required.  The position of the first item of this page.
+  /// For example, to get the 5th page of results with a paging size of 10:
+  /// * cursor is an opaque token, so it should be the value returned
+  ///   by the 4th page response (Response.paging_info.cursor).
+  /// * offset is a 0-based index, so it should be set to 40.
+  public enum OneOf_Starting: Equatable {
+    case cursor(String)
+    case offset(Int32)
+
+  #if !swift(>=4.1)
+    public static func ==(lhs: Delivery_Paging.OneOf_Starting, rhs: Delivery_Paging.OneOf_Starting) -> Bool {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch (lhs, rhs) {
+      case (.cursor, .cursor): return {
+        guard case .cursor(let l) = lhs, case .cursor(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.offset, .offset): return {
+        guard case .offset(let l) = lhs, case .offset(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      default: return false
+      }
+    }
+  #endif
+  }
+
+  public init() {}
+}
+
+/// Next ID = 4.
 public struct Delivery_Response {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -234,6 +343,36 @@ public struct Delivery_Response {
 
   /// List of content.
   public var insertion: [Delivery_Insertion] = []
+
+  /// Paging information of this response.  Only returned on paging requests.
+  public var pagingInfo: Delivery_PagingInfo {
+    get {return _pagingInfo ?? Delivery_PagingInfo()}
+    set {_pagingInfo = newValue}
+  }
+  /// Returns true if `pagingInfo` has been explicitly set.
+  public var hasPagingInfo: Bool {return self._pagingInfo != nil}
+  /// Clears the value of `pagingInfo`. Subsequent reads from it will return its default value.
+  public mutating func clearPagingInfo() {self._pagingInfo = nil}
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+
+  fileprivate var _pagingInfo: Delivery_PagingInfo? = nil
+}
+
+/// Next ID = 3.
+public struct Delivery_PagingInfo {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// Opaque identifier to be used in subsequent paging requests for a specific
+  /// paged repsonse set.
+  public var pagingID: String = String()
+
+  /// Opaque token that represents the last item index of this response.
+  public var cursor: String = String()
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -271,6 +410,16 @@ public struct Delivery_Insertion {
   /// Clears the value of `timing`. Subsequent reads from it will return its default value.
   public mutating func clearTiming() {self._timing = nil}
 
+  /// Optional.  If not set, API server uses LogRequest.client_info.
+  public var clientInfo: Common_ClientInfo {
+    get {return _clientInfo ?? Common_ClientInfo()}
+    set {_clientInfo = newValue}
+  }
+  /// Returns true if `clientInfo` has been explicitly set.
+  public var hasClientInfo: Bool {return self._clientInfo != nil}
+  /// Clears the value of `clientInfo`. Subsequent reads from it will return its default value.
+  public mutating func clearClientInfo() {self._clientInfo = nil}
+
   /// Optional.  Primary key.
   /// SDKs usually handles this automatically. For details, see
   /// https://github.com/promotedai/schema#setting-primary-keys
@@ -288,7 +437,7 @@ public struct Delivery_Insertion {
   /// Optional.  We'll look this up using the external_content_id.
   public var contentID: String = String()
 
-  /// Optional.  0-based. Set by the customer, not by Promoted.
+  /// Optional.  0-based. As set by the customer, not by Promoted allocation.
   public var position: UInt64 = 0
 
   /// Optional. Custom item attributes and features set by customers.
@@ -307,6 +456,7 @@ public struct Delivery_Insertion {
 
   fileprivate var _userInfo: Common_UserInfo? = nil
   fileprivate var _timing: Common_Timing? = nil
+  fileprivate var _clientInfo: Common_ClientInfo? = nil
   fileprivate var _properties: Common_Properties? = nil
 }
 
@@ -327,6 +477,7 @@ extension Delivery_UseCase: SwiftProtobuf._ProtoNameProviding {
     8: .same(proto: "MY_CONTENT"),
     9: .same(proto: "MY_SAVED_CONTENT"),
     10: .same(proto: "SELLER_CONTENT"),
+    11: .same(proto: "DISCOVER"),
   ]
 }
 
@@ -336,6 +487,7 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     1: .standard(proto: "platform_id"),
     2: .standard(proto: "user_info"),
     3: .same(proto: "timing"),
+    4: .standard(proto: "client_info"),
     6: .standard(proto: "request_id"),
     7: .standard(proto: "view_id"),
     8: .standard(proto: "session_id"),
@@ -343,6 +495,7 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     9: .standard(proto: "use_case"),
     10: .standard(proto: "search_query"),
     15: .same(proto: "limit"),
+    17: .same(proto: "paging"),
     11: .same(proto: "insertion"),
     12: .standard(proto: "blender_config"),
     13: .same(proto: "properties"),
@@ -352,6 +505,7 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     var _platformID: UInt64 = 0
     var _userInfo: Common_UserInfo? = nil
     var _timing: Common_Timing? = nil
+    var _clientInfo: Common_ClientInfo? = nil
     var _requestID: String = String()
     var _viewID: String = String()
     var _sessionID: String = String()
@@ -359,6 +513,7 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     var _useCase: Delivery_UseCase = .unknownUseCase
     var _searchQuery: String = String()
     var _limit: Int32 = 0
+    var _paging: Delivery_Paging? = nil
     var _insertion: [Delivery_Insertion] = []
     var _blenderConfig: Delivery_BlenderConfig? = nil
     var _properties: Common_Properties? = nil
@@ -371,6 +526,7 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       _platformID = source._platformID
       _userInfo = source._userInfo
       _timing = source._timing
+      _clientInfo = source._clientInfo
       _requestID = source._requestID
       _viewID = source._viewID
       _sessionID = source._sessionID
@@ -378,6 +534,7 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       _useCase = source._useCase
       _searchQuery = source._searchQuery
       _limit = source._limit
+      _paging = source._paging
       _insertion = source._insertion
       _blenderConfig = source._blenderConfig
       _properties = source._properties
@@ -402,6 +559,7 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
         case 1: try { try decoder.decodeSingularUInt64Field(value: &_storage._platformID) }()
         case 2: try { try decoder.decodeSingularMessageField(value: &_storage._userInfo) }()
         case 3: try { try decoder.decodeSingularMessageField(value: &_storage._timing) }()
+        case 4: try { try decoder.decodeSingularMessageField(value: &_storage._clientInfo) }()
         case 6: try { try decoder.decodeSingularStringField(value: &_storage._requestID) }()
         case 7: try { try decoder.decodeSingularStringField(value: &_storage._viewID) }()
         case 8: try { try decoder.decodeSingularStringField(value: &_storage._sessionID) }()
@@ -412,6 +570,7 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
         case 13: try { try decoder.decodeSingularMessageField(value: &_storage._properties) }()
         case 14: try { try decoder.decodeSingularStringField(value: &_storage._clientRequestID) }()
         case 15: try { try decoder.decodeSingularInt32Field(value: &_storage._limit) }()
+        case 17: try { try decoder.decodeSingularMessageField(value: &_storage._paging) }()
         default: break
         }
       }
@@ -428,6 +587,9 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       }
       if let v = _storage._timing {
         try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
+      }
+      if let v = _storage._clientInfo {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 4)
       }
       if !_storage._requestID.isEmpty {
         try visitor.visitSingularStringField(value: _storage._requestID, fieldNumber: 6)
@@ -459,6 +621,9 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       if _storage._limit != 0 {
         try visitor.visitSingularInt32Field(value: _storage._limit, fieldNumber: 15)
       }
+      if let v = _storage._paging {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 17)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -471,6 +636,7 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
         if _storage._platformID != rhs_storage._platformID {return false}
         if _storage._userInfo != rhs_storage._userInfo {return false}
         if _storage._timing != rhs_storage._timing {return false}
+        if _storage._clientInfo != rhs_storage._clientInfo {return false}
         if _storage._requestID != rhs_storage._requestID {return false}
         if _storage._viewID != rhs_storage._viewID {return false}
         if _storage._sessionID != rhs_storage._sessionID {return false}
@@ -478,6 +644,7 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
         if _storage._useCase != rhs_storage._useCase {return false}
         if _storage._searchQuery != rhs_storage._searchQuery {return false}
         if _storage._limit != rhs_storage._limit {return false}
+        if _storage._paging != rhs_storage._paging {return false}
         if _storage._insertion != rhs_storage._insertion {return false}
         if _storage._blenderConfig != rhs_storage._blenderConfig {return false}
         if _storage._properties != rhs_storage._properties {return false}
@@ -490,10 +657,78 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
   }
 }
 
+extension Delivery_Paging: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Paging"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "paging_id"),
+    2: .same(proto: "size"),
+    3: .same(proto: "cursor"),
+    4: .same(proto: "offset"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.pagingID) }()
+      case 2: try { try decoder.decodeSingularInt32Field(value: &self.size) }()
+      case 3: try {
+        if self.starting != nil {try decoder.handleConflictingOneOf()}
+        var v: String?
+        try decoder.decodeSingularStringField(value: &v)
+        if let v = v {self.starting = .cursor(v)}
+      }()
+      case 4: try {
+        if self.starting != nil {try decoder.handleConflictingOneOf()}
+        var v: Int32?
+        try decoder.decodeSingularInt32Field(value: &v)
+        if let v = v {self.starting = .offset(v)}
+      }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.pagingID.isEmpty {
+      try visitor.visitSingularStringField(value: self.pagingID, fieldNumber: 1)
+    }
+    if self.size != 0 {
+      try visitor.visitSingularInt32Field(value: self.size, fieldNumber: 2)
+    }
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every case branch when no optimizations are
+    // enabled. https://github.com/apple/swift-protobuf/issues/1034
+    switch self.starting {
+    case .cursor?: try {
+      guard case .cursor(let v)? = self.starting else { preconditionFailure() }
+      try visitor.visitSingularStringField(value: v, fieldNumber: 3)
+    }()
+    case .offset?: try {
+      guard case .offset(let v)? = self.starting else { preconditionFailure() }
+      try visitor.visitSingularInt32Field(value: v, fieldNumber: 4)
+    }()
+    case nil: break
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Delivery_Paging, rhs: Delivery_Paging) -> Bool {
+    if lhs.pagingID != rhs.pagingID {return false}
+    if lhs.size != rhs.size {return false}
+    if lhs.starting != rhs.starting {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
 extension Delivery_Response: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Response"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     2: .same(proto: "insertion"),
+    3: .standard(proto: "paging_info"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -503,6 +738,7 @@ extension Delivery_Response: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 2: try { try decoder.decodeRepeatedMessageField(value: &self.insertion) }()
+      case 3: try { try decoder.decodeSingularMessageField(value: &self._pagingInfo) }()
       default: break
       }
     }
@@ -512,11 +748,53 @@ extension Delivery_Response: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
     if !self.insertion.isEmpty {
       try visitor.visitRepeatedMessageField(value: self.insertion, fieldNumber: 2)
     }
+    if let v = self._pagingInfo {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   public static func ==(lhs: Delivery_Response, rhs: Delivery_Response) -> Bool {
     if lhs.insertion != rhs.insertion {return false}
+    if lhs._pagingInfo != rhs._pagingInfo {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Delivery_PagingInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".PagingInfo"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "paging_id"),
+    2: .same(proto: "cursor"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.pagingID) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.cursor) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.pagingID.isEmpty {
+      try visitor.visitSingularStringField(value: self.pagingID, fieldNumber: 1)
+    }
+    if !self.cursor.isEmpty {
+      try visitor.visitSingularStringField(value: self.cursor, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Delivery_PagingInfo, rhs: Delivery_PagingInfo) -> Bool {
+    if lhs.pagingID != rhs.pagingID {return false}
+    if lhs.cursor != rhs.cursor {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -528,6 +806,7 @@ extension Delivery_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
     1: .standard(proto: "platform_id"),
     2: .standard(proto: "user_info"),
     3: .same(proto: "timing"),
+    4: .standard(proto: "client_info"),
     6: .standard(proto: "insertion_id"),
     7: .standard(proto: "request_id"),
     9: .standard(proto: "view_id"),
@@ -546,6 +825,7 @@ extension Delivery_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
       case 1: try { try decoder.decodeSingularUInt64Field(value: &self.platformID) }()
       case 2: try { try decoder.decodeSingularMessageField(value: &self._userInfo) }()
       case 3: try { try decoder.decodeSingularMessageField(value: &self._timing) }()
+      case 4: try { try decoder.decodeSingularMessageField(value: &self._clientInfo) }()
       case 6: try { try decoder.decodeSingularStringField(value: &self.insertionID) }()
       case 7: try { try decoder.decodeSingularStringField(value: &self.requestID) }()
       case 8: try { try decoder.decodeSingularStringField(value: &self.sessionID) }()
@@ -567,6 +847,9 @@ extension Delivery_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
     }
     if let v = self._timing {
       try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
+    }
+    if let v = self._clientInfo {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 4)
     }
     if !self.insertionID.isEmpty {
       try visitor.visitSingularStringField(value: self.insertionID, fieldNumber: 6)
@@ -596,6 +879,7 @@ extension Delivery_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
     if lhs.platformID != rhs.platformID {return false}
     if lhs._userInfo != rhs._userInfo {return false}
     if lhs._timing != rhs._timing {return false}
+    if lhs._clientInfo != rhs._clientInfo {return false}
     if lhs.insertionID != rhs.insertionID {return false}
     if lhs.requestID != rhs.requestID {return false}
     if lhs.viewID != rhs.viewID {return false}

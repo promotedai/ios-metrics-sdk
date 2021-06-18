@@ -10,13 +10,13 @@ import os.log
  `MetricsLoggingService`, which configures the logging environment and
  maintains a `MetricsLogger` for the lifetime of the service. 
  
- The service also provides a facility to create `ImpressionLogger`s and
+ The service also provides a facility to create `ImpressionTracker`s and
  `ScrollTracker`s.
  
  # Usage
  Create and configure the service when your app starts, then retrieve the
  `MetricsLogger` instance from the service after it has been configured.
- Alternatively, create `ImpressionLogger` instances using the service.
+ Alternatively, create `ImpressionTracker` instances using the service.
 
  You may choose to make `MetricsLoggerService` a singleton, which makes its
  corresponding `MetricsLogger` a singleton. You may also choose to
@@ -31,22 +31,22 @@ import os.log
  Use from main thread only.
  
  ## Example (using instance):
- ~~~swift
+ ```swift
  let service = try MetricsLoggerService(initialConfig: ...)
  try service.startLoggingServices()
  let logger = service.metricsLogger
- let impressionLogger = service.impressionLogger()
+ let impressionTracker = service.impressionTracker()
  let scrollTracker = service.scrollTracker(collectionView: ...)
- ~~~
+ ```
  
  ## Example (using shared service):
- ~~~swift
+ ```swift
  // Call this first before accessing the instance.
  try MetricsLoggerService.startServices(initialConfig: ...)
  let service = MetricsLoggerService.shared
  let logger = service.metricsLogger
- let impressionLogger = service.impressionLogger()
- ~~~
+ let impressionTracker = service.impressionTracker()
+ ```
  
  # PromotedCore vs PromotedMetrics
  The above example uses the `PromotedMetrics` dependency. It's assumed
@@ -64,7 +64,7 @@ import os.log
  Initialization errors may not be logged to analytics.
  
  ## Example (Objective C full error handling):
- ~~~objc
+```objc
  NSError *error = nil;
  PROMetricsLoggerService *service =
      [[PROMetricsLoggerService alloc]
@@ -79,16 +79,16 @@ import os.log
    return nil;
  }
  return service;
- ~~~
+```
  
  ## Example (Objective C ignoring errors):
- ~~~objc
+ ```objc
  PROMetricsLoggerService *service =
      [[PROMetricsLoggerService alloc]
          initWithInitialConfig:config error:nil];
  [service startLoggingServicesAndReturnError:nil];
  return service;
- ~~~
+ ```
  */
 @objc(PROMetricsLoggerService)
 public final class MetricsLoggerService: NSObject {
@@ -148,7 +148,7 @@ public extension MetricsLoggerService {
   ///
   /// If this method fails or throws an error, then the service becomes
   /// a no-op object that returns `nil` for `metricsLogger`,
-  /// `impressionLogger()`, and `scrollTracker()`. In Swift, it's safe
+  /// `impressionTracker()`, and `scrollTracker()`. In Swift, it's safe
   /// to ignore the thrown error, with `try? service.startLoggingServices()`.
   /// In Objective C, it's safe to ignore the failure/error from
   /// `[service startLoggingServicesAndReturnError:]`.
@@ -169,10 +169,10 @@ public extension MetricsLoggerService {
 // MARK: - Impression logging
 public extension MetricsLoggerService {
 
-  /// Returns a new `ImpressionLogger`.
-  @objc func impressionLogger() -> ImpressionLogger? {
+  /// Returns a new `ImpressionTracker`.
+  @objc func impressionTracker() -> ImpressionTracker? {
     guard let metricsLogger = self.metricsLogger else { return nil }
-    return ImpressionLogger(metricsLogger: metricsLogger, deps: module)
+    return ImpressionTracker(metricsLogger: metricsLogger, deps: module)
   }
 
   /// Returns a new `ScrollTracker`.

@@ -36,14 +36,14 @@ import os.log
  Use from main thread only.
 
  ## Example:
- ~~~
+ ```swift
  let logger = MetricsLogger(...)
  // Sets userID and logUserID for subsequent log() calls.
  logger.startSession(userID: myUserID)
  logger.log(event: myEvent)
  // Resets userID and logUserID.
  logger.startSession(userID: secondUserID)
- ~~~
+ ```
  */
 @objc(PROMetricsLogger)
 public final class MetricsLogger: NSObject {
@@ -310,10 +310,13 @@ public extension MetricsLogger {
   /// - Parameters:
   ///   - contentID: Content ID from which to derive `impressionID`
   ///   - insertionID: Insertion ID as provided by Promoted
+  ///   - requestID: Request ID as provided by Promoted
+  ///   - sourceType: Origin of the impressed content
   ///   - properties: Client-specific message
   func logImpression(contentID: String? = nil,
                      insertionID: String? = nil,
                      requestID: String? = nil,
+                     sourceType: ImpressionSourceType? = nil,
                      properties: Message? = nil) {
     monitor.execute {
       var impression = Event_Impression()
@@ -324,6 +327,7 @@ public extension MetricsLogger {
       if let id = sessionID { impression.sessionID = id }
       if let id = viewID { impression.viewID = id }
       if let id = contentID { impression.contentID = idMap.contentID(clientID: id) }
+      if let t = sourceType?.protoValue { impression.sourceType = t }
       if let p = propertiesMessage(properties) { impression.properties = p }
       log(message: impression)
     }
@@ -345,6 +349,7 @@ public extension MetricsLogger {
   ///   - name: Name for action to log, human readable
   ///   - contentID: Content ID from which to derive `impressionID`
   ///   - insertionID: Insertion ID as provided by Promoted
+  ///   - requestID: Request ID as provided by Promoted
   ///   - properties: Client-specific message
   func logAction(name: String,
                  type: ActionType,

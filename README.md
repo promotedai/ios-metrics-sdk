@@ -44,13 +44,13 @@ Your app controls the initialization and behavior of our client library through 
 
 1. `MetricsLoggingService` configures the behavior and initialization of the library. 
 1. `MetricsLogger` accepts log messages to send to the server. 
-1. `ImpressionLogger` tracks impressions of content in a collection view.
+1. `ImpressionTracker` tracks impressions of content in a collection view.
 
 ### MetricsLoggerService
 Initialization of the library is lightweight and mostly occurs in the background, and does not impact app startup performance.
 
 Example usage (singleton):
-~~~swift
+```swift
 // In your AppDelegate:
 func application(_ application: UIApplication,
                  didFinishLaunchingWithOptions...) -> Bool {
@@ -62,10 +62,10 @@ func application(_ application: UIApplication,
   self.logger = loggingService.metricsLogger
   return true
 }
-~~~
+```
 
 Example usage (dependency injection):
-~~~swift
+```swift
 // In your AppDelegate:
 func application(_ application: UIApplication,
                  didFinishLaunchingWithOptions...) -> Bool {
@@ -77,10 +77,10 @@ func application(_ application: UIApplication,
   self.logger = service.metricsLogger
   return true
 }
-~~~
+```
 
 Handling user sign-in:
-~~~swift
+```swift
 // Handling user sign-in/sign-out:
 func userDidSignInWithID(_ userID: String) {
   self.logger.startSessionAndLogUser(userID: userID);
@@ -89,36 +89,36 @@ func userDidSignInWithID(_ userID: String) {
 func userDidSignOut() {
   self.logger.startSessionAndLogSignedOutUser()
 }
-~~~
+```
 
 ### MetricsLogger
 `MetricsLogger` batches log messages to avoid wasteful network traffic that would affect battery life. It also provides hooks into the app’s life cycle to ensure delivery of client logs.
 
-### ImpressionLogger
-For `UICollectionViews` and other scroll views, we can track the appearance and disappearance of individual cells for fine-grained impression logging. We provide `ImpressionLogger`, a solution that hooks into most `UICollectionView`s and `UIViewController`s easily.
+### ImpressionTracker
+For `UICollectionViews` and other scroll views, we can track the appearance and disappearance of individual cells for fine-grained impression logging. We provide `ImpressionTracker`, a solution that hooks into most `UICollectionView`s and `UIViewController`s easily.
 
 Example usage with UICollectionView:
-~~~swift
+```swift
 class MyViewController: UIViewController {
   var collectionView: UICollectionView
-  var impressionLogger: ImpressionLogger
+  var impressionTracker: ImpressionTracker
 
   func viewWillDisappear(_ animated: Bool) {
-    impressionLogger.collectionViewDidHideAllContent()
+    impressionTracker.collectionViewDidHideAllContent()
   }
 
   func collectionView(_ collectionView: UICollectionView,
                       willDisplay cell: UICollectionViewCell,
                       forItemAt indexPath: IndexPath) {
     let content = contentFor(indexPath: indexPath)
-    impressionLogger.collectionViewWillDisplay(content: content)
+    impressionTracker.collectionViewWillDisplay(content: content)
   }
    
   func collectionView(_ collectionView: UICollectionView,
                       didEndDisplaying cell: UICollectionViewCell,
                       forItemAt indexPath: IndexPath) {
     let content = contentFor(indexPath: indexPath)
-    impressionLogger.collectionViewDidHide(content: content)
+    impressionTracker.collectionViewDidHide(content: content)
   }
 
   func reloadCollectionView() {
@@ -126,7 +126,7 @@ class MyViewController: UIViewController {
     let visibleContent = collectionView.indexPathsForVisibleItems.map {
       contentFor(indexPath: $0)
     }
-    impressionLogger.collectionViewDidChangeVisibleContent(visibleContent)
+    impressionTracker.collectionViewDidChangeVisibleContent(visibleContent)
   }
 }
-~~~
+```

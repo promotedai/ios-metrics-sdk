@@ -1,14 +1,24 @@
 import Foundation
 import UIKit
 
+// MARK: - Impression logging helper methods
 public extension MetricsLogger {
-  // MARK: - Impression logging helper methods
   /// Logs an impression for the given content.
   @objc func logImpression(content: Content) {
-    logImpression(contentID: content.contentID, insertionID: content.insertionID)
+    logImpression(content: content, sourceType: .unknown)
   }
 
-  // MARK: - Action logging helper methods
+  /// Logs an impression for the given content and source type.
+  @objc func logImpression(content: Content,
+                           sourceType: ImpressionSourceType) {
+    logImpression(contentID: content.contentID,
+                  insertionID: content.insertionID,
+                  sourceType: sourceType)
+  }
+}
+
+// MARK: - Action logging helper methods
+public extension MetricsLogger {
   /// Logs a navigate action to the given view controller.
   @objc func logNavigateAction(viewController: UIViewController) {
     logNavigateAction(name: viewController.promotedViewLoggingName,
@@ -167,8 +177,10 @@ public extension MetricsLogger {
               contentID: content.contentID,
               insertionID: content.insertionID)
   }
+}
 
-  // MARK: - View logging helper methods
+// MARK: - View logging helper methods
+public extension MetricsLogger {
   /// Logs a view of the given `UIViewController`.
   @objc func logView(viewController: UIViewController) {
     logView(trackerKey: .uiKit(viewController: viewController))

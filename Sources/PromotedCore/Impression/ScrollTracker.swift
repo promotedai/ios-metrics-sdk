@@ -76,13 +76,13 @@ import UIKit
  
  ## React Native
  
- Use the `useImpressionLogger()` hook for accurate tracking in `FlatList`s
+ Use the `useImpressionTracker()` hook for accurate tracking in `FlatList`s
  and `SectionList`s. If using some other kind of scroll view, set the scroll
  view's viewport manually through the `viewport` property when the scroll
  view updates.
  */
 @objc(PROScrollTracker)
-public final class ScrollTracker: NSObject {
+public final class ScrollTracker: NSObject, ImpressionConfig {
 
   private let visibilityThreshold: Float
   private let durationThreshold: TimeInterval
@@ -92,7 +92,7 @@ public final class ScrollTracker: NSObject {
   private unowned let metricsLogger: MetricsLogger
   private unowned let monitor: OperationMonitor
 
-  private let impressionLogger: ImpressionLogger
+  private let impressionTracker: ImpressionTracker
   private var content: [(CGRect, Content)]
   private var timer: ScheduledTimer?
 
@@ -133,7 +133,7 @@ public final class ScrollTracker: NSObject {
     self.updateFrequency = clientConfig.scrollTrackerUpdateFrequency
     self.metricsLogger = metricsLogger
     self.monitor = deps.operationMonitor
-    self.impressionLogger = ImpressionLogger(metricsLogger: metricsLogger, deps: deps)
+    self.impressionTracker = ImpressionTracker(metricsLogger: metricsLogger, deps: deps)
     self.content = []
     self.timer = nil
     self.viewport = CGRect.zero
@@ -148,7 +148,7 @@ public final class ScrollTracker: NSObject {
   }
 
   @objc public func scrollViewDidHideAllContent() {
-    impressionLogger.collectionViewDidHideAllContent()
+    impressionTracker.collectionViewDidHideAllContent()
   }
 
   private func maybeScheduleUpdateVisibilityTimer() {
@@ -171,7 +171,7 @@ public final class ScrollTracker: NSObject {
           visibleContent.append(content)
         }
       }
-      impressionLogger.collectionViewDidChangeVisibleContent(visibleContent)
+      impressionTracker.collectionViewDidChangeVisibleContent(visibleContent)
     }
   }
 }
@@ -267,6 +267,15 @@ public extension ScrollTracker {
     let origin = scrollView.convert(scrollView.contentOffset, to: collectionView);
     let size = scrollView.frame.size
     viewport = CGRect(origin: origin, size: size)
+  }
+}
+
+// MARK: - ImpressionConfig
+public extension ScrollTracker {
+  @discardableResult
+  func with(sourceType: ImpressionSourceType) -> Self {
+    impressionTracker.with(sourceType: sourceType)
+    return self
   }
 }
 
