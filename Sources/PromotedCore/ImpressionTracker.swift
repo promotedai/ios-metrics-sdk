@@ -2,17 +2,17 @@ import Foundation
 
 // MARK: -
 /** Delegate to be notified when impressions start or end. */
-public protocol ImpressionLoggerDelegate: AnyObject {
+public protocol ImpressionTrackerDelegate: AnyObject {
 
   /// Notifies delegate of impression starts.
-  func impressionLogger(
-      _ impressionLogger: ImpressionLogger,
-      didStartImpressions impressions: [ImpressionLogger.Impression])
+  func impressionTracker(
+      _ impressionTracker: ImpressionTracker,
+      didStartImpressions impressions: [ImpressionTracker.Impression])
   
   /// Notifies delegate of impression ends.
-  func impressionLogger(
-      _ impressionLogger: ImpressionLogger,
-      didEndImpressions impressions: [ImpressionLogger.Impression])
+  func impressionTracker(
+      _ impressionTracker: ImpressionTracker,
+      didEndImpressions impressions: [ImpressionTracker.Impression])
 }
 
 // MARK: -
@@ -23,7 +23,7 @@ public protocol ImpressionLoggerDelegate: AnyObject {
  adapted to work with views that don't.
 
  ## Usage
- `ImpressionLogger` provides only basic impression tracking logic that
+ `ImpressionTracker` provides only basic impression tracking logic that
  considers a view as impressed as soon as it enters the screen. For
  more advanced functionality, see `ScrollTracker`, which offers
  visibility and time threshholds.
@@ -31,16 +31,16 @@ public protocol ImpressionLoggerDelegate: AnyObject {
  Used from React Native because RN's `SectionList` and `FlatList`
  provide this advanced functionality already.
 
- Clients should create an instance of `ImpressionLogger`
+ Clients should create an instance of `ImpressionTracker`
  and reference it in their view controller, then provide updates
  to the impression logger as the collection view scrolls or updates.
  
  # Example:
- ~~~
+ ```swift
  class MyViewController: UIViewController {
    var collectionView: UICollectionView
    var logger: MetricsLogger
-   var impressionLogger: ImpressionLogger
+   var impressionTracker: ImpressionTracker
  
    private func content(atIndexPath path: IndexPath) -> Content? {
      let item = path.item
@@ -50,14 +50,14 @@ public protocol ImpressionLoggerDelegate: AnyObject {
    }
 
    func viewWillDisappear(_ animated: Bool) {
-     impressionLogger.collectionViewDidHideAllContent()
+     impressionTracker.collectionViewDidHideAllContent()
    }
 
    func collectionView(_ collectionView: UICollectionView,
                        willDisplay cell: UICollectionViewCell,
                        forItemAt indexPath: IndexPath) {
      if let content = content(atIndexPath: indexPath) {
-      impressionLogger.collectionViewWillDisplay(content: content)
+      impressionTracker.collectionViewWillDisplay(content: content)
      }
    }
     
@@ -65,7 +65,7 @@ public protocol ImpressionLoggerDelegate: AnyObject {
                        didEndDisplaying cell: UICollectionViewCell,
                        forItemAt indexPath: IndexPath) {
      if let content = content(atIndexPath: indexPath) {
-       impressionLogger.collectionViewDidHide(content: content)
+       impressionTracker.collectionViewDidHide(content: content)
      }
    }
 
@@ -74,13 +74,13 @@ public protocol ImpressionLoggerDelegate: AnyObject {
      let visibleContent = collectionView.indexPathsForVisibleItems.map {
        path in content(atIndexPath: path)
      };
-     impressionLogger.collectionViewDidChangeVisibleContent(visibleContent)
+     impressionTracker.collectionViewDidChangeVisibleContent(visibleContent)
    }
  }
- ~~~
+ ```
  */
-@objc(PROImpressionLogger)
-public final class ImpressionLogger: NSObject {
+@objc(PROImpressionTracker)
+public final class ImpressionTracker: NSObject {
 
   // MARK: -
   /** Represents an impression of a cell in the collection view. */
@@ -109,7 +109,7 @@ public final class ImpressionLogger: NSObject {
   
   private var impressionStarts: [Content: TimeInterval]
 
-  public weak var delegate: ImpressionLoggerDelegate?
+  public weak var delegate: ImpressionTrackerDelegate?
 
   typealias Deps = ClockSource & OperationMonitorSource
 
@@ -175,7 +175,7 @@ public final class ImpressionLogger: NSObject {
         metricsLogger.logImpression(content: impression.content)
       }
     }
-    delegate?.impressionLogger(self, didStartImpressions: impressions)
+    delegate?.impressionTracker(self, didStartImpressions: impressions)
   }
   
   private func broadcastEndAndRemoveImpressions<T: Collection>(
@@ -188,24 +188,24 @@ public final class ImpressionLogger: NSObject {
       impressions.append(impression)
     }
     // Not calling `metricsLogger`. No logging end impressions for now.
-    delegate?.impressionLogger(self, didEndImpressions: impressions)
+    delegate?.impressionTracker(self, didEndImpressions: impressions)
   }
 }
 
-extension ImpressionLogger.Impression: CustomDebugStringConvertible {
+extension ImpressionTracker.Impression: CustomDebugStringConvertible {
   public var debugDescription: String {
     endTime != nil ? "(\(content.description), \(startTime), \(endTime!))"
       : "(\(content.description), \(startTime))"
   }
 }
 
-extension ImpressionLogger.Impression: Hashable {
+extension ImpressionTracker.Impression: Hashable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(content)
   }
   
-  public static func == (lhs: ImpressionLogger.Impression,
-                         rhs: ImpressionLogger.Impression) -> Bool {
+  public static func == (lhs: ImpressionTracker.Impression,
+                         rhs: ImpressionTracker.Impression) -> Bool {
     ((lhs.content == rhs.content) &&
      (abs(lhs.startTime - rhs.startTime) < 0.01) &&
      (abs((lhs.endTime ?? 0) - (rhs.endTime ?? 0)) < 0.01))

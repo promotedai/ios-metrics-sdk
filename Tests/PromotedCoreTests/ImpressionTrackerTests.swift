@@ -4,11 +4,11 @@ import XCTest
 @testable import PromotedCore
 @testable import PromotedCoreTestHelpers
 
-final class ImpressionLoggerTests: ModuleTestCase {
+final class ImpressionTrackerTests: ModuleTestCase {
 
-  typealias Impression = ImpressionLogger.Impression
+  typealias Impression = ImpressionTracker.Impression
 
-  class Delegate: ImpressionLoggerDelegate {
+  class Delegate: ImpressionTrackerDelegate {
     var startImpressions: [Impression]
     var endImpressions: [Impression]
     init() {
@@ -19,12 +19,12 @@ final class ImpressionLoggerTests: ModuleTestCase {
       startImpressions.removeAll()
       endImpressions.removeAll()
     }
-    func impressionLogger(_ impressionLogger: ImpressionLogger,
+    func impressionTracker(_ impressionTracker: ImpressionTracker,
                           didStartImpressions impressions: [Impression]) {
       startImpressions.append(contentsOf: impressions)
     }
     
-    func impressionLogger(_ impressionLogger: ImpressionLogger,
+    func impressionTracker(_ impressionTracker: ImpressionTracker,
                           didEndImpressions impressions: [Impression]) {
       endImpressions.append(contentsOf: impressions)
     }
@@ -38,7 +38,7 @@ final class ImpressionLoggerTests: ModuleTestCase {
                           _ startTime: TimeInterval,
                           _ endTime: TimeInterval? = nil) -> Impression {
     let content = Content(contentID: contentID)
-    return ImpressionLogger.Impression(content: content, startTime: startTime, endTime: endTime)
+    return ImpressionTracker.Impression(content: content, startTime: startTime, endTime: endTime)
   }
 
   /** Asserts that list contents are equal regardless of order. */
@@ -47,31 +47,31 @@ final class ImpressionLoggerTests: ModuleTestCase {
   }
 
   private var metricsLogger: MetricsLogger!
-  private var impressionLogger: ImpressionLogger!
+  private var impressionTracker: ImpressionTracker!
   private var delegate: Delegate!
 
   override func setUp() {
     super.setUp()
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionAndLogUser(userID: "foo")
-    impressionLogger = ImpressionLogger(metricsLogger: metricsLogger, deps: module)
+    impressionTracker = ImpressionTracker(metricsLogger: metricsLogger, deps: module)
     delegate = Delegate()
-    impressionLogger.delegate = delegate
+    impressionTracker.delegate = delegate
   }
 
   func testStartImpressions() {
     clock.advance(to: 123)
     
-    impressionLogger.collectionViewWillDisplay(content: content("jeff"))
+    impressionTracker.collectionViewWillDisplay(content: content("jeff"))
     assertContentsEqual(delegate.startImpressions, [impression("jeff", 123)])
     
     delegate.clear()
     clock.now = 500
-    impressionLogger.collectionViewWillDisplay(content: content("britta"))
+    impressionTracker.collectionViewWillDisplay(content: content("britta"))
     clock.now = 501
-    impressionLogger.collectionViewWillDisplay(content: content("troy"))
+    impressionTracker.collectionViewWillDisplay(content: content("troy"))
     clock.now = 502
-    impressionLogger.collectionViewWillDisplay(content: content("abed"))
+    impressionTracker.collectionViewWillDisplay(content: content("abed"))
     assertContentsEqual(delegate.startImpressions,
                         [impression("britta", 500),
                          impression("troy", 501),
@@ -81,19 +81,19 @@ final class ImpressionLoggerTests: ModuleTestCase {
   func testEndImpressions() {
     clock.advance(to: 123)
     
-    impressionLogger.collectionViewWillDisplay(content: content("annie"))
+    impressionTracker.collectionViewWillDisplay(content: content("annie"))
     clock.now = 200
-    impressionLogger.collectionViewDidHide(content: content("annie"))
+    impressionTracker.collectionViewDidHide(content: content("annie"))
     assertContentsEqual(delegate.endImpressions, [impression("annie", 123, 200)])
   }
   
   func testDidChangeImpressions() {
     clock.advance(to: 123)
     
-    impressionLogger.collectionViewWillDisplay(content: content("shirley"))
-    impressionLogger.collectionViewWillDisplay(content: content("pierce"))
-    impressionLogger.collectionViewWillDisplay(content: content("ben"))
-    impressionLogger.collectionViewWillDisplay(content: content("craig"))
+    impressionTracker.collectionViewWillDisplay(content: content("shirley"))
+    impressionTracker.collectionViewWillDisplay(content: content("pierce"))
+    impressionTracker.collectionViewWillDisplay(content: content("ben"))
+    impressionTracker.collectionViewWillDisplay(content: content("craig"))
     assertContentsEqual(delegate.startImpressions,
                         [impression("shirley", 123),
                          impression("pierce", 123),
@@ -107,7 +107,7 @@ final class ImpressionLoggerTests: ModuleTestCase {
                           content("abed")]
     clock.now = 200
     
-    impressionLogger.collectionViewDidChangeVisibleContent(visibleContent)
+    impressionTracker.collectionViewDidChangeVisibleContent(visibleContent)
     assertContentsEqual(delegate.startImpressions,
                         [impression("troy", 200), impression("abed", 200)])
     assertContentsEqual(delegate.endImpressions,
@@ -117,10 +117,10 @@ final class ImpressionLoggerTests: ModuleTestCase {
   func testDidHideAllImpressions() {
     clock.advance(to: 123)
     
-    impressionLogger.collectionViewWillDisplay(content: content("jeff"))
-    impressionLogger.collectionViewWillDisplay(content: content("britta"))
-    impressionLogger.collectionViewWillDisplay(content: content("annie"))
-    impressionLogger.collectionViewWillDisplay(content: content("troy"))
+    impressionTracker.collectionViewWillDisplay(content: content("jeff"))
+    impressionTracker.collectionViewWillDisplay(content: content("britta"))
+    impressionTracker.collectionViewWillDisplay(content: content("annie"))
+    impressionTracker.collectionViewWillDisplay(content: content("troy"))
     assertContentsEqual(delegate.startImpressions,
                         [impression("jeff", 123),
                          impression("britta", 123),
@@ -130,7 +130,7 @@ final class ImpressionLoggerTests: ModuleTestCase {
     delegate.clear()
     clock.now = 200
     
-    impressionLogger.collectionViewDidHideAllContent()
+    impressionTracker.collectionViewDidHideAllContent()
     assertContentsEqual(delegate.startImpressions, [])
     assertContentsEqual(delegate.endImpressions,
                         [impression("jeff", 123, 200),

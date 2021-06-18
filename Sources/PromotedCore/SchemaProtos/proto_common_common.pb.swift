@@ -182,6 +182,117 @@ public struct Common_UserInfo {
   public init() {}
 }
 
+/// Info about the client.
+/// Next ID = 3.
+public struct Common_ClientInfo {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var clientType: Common_ClientInfo.ClientType = .unknownRequestClient
+
+  public var trafficType: Common_ClientInfo.TrafficType = .unknownTrafficType
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  /// Next ID = 5;
+  public enum ClientType: SwiftProtobuf.Enum {
+    public typealias RawValue = Int
+    case unknownRequestClient // = 0
+
+    /// Your (customer) server.
+    case platformServer // = 1
+
+    /// Your (customer) client.
+    case platformClient // = 2
+    case UNRECOGNIZED(Int)
+
+    public init() {
+      self = .unknownRequestClient
+    }
+
+    public init?(rawValue: Int) {
+      switch rawValue {
+      case 0: self = .unknownRequestClient
+      case 1: self = .platformServer
+      case 2: self = .platformClient
+      default: self = .UNRECOGNIZED(rawValue)
+      }
+    }
+
+    public var rawValue: Int {
+      switch self {
+      case .unknownRequestClient: return 0
+      case .platformServer: return 1
+      case .platformClient: return 2
+      case .UNRECOGNIZED(let i): return i
+      }
+    }
+
+  }
+
+  /// Used to indicate the type of traffic.  We can use this to prioritize resources.
+  /// Next ID = 4.
+  public enum TrafficType: SwiftProtobuf.Enum {
+    public typealias RawValue = Int
+    case unknownTrafficType // = 0
+
+    /// Live traffic.
+    case production // = 1
+
+    /// Replayed traffic.  We'd like similar to PRODUCTION level.
+    case replay // = 2
+    case UNRECOGNIZED(Int)
+
+    public init() {
+      self = .unknownTrafficType
+    }
+
+    public init?(rawValue: Int) {
+      switch rawValue {
+      case 0: self = .unknownTrafficType
+      case 1: self = .production
+      case 2: self = .replay
+      default: self = .UNRECOGNIZED(rawValue)
+      }
+    }
+
+    public var rawValue: Int {
+      switch self {
+      case .unknownTrafficType: return 0
+      case .production: return 1
+      case .replay: return 2
+      case .UNRECOGNIZED(let i): return i
+      }
+    }
+
+  }
+
+  public init() {}
+}
+
+#if swift(>=4.2)
+
+extension Common_ClientInfo.ClientType: CaseIterable {
+  // The compiler won't synthesize support with the UNRECOGNIZED case.
+  public static var allCases: [Common_ClientInfo.ClientType] = [
+    .unknownRequestClient,
+    .platformServer,
+    .platformClient,
+  ]
+}
+
+extension Common_ClientInfo.TrafficType: CaseIterable {
+  // The compiler won't synthesize support with the UNRECOGNIZED case.
+  public static var allCases: [Common_ClientInfo.TrafficType] = [
+    .unknownTrafficType,
+    .production,
+    .replay,
+  ]
+}
+
+#endif  // swift(>=4.2)
+
 /// A message containing timing information.
 ///
 /// We can add common timing info to this message.  Down the road, we might
@@ -197,20 +308,13 @@ public struct Common_Timing {
   /// Optional.  Client timestamp when event was created.
   public var clientLogTimestamp: UInt64 = 0
 
-  /// Read-only.  This is set in the Event API.
-  public var eventApiTimestamp: UInt64 = 0
-
-  /// Internal to our metrics pipeline.  Currently set by kafka and used to
-  /// manage state for event joining.
-  public var logTimestamp: UInt64 = 0
-
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
 }
 
 /// Supports custom properties per platform.
-/// Next ID = 3.
+/// Next ID = 4.
 public struct Common_Properties {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -397,12 +501,64 @@ extension Common_UserInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
   }
 }
 
+extension Common_ClientInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".ClientInfo"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "client_type"),
+    2: .standard(proto: "traffic_type"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularEnumField(value: &self.clientType) }()
+      case 2: try { try decoder.decodeSingularEnumField(value: &self.trafficType) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.clientType != .unknownRequestClient {
+      try visitor.visitSingularEnumField(value: self.clientType, fieldNumber: 1)
+    }
+    if self.trafficType != .unknownTrafficType {
+      try visitor.visitSingularEnumField(value: self.trafficType, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Common_ClientInfo, rhs: Common_ClientInfo) -> Bool {
+    if lhs.clientType != rhs.clientType {return false}
+    if lhs.trafficType != rhs.trafficType {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Common_ClientInfo.ClientType: SwiftProtobuf._ProtoNameProviding {
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    0: .same(proto: "UNKNOWN_REQUEST_CLIENT"),
+    1: .same(proto: "PLATFORM_SERVER"),
+    2: .same(proto: "PLATFORM_CLIENT"),
+  ]
+}
+
+extension Common_ClientInfo.TrafficType: SwiftProtobuf._ProtoNameProviding {
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    0: .same(proto: "UNKNOWN_TRAFFIC_TYPE"),
+    1: .same(proto: "PRODUCTION"),
+    2: .same(proto: "REPLAY"),
+  ]
+}
+
 extension Common_Timing: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Timing"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .standard(proto: "client_log_timestamp"),
-    2: .standard(proto: "event_api_timestamp"),
-    3: .standard(proto: "log_timestamp"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -412,8 +568,6 @@ extension Common_Timing: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularUInt64Field(value: &self.clientLogTimestamp) }()
-      case 2: try { try decoder.decodeSingularUInt64Field(value: &self.eventApiTimestamp) }()
-      case 3: try { try decoder.decodeSingularUInt64Field(value: &self.logTimestamp) }()
       default: break
       }
     }
@@ -423,19 +577,11 @@ extension Common_Timing: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     if self.clientLogTimestamp != 0 {
       try visitor.visitSingularUInt64Field(value: self.clientLogTimestamp, fieldNumber: 1)
     }
-    if self.eventApiTimestamp != 0 {
-      try visitor.visitSingularUInt64Field(value: self.eventApiTimestamp, fieldNumber: 2)
-    }
-    if self.logTimestamp != 0 {
-      try visitor.visitSingularUInt64Field(value: self.logTimestamp, fieldNumber: 3)
-    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   public static func ==(lhs: Common_Timing, rhs: Common_Timing) -> Bool {
     if lhs.clientLogTimestamp != rhs.clientLogTimestamp {return false}
-    if lhs.eventApiTimestamp != rhs.eventApiTimestamp {return false}
-    if lhs.logTimestamp != rhs.logTimestamp {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
