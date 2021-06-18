@@ -100,7 +100,8 @@ final class ImpressionTrackerTests: ModuleTestCase {
   }
 
   func testStartImpressionsLoggedEvents() {
-    impressionTracker = impressionTracker.with(sourceType: .delivery)
+    impressionTracker = ImpressionTracker(metricsLogger: metricsLogger, deps: module)
+      .with(sourceType: .delivery)
     clock.advance(to: 123)
     impressionTracker.collectionViewWillDisplay(content: content("jeff"))
     clock.now = 500
