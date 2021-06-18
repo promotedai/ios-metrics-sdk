@@ -60,6 +60,26 @@ final class ImpressionTrackerTests: ModuleTestCase {
     impressionTracker.delegate = delegate
   }
 
+  private func assertEventsLogged(eventJSONArray: [String]) {
+    metricsLogger.flush()
+    let message = connection.messages.last?.message
+    XCTAssertTrue(message is Event_LogRequest)
+    let eventJSONJoined = eventJSONArray.joined(separator: ",")
+    let expectedLogRequestJSON = """
+    {
+      "user_info": {
+        "user_id": "foo",
+        "log_user_id": "fake-log-user-id"
+      },
+      "impression": [
+        \(eventJSONJoined)
+      ]
+    }
+    """
+    XCTAssertEqual(try Event_LogRequest(jsonString: expectedLogRequestJSON),
+                   message as! Event_LogRequest)
+  }
+
   func testStartImpressions() {
     clock.advance(to: 123)
     
@@ -77,6 +97,65 @@ final class ImpressionTrackerTests: ModuleTestCase {
                         [impression("britta", 500),
                          impression("troy", 501),
                          impression("abed", 502)])
+  }
+
+  func testStartImpressionsLoggedEvents() {
+    impressionTracker = impressionTracker.with(sourceType: .delivery)
+    clock.advance(to: 123)
+    impressionTracker.collectionViewWillDisplay(content: content("jeff"))
+    clock.now = 500
+    impressionTracker.collectionViewWillDisplay(content: content("britta"))
+    clock.now = 501
+    impressionTracker.collectionViewWillDisplay(content: content("troy"))
+    clock.now = 502
+    impressionTracker.collectionViewWillDisplay(content: content("abed"))
+    let expectedEventsJSON: [String] = [
+      """
+      {
+        "timing": {
+          "client_log_timestamp": 123000
+        },
+        "impression_id": "fake-impression-id",
+        "session_id": "fake-session-id",
+        "content_id": "jeff",
+        "source_type": "DELIVERY"
+      }
+      """,
+      """
+      {
+        "timing": {
+          "client_log_timestamp": 500000
+        },
+        "impression_id": "fake-impression-id",
+        "session_id": "fake-session-id",
+        "content_id": "britta",
+        "source_type": "DELIVERY"
+      }
+      """,
+      """
+      {
+        "timing": {
+          "client_log_timestamp": 501000
+        },
+        "impression_id": "fake-impression-id",
+        "session_id": "fake-session-id",
+        "content_id": "troy",
+        "source_type": "DELIVERY"
+      }
+      """,
+      """
+      {
+        "timing": {
+          "client_log_timestamp": 502000
+        },
+        "impression_id": "fake-impression-id",
+        "session_id": "fake-session-id",
+        "content_id": "abed",
+        "source_type": "DELIVERY"
+      }
+      """
+    ]
+    assertEventsLogged(eventJSONArray: expectedEventsJSON)
   }
   
   func testEndImpressions() {

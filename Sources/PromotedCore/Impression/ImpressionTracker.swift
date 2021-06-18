@@ -213,8 +213,8 @@ public extension ImpressionTracker {
 // MARK: - Impression CustomDebugStringConvertible
 extension ImpressionTracker.Impression: CustomDebugStringConvertible {
   public var debugDescription: String {
-    endTime != nil ? "(\(content.description), \(startTime), \(endTime!))"
-      : "(\(content.description), \(startTime))"
+    endTime != nil ? "(\(content.description), \(startTime), \(endTime!), \(sourceType))"
+      : "(\(content.description), \(startTime), \(sourceType))"
   }
 }
 
@@ -222,12 +222,14 @@ extension ImpressionTracker.Impression: CustomDebugStringConvertible {
 extension ImpressionTracker.Impression: Hashable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(content)
+    hasher.combine(sourceType)
   }
   
   public static func == (lhs: ImpressionTracker.Impression,
                          rhs: ImpressionTracker.Impression) -> Bool {
     ((lhs.content == rhs.content) &&
      (abs(lhs.startTime - rhs.startTime) < 0.01) &&
-     (abs((lhs.endTime ?? 0) - (rhs.endTime ?? 0)) < 0.01))
+     (abs((lhs.endTime ?? 0) - (rhs.endTime ?? 0)) < 0.01) &&
+     (lhs.sourceType == rhs.sourceType))
   }
 }
