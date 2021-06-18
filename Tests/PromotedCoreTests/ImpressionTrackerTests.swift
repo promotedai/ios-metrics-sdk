@@ -36,9 +36,10 @@ final class ImpressionTrackerTests: ModuleTestCase {
   
   private func impression(_ contentID: String,
                           _ startTime: TimeInterval,
-                          _ endTime: TimeInterval? = nil) -> Impression {
+                          _ endTime: TimeInterval? = nil,
+                          _ sourceType: ImpressionSourceType = .unknown) -> Impression {
     let content = Content(contentID: contentID)
-    return ImpressionTracker.Impression(content: content, startTime: startTime, endTime: endTime)
+    return ImpressionTracker.Impression(content: content, startTime: startTime, endTime: endTime, sourceType: sourceType)
   }
 
   /** Asserts that list contents are equal regardless of order. */

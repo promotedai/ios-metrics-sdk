@@ -82,7 +82,7 @@ import UIKit
  view updates.
  */
 @objc(PROScrollTracker)
-public final class ScrollTracker: NSObject {
+public final class ScrollTracker: NSObject, ImpressionConfig {
 
   private let visibilityThreshold: Float
   private let durationThreshold: TimeInterval
@@ -267,6 +267,15 @@ public extension ScrollTracker {
     let origin = scrollView.convert(scrollView.contentOffset, to: collectionView);
     let size = scrollView.frame.size
     viewport = CGRect(origin: origin, size: size)
+  }
+}
+
+// MARK: - ImpressionConfig
+public extension ScrollTracker {
+  @discardableResult
+  func with(sourceType: ImpressionSourceType) -> Self {
+    impressionTracker.with(sourceType: sourceType)
+    return self
   }
 }
 

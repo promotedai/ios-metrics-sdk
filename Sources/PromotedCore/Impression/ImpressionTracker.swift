@@ -80,7 +80,7 @@ public protocol ImpressionTrackerDelegate: AnyObject {
  ```
  */
 @objc(PROImpressionTracker)
-public final class ImpressionTracker: NSObject {
+public final class ImpressionTracker: NSObject, ImpressionConfig {
 
   // MARK: -
   /** Represents an impression of a cell in the collection view. */
@@ -99,15 +99,19 @@ public final class ImpressionTracker: NSObject {
     public var duration: TimeInterval? {
       endTime != nil ? endTime! - startTime : nil
     }
+
+    /// Source type of impression.
+    public let sourceType: ImpressionSourceType
   }
 
-  // MARK: -
+  // MARK: - Properties
   private unowned let metricsLogger: MetricsLogger
 
   private let clock: Clock
   private unowned let monitor: OperationMonitor
   
   private var impressionStarts: [Content: TimeInterval]
+  private var sourceType: ImpressionSourceType
 
   public weak var delegate: ImpressionTrackerDelegate?
 
@@ -118,11 +122,16 @@ public final class ImpressionTracker: NSObject {
     self.clock = deps.clock
     self.monitor = deps.operationMonitor
     self.impressionStarts = [:]
+    self.sourceType = .unknown
   }
+}
+
+// MARK: - Tracking
+public extension ImpressionTracker {
 
   /// Call this method when new items are displayed.
   @objc(collectionViewWillDisplayContent:)
-  public func collectionViewWillDisplay(content: Content) {
+  func collectionViewWillDisplay(content: Content) {
     monitor.execute {
       broadcastStartAndAddImpressions(contents: [content], now: clock.now)
     }
@@ -132,7 +141,7 @@ public final class ImpressionTracker: NSObject {
   /// If an item is reported as hidden that had not previously
   /// been displayed, the impression for that item will be ignored.
   @objc(collectionViewDidHideContent:)
-  public func collectionViewDidHide(content: Content) {
+  func collectionViewDidHide(content: Content) {
     monitor.execute {
       broadcastEndAndRemoveImpressions(contents: [content], now: clock.now)
     }
@@ -142,7 +151,7 @@ public final class ImpressionTracker: NSObject {
   /// does not provide per-item updates for the change. For example,
   /// when a collection reloads.
   @objc(collectionViewDidChangeVisibleContent:)
-  public func collectionViewDidChangeVisibleContent(_ contentArray: [Content]) {
+  func collectionViewDidChangeVisibleContent(_ contentArray: [Content]) {
     monitor.execute {
       let now = clock.now
       let newlyShownContent = contentArray.filter { impressionStarts[$0] == nil }
@@ -155,7 +164,7 @@ public final class ImpressionTracker: NSObject {
   }
 
   /// Call this method when the collection view hides.
-  @objc public func collectionViewDidHideAllContent() {
+  @objc func collectionViewDidHideAllContent() {
     monitor.execute {
       broadcastEndAndRemoveImpressions(contents: impressionStarts.keys, now: clock.now)
     }
@@ -166,25 +175,25 @@ public final class ImpressionTracker: NSObject {
     guard !contents.isEmpty else { return }
     var impressions = [Impression]()
     for content in contents {
-      let impression = Impression(content: content, startTime: now, endTime: nil)
+      let impression = Impression(content: content, startTime: now, endTime: nil, sourceType: sourceType)
       impressions.append(impression)
       impressionStarts[content] = now
     }
     monitor.execute {
       for impression in impressions {
-        metricsLogger.logImpression(content: impression.content)
+        metricsLogger.logImpression(content: impression.content, sourceType: impression.sourceType)
       }
     }
     delegate?.impressionTracker(self, didStartImpressions: impressions)
   }
-  
+
   private func broadcastEndAndRemoveImpressions<T: Collection>(
       contents: T, now: TimeInterval) where T.Element == Content {
     guard !contents.isEmpty else { return }
     var impressions = [Impression]()
     for content in contents {
       guard let start = impressionStarts.removeValue(forKey: content) else { continue }
-      let impression = Impression(content: content, startTime: start, endTime: now)
+      let impression = Impression(content: content, startTime: start, endTime: now, sourceType: sourceType)
       impressions.append(impression)
     }
     // Not calling `metricsLogger`. No logging end impressions for now.
@@ -192,6 +201,16 @@ public final class ImpressionTracker: NSObject {
   }
 }
 
+// MARK: - ImpressionConfig
+public extension ImpressionTracker {
+  @discardableResult
+  func with(sourceType: ImpressionSourceType) -> Self {
+    self.sourceType = sourceType
+    return self
+  }
+}
+
+// MARK: - Impression CustomDebugStringConvertible
 extension ImpressionTracker.Impression: CustomDebugStringConvertible {
   public var debugDescription: String {
     endTime != nil ? "(\(content.description), \(startTime), \(endTime!))"
@@ -199,6 +218,7 @@ extension ImpressionTracker.Impression: CustomDebugStringConvertible {
   }
 }
 
+// MARK: - Impression Hashable
 extension ImpressionTracker.Impression: Hashable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(content)

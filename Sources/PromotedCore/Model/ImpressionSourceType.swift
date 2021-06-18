@@ -16,6 +16,7 @@ public enum ImpressionSourceType: Int {
     case 0: self = .unknown
     case 1: self = .delivery
     case 2: self = .clientBackend
+    default: self = .unknown
     }
   }
 
