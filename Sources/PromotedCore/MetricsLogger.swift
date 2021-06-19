@@ -299,6 +299,8 @@ public extension MetricsLogger {
   }
 
   /// Logs an impression event.
+  /// See also `ImpressionTracker` and `ScrollTracker` for more
+  /// advanced impression tracking methods.
   ///
   /// Autogenerates the following fields:
   /// - `timing` from `clock.nowMillis`
