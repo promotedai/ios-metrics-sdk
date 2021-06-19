@@ -86,7 +86,7 @@ public final class ClientConfig: NSObject {
   }
 
   /// Whether to automatically flush all pending log messages
-  /// when the application enters background.
+  /// when the application resigns active.
   public var flushLoggingOnResignActive: Bool = true
 
   /// Ratio of the view that must be visible to log impression
