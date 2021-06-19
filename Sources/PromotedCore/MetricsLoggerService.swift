@@ -139,7 +139,7 @@ public final class MetricsLoggerService: NSObject {
   }
 }
 
-// MARK: - Startup
+// MARK: - Startup and app lifecycle
 public extension MetricsLoggerService {
   /// Call this to start logging services, prior to accessing `logger`.
   /// Initialization is asynchronous, so this can be called from app
@@ -158,10 +158,21 @@ public extension MetricsLoggerService {
     guard case .pending = startupResult else { return }
     do {
       try module.startLoggingServices()
+      let nc = NotificationCenter.default
+      nc.addObserver(self,
+                     selector: #selector(applicationWillResignActive),
+                     name: UIApplication.willResignActiveNotification,
+                     object: nil)
       startupResult = .success
     } catch {
       startupResult = .failure(error: error)
       throw error
+    }
+  }
+
+  @objc private func applicationWillResignActive() {
+    if config.flushLoggingOnResignActive {
+      metricsLogger?.flush()
     }
   }
 }
