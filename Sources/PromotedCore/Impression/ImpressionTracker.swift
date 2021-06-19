@@ -20,7 +20,11 @@ public protocol ImpressionTrackerDelegate: AnyObject {
  Provides basic impression tracking across scrolling collection views,
  such as `UICollectionView` or `UITableView`. Works best with views that
  can provide fine-grained updates of visible cells, but can also be
- adapted to work with views that don't.
+ adapted to work with views that don't (see `ScrollTracker`).
+
+ Uses `MetricsLogger` to send impression events to backends. You can also
+ use `logImpression()` on `MetricsLogger` directly to send individual
+ impression events if you don't need to track a scrolling collection view.
 
  ## Usage
  `ImpressionTracker` provides only basic impression tracking logic that
@@ -39,9 +43,12 @@ public protocol ImpressionTrackerDelegate: AnyObject {
  ```swift
  class MyViewController: UIViewController {
    var collectionView: UICollectionView
-   var logger: MetricsLogger
    var impressionTracker: ImpressionTracker
  
+   init(...) {
+     impressionTracker = metricsLoggerService.impressionTracker()
+   }
+
    private func content(atIndexPath path: IndexPath) -> Content? {
      let item = path.item
      if item >= self.items.count { return nil }
@@ -57,7 +64,7 @@ public protocol ImpressionTrackerDelegate: AnyObject {
                        willDisplay cell: UICollectionViewCell,
                        forItemAt indexPath: IndexPath) {
      if let content = content(atIndexPath: indexPath) {
-      impressionTracker.collectionViewWillDisplay(content: content)
+       impressionTracker.collectionViewWillDisplay(content: content)
      }
    }
     
