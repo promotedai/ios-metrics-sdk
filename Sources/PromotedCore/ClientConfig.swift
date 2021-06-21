@@ -84,7 +84,11 @@ public final class ClientConfig: NSObject {
   public var loggingFlushInterval: TimeInterval = 10.0 {
     didSet { bound(&loggingFlushInterval, min: 1.0, max: 300.0) }
   }
-  
+
+  /// Whether to automatically flush all pending log messages
+  /// when the application resigns active.
+  public var flushLoggingOnResignActive: Bool = true
+
   /// Ratio of the view that must be visible to log impression
   /// with `ScrollTracker`.
   public var scrollTrackerVisibilityThreshold: Float = 0.5 {

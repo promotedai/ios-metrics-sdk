@@ -158,10 +158,37 @@ public extension MetricsLoggerService {
     guard case .pending = startupResult else { return }
     do {
       try module.startLoggingServices()
+      startObservingApplicationLifecycle()
       startupResult = .success
     } catch {
       startupResult = .failure(error: error)
+      stopObservingApplicationLifecycle()
       throw error
+    }
+  }
+}
+
+// MARK: - Application lifecycle
+private extension MetricsLoggerService {
+
+  private func startObservingApplicationLifecycle() {
+    let nc = NotificationCenter.default
+    nc.addObserver(self,
+                   selector: #selector(applicationWillResignActive),
+                   name: UIApplication.willResignActiveNotification,
+                   object: nil)
+  }
+
+  private func stopObservingApplicationLifecycle() {
+    let nc = NotificationCenter.default
+    nc.removeObserver(self,
+                      name: UIApplication.willResignActiveNotification,
+                      object: nil)
+  }
+
+  @objc private func applicationWillResignActive() {
+    if config.flushLoggingOnResignActive {
+      metricsLogger?.flush()
     }
   }
 }
