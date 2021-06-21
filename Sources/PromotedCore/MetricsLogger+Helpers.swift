@@ -4,11 +4,15 @@ import UIKit
 // MARK: - Impression logging helper methods
 public extension MetricsLogger {
   /// Logs an impression for the given content.
+  /// See also `ImpressionTracker` and `ScrollTracker` for more
+  /// advanced impression tracking methods.
   @objc func logImpression(content: Content) {
     logImpression(content: content, sourceType: .unknown)
   }
 
   /// Logs an impression for the given content and source type.
+  /// See also `ImpressionTracker` and `ScrollTracker` for more
+  /// advanced impression tracking methods.
   @objc func logImpression(content: Content,
                            sourceType: ImpressionSourceType) {
     logImpression(contentID: content.contentID,
