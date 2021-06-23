@@ -65,14 +65,14 @@ typealias AllDeps = InternalDeps &
  protocol has a single property that returns an instance of the
  dependency. The property name should be the class name of the provided
  object in camelCase. For example, for `Clock`, the protocol is:
- ~~~
+ ```swift
  protocol ClockSource {
    var clock: Clock { get }
  }
- ~~~
+ ```
  Next, every class that has dependencies should specify those dependencies
  using these `Source` protocols. For example:
- ~~~
+ ```swift
  class MyClass {
    typealias Deps = ClockSource & OperationMonitorSource
  
@@ -84,7 +84,7 @@ typealias AllDeps = InternalDeps &
      self.monitor = deps.operationMonitor
    }
  }
- ~~~
+ ```
  When using this pattern to retrieve dependencies, as in the above:
  
  1. The owning class may use either owned or unowned references to any
@@ -105,17 +105,17 @@ typealias AllDeps = InternalDeps &
  
  If you're adding an object with no public config and no other dependencies,
  create a new `let` property and expose it using its protocol type.
- ~~~
+ ```swift
  let foo: Foo = MyFooClass()
- ~~~
+ ```
  
  ## Dependencies with other dependencies
  
  If you're adding an object with dependencies, declare it as a
  `private(set) lazy var`. Then you can reference `self`.
- ~~~
+ ```swift
  private(set) lazy var viewTracker: ViewTracker = ViewTracker(deps: self)
- ~~~
+ ```
  
  ## Dependencies with public config
  
@@ -123,7 +123,7 @@ typealias AllDeps = InternalDeps &
  private property to hold the specialization from the module. Then
  declare the dependency property as a `private(set) lazy var` that checks
  the specialization, and then provides a default implementation.
- ~~~
+ ```swift
  public class ModuleConfig: NSObject {
    public var networkConnection: NetworkConnection? = nil
  }
@@ -139,16 +139,16 @@ typealias AllDeps = InternalDeps &
      self.networkConnectionSpec = networkConnection
    }
  }
- ~~~
+ ```
  
  ## Computed dependencies
  
  Use a normal computed property for these.
- ~~~
+ ```swift
  var clientConfig: ClientConfig {
    clientConfigService.config
  }
- ~~~
+ ```
 
  # Testing
  
@@ -190,7 +190,7 @@ final class Module: AllDeps {
   }
 
   private(set) lazy var osLogSource: OSLogSource? =
-    clientConfig.osLogEnabled ? SystemOSLogSource() : nil
+    clientConfig.osLogLevel > .none ? SystemOSLogSource(deps: self) : nil
 
   private(set) lazy var persistentStore: PersistentStore =
     persistentStoreSpec ?? UserDefaultsPersistentStore()
@@ -201,7 +201,7 @@ final class Module: AllDeps {
   private(set) lazy var viewTracker: ViewTracker = ViewTracker(deps: self)
 
   private(set) lazy var xray: Xray? =
-    clientConfig.xrayEnabled ? Xray(deps: self) : nil
+    clientConfig.xrayLevel > .none ? Xray(deps: self) : nil
 
   convenience init(moduleConfig: ModuleConfig) {
     self.init(initialConfig: moduleConfig.initialConfig,
@@ -236,7 +236,8 @@ final class Module: AllDeps {
     _ = analytics
     try analyticsConnection?.startServices()
     try clientConfigService.fetchClientConfig()
-    if clientConfig.xrayEnabled {
+    // Initialize Xray as an OperationMonitorListener.
+    if clientConfig.xrayLevel > .none {
       _ = xray
     }
   }

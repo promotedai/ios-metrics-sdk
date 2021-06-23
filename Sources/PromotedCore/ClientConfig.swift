@@ -106,20 +106,65 @@ public final class ClientConfig: NSObject {
   public var scrollTrackerUpdateFrequency: TimeInterval = 0.5 {
     didSet { bound(&scrollTrackerUpdateFrequency, min: 0.1, max: 30.0) }
   }
-  
-  /// Whether to enable Xray profiling for this session.
-  @objc public var xrayEnabled: Bool = false
 
-  /// Whether to include call stacks on Xray profiles.
-  /// Call stacks are expensive to compute.
-  @objc public var xrayExpensiveThreadCallStacksEnabled: Bool = false
+  @objc(PROXrayLevel)
+  public enum XrayLevel: Int, Comparable {
+    // Don't gather any Xray stats data at all.
+    case none = 0
+    // Gather overall counts for the session for each batch.
+    // ie. batches: 40, batches sent successfully: 39, errors: 1
+    case batchSummaries = 1
+    // Gather stats and logged messages for each call made
+    // to the metrics library.
+    case callDetails = 2
+    // Gathers stats and logged messages for each call made
+    // to the metrics library, as well as stack traces where the
+    // calls were made.
+    case callDetailsAndStackTraces = 3
+  }
+  /// Level of Xray profiling for this session.
+  @objc public var xrayLevel: XrayLevel = .none {
+    didSet {
+      if xrayLevel == .none && diagnosticsIncludeBatchSummaries {
+        diagnosticsIncludeBatchSummaries = false
+      }
+    }
+  }
 
-  /// Whether to use OSLog to output messages.
+  @objc(PROOSLogLevel)
+  public enum OSLogLevel: Int, Comparable {
+    /// No logging for anything.
+    case none = 0
+    /// Logging only for errors.
+    case error = 1
+    /// Logging for errors and warnings.
+    case warning = 2
+    /// Logging for debug messages (and above).
+    case debug = 3
+    /// Logging for info messages (and above).
+    case info = 4
+  }
+  /// Whether to use OSLog (console logging) to output messages.
   /// OSLog typically incurs minimal overhead and can be useful for
   /// verifying that logging works from the client side.
-  /// If `xrayEnabled` is also set, then setting `osLogEnabled`
-  /// turns on signposts in Instruments.
-  @objc public var osLogEnabled: Bool = false
+  /// If `xrayEnabled` is also set, then setting `osLogLevel`
+  /// to `info` or higher turns on signposts in Instruments.
+  @objc public var osLogLevel: OSLogLevel = .none
+
+  /// Whether mobile diagnostic messages include batch summaries
+  /// from Xray. Setting this to `true` also forces `xrayLevel` to
+  /// be at least `.batchSummaries`.
+  @objc public var diagnosticsIncludeBatchSummaries: Bool = false {
+    didSet {
+      if diagnosticsIncludeBatchSummaries && xrayLevel == .none {
+        xrayLevel = .batchSummaries
+      }
+    }
+  }
+
+  /// Whether mobile diagnostic messages include a history of
+  /// ancestor IDs being set for the session.
+  @objc public var diagnosticsIncludeAncestorIDHistory: Bool = false
 
   @objc public override init() {}
   
@@ -136,9 +181,10 @@ public final class ClientConfig: NSObject {
     self.scrollTrackerVisibilityThreshold = config.scrollTrackerVisibilityThreshold
     self.scrollTrackerDurationThreshold = config.scrollTrackerDurationThreshold
     self.scrollTrackerUpdateFrequency = config.scrollTrackerUpdateFrequency
-    self.xrayEnabled = config.xrayEnabled
-    self.xrayExpensiveThreadCallStacksEnabled = config.xrayExpensiveThreadCallStacksEnabled
-    self.osLogEnabled = config.osLogEnabled
+    self.xrayLevel = config.xrayLevel
+    self.osLogLevel = config.osLogLevel
+    self.diagnosticsIncludeBatchSummaries = config.diagnosticsIncludeBatchSummaries
+    self.diagnosticsIncludeAncestorIDHistory = config.diagnosticsIncludeAncestorIDHistory
   }
 
   func bound<T: Comparable>(_ value: inout T, min: T? = nil, max: T? = nil,
@@ -174,4 +220,9 @@ public final class ClientConfig: NSObject {
 protocol ClientConfigSource {
   var clientConfig: ClientConfig { get }
   var initialConfig: ClientConfig { get }
+}
+
+public func < <T: RawRepresentable>(a: T, b: T) -> Bool
+  where T.RawValue: Comparable {
+  return a.rawValue < b.rawValue
 }
