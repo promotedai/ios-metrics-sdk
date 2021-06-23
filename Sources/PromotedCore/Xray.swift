@@ -1,6 +1,7 @@
 import Foundation
 import SwiftProtobuf
 import os.log
+import SwiftUI
 
 /**
  Exposes internals of PromotedAIMetricsSDK workings so that clients
@@ -163,7 +164,8 @@ public final class Xray: NSObject {
   private var pendingBatch: NetworkBatch?
   
   private let clock: Clock
-  private let callStacksEnabled: Bool
+  private let xrayLevel: ClientConfig.XrayLevel
+  private let osLogLevel: ClientConfig.OSLogLevel
   private let osLog: OSLog?
 
   typealias Deps = ClockSource & ClientConfigSource &
@@ -171,7 +173,8 @@ public final class Xray: NSObject {
 
   init(deps: Deps) {
     self.clock = deps.clock
-    self.callStacksEnabled = deps.clientConfig.xrayExpensiveThreadCallStacksEnabled
+    self.xrayLevel = deps.clientConfig.xrayLevel
+    self.osLogLevel = deps.clientConfig.osLogLevel
     self.osLog = deps.osLog(category: "Xray")
 
     self.networkBatchWindowSize = 10
@@ -195,9 +198,10 @@ protocol XraySource {
 fileprivate extension Xray {
 
   private func callWillStart(context: String) {
+    guard xrayLevel >= .callDetails else { return }
     let call = Call()
     call.context = context
-    if callStacksEnabled {
+    if xrayLevel >= .callDetailsAndStackTraces {
       // Thread.callStackSymbols is slow.
       // Make sure startTime measurement comes after this.
       call.callStack = Thread.callStackSymbols
@@ -208,12 +212,14 @@ fileprivate extension Xray {
   }
   
   private func callDidLog(message: Message) {
+    guard xrayLevel >= .callDetails else { return }
     osLog?.signpostEvent(name: "call", format: "log")
     guard let lastCall = pendingCalls.last else { return }
     lastCall.messages.append(message)
   }
 
   private func callDidError(_ error: Error) {
+    guard xrayLevel >= .callDetails else { return }
     osLog?.signpostEvent(name: "call", format: "error: %{public}@",
                          error.localizedDescription)
     guard let lastCall = pendingCalls.last else { return }
@@ -221,6 +227,7 @@ fileprivate extension Xray {
   }
 
   private func callDidComplete() {
+    guard xrayLevel >= .callDetails else { return }
     osLog?.signpostEnd(name: "call")
     guard let lastCall = pendingCalls.last else { return }
     lastCall.endTime = clock.now
@@ -305,7 +312,7 @@ fileprivate extension Xray {
     if excess > 0 {
       // networkBatches.removeFirst(k) is O(networkBatches.count).
       // Not worth optimizing right now, but could use a circular
-      // buffer to avoid this.
+      // buffer (available in Swift 5.5!) to avoid this.
       networkBatches.removeFirst(excess)
     }
   }
@@ -313,13 +320,28 @@ fileprivate extension Xray {
   private func logBatchResponseCompleteStats() {
     guard let osLog = osLog else { return }
     if Self.timingMayBeInaccurate {
-      osLog.info("WARNING: Timing may be inaccurate when running in debug or simulator.")
+      osLog.debug("WARNING: Timing may be inaccurate when running in debug or simulator.")
     }
     if let batch = networkBatches.last {
-      osLog.info("Latest batch: %{private}@", String(describing: batch))
+      osLog.debug("Latest batch: %{private}@", String(describing: batch))
+      if osLogLevel >= .info {
+        let formatter = TabularLogFormatter()
+        formatter.addField(name: "Context", width: 20, alignment: .left)
+        formatter.addField(name: "Millis", width: 10, alignment: .right)
+        formatter.addField(name: "Msg Count", width: 10, alignment: .right)
+        formatter.addField(name: "Msg Bytes", width: 10, alignment: .right)
+        formatter.addField(name: "Summary", width: 30, alignment: .left)
+        for call in batch.calls {
+          formatter.addRow(call.context,
+                           call.timeSpent.millis,
+                           call.messages.count,
+                           call.messagesSizeBytes)
+        }
+        osLog.info(formatter)
+      }
     }
-    osLog.info("Total: %{public}lld ms, %{public}lld bytes, %{public}d requests",
-               totalTimeSpent.millis, totalBytesSent, totalRequestsMade)
+    osLog.debug("Total: %{public}lld ms, %{public}lld bytes, %{public}d requests",
+                totalTimeSpent.millis, totalBytesSent, totalRequestsMade)
   }
 }
 
@@ -396,7 +418,7 @@ extension Xray.NetworkBatch {
 
   public override var debugDescription: String {
     let callCount = calls.count
-    let eventCount = calls.flatMap { $0.messages }.count
+    let eventCount = calls.flatMap(\.messages).count
     let messageSize = messageSizeBytes
     return "(\(timeSpentAcrossCalls.millis) ms, \(callCount) calls, " +
            "\(eventCount) events, \(messageSize) bytes)"
