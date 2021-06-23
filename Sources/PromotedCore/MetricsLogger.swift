@@ -229,7 +229,7 @@ public extension MetricsLogger {
 }
 
 // MARK: - Internal methods
-fileprivate extension MetricsLogger {
+extension MetricsLogger {
   private func deviceMessage() -> Event_Device {
     var device = Event_Device()
     if let type = deviceInfo.deviceType.protoValue { device.deviceType = type }
@@ -258,7 +258,7 @@ fileprivate extension MetricsLogger {
     return userInfo
   }
   
-  private func timingMessage() -> Common_Timing {
+  func timingMessage() -> Common_Timing {
     var timing = Common_Timing()
     timing.clientLogTimestamp = UInt64(clock.nowMillis)
     return timing

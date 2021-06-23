@@ -69,6 +69,8 @@ public final class Xray: NSObject {
   /** Batched logging call. */
   @objc(PROXrayNetworkBatch)
   public final class NetworkBatch: NSObject {
+
+    @objc public fileprivate(set) var batchNumber: Int = 0
     
     /// Start time for batch flush.
     @objc public fileprivate(set) var startTime: TimeInterval = 0
@@ -122,9 +124,9 @@ public final class Xray: NSObject {
   
   public static var timingMayBeInaccurate: Bool {
     #if DEBUG || targetEnvironment(simulator)
-    return true
+      return true
     #else
-    return false
+      return false
     #endif
   }
   
@@ -143,11 +145,17 @@ public final class Xray: NSObject {
   /// counted in this size.
   @objc public private(set) var totalBytesSent: UInt64
 
-  /// Total number of requests sent across network.
-  @objc public private(set) var totalRequestsMade: Int
-
   /// Total time spent in Promoted logging code.
   @objc public private(set) var totalTimeSpent: TimeInterval
+
+  @objc public private(set) var totalErrors: Int
+
+  @objc public private(set) var batchesAttempted: Int
+
+  /// Total number of requests sent across network.
+  @objc public private(set) var batchesSentSuccessfully: Int
+
+  @objc public private(set) var batchesWithErrors: Int
 
   /// Most recent network batches.
   @objc public private(set) var networkBatches: [NetworkBatch]
@@ -179,8 +187,11 @@ public final class Xray: NSObject {
 
     self.networkBatchWindowSize = 10
     self.totalBytesSent = 0
-    self.totalRequestsMade = 0
     self.totalTimeSpent = 0
+    self.totalErrors = 0
+    self.batchesAttempted = 0
+    self.batchesSentSuccessfully = 0
+    self.batchesWithErrors = 0
     self.networkBatches = []
     self.pendingCalls = []
     self.pendingBatch = nil
@@ -224,6 +235,7 @@ fileprivate extension Xray {
                          error.localizedDescription)
     guard let lastCall = pendingCalls.last else { return }
     lastCall.error = error
+    totalErrors += 1
   }
 
   private func callDidComplete() {
@@ -243,7 +255,9 @@ fileprivate extension Xray {
       // any network calls.
       add(batch: leftoverBatch)
     }
+    batchesAttempted += 1
     let pendingBatch = NetworkBatch()
+    pendingBatch.batchNumber = batchesAttempted
     pendingBatch.startTime = clock.now
     pendingBatch.calls = pendingCalls
     self.pendingBatch = pendingBatch
@@ -270,6 +284,7 @@ fileprivate extension Xray {
                          error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.error = error
+    totalErrors += 1
   }
 
   private func batchDidComplete() {
@@ -289,6 +304,8 @@ fileprivate extension Xray {
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.networkEndTime = clock.now
     pendingBatch.error = error
+    batchesWithErrors += 1
+    totalErrors += 1
   }
 
   private func batchResponseDidComplete() {
@@ -296,7 +313,7 @@ fileprivate extension Xray {
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.networkEndTime = clock.now
     totalBytesSent += pendingBatch.messageSizeBytes
-    totalRequestsMade += 1
+    batchesSentSuccessfully += 1
     add(batch: pendingBatch)
     self.pendingBatch = nil
     logBatchResponseCompleteStats()
@@ -318,15 +335,15 @@ fileprivate extension Xray {
   }
 
   private func logBatchResponseCompleteStats() {
-    guard let osLog = osLog else { return }
+    guard osLogLevel >= .info, let osLog = osLog else { return }
     if Self.timingMayBeInaccurate {
-      osLog.debug("WARNING: Timing may be inaccurate when running in debug or simulator.")
+      osLog.info("WARNING: Timing may be inaccurate when running in debug or simulator.")
     }
     if let batch = networkBatches.last {
-      osLog.debug("Latest batch: %{private}@", String(describing: batch))
+      osLog.info("Latest batch: %{private}@", String(describing: batch))
       if osLogLevel >= .info {
         let formatter = TabularLogFormatter()
-        formatter.addField(name: "Context", width: 20, alignment: .left)
+        formatter.addField(name: "Context", width: 25, alignment: .left)
         formatter.addField(name: "Millis", width: 10, alignment: .right)
         formatter.addField(name: "Msg Count", width: 10, alignment: .right)
         formatter.addField(name: "Msg Bytes", width: 10, alignment: .right)
@@ -335,13 +352,14 @@ fileprivate extension Xray {
           formatter.addRow(call.context,
                            call.timeSpent.millis,
                            call.messages.count,
-                           call.messagesSizeBytes)
+                           call.messagesSizeBytes,
+                           call.messages.map { String(describing: type(of: $0)) }.joined(separator: ", "))
         }
         osLog.info(formatter)
       }
     }
-    osLog.debug("Total: %{public}lld ms, %{public}lld bytes, %{public}d requests",
-                totalTimeSpent.millis, totalBytesSent, totalRequestsMade)
+    osLog.info("Total: %{public}lld ms, %{public}lld bytes, %{public}d requests",
+               totalTimeSpent.millis, totalBytesSent, batchesSentSuccessfully)
   }
 }
 
