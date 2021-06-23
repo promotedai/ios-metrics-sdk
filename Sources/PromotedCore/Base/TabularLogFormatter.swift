@@ -7,7 +7,7 @@ class TabularLogFormatter {
     case right
   }
 
-  fileprivate struct FieldFormat {
+  private struct FieldFormat {
     let name: String
 
     let width: Int
@@ -23,7 +23,7 @@ class TabularLogFormatter {
     }
   }
 
-  struct Row {
+  private struct Row {
     let values: [Any]
   }
 
@@ -64,12 +64,12 @@ class TabularLogFormatter {
     result.append(String(repeating: "-", count: header.count))
 
     for row in rows {
-      var rowStrings: [String] = []
+      var rowValueStrings: [String] = []
       for (field, value) in zip(fields, row.values) {
-        rowStrings.append(field.columnFormatted(value: value))
+        rowValueStrings.append(field.columnFormatted(value: value))
       }
       var rowString = leftPadding
-      rowString += rowStrings.joined(separator: columnDelimiter)
+      rowString += rowValueStrings.joined(separator: columnDelimiter)
       rowString += rightPadding
       result.append(rowString)
     }

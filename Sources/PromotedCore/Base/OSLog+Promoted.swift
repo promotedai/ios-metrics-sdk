@@ -90,22 +90,22 @@ extension OSLog {
 extension OSLog {
   func error(_ formatter: TabularLogFormatter) {
     guard shouldLog(.error) else { return }
-    os_log("%{private}s", log: self, type: .error, formatter.asNewlineJoinedString())
+    os_log("\n%{private}s", log: self, type: .error, formatter.asNewlineJoinedString())
   }
 
   func warning(_ formatter: TabularLogFormatter) {
     guard shouldLog(.warning) else { return }
-    os_log("%{private}s", log: self, type: .error, formatter.asNewlineJoinedString())
+    os_log("\n%{private}s", log: self, type: .error, formatter.asNewlineJoinedString())
   }
 
   func debug(_ formatter: TabularLogFormatter) {
     guard shouldLog(.debug) else { return }
-    os_log("%{private}s", log: self, type: .debug, formatter.asNewlineJoinedString())
+    os_log("\n%{private}s", log: self, type: .debug, formatter.asNewlineJoinedString())
   }
 
   func info(_ formatter: TabularLogFormatter) {
     guard shouldLog(.info) else { return }
-    os_log("%{private}s", log: self, type: .info, formatter.asNewlineJoinedString())
+    os_log("\n%{private}s", log: self, type: .info, formatter.asNewlineJoinedString())
   }
 }
 
