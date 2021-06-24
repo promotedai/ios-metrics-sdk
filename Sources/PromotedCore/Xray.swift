@@ -84,6 +84,8 @@ public final class Xray: NSObject {
 
     /// Time spent in Promoted code for batch flush and all calls
     /// contained therein.
+    /// When `xrayLevel` is `.batchSummaries`, this does not
+    /// include time spent in individual calls.
     @objc public var timeSpentAcrossCalls: TimeInterval {
       timeSpent + calls.map(\.timeSpent).reduce(0, +)
     }
@@ -111,12 +113,12 @@ public final class Xray: NSObject {
     @objc public fileprivate(set) var calls: [Call] = []
 
     /// Errors that resulted from this batch.
-    @objc public fileprivate(set) var error: Error? = nil
+    @objc public fileprivate(set) var errors: [Error] = []
 
     /// Errors that arose from this batch and across all calls
     /// contained therein.
     @objc public var errorsAcrossCalls: [Error] {
-      calls.compactMap(\.error) + [error].compactMap { $0 }
+      calls.compactMap(\.error) + errors
     }
   }
   
@@ -146,16 +148,24 @@ public final class Xray: NSObject {
   @objc public private(set) var totalBytesSent: UInt64
 
   /// Total time spent in Promoted logging code.
+  /// When `xrayLevel` is `.batchSummaries`, this does not
+  /// include time spent in individual calls.
   @objc public private(set) var totalTimeSpent: TimeInterval
 
+  /// Total number of errors encountered at any time during
+  /// Promoted logging.
   @objc public private(set) var totalErrors: Int
 
+  /// Total number of requests attempted.
   @objc public private(set) var batchesAttempted: Int
 
   /// Total number of requests sent across network.
   @objc public private(set) var batchesSentSuccessfully: Int
 
+  /// Total number of batches that had errors.
   @objc public private(set) var batchesWithErrors: Int
+
+  var currentBatchNumber: Int { batchesAttempted + 1 }
 
   /// Most recent network batches.
   @objc public private(set) var networkBatches: [NetworkBatch]
@@ -180,6 +190,8 @@ public final class Xray: NSObject {
       OperationMonitorSource & OSLogSource
 
   init(deps: Deps) {
+    assert(deps.clientConfig.xrayLevel != .none)
+
     self.clock = deps.clock
     self.xrayLevel = deps.clientConfig.xrayLevel
     self.osLogLevel = deps.clientConfig.osLogLevel
@@ -230,12 +242,18 @@ fileprivate extension Xray {
   }
 
   private func callDidError(_ error: Error) {
-    guard xrayLevel >= .callDetails else { return }
+    totalErrors += 1
+    if xrayLevel == .batchSummaries {
+      // Create a call and record only the error.
+      let call = Call()
+      call.error = error
+      pendingCalls.append(call)
+      return
+    }
     osLog?.signpostEvent(name: "call", format: "error: %{public}@",
                          error.localizedDescription)
     guard let lastCall = pendingCalls.last else { return }
     lastCall.error = error
-    totalErrors += 1
   }
 
   private func callDidComplete() {
@@ -259,7 +277,13 @@ fileprivate extension Xray {
     let pendingBatch = NetworkBatch()
     pendingBatch.batchNumber = batchesAttempted
     pendingBatch.startTime = clock.now
-    pendingBatch.calls = pendingCalls
+    if xrayLevel == .batchSummaries {
+      // Calls contain only errors when xrayLevel == .batchSummaries.
+      // Don't record the calls as they are otherwise empty.
+      pendingBatch.errors = pendingCalls.compactMap(\.error)
+    } else {
+      pendingBatch.calls = pendingCalls
+    }
     self.pendingBatch = pendingBatch
     self.pendingCalls.removeAll()
     osLog?.signpostBegin(name: "batch")
@@ -283,7 +307,7 @@ fileprivate extension Xray {
     osLog?.signpostEvent(name: "batch", format: "error: %{public}@",
                          error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
-    pendingBatch.error = error
+    pendingBatch.errors.append(error)
     totalErrors += 1
   }
 
@@ -292,7 +316,7 @@ fileprivate extension Xray {
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.endTime = clock.now
     totalTimeSpent += pendingBatch.timeSpentAcrossCalls
-    if pendingBatch.error != nil {
+    if !pendingBatch.errors.isEmpty {
       add(batch: pendingBatch)
       self.pendingBatch = nil
     }
@@ -303,7 +327,7 @@ fileprivate extension Xray {
                          error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.networkEndTime = clock.now
-    pendingBatch.error = error
+    pendingBatch.errors.append(error)
     batchesWithErrors += 1
     totalErrors += 1
   }
@@ -341,25 +365,81 @@ fileprivate extension Xray {
     }
     if let batch = networkBatches.last {
       osLog.info("Latest batch: %{private}@", String(describing: batch))
-      if osLogLevel >= .info {
-        let formatter = TabularLogFormatter()
-        formatter.addField(name: "Context", width: 25, alignment: .left)
-        formatter.addField(name: "Millis", width: 10, alignment: .right)
-        formatter.addField(name: "Msg Count", width: 10, alignment: .right)
-        formatter.addField(name: "Msg Bytes", width: 10, alignment: .right)
-        formatter.addField(name: "Summary", width: 30, alignment: .left)
-        for call in batch.calls {
-          formatter.addRow(call.context,
-                           call.timeSpent.millis,
-                           call.messages.count,
-                           call.messagesSizeBytes,
-                           call.messages.map { String(describing: type(of: $0)) }.joined(separator: ", "))
-        }
-        osLog.info(formatter)
+      #if DEBUG
+      if osLogLevel >= .debug {
+        logOperationSummaryTable(batch: batch)
+        logMessageSummaryTable(batch: batch)
       }
+      #endif
     }
     osLog.info("Total: %{public}lld ms, %{public}lld bytes, %{public}d requests",
                totalTimeSpent.millis, totalBytesSent, batchesSentSuccessfully)
+  }
+
+  private func logOperationSummaryTable(batch: NetworkBatch) {
+    guard osLogLevel >= .debug, let osLog = osLog else { return }
+    let formatter = TabularLogFormatter(name:"Operations in Batch \(batch.batchNumber)")
+    formatter.addField(name: "Context", width: 25, alignment: .left)
+    formatter.addField(name: "Millis", width: 10, alignment: .right)
+    formatter.addField(name: "Msg Count", width: 10, alignment: .right)
+    formatter.addField(name: "Msg Bytes", width: 10, alignment: .right)
+    formatter.addField(name: "Summary", width: 30, alignment: .left)
+    for call in batch.calls {
+      let summary = call.messages.map { message in
+        switch message {
+        case let view as Event_View:
+          return "View(\(view.name), \(view.viewID.suffix(4)))"
+        case let impression as Event_Impression:
+          return "Imp(\(impression.impressionID.suffix(4)))"
+        case let action as Event_Action:
+          return "Act(\(action.name), \(action.actionID.suffix(4)))"
+        default:
+          return message.loggingName
+        }
+      }.joined(separator: ", ")
+      formatter.addRow(call.context,
+                       call.timeSpent.millis,
+                       call.messages.count,
+                       call.messagesSizeBytes,
+                       summary)
+    }
+    osLog.debug(formatter)
+  }
+
+  private func logMessageSummaryTable(batch: NetworkBatch) {
+    guard osLogLevel >= .debug, let osLog = osLog else { return }
+    let formatter = TabularLogFormatter(name:"Messages in Batch \(batch.batchNumber)")
+    formatter.addField(name: "Type", width: 10)
+    formatter.addField(name: "Name", width: 25)
+    formatter.addField(name: "LogUserID", width: 20)
+    formatter.addField(name: "ViewID", width: 20)
+    formatter.addField(name: "ImpressionID", width: 20)
+    formatter.addField(name: "ActionID", width: 20)
+    let logUserID = (batch.message as? Event_LogRequest)?.userInfo.logUserID ?? "-"
+    for message in batch.calls.flatMap(\.messages) {
+      let type = message.loggingName
+      switch message {
+      case let view as Event_View:
+        formatter.addRow(type, view.name, logUserID, view.viewID, "-", "-")
+      case let impression as Event_Impression:
+        formatter.addRow(type, "-", logUserID, impression.viewID,
+                         impression.impressionID, "-")
+      case let action as Event_Action:
+        formatter.addRow(type, action.name, logUserID, action.viewID,
+                         action.impressionID, action.actionID)
+      default:
+        formatter.addRow(type, "-", "-", "-", "-", "-")
+      }
+    }
+    osLog.debug(formatter)
+  }
+}
+
+extension Message {
+  var loggingName: String {
+    return String(describing: type(of: self))
+      .replacingOccurrences(of: "Event_", with: "")
+      .replacingOccurrences(of: "Delivery_", with: "")
   }
 }
 

@@ -139,10 +139,10 @@ public final class ClientConfig: NSObject {
     case error = 1
     /// Logging for errors and warnings.
     case warning = 2
-    /// Logging for debug messages (and above).
-    case debug = 3
     /// Logging for info messages (and above).
-    case info = 4
+    case info = 3
+    /// Logging for debug messages (and above).
+    case debug = 4
   }
   /// Whether to use OSLog (console logging) to output messages.
   /// OSLog typically incurs minimal overhead and can be useful for
@@ -165,6 +165,11 @@ public final class ClientConfig: NSObject {
   /// Whether mobile diagnostic messages include a history of
   /// ancestor IDs being set for the session.
   @objc public var diagnosticsIncludeAncestorIDHistory: Bool = false
+
+  var anyDiagnosticsEnabled: Bool {
+    diagnosticsIncludeBatchSummaries ||
+      diagnosticsIncludeAncestorIDHistory
+  }
 
   @objc public override init() {}
   

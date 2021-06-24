@@ -201,7 +201,8 @@ final class Module: AllDeps {
   private(set) lazy var viewTracker: ViewTracker = ViewTracker(deps: self)
 
   private(set) lazy var xray: Xray? =
-    clientConfig.xrayLevel > .none ? Xray(deps: self) : nil
+    (clientConfig.xrayLevel > .none || clientConfig.diagnosticsIncludeBatchSummaries) ?
+    Xray(deps: self) : nil
 
   convenience init(moduleConfig: ModuleConfig) {
     self.init(initialConfig: moduleConfig.initialConfig,
@@ -237,8 +238,6 @@ final class Module: AllDeps {
     try analyticsConnection?.startServices()
     try clientConfigService.fetchClientConfig()
     // Initialize Xray as an OperationMonitorListener.
-    if clientConfig.xrayLevel > .none {
-      _ = xray
-    }
+    _ = xray
   }
 }

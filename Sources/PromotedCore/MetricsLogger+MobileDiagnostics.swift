@@ -1,9 +1,11 @@
 import Foundation
 import SwiftProtobuf
+import UIKit
 
 extension MetricsLogger {
 
-  func fillDiagnostics(in diagnostics: inout Event_MobileDiagnostics, xray: Xray) {
+  func mobileDiagnosticsMessage() -> Event_MobileDiagnostics {
+    var diagnostics = Event_MobileDiagnostics()
     diagnostics.timing = timingMessage()
     if let id = UIDevice.current.identifierForVendor?.uuidString {
       diagnostics.deviceIdentifier = id
@@ -11,9 +13,13 @@ extension MetricsLogger {
     let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "Unknown"
     let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") ?? "Unknown"
     diagnostics.clientVersion = "\(appVersion) \(buildNumber)"
-    let promotedLibraryBundle = Bundle(for: MetricsLogger.self)
-    let promotedVersion = promotedLibraryBundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
+    let promotedBundle = Bundle(for: MetricsLogger.self)
+    let promotedVersion = promotedBundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
     diagnostics.promotedLibraryVersion = promotedVersion
+    return diagnostics
+  }
+
+  func fillDiagnostics(in diagnostics: inout Event_MobileDiagnostics, xray: Xray) {
     diagnostics.batchesAttempted = Int32(xray.batchesAttempted)
     diagnostics.batchesSentSuccessfully = Int32(xray.batchesSentSuccessfully)
     diagnostics.batchesWithErrors = Int32(xray.batchesWithErrors)
@@ -32,7 +38,9 @@ extension MetricsLogger {
     errorHistory.totalErrors = Int32(xray.totalErrors)
   }
 
-  func fillAncestorIDHistory(in diagnostics: Event_MobileDiagnostics) {
-
+  func fillAncestorIDHistory(in diagnostics: inout Event_MobileDiagnostics) {
+    var history = Event_AncestorIdHistory()
+    // TODO
+    diagnostics.ancestorIDHistory = history
   }
 }

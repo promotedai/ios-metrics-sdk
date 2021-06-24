@@ -24,7 +24,7 @@ extension TimeInterval {
 
 // MARK: -
 /** Represents a way to get time and perform scheduling of tasks. */
-protocol Clock {
+protocol Clock: AnyObject {
   
   /// Returns time for use with timestamps or interval measurement.
   var now: TimeInterval { get }
