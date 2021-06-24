@@ -123,6 +123,8 @@ public final class ClientConfig: NSObject {
     case callDetailsAndStackTraces = 3
   }
   /// Level of Xray profiling for this session.
+  /// Setting this to `.none` also forces
+  /// `diagnosticsIncludeBatchSummaries` to be false.
   @objc public var xrayLevel: XrayLevel = .none {
     didSet {
       if xrayLevel == .none && diagnosticsIncludeBatchSummaries {
