@@ -24,14 +24,14 @@ final class ViewTracker {
       }
     }
   }
-  
+
   fileprivate typealias Stack = [State]
 
   private let viewIDProducer: IDProducer
   private var viewStack: Stack
   private let uiState: UIState
   private let isReactNativeHint: Bool
-  
+
   var viewID: String? {
     get { viewIDProducer.currentValue }
     set { viewIDProducer.currentValue = newValue }

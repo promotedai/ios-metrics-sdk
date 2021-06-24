@@ -1,7 +1,7 @@
 import Foundation
 
 // MARK: - DeviceInfo
-protocol DeviceInfo {
+protocol DeviceInfo: AnyObject {
   var deviceType: DeviceType { get }
   var brand: String { get }
   var manufacturer: String { get }

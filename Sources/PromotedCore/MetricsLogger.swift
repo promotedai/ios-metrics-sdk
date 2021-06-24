@@ -48,12 +48,15 @@ import os.log
 @objc(PROMetricsLogger)
 public final class MetricsLogger: NSObject {
 
-  private let clock: Clock
-  private let config: ClientConfig
-  private let connection: NetworkConnection
-  private let deviceInfo: DeviceInfo
-  private let idMap: IDMap
-  private let store: PersistentStore
+  private unowned let clock: Clock
+  private unowned let config: ClientConfig
+  private unowned let connection: NetworkConnection
+  private unowned let deviceInfo: DeviceInfo
+  private unowned let idMap: IDMap
+  private unowned let monitor: OperationMonitor
+  private let osLog: OSLog?
+  private unowned let store: PersistentStore
+  private unowned let xray: Xray?
 
   private var logMessages: [Message]
   
@@ -67,18 +70,15 @@ public final class MetricsLogger: NSObject {
   
   private let logUserIDProducer: IDProducer
   private let sessionIDProducer: IDProducer
-  let viewTracker: ViewTracker
+  unowned let viewTracker: ViewTracker
   private var needsViewStateCheck: Bool
-
-  private unowned let monitor: OperationMonitor
-  private let osLog: OSLog?
 
   private lazy var cachedDeviceMessage: Event_Device = deviceMessage()
   private lazy var cachedLocaleMessage: Event_Locale = localeMessage()
 
   typealias Deps = ClientConfigSource & ClockSource & NetworkConnectionSource &
                    DeviceInfoSource & IDMapSource & OperationMonitorSource &
-                   OSLogSource & PersistentStoreSource & ViewTrackerSource
+                   OSLogSource & PersistentStoreSource & ViewTrackerSource & XraySource
 
   init(deps: Deps) {
     self.clock = deps.clock
@@ -89,6 +89,7 @@ public final class MetricsLogger: NSObject {
     self.monitor = deps.operationMonitor
     self.store = deps.persistentStore
     self.osLog = deps.osLog(category: "MetricsLogger")
+    self.xray = deps.xray
 
     self.logMessages = []
     self.userID = nil
@@ -479,9 +480,19 @@ public extension MetricsLogger {
       case let action as Event_Action:
         logRequest.action.append(action)
       default:
-        osLog?.debug("Unknown event: %{private}@", String(describing: event))
+        osLog?.warning("flush/logRequestMessage: Unknown event: %{private}@", String(describing: event))
         monitor.executionDidError(MetricsLoggerError.unexpectedEvent(event))
       }
+    }
+    if config.anyDiagnosticsEnabled {
+      var diagnostics = mobileDiagnosticsMessage()
+      if config.diagnosticsIncludeBatchSummaries, let xray = xray {
+        fillDiagnostics(in: &diagnostics, xray: xray)
+      }
+      if config.diagnosticsIncludeAncestorIDHistory {
+        fillAncestorIDHistory(in: &diagnostics)
+      }
+      logRequest.mobileDiagnostics = diagnostics
     }
     return logRequest
   }
@@ -523,7 +534,7 @@ public extension MetricsLogger {
         monitor.executionDidLog()
       }
       if let e = error {
-        osLog?.error("flush/sendMessage: %{public}@", e.localizedDescription)
+        osLog?.error("flush/response: %{public}@", e.localizedDescription)
         monitor.executionDidError(e)
       }
     }

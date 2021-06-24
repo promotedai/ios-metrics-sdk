@@ -30,14 +30,16 @@ class TabularLogFormatter {
   private var fields: [FieldFormat]
   private var rows: [Row]
 
+  public let name: String
   public var leftPadding: Int = 1
   public var rightPadding: Int = 1
   public var columnPadding: Int = 1
   public var columnSeparator: String = "|"
 
-  init() {
-    fields = []
-    rows = []
+  init(name: String) {
+    self.name = name
+    self.fields = []
+    self.rows = []
   }
 
   func addField(name: String, width: Int = 10, alignment: Alignment = .left) {
@@ -51,7 +53,7 @@ class TabularLogFormatter {
   }
 
   func asStringArray() -> [String] {
-    var result: [String] = []
+    var result: [String] = [name]
     let leftPadding = String(repeating: " ", count: leftPadding)
     let columnSpacing = String(repeating: " ", count: columnPadding)
     let columnDelimiter = columnSpacing + columnSeparator + columnSpacing
