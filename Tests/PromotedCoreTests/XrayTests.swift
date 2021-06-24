@@ -10,13 +10,10 @@ final class XrayTests: ModuleTestCase {
   
   typealias Context = OperationMonitor.Context
   
-  override func setUp() {
-    super.setUp()
+  func testSingleBatch() {
     config.xrayLevel = .callDetails
     xray = Xray(deps: module)
-  }
-  
-  func testSingleBatch() {
+
     clock.advance(toMillis: 0)
     let actionContext = Context.function("logAction")
     xray.executionWillStart(context: actionContext)
@@ -129,6 +126,8 @@ final class XrayTests: ModuleTestCase {
   }
 
   func testCalls() {
+    config.xrayLevel = .callDetails
+    xray = Xray(deps: module)
 
     func callXray(_ function: String) -> Context {
       let context = Context.function(function)
@@ -154,9 +153,11 @@ final class XrayTests: ModuleTestCase {
     XCTAssertEqual(allCalls.map(\.debugDescription),
                    xray.calls.map(\.context))
   }
-  
+
   func testErrors() {
-    
+    config.xrayLevel = .callDetails
+    xray = Xray(deps: module)
+
     func batchXray(batchError: Error? = nil,
                    batchResponseError: Error? = nil) {
       xray.executionWillStart(context: .batch)
@@ -199,5 +200,39 @@ final class XrayTests: ModuleTestCase {
 
     let expected = [error1, error2, error3, error4]
     XCTAssertEqual(expected, xray.errors as [NSError])
+  }
+
+  func testBatchSummariesErrors() {
+    config.xrayLevel = .batchSummaries
+    xray = Xray(deps: module)
+
+    func batchXray(batchError: Error? = nil,
+                   batchResponseError: Error? = nil) {
+      xray.executionWillStart(context: .batch)
+      if let e = batchError {
+        xray.execution(context: .batch, didError: e)
+      }
+      xray.executionDidEnd(context: .batch)
+      xray.executionWillStart(context: .batchResponse)
+      if let e = batchResponseError {
+        xray.execution(context: .batchResponse, didError: e)
+      } else {
+        xray.executionDidLog(context: .batchResponse)
+      }
+      xray.executionDidEnd(context: .batchResponse)
+    }
+
+    let context1 = Context.function("f1")
+    let error1 = NSError(domain: "ai.promoted", code: -1, userInfo: nil)
+    xray.executionWillStart(context: context1)
+    xray.execution(context: context1, didError: error1)
+    xray.executionDidEnd(context: context1)
+
+    let error2 = NSError(domain: "ai.promoted", code: -2, userInfo: nil)
+    batchXray(batchError: error2)
+
+    let expected = [error1, error2]
+    XCTAssertEqual(expected, xray.errors as [NSError])
+    XCTAssertEqual([], xray.calls)
   }
 }
