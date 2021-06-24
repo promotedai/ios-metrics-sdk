@@ -54,10 +54,10 @@ class TabularLogFormatter {
 
   func asStringArray() -> [String] {
     var result: [String] = [name]
-    let leftPadding = String(repeating: " ", count: leftPadding)
+    let leftPadding = String(repeating: " ", count: self.leftPadding)
     let columnSpacing = String(repeating: " ", count: columnPadding)
     let columnDelimiter = columnSpacing + columnSeparator + columnSpacing
-    let rightPadding = String(repeating: " ", count: rightPadding)
+    let rightPadding = String(repeating: " ", count: self.rightPadding)
 
     var header = leftPadding
     header += fields.map(\.columnFormatted).joined(separator: columnDelimiter)

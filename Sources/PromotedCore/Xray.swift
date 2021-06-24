@@ -378,7 +378,7 @@ fileprivate extension Xray {
 
   private func logOperationSummaryTable(batch: NetworkBatch) {
     guard osLogLevel >= .debug, let osLog = osLog else { return }
-    let formatter = TabularLogFormatter(name:"Operations in Batch \(batch.batchNumber)")
+    let formatter = TabularLogFormatter(name: "Operations in Batch \(batch.batchNumber)")
     formatter.addField(name: "Context", width: 25, alignment: .left)
     formatter.addField(name: "Millis", width: 10, alignment: .right)
     formatter.addField(name: "Msg Count", width: 10, alignment: .right)
@@ -408,7 +408,7 @@ fileprivate extension Xray {
 
   private func logMessageSummaryTable(batch: NetworkBatch) {
     guard osLogLevel >= .debug, let osLog = osLog else { return }
-    let formatter = TabularLogFormatter(name:"Messages in Batch \(batch.batchNumber)")
+    let formatter = TabularLogFormatter(name: "Messages in Batch \(batch.batchNumber)")
     formatter.addField(name: "Type", width: 10)
     formatter.addField(name: "Name", width: 25)
     formatter.addField(name: "LogUserID", width: 20)
