@@ -63,10 +63,10 @@ extension MetricsLogger.AncestorIDHistory {
   init(osLog: OSLog?, xray: Xray?) {
     self.osLog = osLog
     self.xray = xray
-    let historySize = 10
-    logUserIDs = Deque<Event_AncestorIdHistoryItem>(maximumSize: historySize)
-    sessionIDs = Deque<Event_AncestorIdHistoryItem>(maximumSize: historySize)
-    viewIDs = Deque<Event_AncestorIdHistoryItem>(maximumSize: historySize)
+    let size = 10
+    logUserIDs = Deque<Event_AncestorIdHistoryItem>(maximumSize: size)
+    sessionIDs = Deque<Event_AncestorIdHistoryItem>(maximumSize: size)
+    viewIDs = Deque<Event_AncestorIdHistoryItem>(maximumSize: size)
   }
 
   mutating func logUserIDDidChange(value: String?, event: Message? = nil) {
