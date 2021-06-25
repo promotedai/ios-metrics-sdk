@@ -73,6 +73,8 @@ public final class MetricsLogger: NSObject {
   unowned let viewTracker: ViewTracker
   private var needsViewStateCheck: Bool
 
+  var history: AncestorIDHistory?
+
   private lazy var cachedDeviceMessage: Event_Device = deviceMessage()
   private lazy var cachedLocaleMessage: Event_Locale = localeMessage()
 
@@ -103,15 +105,11 @@ public final class MetricsLogger: NSObject {
     viewTracker = deps.viewTracker
     needsViewStateCheck = false
 
+    history = config.diagnosticsIncludeAncestorIDHistory ?
+      AncestorIDHistory(osLog: osLog, xray: xray) : nil
+
     super.init()
     monitor.addOperationMonitorListener(self)
-
-    if config.diagnosticsIncludeAncestorIDHistory {
-      let historySize = 10
-      logUserIDProducer.maximumHistorySize = historySize
-      sessionIDProducer.maximumHistorySize = historySize
-      viewTracker.id.maximumHistorySize = historySize
-    }
   }
 }
 
@@ -122,7 +120,10 @@ public extension MetricsLogger {
   /// called.
   var logUserID: String? {
     get { logUserIDProducer.currentValue }
-    set { logUserIDProducer.currentValue = newValue }
+    set {
+      logUserIDProducer.currentValue = newValue
+      history?.logUserIDDidChange(value: newValue)
+    }
   }
 
   /// Log user ID for this session.
@@ -138,7 +139,10 @@ public extension MetricsLogger {
   /// called.
   var sessionID: String? {
     get { sessionIDProducer.currentValue }
-    set { sessionIDProducer.currentValue = newValue }
+    set {
+      sessionIDProducer.currentValue = newValue
+      history?.sessionIDDidChange(value: newValue)
+    }
   }
 
   /// Session ID for this session.
@@ -160,7 +164,10 @@ public extension MetricsLogger {
       }
       return viewTracker.id.currentValue
     }
-    set { viewTracker.id.currentValue = newValue }
+    set {
+      viewTracker.id.currentValue = newValue
+      history?.viewIDDidChange(value: newValue)
+    }
   }
 
   /// View ID for current view.
@@ -297,12 +304,14 @@ public extension MetricsLogger {
   ///
   /// - Parameters:
   ///   - properties: Client-specific message
-  func logUser(properties: Message? = nil) {
+  internal func logUser(properties: Message? = nil) {
     monitor.execute {
       var user = Event_User()
       user.timing = timingMessage()
       if let p = propertiesMessage(properties) { user.properties = p }
       log(message: user)
+      history?.logUserIDDidChange(value: logUserID, event: user)
+      history?.sessionIDDidChange(value: sessionID)
     }
   }
 
@@ -431,6 +440,7 @@ public extension MetricsLogger {
       // TODO(yu-hong): Fill out AppScreenView.
       view.appScreenView = appScreenView
       log(message: view)
+      history?.viewIDDidChange(value: viewID, event: view)
     }
   }
 }
