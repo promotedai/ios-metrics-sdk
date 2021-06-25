@@ -3,6 +3,7 @@ import SwiftProtobuf
 import UIKit
 
 extension MetricsLogger {
+  
 
   func mobileDiagnosticsMessage() -> Event_MobileDiagnostics {
     var diagnostics = Event_MobileDiagnostics()

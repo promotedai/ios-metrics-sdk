@@ -32,13 +32,7 @@ final class ViewTracker {
   private let uiState: UIState
   private let isReactNativeHint: Bool
 
-  var viewID: String? {
-    get { viewIDProducer.currentValue }
-    set { viewIDProducer.currentValue = newValue }
-  }
-  var currentOrPendingViewID: String? {
-    viewIDProducer.currentOrPendingValue
-  }
+  var id: IDSequence { viewIDProducer }
 
   typealias Deps = IDMapSource & UIStateSource
 
@@ -57,7 +51,7 @@ final class ViewTracker {
     if key == viewStack.top?.viewKey {
       return nil
     }
-    viewIDProducer.nextValue()
+    viewIDProducer.advance()
     if viewStack.popTo(key: key) {
       return viewStack.top!
     }
@@ -73,7 +67,7 @@ final class ViewTracker {
     viewStack = updateViewStack(previousStack: previousStack)
     let newTop = viewStack.top
     if previousStack.top == newTop { return nil }
-    viewIDProducer.nextValue()
+    viewIDProducer.advance()
     return newTop
   }
 

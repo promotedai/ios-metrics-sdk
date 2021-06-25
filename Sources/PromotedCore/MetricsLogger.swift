@@ -81,30 +81,37 @@ public final class MetricsLogger: NSObject {
                    OSLogSource & PersistentStoreSource & ViewTrackerSource & XraySource
 
   init(deps: Deps) {
-    self.clock = deps.clock
-    self.config = deps.clientConfig
-    self.connection = deps.networkConnection
-    self.deviceInfo = deps.deviceInfo
-    self.idMap = deps.idMap
-    self.monitor = deps.operationMonitor
-    self.store = deps.persistentStore
-    self.osLog = deps.osLog(category: "MetricsLogger")
-    self.xray = deps.xray
+    clock = deps.clock
+    config = deps.clientConfig
+    connection = deps.networkConnection
+    deviceInfo = deps.deviceInfo
+    idMap = deps.idMap
+    monitor = deps.operationMonitor
+    store = deps.persistentStore
+    osLog = deps.osLog(category: "MetricsLogger")
+    xray = deps.xray
 
-    self.logMessages = []
-    self.userID = nil
+    logMessages = []
+    userID = nil
 
-    self.logUserIDProducer = IDProducer(initialValueProducer: {
+    logUserIDProducer = IDProducer(initialValueProducer: {
       [store, idMap] in store.logUserID ?? idMap.logUserID()
     }, nextValueProducer: {
       [idMap] in idMap.logUserID()
     })
-    self.sessionIDProducer = IDProducer { [idMap] in idMap.sessionID() }
-    self.viewTracker = deps.viewTracker
-    self.needsViewStateCheck = false
+    sessionIDProducer = IDProducer { [idMap] in idMap.sessionID() }
+    viewTracker = deps.viewTracker
+    needsViewStateCheck = false
 
     super.init()
-    self.monitor.addOperationMonitorListener(self)
+    monitor.addOperationMonitorListener(self)
+
+    if config.diagnosticsIncludeAncestorIDHistory {
+      let historySize = 10
+      logUserIDProducer.maximumHistorySize = historySize
+      sessionIDProducer.maximumHistorySize = historySize
+      viewTracker.id.maximumHistorySize = historySize
+    }
   }
 }
 
@@ -151,16 +158,16 @@ public extension MetricsLogger {
           logView(trackerState: state)
         }
       }
-      return viewTracker.viewID
+      return viewTracker.id.currentValue
     }
-    set { viewTracker.viewID = newValue }
+    set { viewTracker.id.currentValue = newValue }
   }
 
   /// View ID for current view.
   /// If read before the first call to `logView()`,
   /// returns an ID that will be used for the first view.
   var currentOrPendingViewID: String? {
-    viewTracker.currentOrPendingViewID
+    viewTracker.id.currentOrPendingValue
   }
 }
 
@@ -216,7 +223,7 @@ public extension MetricsLogger {
   }
   
   private func startSessionAndUpdateUserIDs(userID: String?) {
-    sessionIDProducer.nextValue()
+    sessionIDProducer.advance()
 
     // New session with same user should not regenerate logUserID.
     if (self.userID != nil) && (self.userID == userID) { return }
@@ -225,7 +232,7 @@ public extension MetricsLogger {
     store.userID = userID
 
     // Reads logUserID from store for initial value, if available.
-    store.logUserID = logUserIDProducer.nextValue()
+    store.logUserID = logUserIDProducer.advance()
   }
 }
 

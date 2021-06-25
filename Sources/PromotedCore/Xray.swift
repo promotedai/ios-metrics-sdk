@@ -134,10 +134,11 @@ public final class Xray: NSObject {
   
   /// Number of network batches to keep in memory.
   @objc public var networkBatchWindowSize: Int {
-    didSet {
+    get { networkBatchQueue.maximumSize! }
+    set {
       let max = Self.networkBatchWindowMaxSize
-      networkBatchWindowSize = min(networkBatchWindowSize, max)
-      trimNetworkBatches()
+      let size = min(newValue, max)
+      networkBatchQueue.maximumSize = size
     }
   }
 
@@ -165,13 +166,19 @@ public final class Xray: NSObject {
   /// Total number of batches that had errors.
   @objc public private(set) var batchesWithErrors: Int
 
-  var currentBatchNumber: Int { batchesAttempted + 1 }
+  /// Serial number for current batch.
+  @objc public var currentBatchNumber: Int { batchesAttempted + 1 }
 
   /// Most recent network batches.
-  @objc public private(set) var networkBatches: [NetworkBatch]
+  @objc public var networkBatches: [NetworkBatch] {
+    networkBatchQueue.values
+  }
+  private var networkBatchQueue: Deque<NetworkBatch>
 
   /// Flattened logging calls across `networkBatches`.
-  @objc public var calls: [Call] { networkBatches.flatMap(\.calls) }
+  @objc public var calls: [Call] {
+    networkBatches.flatMap(\.calls)
+  }
 
   /// Flattened errors across `networkBatches`.
   @objc public var errors: [Error] {
@@ -197,14 +204,13 @@ public final class Xray: NSObject {
     self.osLogLevel = deps.clientConfig.osLogLevel
     self.osLog = deps.osLog(category: "Xray")
 
-    self.networkBatchWindowSize = 10
     self.totalBytesSent = 0
     self.totalTimeSpent = 0
     self.totalErrors = 0
     self.batchesAttempted = 0
     self.batchesSentSuccessfully = 0
     self.batchesWithErrors = 0
-    self.networkBatches = []
+    self.networkBatchQueue = Deque<NetworkBatch>(maximumSize: 10)
     self.pendingCalls = []
     self.pendingBatch = nil
     
@@ -344,18 +350,7 @@ fileprivate extension Xray {
   }
 
   private func add(batch: NetworkBatch) {
-    networkBatches.append(batch)
-    trimNetworkBatches()
-  }
-
-  private func trimNetworkBatches() {
-    let excess = networkBatches.count - networkBatchWindowSize
-    if excess > 0 {
-      // networkBatches.removeFirst(k) is O(networkBatches.count).
-      // Not worth optimizing right now, but could use a circular
-      // buffer (available in Swift 5.5!) to avoid this.
-      networkBatches.removeFirst(excess)
-    }
+    networkBatchQueue.pushBack(batch)
   }
 
   private func logBatchResponseCompleteStats() {
