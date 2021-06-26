@@ -11,12 +11,12 @@ struct Build {
 
   private static func bundle() -> Bundle? {
     #if COCOAPODS
-    guard let libBundleURL = Bundle.main.url(forResource: "PromotedCore", withExtension: "bundle") else {
-      return nil
-    }
-    return Bundle(url: libBundleURL)
+      guard let libBundleURL = Bundle.main.url(forResource: "PromotedCore", withExtension: "bundle") else {
+        return nil
+      }
+      return Bundle(url: libBundleURL)
     #else
-    return Bundle.module
+      return Bundle.module
     #endif
   }
 }
