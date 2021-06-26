@@ -359,7 +359,7 @@ fileprivate extension Xray {
       osLog.info("WARNING: Timing may be inaccurate when running in debug or simulator.")
     }
     if let batch = networkBatches.last {
-      if osLogLevel >= .debug {
+      if xrayLevel >= .callDetails && osLogLevel >= .debug {
         logOperationSummaryTable(batch: batch)
         logMessageSummaryTable(batch: batch)
       } else {
