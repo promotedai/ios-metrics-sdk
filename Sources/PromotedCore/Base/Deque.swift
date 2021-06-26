@@ -1,5 +1,9 @@
 import Foundation
 
+/**
+ Double-ended queue with bounded size.
+ Can be used as a fixed-size buffer.
+ */
 struct Deque<Element> {
   var maximumSize: Int? {
     didSet {

@@ -1,5 +1,6 @@
 import Foundation
 
+/** Formats data as text tables for console logging. */
 class TabularLogFormatter {
 
   enum Alignment {
@@ -9,9 +10,7 @@ class TabularLogFormatter {
 
   private struct FieldFormat {
     let name: String
-
     let width: Int
-
     let alignment: Alignment
 
     var columnFormatted: String {
