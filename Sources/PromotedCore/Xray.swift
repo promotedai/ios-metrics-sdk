@@ -1,7 +1,6 @@
 import Foundation
 import SwiftProtobuf
 import os.log
-import SwiftUI
 
 /**
  Exposes internals of PromotedAIMetricsSDK workings so that clients
