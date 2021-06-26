@@ -87,7 +87,8 @@ class TabularLogFormatter {
 fileprivate extension String {
   func columnFormatted(width: Int, alignment: TabularLogFormatter.Alignment) -> String {
     let diff = width - self.count
-    if diff <= 0 { return String(self.prefix(width)) }
+    if diff == 0 { return self }
+    if diff < 0 { return "\(self.prefix(width - 1))…" }
     let padding = String(repeating: " ", count: diff)
     switch alignment {
     case .left:
