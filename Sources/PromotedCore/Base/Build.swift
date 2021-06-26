@@ -6,7 +6,7 @@ struct Build {
     guard let path = bundle()?.path(forResource: "Version", ofType: "txt") else {
       return "Unknown"
     }
-    return (try? String(contentsOfFile: path)) ?? "Error"
+    return (try? String(contentsOfFile: path)) ?? "Unknown"
   } ()
 
   private static func bundle() -> Bundle? {
