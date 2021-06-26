@@ -8,12 +8,12 @@ protocol OSLogSource {
 
 class SystemOSLogSource: OSLogSource {
 
-  fileprivate weak static var sharedClientConfig: ClientConfig?
+  fileprivate static var osLogLevel: ClientConfig.OSLogLevel = .none
 
   typealias Deps = ClientConfigSource
 
   init(deps: Deps) {
-    Self.sharedClientConfig = deps.clientConfig
+    Self.osLogLevel = deps.clientConfig.osLogLevel
   }
 
   func osLog(category: String) -> OSLog? {
@@ -111,9 +111,6 @@ extension OSLog {
 
 fileprivate extension OSLog {
   func shouldLog(_ level: ClientConfig.OSLogLevel) -> Bool {
-    guard let config = SystemOSLogSource.sharedClientConfig else {
-      return false
-    }
-    return config.osLogLevel >= level
+    return SystemOSLogSource.osLogLevel >= level
   }
 }
