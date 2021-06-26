@@ -52,5 +52,8 @@ final class DequeTests: XCTestCase {
     var deque: Deque<Int> = [1, 2, 3, 4, 5]
     deque.maximumSize = 3
     XCTAssertEqual([3, 4, 5], deque.values)
+    deque.maximumSize = nil
+    deque.pushBack(contentsOf: [6, 7, 8, 9, 10])
+    XCTAssertEqual([3, 4, 5, 6, 7, 8, 9, 10], deque.values)
   }
 }
