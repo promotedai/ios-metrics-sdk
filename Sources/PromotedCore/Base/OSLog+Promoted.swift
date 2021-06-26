@@ -65,6 +65,7 @@ extension OSLog {
                _ arg2: CVarArg = "",
                _ arg3: CVarArg = "") {
     guard shouldLog(.warning) else { return }
+    // OSLog doesn't have a .warning type, so use .error below.
     os_log(message, log: self, type: .error, arg0, arg1, arg2, arg3)
   }
 
@@ -95,6 +96,7 @@ extension OSLog {
 
   func warning(_ formatter: TabularLogFormatter) {
     guard shouldLog(.warning) else { return }
+    // OSLog doesn't have a .warning type, so use .error below.
     os_log("%{private}s", log: self, type: .error, formatter.asNewlineJoinedString())
   }
 
