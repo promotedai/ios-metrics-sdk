@@ -69,6 +69,8 @@ public final class Xray: NSObject {
   @objc(PROXrayNetworkBatch)
   public final class NetworkBatch: NSObject {
 
+    /// Serial number of this batch. Assigned in increasing
+    /// order starting at 1.
     @objc public fileprivate(set) var batchNumber: Int = 0
     
     /// Start time for batch flush.
