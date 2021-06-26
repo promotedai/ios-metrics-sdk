@@ -374,7 +374,7 @@ fileprivate extension Xray {
     guard osLogLevel >= .debug, let osLog = osLog else { return }
     let formatter = TabularLogFormatter(name: "Operations in Batch \(batch.batchNumber) " +
                                               "\(String(describing: batch))")
-    formatter.addField(name: "Context", width: 25, alignment: .left)
+    formatter.addField(name: "Operation", width: 25, alignment: .left)
     formatter.addField(name: "Millis", width: 10, alignment: .right)
     formatter.addField(name: "Msg Count", width: 10, alignment: .right)
     formatter.addField(name: "Msg Bytes", width: 10, alignment: .right)
