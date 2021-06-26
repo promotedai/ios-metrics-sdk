@@ -68,15 +68,6 @@ extension OSLog {
     os_log(message, log: self, type: .error, arg0, arg1, arg2, arg3)
   }
 
-  func debug(_ message: StaticString,
-             _ arg0: CVarArg = "",
-             _ arg1: CVarArg = "",
-             _ arg2: CVarArg = "",
-             _ arg3: CVarArg = "") {
-    guard shouldLog(.debug) else { return }
-    os_log(message, log: self, type: .debug, arg0, arg1, arg2, arg3)
-  }
-
   func info(_ message: StaticString,
             _ arg0: CVarArg = "",
             _ arg1: CVarArg = "",
@@ -84,6 +75,15 @@ extension OSLog {
             _ arg3: CVarArg = "") {
     guard shouldLog(.info) else { return }
     os_log(message, log: self, type: .info, arg0, arg1, arg2, arg3)
+  }
+
+  func debug(_ message: StaticString,
+             _ arg0: CVarArg = "",
+             _ arg1: CVarArg = "",
+             _ arg2: CVarArg = "",
+             _ arg3: CVarArg = "") {
+    guard shouldLog(.debug) else { return }
+    os_log(message, log: self, type: .debug, arg0, arg1, arg2, arg3)
   }
 }
 
@@ -98,14 +98,14 @@ extension OSLog {
     os_log("%{private}s", log: self, type: .error, formatter.asNewlineJoinedString())
   }
 
-  func debug(_ formatter: TabularLogFormatter) {
-    guard shouldLog(.debug) else { return }
-    os_log("%{private}s", log: self, type: .debug, formatter.asNewlineJoinedString())
-  }
-
   func info(_ formatter: TabularLogFormatter) {
     guard shouldLog(.info) else { return }
     os_log("%{private}s", log: self, type: .info, formatter.asNewlineJoinedString())
+  }
+
+  func debug(_ formatter: TabularLogFormatter) {
+    guard shouldLog(.debug) else { return }
+    os_log("%{private}s", log: self, type: .debug, formatter.asNewlineJoinedString())
   }
 }
 
