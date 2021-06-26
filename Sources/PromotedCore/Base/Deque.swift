@@ -82,7 +82,7 @@ fileprivate extension Deque {
 
   mutating func trim(location: TrimLocation = .front) {
     guard let max = maximumSize else { return }
-    let excess = max - values.count
+    let excess = values.count - max
     if excess > 0 {
       switch location {
       case .front:

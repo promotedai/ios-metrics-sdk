@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'PromotedAIMetricsSDK'
-  s.version          = ENV['LIB_VERSION'] || '0.4.5'
+  s.version          = File.read('Sources/PromotedCore/Resources/Version.txt')
   s.summary          = 'iOS client library for Promoted.ai metrics tracking.'
 
   s.description      = <<-DESC
@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   }
 
   s.ios.deployment_target = '10.0'
-  s.swift_version = '5.2'
+  s.swift_version = '5.3'
 
   # By default we bring in GTMSessionFetcher for networking.
   # If you provide your own network implementation, depend on
@@ -27,6 +27,9 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |core|
     core.source_files = ['Sources/PromotedCore/**/*.{h,m,swift}']
     core.dependency 'SwiftProtobuf', '~> 1.15.0'
+    core.resource_bundles = {
+      "PromotedCore" => ['Sources/PromotedCore/Resources/*']
+    }
   end
 
   s.subspec 'Fetcher' do |fetcher|

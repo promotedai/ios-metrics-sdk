@@ -13,19 +13,19 @@ final class ViewTrackerTests: ModuleTestCase {
   }
 
   func testTrackViewUIKit() {
-    XCTAssertNil(viewTracker.viewID)
-    let viewIDBefore = viewTracker.currentOrPendingViewID
+    XCTAssertNil(viewTracker.id.currentValue)
+    let viewIDBefore = viewTracker.id.currentOrPendingValue
     let vc = UIViewController()
     let state = viewTracker.trackView(key: .uiKit(viewController: vc), useCase: .feed)!
-    let viewIDAfter = viewTracker.viewID
+    let viewIDAfter = viewTracker.id.currentValue
     XCTAssertEqual(viewIDBefore, viewIDAfter)
     XCTAssertEqual(ViewTracker.Key.uiKit(viewController: vc), state.viewKey)
     XCTAssertEqual(UseCase.feed, state.useCase)
   }
   
   func testTrackSameViewUIKit() {
-    XCTAssertNil(viewTracker.viewID)
-    let viewIDBefore = viewTracker.currentOrPendingViewID
+    XCTAssertNil(viewTracker.id.currentValue)
+    let viewIDBefore = viewTracker.id.currentOrPendingValue
 
     let vc1 = UIViewController()
     let state1 = viewTracker.trackView(key: .uiKit(viewController: vc1), useCase: .feed)
@@ -34,17 +34,17 @@ final class ViewTrackerTests: ModuleTestCase {
     // Tracking same VC should provide nil state.
     let state2 = viewTracker.trackView(key: .uiKit(viewController: vc1), useCase: .feed)
     XCTAssertNil(state2)
-    let viewIDAfter = viewTracker.viewID
+    let viewIDAfter = viewTracker.id.currentValue
     XCTAssertEqual(viewIDBefore, viewIDAfter)
   }
   
   func testTrackViewUIKitMultiple() {
-    XCTAssertNil(viewTracker.viewID)
-    let viewIDBefore = viewTracker.currentOrPendingViewID
+    XCTAssertNil(viewTracker.id.currentValue)
+    let viewIDBefore = viewTracker.id.currentOrPendingValue
 
     let vc1 = UIViewController()
     let state1 = viewTracker.trackView(key: .uiKit(viewController: vc1), useCase: .feed)!
-    let viewID1 = viewTracker.viewID
+    let viewID1 = viewTracker.id.currentValue
     XCTAssertEqual(viewIDBefore, viewID1)
     XCTAssertEqual(ViewTracker.Key.uiKit(viewController: vc1), state1.viewKey)
     XCTAssertEqual(UseCase.feed, state1.useCase)
@@ -52,7 +52,7 @@ final class ViewTrackerTests: ModuleTestCase {
     
     let vc2 = UIViewController()
     let state2 = viewTracker.trackView(key: .uiKit(viewController: vc2), useCase: .search)!
-    let viewID2 = viewTracker.viewID
+    let viewID2 = viewTracker.id.currentValue
     XCTAssertNotEqual(viewIDBefore, viewID2)
     XCTAssertNotEqual(viewID1, viewID2)
     XCTAssertEqual(ViewTracker.Key.uiKit(viewController: vc2), state2.viewKey)
@@ -60,7 +60,7 @@ final class ViewTrackerTests: ModuleTestCase {
 
     let vc3 = UIViewController()
     let state3 = viewTracker.trackView(key: .uiKit(viewController: vc3), useCase: .custom)!
-    let viewID3 = viewTracker.viewID
+    let viewID3 = viewTracker.id.currentValue
     XCTAssertNotEqual(viewIDBefore, viewID3)
     XCTAssertNotEqual(viewID1, viewID3)
     XCTAssertNotEqual(viewID2, viewID3)
@@ -71,24 +71,24 @@ final class ViewTrackerTests: ModuleTestCase {
   func testTrackViewUIKitMultiplePopToPreviousTracked() {
     let vc1 = UIViewController()
     let state1 = viewTracker.trackView(key: .uiKit(viewController: vc1), useCase: .feed)
-    let viewID1 = viewTracker.viewID
+    let viewID1 = viewTracker.id.currentValue
     XCTAssertNotNil(state1)
     
     let vc2 = UIViewController()
     let state2 = viewTracker.trackView(key: .uiKit(viewController: vc2), useCase: .search)
-    let viewID2 = viewTracker.viewID
+    let viewID2 = viewTracker.id.currentValue
     XCTAssertNotNil(state2)
     XCTAssertNotEqual(viewID1, viewID2)
     
     let vc3 = UIViewController()
     let state3 = viewTracker.trackView(key: .uiKit(viewController: vc3), useCase: .custom)
-    let viewID3 = viewTracker.viewID
+    let viewID3 = viewTracker.id.currentValue
     XCTAssertNotNil(state3)
     XCTAssertNotEqual(viewID2, viewID3)
     
     let finalState = viewTracker.trackView(key: .uiKit(viewController: vc1), useCase: .feed)
     XCTAssertEqual(state1, finalState)
-    XCTAssertNotEqual(viewID1, viewTracker.viewID)
+    XCTAssertNotEqual(viewID1, viewTracker.id.currentValue)
   }
   
   func testTrackViewUIKitMultipleNilUpdate() {
@@ -105,28 +105,28 @@ final class ViewTrackerTests: ModuleTestCase {
     XCTAssertNotNil(state3)
 
     // No change in VC stack should provide nil state.
-    let viewIDBefore = viewTracker.viewID
+    let viewIDBefore = viewTracker.id.currentValue
     uiState.viewControllers = [vc1, vc2, vc3]
     let updatedState = viewTracker.updateState()
     XCTAssertNil(updatedState)
-    XCTAssertEqual(viewIDBefore, viewTracker.viewID)
+    XCTAssertEqual(viewIDBefore, viewTracker.id.currentValue)
   }
   
   func testTrackViewUIKitMultipleUpdate() {
     let vc1 = UIViewController()
     let state1 = viewTracker.trackView(key: .uiKit(viewController: vc1), useCase: .feed)
-    let viewID1 = viewTracker.viewID
+    let viewID1 = viewTracker.id.currentValue
     XCTAssertNotNil(state1)
     
     let vc2 = UIViewController()
     let state2 = viewTracker.trackView(key: .uiKit(viewController: vc2), useCase: .search)
-    let viewID2 = viewTracker.viewID
+    let viewID2 = viewTracker.id.currentValue
     XCTAssertNotNil(state2)
     XCTAssertNotEqual(viewID1, viewID2)
     
     let vc3 = UIViewController()
     let state3 = viewTracker.trackView(key: .uiKit(viewController: vc3), useCase: .custom)
-    let viewID3 = viewTracker.viewID
+    let viewID3 = viewTracker.id.currentValue
     XCTAssertNotNil(state3)
     XCTAssertNotEqual(viewID2, viewID3)
 
@@ -134,7 +134,7 @@ final class ViewTrackerTests: ModuleTestCase {
     uiState.viewControllers = [vc1]
     let finalState = viewTracker.updateState()
     XCTAssertEqual(state1, finalState)
-    XCTAssertNotEqual(viewID1, viewTracker.viewID)
+    XCTAssertNotEqual(viewID1, viewTracker.id.currentValue)
   }
   
   func testTrackViewUIKitRegenerate() {
@@ -156,11 +156,11 @@ final class ViewTrackerTests: ModuleTestCase {
   }
   
   func testTrackViewReactNative() {
-    XCTAssertNil(viewTracker.viewID)
-    let viewIDBefore = viewTracker.currentOrPendingViewID
+    XCTAssertNil(viewTracker.id.currentValue)
+    let viewIDBefore = viewTracker.id.currentOrPendingValue
     let key = ViewTracker.Key.reactNative(routeName: "foo", routeKey: "bar")
     let state = viewTracker.trackView(key: key, useCase: .categoryContent)!
-    let viewIDAfter = viewTracker.viewID
+    let viewIDAfter = viewTracker.id.currentValue
     XCTAssertEqual(viewIDBefore, viewIDAfter)
     XCTAssertEqual(key, state.viewKey)
     XCTAssertEqual(UseCase.categoryContent, state.useCase)
@@ -169,42 +169,42 @@ final class ViewTrackerTests: ModuleTestCase {
   func testTrackViewReactNativeMultiplePopToPreviousTracked() {
     let key1 = ViewTracker.Key.reactNative(routeName: "foo", routeKey: "bar")
     let state1 = viewTracker.trackView(key: key1)
-    let viewID1 = viewTracker.viewID
+    let viewID1 = viewTracker.id.currentValue
     XCTAssertNotNil(state1)
     
     let key2 = ViewTracker.Key.reactNative(routeName: "batman", routeKey: "robin")
     let state2 = viewTracker.trackView(key: key2)
-    let viewID2 = viewTracker.viewID
+    let viewID2 = viewTracker.id.currentValue
     XCTAssertNotNil(state2)
     XCTAssertNotEqual(viewID1, viewID2)
     
     let key3 = ViewTracker.Key.reactNative(routeName: "simon", routeKey: "garfunkle")
     let state3 = viewTracker.trackView(key: key3)
-    let viewID3 = viewTracker.viewID
+    let viewID3 = viewTracker.id.currentValue
     XCTAssertNotNil(state3)
     XCTAssertNotEqual(viewID2, viewID3)
     
     let finalState = viewTracker.trackView(key: key1)
     XCTAssertEqual(state1, finalState)
-    XCTAssertNotEqual(viewID1, viewTracker.viewID)
+    XCTAssertNotEqual(viewID1, viewTracker.id.currentValue)
   }
   
   func testTrackViewReactNativeReset() {
     let key1 = ViewTracker.Key.reactNative(routeName: "foo", routeKey: "bar")
     let state1 = viewTracker.trackView(key: key1)
-    let viewID1 = viewTracker.viewID
+    let viewID1 = viewTracker.id.currentValue
     XCTAssertNotNil(state1)
 
     let key2 = ViewTracker.Key.reactNative(routeName: "batman", routeKey: "robin")
     let state2 = viewTracker.trackView(key: key2)
-    let viewID2 = viewTracker.viewID
+    let viewID2 = viewTracker.id.currentValue
     XCTAssertNotNil(state2)
 
     viewTracker.reset()
-    XCTAssertNotEqual(viewTracker.viewID, viewID2)
+    XCTAssertNotEqual(viewTracker.id.currentValue, viewID2)
 
     let state3 = viewTracker.trackView(key: key1)
     XCTAssertNotNil(state3)
-    XCTAssertNotEqual(viewID1, viewTracker.viewID)
+    XCTAssertNotEqual(viewID1, viewTracker.id.currentValue)
   }
 }

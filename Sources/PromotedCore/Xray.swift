@@ -359,21 +359,21 @@ fileprivate extension Xray {
       osLog.info("WARNING: Timing may be inaccurate when running in debug or simulator.")
     }
     if let batch = networkBatches.last {
-      osLog.info("Latest batch: %{private}@", String(describing: batch))
-      #if DEBUG
       if osLogLevel >= .debug {
         logOperationSummaryTable(batch: batch)
         logMessageSummaryTable(batch: batch)
+      } else {
+        osLog.info("Latest batch: %{private}@", String(describing: batch))
       }
-      #endif
     }
-    osLog.info("Total: %{public}lld ms, %{public}lld bytes, %{public}d requests",
+    osLog.info("Total: Millis: %{public}lld, Bytes: %{public}lld, Batches: %{public}d",
                totalTimeSpent.millis, totalBytesSent, batchesSentSuccessfully)
   }
 
   private func logOperationSummaryTable(batch: NetworkBatch) {
     guard osLogLevel >= .debug, let osLog = osLog else { return }
-    let formatter = TabularLogFormatter(name: "Operations in Batch \(batch.batchNumber)")
+    let formatter = TabularLogFormatter(name: "Operations in Batch \(batch.batchNumber) " +
+                                              "\(String(describing: batch))")
     formatter.addField(name: "Context", width: 25, alignment: .left)
     formatter.addField(name: "Millis", width: 10, alignment: .right)
     formatter.addField(name: "Msg Count", width: 10, alignment: .right)
@@ -383,11 +383,11 @@ fileprivate extension Xray {
       let summary = call.messages.map { message in
         switch message {
         case let view as Event_View:
-          return "View(\(view.name), \(view.viewID.suffix(4)))"
+          return "View(\(view.name), \(view.viewID.prefix(4)))"
         case let impression as Event_Impression:
-          return "Imp(\(impression.impressionID.suffix(4)))"
+          return "Imp(\(impression.impressionID.prefix(4)))"
         case let action as Event_Action:
-          return "Act(\(action.name), \(action.actionID.suffix(4)))"
+          return "Act(\(action.name), \(action.actionID.prefix(4)))"
         default:
           return message.loggingName
         }
@@ -406,10 +406,10 @@ fileprivate extension Xray {
     let formatter = TabularLogFormatter(name: "Messages in Batch \(batch.batchNumber)")
     formatter.addField(name: "Type", width: 10)
     formatter.addField(name: "Name", width: 25)
-    formatter.addField(name: "LogUserID", width: 20)
-    formatter.addField(name: "ViewID", width: 20)
-    formatter.addField(name: "ImpressionID", width: 20)
-    formatter.addField(name: "ActionID", width: 20)
+    formatter.addField(name: "LogUserID", width: 36)
+    formatter.addField(name: "ViewID", width: 36)
+    formatter.addField(name: "ImpressionID", width: 36)
+    formatter.addField(name: "ActionID", width: 36)
     let logUserID = (batch.message as? Event_LogRequest)?.userInfo.logUserID ?? "-"
     for message in batch.calls.flatMap(\.messages) {
       let type = message.loggingName
@@ -499,8 +499,8 @@ extension Xray.Call {
     let context = String(describing: self.context)
     let messageCount = messages.count
     let messageSize = messagesSizeBytes
-    return "(\(context): \(timeSpent.millis) ms, \(messageCount) msgs, " +
-           "\(messageSize) bytes)"
+    return "(Context: \(context), Millis: \(timeSpent.millis), " +
+           "Message Count: \(messageCount), Message Bytes: \(messageSize))"
   }
 }
 
@@ -513,7 +513,7 @@ extension Xray.NetworkBatch {
     let callCount = calls.count
     let eventCount = calls.flatMap(\.messages).count
     let messageSize = messageSizeBytes
-    return "(\(timeSpentAcrossCalls.millis) ms, \(callCount) calls, " +
-           "\(eventCount) events, \(messageSize) bytes)"
+    return "(Millis: \(timeSpentAcrossCalls.millis), Calls: \(callCount), " +
+           "Message Count: \(eventCount), Message Bytes: \(messageSize))"
   }
 }

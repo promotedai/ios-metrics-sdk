@@ -22,10 +22,8 @@ extension MetricsLogger {
     }
     let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "Unknown"
     let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") ?? "Unknown"
-    diagnostics.clientVersion = "\(appVersion) \(buildNumber)"
-    let promotedBundle = Bundle(for: MetricsLogger.self)
-    let promotedVersion = promotedBundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
-    diagnostics.promotedLibraryVersion = promotedVersion
+    diagnostics.clientVersion = "\(appVersion) build \(buildNumber)"
+    diagnostics.promotedLibraryVersion = Build.libVersion
     return diagnostics
   }
 

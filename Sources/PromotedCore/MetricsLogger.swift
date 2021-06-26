@@ -509,6 +509,7 @@ public extension MetricsLogger {
       if config.diagnosticsIncludeAncestorIDHistory {
         fillAncestorIDHistory(in: &diagnostics)
       }
+      osLog?.debug("diagnostics: %{private}@", String(describing: diagnostics))
       logRequest.mobileDiagnostics = diagnostics
     }
     return logRequest
