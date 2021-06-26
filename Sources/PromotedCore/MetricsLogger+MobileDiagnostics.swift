@@ -87,13 +87,15 @@ fileprivate extension Deque where Element == Event_AncestorIdHistoryItem {
     if let value = value {
       historyItem.ancestorID = value
     }
-    switch event {
-    case let user as Event_User:
-      historyItem.userEvent = user
-    case let view as Event_View:
-      historyItem.viewEvent = view
-    default:
-      osLog?.warning("ancestorIDDidChange: Unknown event: %{private}@", String(describing: event))
+    if let event = event {
+      switch event {
+      case let user as Event_User:
+        historyItem.userEvent = user
+      case let view as Event_View:
+        historyItem.viewEvent = view
+      default:
+        osLog?.warning("ancestorIDDidChange: Unknown event: %{private}@", String(describing: event))
+      }
     }
     if let xray = xray {
       historyItem.batchNumber = Int32(xray.currentBatchNumber)
