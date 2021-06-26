@@ -32,7 +32,7 @@ extension MetricsLogger {
     diagnostics.batchesSentSuccessfully = Int32(xray.batchesSentSuccessfully)
     diagnostics.batchesWithErrors = Int32(xray.batchesWithErrors)
     var errorHistory = Event_ErrorHistory()
-    let iosErrors: [Event_IOSError] = xray.networkBatches.flatMap { batch in
+    errorHistory.iosErrors = xray.networkBatches.flatMap { batch in
       batch.errorsAcrossCalls.map { error in
         let e = error.asErrorProperties()
         var errorProto = Event_IOSError()
@@ -43,7 +43,6 @@ extension MetricsLogger {
         return errorProto
       }
     }
-    errorHistory.iosErrors = iosErrors
     errorHistory.totalErrors = Int32(xray.totalErrors)
     diagnostics.errorHistory = errorHistory
   }
