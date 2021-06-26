@@ -18,6 +18,14 @@ struct Deque<Element> {
   }
 }
 
+extension Deque: ExpressibleByArrayLiteral {
+
+  init(arrayLiteral elements: Element...) {
+    self.maximumSize = nil
+    self.values = Array(elements)
+  }
+}
+
 extension Deque {
 
   var count: Int { values.count }
