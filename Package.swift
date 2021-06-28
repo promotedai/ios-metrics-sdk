@@ -28,6 +28,11 @@ let package = Package(
       targets: [
         "PromotedFirebaseAnalytics",
       ]),
+    .library(
+      name: "PromotedFirebaseRemoteConfig",
+      targets: [
+        "PromotedFirebaseRemoteConfig",
+      ]),
   ],
   dependencies: [
     .package(name: "Firebase", url: "https://github.com/firebase/firebase-ios-sdk", from: "7.11.0"),
@@ -53,6 +58,12 @@ let package = Package(
       name: "PromotedFirebaseAnalytics",
       dependencies: [
         .product(name: "FirebaseAnalytics", package: "Firebase"),
+        .target(name: "PromotedCore"),
+      ]),
+    .target(
+      name: "PromotedFirebaseRemoteConfig",
+      dependencies: [
+        .product(name: "FirebaseRemoteConfig", package: "Firebase"),
         .target(name: "PromotedCore"),
       ]),
     .target(

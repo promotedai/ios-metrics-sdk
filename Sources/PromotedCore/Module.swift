@@ -234,9 +234,9 @@ final class Module: AllDeps {
 
   /// Starts any services among dependencies.
   func startLoggingServices() throws {
+    try clientConfigService.fetchClientConfig()
     _ = analytics
     try analyticsConnection?.startServices()
-    try clientConfigService.fetchClientConfig()
     // Initialize Xray as an OperationMonitorListener.
     _ = xray
   }

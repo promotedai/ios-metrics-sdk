@@ -69,6 +69,7 @@ public final class ClientConfig: NSObject {
   @objc public var apiKeyHTTPHeaderField: String = "x-api-key"
 
   /// Format to use when sending protobuf log messages over network.
+  @objc(PROMetricsLoggingWireFormat)
   public enum MetricsLoggingWireFormat: Int {
     /// https://developers.google.com/protocol-buffers/docs/proto3#json
     case json = 1
@@ -76,34 +77,34 @@ public final class ClientConfig: NSObject {
     case binary = 2
   }
   /// Format to use when sending protobuf log messages over network.
-  public var metricsLoggingWireFormat: MetricsLoggingWireFormat = .binary
+  @objc public var metricsLoggingWireFormat: MetricsLoggingWireFormat = .binary
   
   /// Interval at which log messages are sent over the network.
   /// Setting this to lower values will increase the frequency
   /// at which log messages are sent.
-  public var loggingFlushInterval: TimeInterval = 10.0 {
+  @objc public var loggingFlushInterval: TimeInterval = 10.0 {
     didSet { bound(&loggingFlushInterval, min: 1.0, max: 300.0) }
   }
 
   /// Whether to automatically flush all pending log messages
   /// when the application resigns active.
-  public var flushLoggingOnResignActive: Bool = true
+  @objc public var flushLoggingOnResignActive: Bool = true
 
   /// Ratio of the view that must be visible to log impression
   /// with `ScrollTracker`.
-  public var scrollTrackerVisibilityThreshold: Float = 0.5 {
+  @objc public var scrollTrackerVisibilityThreshold: Float = 0.5 {
     didSet { bound(&scrollTrackerVisibilityThreshold, min: 0.0, max: 1.0) }
   }
 
   /// Time on screen required to log impression with `ScrollTracker`.
-  public var scrollTrackerDurationThreshold: TimeInterval = 1.0 {
+  @objc public var scrollTrackerDurationThreshold: TimeInterval = 1.0 {
     didSet { bound(&scrollTrackerDurationThreshold, min: 0.0) }
   }
 
   /// Frequency at which `ScrollTracker` calculates impressions.
   /// Setting this to lower values will increase the amount of
   /// processing that `ScrollTracker` performs.
-  public var scrollTrackerUpdateFrequency: TimeInterval = 0.5 {
+  @objc public var scrollTrackerUpdateFrequency: TimeInterval = 0.5 {
     didSet { bound(&scrollTrackerUpdateFrequency, min: 0.1, max: 30.0) }
   }
 
