@@ -122,7 +122,7 @@ final class XrayTests: ModuleTestCase {
     // When xrayLevel == .batchSummaries,
     // timeSpentAcrossCalls doesn't include call time.
     XCTAssertEqual(batchTime, batch.timeSpentAcrossCalls.millis)
-    XCTAssertEqual(0, batch.calls.count)
+    XCTAssertEqual([], batch.calls)
   }
 
   func testCalls() {

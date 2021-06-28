@@ -347,22 +347,22 @@ fileprivate extension Xray {
     batchesSentSuccessfully += 1
     add(batch: pendingBatch)
     self.pendingBatch = nil
-    logBatchResponseCompleteStats()
+    consoleLogBatchResponseCompleteStats()
   }
 
   private func add(batch: NetworkBatch) {
     networkBatchQueue.pushBack(batch)
   }
 
-  private func logBatchResponseCompleteStats() {
+  private func consoleLogBatchResponseCompleteStats() {
     guard osLogLevel >= .info, let osLog = osLog else { return }
     if Self.timingMayBeInaccurate {
       osLog.info("WARNING: Timing may be inaccurate when running in debug or simulator.")
     }
     if let batch = networkBatches.last {
       if xrayLevel >= .callDetails && osLogLevel >= .debug {
-        logOperationSummaryTable(batch: batch)
-        logMessageSummaryTable(batch: batch)
+        consoleLogOperationSummaryTable(batch: batch)
+        consoleLogMessageSummaryTable(batch: batch)
       } else {
         osLog.info("Latest batch: %{private}@", String(describing: batch))
       }
@@ -371,7 +371,7 @@ fileprivate extension Xray {
                totalTimeSpent.millis, totalBytesSent, batchesSentSuccessfully)
   }
 
-  private func logOperationSummaryTable(batch: NetworkBatch) {
+  private func consoleLogOperationSummaryTable(batch: NetworkBatch) {
     guard osLogLevel >= .debug, let osLog = osLog else { return }
     let formatter = TabularLogFormatter(name: "Operations in Batch \(batch.batchNumber) " +
                                               "\(String(describing: batch))")
@@ -402,7 +402,7 @@ fileprivate extension Xray {
     osLog.debug(formatter)
   }
 
-  private func logMessageSummaryTable(batch: NetworkBatch) {
+  private func consoleLogMessageSummaryTable(batch: NetworkBatch) {
     guard osLogLevel >= .debug, let osLog = osLog else { return }
     let formatter = TabularLogFormatter(name: "Messages in Batch \(batch.batchNumber)")
     formatter.addField(name: "Type", width: 10)
