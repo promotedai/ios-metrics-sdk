@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: -
 /** Maps client-side IDs to server-side IDs. */
-protocol IDMap {
+protocol IDMap: AnyObject {
 
   /// Generates a log user ID which is used to track the the current
   /// session without exposing the underlying user ID.

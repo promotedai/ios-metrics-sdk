@@ -68,6 +68,10 @@ public final class Xray: NSObject {
   /** Batched logging call. */
   @objc(PROXrayNetworkBatch)
   public final class NetworkBatch: NSObject {
+
+    /// Serial number of this batch. Assigned in increasing
+    /// order starting at 1.
+    @objc public fileprivate(set) var batchNumber: Int = 0
     
     /// Start time for batch flush.
     @objc public fileprivate(set) var startTime: TimeInterval = 0
@@ -81,6 +85,8 @@ public final class Xray: NSObject {
 
     /// Time spent in Promoted code for batch flush and all calls
     /// contained therein.
+    /// When `xrayLevel` is `.batchSummaries`, this does not
+    /// include time spent in individual calls.
     @objc public var timeSpentAcrossCalls: TimeInterval {
       timeSpent + calls.map(\.timeSpent).reduce(0, +)
     }
@@ -108,12 +114,12 @@ public final class Xray: NSObject {
     @objc public fileprivate(set) var calls: [Call] = []
 
     /// Errors that resulted from this batch.
-    @objc public fileprivate(set) var error: Error? = nil
+    @objc public fileprivate(set) var errors: [Error] = []
 
     /// Errors that arose from this batch and across all calls
     /// contained therein.
     @objc public var errorsAcrossCalls: [Error] {
-      calls.compactMap(\.error) + [error].compactMap { $0 }
+      calls.compactMap(\.error) + errors
     }
   }
   
@@ -121,18 +127,19 @@ public final class Xray: NSObject {
   
   public static var timingMayBeInaccurate: Bool {
     #if DEBUG || targetEnvironment(simulator)
-    return true
+      return true
     #else
-    return false
+      return false
     #endif
   }
   
   /// Number of network batches to keep in memory.
   @objc public var networkBatchWindowSize: Int {
-    didSet {
+    get { networkBatchQueue.maximumSize! }
+    set {
       let max = Self.networkBatchWindowMaxSize
-      networkBatchWindowSize = min(networkBatchWindowSize, max)
-      trimNetworkBatches()
+      let size = min(newValue, max)
+      networkBatchQueue.maximumSize = size
     }
   }
 
@@ -142,17 +149,37 @@ public final class Xray: NSObject {
   /// counted in this size.
   @objc public private(set) var totalBytesSent: UInt64
 
-  /// Total number of requests sent across network.
-  @objc public private(set) var totalRequestsMade: Int
-
   /// Total time spent in Promoted logging code.
+  /// When `xrayLevel` is `.batchSummaries`, this does not
+  /// include time spent in individual calls.
   @objc public private(set) var totalTimeSpent: TimeInterval
 
+  /// Total number of errors encountered at any time during
+  /// Promoted logging.
+  @objc public private(set) var totalErrors: Int
+
+  /// Total number of requests attempted.
+  @objc public private(set) var batchesAttempted: Int
+
+  /// Total number of requests sent across network.
+  @objc public private(set) var batchesSentSuccessfully: Int
+
+  /// Total number of batches that had errors.
+  @objc public private(set) var batchesWithErrors: Int
+
+  /// Serial number for current batch.
+  @objc public var currentBatchNumber: Int { batchesAttempted + 1 }
+
   /// Most recent network batches.
-  @objc public private(set) var networkBatches: [NetworkBatch]
+  @objc public var networkBatches: [NetworkBatch] {
+    networkBatchQueue.values
+  }
+  private var networkBatchQueue: Deque<NetworkBatch>
 
   /// Flattened logging calls across `networkBatches`.
-  @objc public var calls: [Call] { networkBatches.flatMap(\.calls) }
+  @objc public var calls: [Call] {
+    networkBatches.flatMap(\.calls)
+  }
 
   /// Flattened errors across `networkBatches`.
   @objc public var errors: [Error] {
@@ -163,22 +190,28 @@ public final class Xray: NSObject {
   private var pendingBatch: NetworkBatch?
   
   private let clock: Clock
-  private let callStacksEnabled: Bool
+  private let xrayLevel: ClientConfig.XrayLevel
+  private let osLogLevel: ClientConfig.OSLogLevel
   private let osLog: OSLog?
 
   typealias Deps = ClockSource & ClientConfigSource &
       OperationMonitorSource & OSLogSource
 
   init(deps: Deps) {
+    assert(deps.clientConfig.xrayLevel != .none)
+
     self.clock = deps.clock
-    self.callStacksEnabled = deps.clientConfig.xrayExpensiveThreadCallStacksEnabled
+    self.xrayLevel = deps.clientConfig.xrayLevel
+    self.osLogLevel = deps.clientConfig.osLogLevel
     self.osLog = deps.osLog(category: "Xray")
 
-    self.networkBatchWindowSize = 10
     self.totalBytesSent = 0
-    self.totalRequestsMade = 0
     self.totalTimeSpent = 0
-    self.networkBatches = []
+    self.totalErrors = 0
+    self.batchesAttempted = 0
+    self.batchesSentSuccessfully = 0
+    self.batchesWithErrors = 0
+    self.networkBatchQueue = Deque<NetworkBatch>(maximumSize: 10)
     self.pendingCalls = []
     self.pendingBatch = nil
     
@@ -195,9 +228,10 @@ protocol XraySource {
 fileprivate extension Xray {
 
   private func callWillStart(context: String) {
+    guard xrayLevel >= .callDetails else { return }
     let call = Call()
     call.context = context
-    if callStacksEnabled {
+    if xrayLevel >= .callDetailsAndStackTraces {
       // Thread.callStackSymbols is slow.
       // Make sure startTime measurement comes after this.
       call.callStack = Thread.callStackSymbols
@@ -208,12 +242,21 @@ fileprivate extension Xray {
   }
   
   private func callDidLog(message: Message) {
+    guard xrayLevel >= .callDetails else { return }
     osLog?.signpostEvent(name: "call", format: "log")
     guard let lastCall = pendingCalls.last else { return }
     lastCall.messages.append(message)
   }
 
   private func callDidError(_ error: Error) {
+    totalErrors += 1
+    if xrayLevel == .batchSummaries {
+      // Create a call and record only the error.
+      let call = Call()
+      call.error = error
+      pendingCalls.append(call)
+      return
+    }
     osLog?.signpostEvent(name: "call", format: "error: %{public}@",
                          error.localizedDescription)
     guard let lastCall = pendingCalls.last else { return }
@@ -221,6 +264,7 @@ fileprivate extension Xray {
   }
 
   private func callDidComplete() {
+    guard xrayLevel >= .callDetails else { return }
     osLog?.signpostEnd(name: "call")
     guard let lastCall = pendingCalls.last else { return }
     lastCall.endTime = clock.now
@@ -236,9 +280,17 @@ fileprivate extension Xray {
       // any network calls.
       add(batch: leftoverBatch)
     }
+    batchesAttempted += 1
     let pendingBatch = NetworkBatch()
+    pendingBatch.batchNumber = batchesAttempted
     pendingBatch.startTime = clock.now
-    pendingBatch.calls = pendingCalls
+    if xrayLevel == .batchSummaries {
+      // Calls contain only errors when xrayLevel == .batchSummaries.
+      // Don't record the calls as they are otherwise empty.
+      pendingBatch.errors = pendingCalls.compactMap(\.error)
+    } else {
+      pendingBatch.calls = pendingCalls
+    }
     self.pendingBatch = pendingBatch
     self.pendingCalls.removeAll()
     osLog?.signpostBegin(name: "batch")
@@ -262,7 +314,8 @@ fileprivate extension Xray {
     osLog?.signpostEvent(name: "batch", format: "error: %{public}@",
                          error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
-    pendingBatch.error = error
+    pendingBatch.errors.append(error)
+    totalErrors += 1
   }
 
   private func batchDidComplete() {
@@ -270,7 +323,7 @@ fileprivate extension Xray {
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.endTime = clock.now
     totalTimeSpent += pendingBatch.timeSpentAcrossCalls
-    if pendingBatch.error != nil {
+    if !pendingBatch.errors.isEmpty {
       add(batch: pendingBatch)
       self.pendingBatch = nil
     }
@@ -281,7 +334,9 @@ fileprivate extension Xray {
                          error.localizedDescription)
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.networkEndTime = clock.now
-    pendingBatch.error = error
+    pendingBatch.errors.append(error)
+    batchesWithErrors += 1
+    totalErrors += 1
   }
 
   private func batchResponseDidComplete() {
@@ -289,37 +344,98 @@ fileprivate extension Xray {
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.networkEndTime = clock.now
     totalBytesSent += pendingBatch.messageSizeBytes
-    totalRequestsMade += 1
+    batchesSentSuccessfully += 1
     add(batch: pendingBatch)
     self.pendingBatch = nil
-    logBatchResponseCompleteStats()
+    consoleLogBatchResponseCompleteStats()
   }
 
   private func add(batch: NetworkBatch) {
-    networkBatches.append(batch)
-    trimNetworkBatches()
+    networkBatchQueue.pushBack(batch)
   }
 
-  private func trimNetworkBatches() {
-    let excess = networkBatches.count - networkBatchWindowSize
-    if excess > 0 {
-      // networkBatches.removeFirst(k) is O(networkBatches.count).
-      // Not worth optimizing right now, but could use a circular
-      // buffer to avoid this.
-      networkBatches.removeFirst(excess)
-    }
-  }
-
-  private func logBatchResponseCompleteStats() {
-    guard let osLog = osLog else { return }
+  private func consoleLogBatchResponseCompleteStats() {
+    guard osLogLevel >= .info, let osLog = osLog else { return }
     if Self.timingMayBeInaccurate {
       osLog.info("WARNING: Timing may be inaccurate when running in debug or simulator.")
     }
     if let batch = networkBatches.last {
-      osLog.info("Latest batch: %{private}@", String(describing: batch))
+      if xrayLevel >= .callDetails && osLogLevel >= .debug {
+        consoleLogOperationSummaryTable(batch: batch)
+        consoleLogMessageSummaryTable(batch: batch)
+      } else {
+        osLog.info("Latest batch: %{private}@", String(describing: batch))
+      }
     }
-    osLog.info("Total: %{public}lld ms, %{public}lld bytes, %{public}d requests",
-               totalTimeSpent.millis, totalBytesSent, totalRequestsMade)
+    osLog.info("Total: Millis: %{public}lld, Bytes: %{public}lld, Batches: %{public}d",
+               totalTimeSpent.millis, totalBytesSent, batchesSentSuccessfully)
+  }
+
+  private func consoleLogOperationSummaryTable(batch: NetworkBatch) {
+    guard osLogLevel >= .debug, let osLog = osLog else { return }
+    let formatter = TabularLogFormatter(name: "Operations in Batch \(batch.batchNumber) " +
+                                              "\(String(describing: batch))")
+    formatter.addField(name: "Operation", width: 25, alignment: .left)
+    formatter.addField(name: "Millis", width: 10, alignment: .right)
+    formatter.addField(name: "Msg Count", width: 10, alignment: .right)
+    formatter.addField(name: "Msg Bytes", width: 10, alignment: .right)
+    formatter.addField(name: "Summary", width: 30, alignment: .left)
+    for call in batch.calls {
+      let summary = call.messages.map { message in
+        switch message {
+        case let view as Event_View:
+          return "View(\(view.name), \(view.viewID.prefix(4)))"
+        case let impression as Event_Impression:
+          return "Imp(\(impression.impressionID.prefix(4)))"
+        case let action as Event_Action:
+          return "Act(\(action.name), \(action.actionID.prefix(4)))"
+        default:
+          return message.loggingName
+        }
+      }.joined(separator: ", ")
+      formatter.addRow(call.context,
+                       call.timeSpent.millis,
+                       call.messages.count,
+                       call.messagesSizeBytes,
+                       summary)
+    }
+    osLog.debug(formatter)
+  }
+
+  private func consoleLogMessageSummaryTable(batch: NetworkBatch) {
+    guard osLogLevel >= .debug, let osLog = osLog else { return }
+    let formatter = TabularLogFormatter(name: "Messages in Batch \(batch.batchNumber)")
+    formatter.addField(name: "Type", width: 10)
+    formatter.addField(name: "Name", width: 25)
+    formatter.addField(name: "LogUserID", width: 36)
+    formatter.addField(name: "ViewID", width: 36)
+    formatter.addField(name: "ImpressionID", width: 36)
+    formatter.addField(name: "ActionID", width: 36)
+    let logUserID = (batch.message as? Event_LogRequest)?.userInfo.logUserID ?? "-"
+    for message in batch.calls.flatMap(\.messages) {
+      let type = message.loggingName
+      switch message {
+      case let view as Event_View:
+        formatter.addRow(type, view.name, logUserID, view.viewID, "-", "-")
+      case let impression as Event_Impression:
+        formatter.addRow(type, "-", logUserID, impression.viewID,
+                         impression.impressionID, "-")
+      case let action as Event_Action:
+        formatter.addRow(type, action.name, logUserID, action.viewID,
+                         action.impressionID, action.actionID)
+      default:
+        formatter.addRow(type, "-", "-", "-", "-", "-")
+      }
+    }
+    osLog.debug(formatter)
+  }
+}
+
+extension Message {
+  var loggingName: String {
+    return String(describing: type(of: self))
+      .replacingOccurrences(of: "Event_", with: "")
+      .replacingOccurrences(of: "Delivery_", with: "")
   }
 }
 
@@ -384,8 +500,8 @@ extension Xray.Call {
     let context = String(describing: self.context)
     let messageCount = messages.count
     let messageSize = messagesSizeBytes
-    return "(\(context): \(timeSpent.millis) ms, \(messageCount) msgs, " +
-           "\(messageSize) bytes)"
+    return "(Context: \(context), Millis: \(timeSpent.millis), " +
+           "Message Count: \(messageCount), Message Bytes: \(messageSize))"
   }
 }
 
@@ -396,9 +512,9 @@ extension Xray.NetworkBatch {
 
   public override var debugDescription: String {
     let callCount = calls.count
-    let eventCount = calls.flatMap { $0.messages }.count
+    let eventCount = calls.flatMap(\.messages).count
     let messageSize = messageSizeBytes
-    return "(\(timeSpentAcrossCalls.millis) ms, \(callCount) calls, " +
-           "\(eventCount) events, \(messageSize) bytes)"
+    return "(Millis: \(timeSpentAcrossCalls.millis), Calls: \(callCount), " +
+           "Message Count: \(eventCount), Message Bytes: \(messageSize))"
   }
 }

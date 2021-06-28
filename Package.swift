@@ -1,4 +1,4 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.3
 
 import PackageDescription
 
@@ -23,8 +23,14 @@ let package = Package(
       targets: [
         "PromotedMetrics",
       ]),
+    .library(
+      name: "PromotedFirebaseAnalytics",
+      targets: [
+        "PromotedFirebaseAnalytics",
+      ]),
   ],
   dependencies: [
+    .package(name: "Firebase", url: "https://github.com/firebase/firebase-ios-sdk", from: "7.11.0"),
     .package(name: "GTMSessionFetcher", url: "https://github.com/google/gtm-session-fetcher", from: "1.5.0"),
     .package(name: "SwiftProtobuf", url: "https://github.com/apple/swift-protobuf", from: "1.15.0"),
   ],
@@ -33,11 +39,20 @@ let package = Package(
       name: "PromotedCore",
       dependencies: [
         "SwiftProtobuf",
+      ],
+      resources: [
+        .copy("Resources/Version.txt"),
       ]),
     .target(
       name: "PromotedFetcher",
       dependencies: [
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
+        .target(name: "PromotedCore"),
+      ]),
+    .target(
+      name: "PromotedFirebaseAnalytics",
+      dependencies: [
+        .product(name: "FirebaseAnalytics", package: "Firebase"),
         .target(name: "PromotedCore"),
       ]),
     .target(
@@ -59,24 +74,3 @@ let package = Package(
       ]),
   ]
 )
-
-#if swift(>=5.3)
-// Firebase dependencies require Swift 5.3.
-package.products.append(
-  .library(
-    name: "PromotedFirebaseAnalytics",
-    targets: [
-      "PromotedFirebaseAnalytics",
-    ]))
-
-package.dependencies.append(
-  .package(name: "Firebase", url: "https://github.com/firebase/firebase-ios-sdk", from: "7.11.0"))
-
-package.targets.append(
-  .target(
-    name: "PromotedFirebaseAnalytics",
-    dependencies: [
-      .product(name: "FirebaseAnalytics", package: "Firebase"),
-      .target(name: "PromotedCore"),
-    ]))
-#endif

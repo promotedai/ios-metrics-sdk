@@ -48,12 +48,15 @@ import os.log
 @objc(PROMetricsLogger)
 public final class MetricsLogger: NSObject {
 
-  private let clock: Clock
-  private let config: ClientConfig
-  private let connection: NetworkConnection
-  private let deviceInfo: DeviceInfo
-  private let idMap: IDMap
-  private let store: PersistentStore
+  private unowned let clock: Clock
+  private unowned let config: ClientConfig
+  private unowned let connection: NetworkConnection
+  private unowned let deviceInfo: DeviceInfo
+  private unowned let idMap: IDMap
+  private unowned let monitor: OperationMonitor
+  private let osLog: OSLog?
+  private unowned let store: PersistentStore
+  private unowned let xray: Xray?
 
   private var logMessages: [Message]
   
@@ -67,43 +70,46 @@ public final class MetricsLogger: NSObject {
   
   private let logUserIDProducer: IDProducer
   private let sessionIDProducer: IDProducer
-  let viewTracker: ViewTracker
+  unowned let viewTracker: ViewTracker
   private var needsViewStateCheck: Bool
 
-  private unowned let monitor: OperationMonitor
-  private let osLog: OSLog?
+  var history: AncestorIDHistory?
 
   private lazy var cachedDeviceMessage: Event_Device = deviceMessage()
   private lazy var cachedLocaleMessage: Event_Locale = localeMessage()
 
   typealias Deps = ClientConfigSource & ClockSource & NetworkConnectionSource &
                    DeviceInfoSource & IDMapSource & OperationMonitorSource &
-                   OSLogSource & PersistentStoreSource & ViewTrackerSource
+                   OSLogSource & PersistentStoreSource & ViewTrackerSource & XraySource
 
   init(deps: Deps) {
-    self.clock = deps.clock
-    self.config = deps.clientConfig
-    self.connection = deps.networkConnection
-    self.deviceInfo = deps.deviceInfo
-    self.idMap = deps.idMap
-    self.monitor = deps.operationMonitor
-    self.store = deps.persistentStore
-    self.osLog = deps.osLog(category: "MetricsLogger")
+    clock = deps.clock
+    config = deps.clientConfig
+    connection = deps.networkConnection
+    deviceInfo = deps.deviceInfo
+    idMap = deps.idMap
+    monitor = deps.operationMonitor
+    store = deps.persistentStore
+    osLog = deps.osLog(category: "MetricsLogger")
+    xray = deps.xray
 
-    self.logMessages = []
-    self.userID = nil
+    logMessages = []
+    userID = nil
 
-    self.logUserIDProducer = IDProducer(initialValueProducer: {
+    logUserIDProducer = IDProducer(initialValueProducer: {
       [store, idMap] in store.logUserID ?? idMap.logUserID()
     }, nextValueProducer: {
       [idMap] in idMap.logUserID()
     })
-    self.sessionIDProducer = IDProducer { [idMap] in idMap.sessionID() }
-    self.viewTracker = deps.viewTracker
-    self.needsViewStateCheck = false
+    sessionIDProducer = IDProducer { [idMap] in idMap.sessionID() }
+    viewTracker = deps.viewTracker
+    needsViewStateCheck = false
+
+    history = config.diagnosticsIncludeAncestorIDHistory ?
+      AncestorIDHistory(osLog: osLog, xray: xray) : nil
 
     super.init()
-    self.monitor.addOperationMonitorListener(self)
+    monitor.addOperationMonitorListener(self)
   }
 }
 
@@ -114,7 +120,10 @@ public extension MetricsLogger {
   /// called.
   var logUserID: String? {
     get { logUserIDProducer.currentValue }
-    set { logUserIDProducer.currentValue = newValue }
+    set {
+      logUserIDProducer.currentValue = newValue
+      history?.logUserIDDidChange(value: newValue)
+    }
   }
 
   /// Log user ID for this session.
@@ -130,7 +139,10 @@ public extension MetricsLogger {
   /// called.
   var sessionID: String? {
     get { sessionIDProducer.currentValue }
-    set { sessionIDProducer.currentValue = newValue }
+    set {
+      sessionIDProducer.currentValue = newValue
+      history?.sessionIDDidChange(value: newValue)
+    }
   }
 
   /// Session ID for this session.
@@ -150,16 +162,19 @@ public extension MetricsLogger {
           logView(trackerState: state)
         }
       }
-      return viewTracker.viewID
+      return viewTracker.id.currentValue
     }
-    set { viewTracker.viewID = newValue }
+    set {
+      viewTracker.id.currentValue = newValue
+      history?.viewIDDidChange(value: newValue)
+    }
   }
 
   /// View ID for current view.
   /// If read before the first call to `logView()`,
   /// returns an ID that will be used for the first view.
   var currentOrPendingViewID: String? {
-    viewTracker.currentOrPendingViewID
+    viewTracker.id.currentOrPendingValue
   }
 }
 
@@ -215,7 +230,7 @@ public extension MetricsLogger {
   }
   
   private func startSessionAndUpdateUserIDs(userID: String?) {
-    sessionIDProducer.nextValue()
+    sessionIDProducer.advance()
 
     // New session with same user should not regenerate logUserID.
     if (self.userID != nil) && (self.userID == userID) { return }
@@ -224,12 +239,12 @@ public extension MetricsLogger {
     store.userID = userID
 
     // Reads logUserID from store for initial value, if available.
-    store.logUserID = logUserIDProducer.nextValue()
+    store.logUserID = logUserIDProducer.advance()
   }
 }
 
 // MARK: - Internal methods
-fileprivate extension MetricsLogger {
+extension MetricsLogger {
   private func deviceMessage() -> Event_Device {
     var device = Event_Device()
     if let type = deviceInfo.deviceType.protoValue { device.deviceType = type }
@@ -258,7 +273,7 @@ fileprivate extension MetricsLogger {
     return userInfo
   }
   
-  private func timingMessage() -> Common_Timing {
+  func timingMessage() -> Common_Timing {
     var timing = Common_Timing()
     timing.clientLogTimestamp = UInt64(clock.nowMillis)
     return timing
@@ -289,12 +304,14 @@ public extension MetricsLogger {
   ///
   /// - Parameters:
   ///   - properties: Client-specific message
-  func logUser(properties: Message? = nil) {
+  internal func logUser(properties: Message? = nil) {
     monitor.execute {
       var user = Event_User()
       user.timing = timingMessage()
       if let p = propertiesMessage(properties) { user.properties = p }
       log(message: user)
+      history?.logUserIDDidChange(value: logUserID, event: user)
+      history?.sessionIDDidChange(value: sessionID)
     }
   }
 
@@ -423,6 +440,7 @@ public extension MetricsLogger {
       // TODO(yu-hong): Fill out AppScreenView.
       view.appScreenView = appScreenView
       log(message: view)
+      history?.viewIDDidChange(value: viewID, event: view)
     }
   }
 }
@@ -479,9 +497,20 @@ public extension MetricsLogger {
       case let action as Event_Action:
         logRequest.action.append(action)
       default:
-        osLog?.debug("Unknown event: %{private}@", String(describing: event))
+        osLog?.warning("flush/logRequestMessage: Unknown event: %{private}@", String(describing: event))
         monitor.executionDidError(MetricsLoggerError.unexpectedEvent(event))
       }
+    }
+    if config.anyDiagnosticsEnabled {
+      var diagnostics = mobileDiagnosticsMessage()
+      if config.diagnosticsIncludeBatchSummaries, let xray = xray {
+        fillDiagnostics(in: &diagnostics, xray: xray)
+      }
+      if config.diagnosticsIncludeAncestorIDHistory {
+        fillAncestorIDHistory(in: &diagnostics)
+      }
+      osLog?.debug("diagnostics: %{private}@", String(describing: diagnostics))
+      logRequest.mobileDiagnostics = diagnostics
     }
     return logRequest
   }
@@ -523,7 +552,7 @@ public extension MetricsLogger {
         monitor.executionDidLog()
       }
       if let e = error {
-        osLog?.error("flush/sendMessage: %{public}@", e.localizedDescription)
+        osLog?.error("flush/response: %{public}@", e.localizedDescription)
         monitor.executionDidError(e)
       }
     }

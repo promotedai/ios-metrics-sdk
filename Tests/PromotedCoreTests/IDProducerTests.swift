@@ -24,14 +24,14 @@ final class IDProducerTests: XCTestCase {
   func testNextValue() {
     XCTAssertEqual("initial-id", idProducer.currentOrPendingValue)
 
-    // First call to nextValue() should use initial value.
-    XCTAssertEqual("initial-id", idProducer.nextValue())
+    // First call to advance() should use initial value.
+    XCTAssertEqual("initial-id", idProducer.advance())
     XCTAssertEqual("initial-id", idProducer.currentValue)
 
-    // Subsequent calls to nextValue() should advance id.
-    XCTAssertEqual("fake-action-id-1", idProducer.nextValue())
+    // Subsequent calls to advance() should advance id.
+    XCTAssertEqual("fake-action-id-1", idProducer.advance())
     XCTAssertEqual("fake-action-id-1", idProducer.currentValue)
-    XCTAssertEqual("fake-action-id-2", idProducer.nextValue())
+    XCTAssertEqual("fake-action-id-2", idProducer.advance())
     XCTAssertEqual("fake-action-id-2", idProducer.currentValue)
   }
 
@@ -48,8 +48,8 @@ final class IDProducerTests: XCTestCase {
     XCTAssertEqual("my-new-value", idProducer.currentOrPendingValue)
     XCTAssertEqual("my-new-value", idProducer.currentValue)
 
-    // Calls to nextValue() should drop custom values.
-    XCTAssertEqual("fake-action-id-1", idProducer.nextValue())
+    // Calls to advance() should drop custom values.
+    XCTAssertEqual("fake-action-id-1", idProducer.advance())
     XCTAssertEqual("fake-action-id-1", idProducer.currentOrPendingValue)
     XCTAssertEqual("fake-action-id-1", idProducer.currentValue)
 
