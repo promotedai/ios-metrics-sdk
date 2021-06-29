@@ -5,32 +5,34 @@ import Foundation
 import PromotedCore
 #endif
 
-final class FirebaseRemoteConfigService: ClientConfigService {
+final class FirebaseRemoteConfigService: AbstractClientConfigService {
 
-  var config: ClientConfig {
-    ClientConfig()
-  }
-
-  func fetchClientConfig() throws {
+  override func fetchClientConfig(initialConfig: ClientConfig,
+                                  callback: @escaping Callback) throws {
     let remoteConfig = RemoteConfig.remoteConfig()
     #if DEBUG
       let settings = RemoteConfigSettings()
       settings.minimumFetchInterval = 0
       remoteConfig.configSettings = settings
     #endif
-    remoteConfig.activate { changed, error in
-      remoteConfig.configValue(forKey: <#T##String?#>, source: <#T##RemoteConfigSource#>)
-    }
     remoteConfig.fetch { status, error in
-
+      if let error = error {
+        callback(nil, error)
+        return
+      }
+      switch status {
+      case .success:
+        var warnings: [String]? = []
+        var infos: [String]? = []
+        let config = ClientConfig(remoteConfig: remoteConfig, warnings: &warnings, infos: &infos)
+        callback(config, nil)
+      case .failure, .noFetchYet:
+        break
+      case .throttled:
+        break
+      @unknown default:
+        break
+      }
     }
-  }
-
-  func addClientConfigListener(_ listener: ClientConfigListener) {
-    <#code#>
-  }
-
-  func removeClientConfigListener(_ listener: ClientConfigListener) {
-    <#code#>
   }
 }

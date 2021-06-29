@@ -25,9 +25,7 @@ final class TestModule: AllDeps {
 
   lazy var analyticsConnection: AnalyticsConnection? = fakeAnalyticsConnection
 
-  var clientConfigService: ClientConfigService {
-    LocalClientConfigService(initialConfig: initialConfig)
-  }
+  lazy var clientConfigService: ClientConfigService = LocalClientConfigService()
 
   var clientConfig = ClientConfig()
 

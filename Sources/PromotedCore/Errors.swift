@@ -1,17 +1,6 @@
 import Foundation
 import SwiftProtobuf
 
-// MARK: - ErrorHandler
-
-/** Notified when internal errors occur in Promoted logging. */
-@objc(PROErrorListener)
-public protocol ErrorListener {
-  /// Called once per error after call to Promoted logging finishes.
-  /// Internal errors are surfaced to clients as `NSError` (see
-  /// `ClientConfigError`).
-  @objc func promotedLoggerDidError(_ error: NSError)
-}
-
 // MARK: - NSErrorProperties
 public protocol NSErrorProperties {
   
@@ -73,6 +62,12 @@ public enum ClientConfigError: Error {
   /// `ClientConfig` specified a `devMetricsLoggingURL` but did not
   /// provide `devMetricsLoggingAPIKey`.
   case missingDevAPIKey
+
+  /// Error when fetching remote config.
+  case remoteConfigFetchError(_ error: Error)
+
+  /// Remote fetch finished, but provided no config.
+  case emptyRemoteConfig
 }
 
 extension ClientConfigError: NSErrorProperties {
@@ -86,6 +81,10 @@ extension ClientConfigError: NSErrorProperties {
       return 102
     case .missingDevAPIKey:
       return 103
+    case .remoteConfigFetchError(_):
+      return 104
+    case .emptyRemoteConfig:
+      return 105
     }
   }
 }

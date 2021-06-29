@@ -28,10 +28,17 @@ public final class ModuleConfig: NSObject {
   @objc public static func coreConfig() -> ModuleConfig { ModuleConfig() }
 }
 
-typealias ClientConfigDeps = ClientConfigSource & ClientConfigServiceSource
+/**
+ Available before `ClientConfig` loads. If you're working in a class
+ that is a dependency of `ClientConfigService` then you can only
+ pull in these dependencies. Be careful modifying this, so that you
+ don't accidentally pull in something that depends on `ClientConfig`.
+ */
+typealias ClientConfigServiceDeps = InitialConfigSource & PersistentStoreSource
 
 typealias InternalDeps = AnalyticsSource &
-                         ClientConfigDeps &
+                         ClientConfigSource &
+                         ClientConfigServiceSource &
                          ClockSource &
                          DeviceInfoSource &
                          IDMapSource &
@@ -48,8 +55,8 @@ typealias NetworkConnectionDeps = InternalDeps & NetworkConnectionSource
 typealias PersistentStoreDeps = InternalDeps & PersistentStoreSource
 
 typealias AllDeps = InternalDeps &
+                    ClientConfigServiceDeps &
                     AnalyticsConnectionDeps &
-                    ClientConfigDeps &
                     NetworkConnectionDeps &
                     PersistentStoreDeps
 
@@ -162,11 +169,19 @@ final class Module: AllDeps {
   private(set) var analyticsConnection: AnalyticsConnection?
 
   var clientConfig: ClientConfig {
-    clientConfigService.config
+    #if DEBUG
+      switch clientConfigService.fetchStatus {
+      case .pending, .inProgress:
+        assertionFailure()
+      default:
+        break
+      }
+    #endif
+    return clientConfigService.config
   }
 
   private(set) lazy var clientConfigService: ClientConfigService =
-    clientConfigServiceSpec ?? LocalClientConfigService(initialConfig: initialConfig)
+    clientConfigServiceSpec ?? LocalClientConfigService()
   private let clientConfigServiceSpec: ClientConfigService?
 
   let clock: Clock = SystemClock()
@@ -227,6 +242,7 @@ final class Module: AllDeps {
   /// Loads all dependencies from `ModuleConfig`. Ensures that any
   /// runtime errors occur early on in initialization.
   func validateModuleConfigDependencies() throws {
+    // Don't reference clientConfig in this method.
     if networkConnectionSpec == nil {
       throw ModuleConfigError.missingNetworkConnection
     }
@@ -234,10 +250,26 @@ final class Module: AllDeps {
 
   /// Starts any services among dependencies.
   func startLoggingServices() throws {
-    try clientConfigService.fetchClientConfig()
-    _ = analytics
-    try analyticsConnection?.startServices()
-    // Initialize Xray as an OperationMonitorListener.
-    _ = xray
+    if let internalClientConfigService = clientConfigService as? InternalClientConfigService {
+      let deps = clientConfigServiceDeps
+      try internalClientConfigService.fetchClientConfig(deps: deps) {
+        [weak self] (_, _) in
+        try self?.startClientConfigDependentServices()
+      }
+    } else {
+      try clientConfigService.fetchClientConfig(initialConfig: initialConfig) {
+        [weak self] (_, _) in
+        try self?.startClientConfigDependentServices()
+      }
+    }
   }
+
+  private func startClientConfigDependentServices() throws {
+    _ = self.analytics
+    try self.analyticsConnection?.startServices()
+    // Initialize Xray as an OperationMonitorListener.
+    _ = self.xray
+  }
+
+  private var clientConfigServiceDeps: ClientConfigServiceDeps { self }
 }

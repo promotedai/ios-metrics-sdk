@@ -175,7 +175,7 @@ public final class ClientConfig: NSObject {
   }
 
   @objc public override init() {}
-  
+
   public init(_ config: ClientConfig) {
     // ClientConfig really should be a struct, but isn't because
     // of Objective C compatibility.
@@ -225,9 +225,46 @@ public final class ClientConfig: NSObject {
   }
 }
 
-protocol ClientConfigSource {
-  var clientConfig: ClientConfig { get }
+extension ClientConfig {
+
+  func merge(from dictionary: [String: Any],
+             warnings: inout [String]?,
+             infos: inout [String]?) {
+    var remainingKeys = Set(dictionary.keys)
+    let mirror = Mirror(reflecting: self)
+    for var child in mirror.children {
+      guard let dictionaryKey = child.label else {
+        warnings?.append("Child with no label: \(String(describing: child))")
+        continue
+      }
+      guard let value = dictionary[dictionaryKey] else { continue }
+      infos?.append("Merge from dict: \(dictionaryKey) = \(String(describing: value))")
+      remainingKeys.remove(dictionaryKey)
+      child.value = value
+    }
+    for remainingKey in remainingKeys {
+      warnings?.append("Unused key in dict: \(remainingKey)")
+    }
+  }
+
+  func asDictionary() -> [String: Any] {
+    var result = [String: Any]()
+    let mirror = Mirror(reflecting: self)
+    for child in mirror.children {
+      guard let key = child.label else { continue }
+      let value = child.value
+      result[key] = value
+    }
+    return result
+  }
+}
+
+protocol InitialConfigSource {
   var initialConfig: ClientConfig { get }
+}
+
+protocol ClientConfigSource: InitialConfigSource {
+  var clientConfig: ClientConfig { get }
 }
 
 public func < <T: RawRepresentable>(a: T, b: T) -> Bool
