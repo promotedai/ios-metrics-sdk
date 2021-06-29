@@ -7,8 +7,12 @@ import Foundation
  */
 public protocol RemoteConfigConnection: AnyObject {
 
-  typealias Callback = (ClientConfig?, Error?) throws -> Void
+  typealias Callback = (ClientConfig?, Error?) -> Void
 
   func fetchClientConfig(initialConfig: ClientConfig,
-                         callback: @escaping Callback) rethrows
+                         callback: @escaping Callback) throws
+}
+
+protocol RemoteConfigConnectionSource {
+  var remoteConfigConnection: RemoteConfigConnection? { get }
 }

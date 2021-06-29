@@ -4,7 +4,9 @@ import Foundation
 
 /**
  Provides `ClientConfig` for this logging session.
- 
+ Remote config loads only happen if `RemoteConfigConnection`
+ is provided.
+
  This config may be loaded from the following sources:
  
  1. The `initialConfig` with hard-coded values provided via
@@ -14,39 +16,50 @@ import Foundation
     fetched, it is stored locally and read on the next startup
     of the logging system. (The first startup uses the hard-coded
     `initialConfig` values.) Cached config values take precedence
-    over hard-coded ones.
- 3. Remotely over the network. When a remote config is successfully
-    fetched, it overwrites any existing cached configs. Remote
-    config loads only happen if `RemoteConfigConnection` is provided.
+    over hard-coded ones. A cached config will only exist when
+    a remote config load succeeds.
+ 3. Remotely over the network. When a remote config is
+    successfully fetched, it overwrites any existing cached
+    configs. The `config` property as observed in this class will
+    never take on the value of a remotely-loaded config that was
+    loaded in the current session.
  */
 final class ClientConfigService: AnyObject {
 
-  /** Status of loading client config. */
-  enum FetchStatus {
-    case pending
-    case inProgress(cachedAvailable: Bool)
-    case success
-    case failure(error: Error, cachedAvailable: Bool)
+  /** Source of client config. */
+  enum ConfigSource: Equatable {
+    /// The initial config provided via hard-coded
+    /// initialization of the logging library.
+    case initial
+    /// Locally cached config provided by remote source
+    /// during the previous session.
+    case localCache
   }
-  /// Status of this service.
-  private(set) var fetchStatus: FetchStatus
-  
+  /// Source of client config.
+  private(set) var source: ConfigSource
+
   /// The current config for the session.
-  var config: ClientConfig {
-    assert(fetchStatus.cachedAvailable)
-    return cachedConfig
+  private(set) var config: ClientConfig
+
+  private let initialConfig: ClientConfig
+  private unowned let store: PersistentStore
+  private unowned let remoteConfigConnection: RemoteConfigConnection?
+
+  /// Available before `ClientConfig` loads. If you're working
+  /// in a class that is a dependency of `ClientConfigService`
+  /// then you can only pull in these dependencies. Be careful
+  /// modifying this, so that you don't accidentally pull in
+  /// something that depends on `ClientConfig`.
+  typealias Deps = InitialConfigSource & PersistentStoreSource &
+                   RemoteConfigConnectionSource
+
+  init(deps: Deps) {
+    self.initialConfig = deps.initialConfig
+    self.store = deps.persistentStore
+    self.remoteConfigConnection = deps.remoteConfigConnection
+    self.source = .initial
+    self.config = ClientConfig(deps.initialConfig)
   }
-
-  private var cachedConfig: ClientConfig
-
-  private let remoteConfigConnection: RemoteConfigConnection?
-
-  init(remoteConfigConnection: RemoteConfigConnection?) {
-    self.fetchStatus = .pending
-    self.config = ClientConfig()
-    self.remoteConfigConnection = remoteConfigConnection
-  }
-
 }
 
 protocol ClientConfigServiceSource {
@@ -55,87 +68,42 @@ protocol ClientConfigServiceSource {
 
 extension ClientConfigService {
 
-  typealias FetchDeps = InitialConfigSource & PersistentStoreSource
-  typealias Callback = (ClientConfig?, Error?) throws -> Void
+  typealias Callback = (ClientConfig?, Error?) -> Void
 
   /// Loads cached config synchronously and initiates asynchronous
   /// load of remote config (for use in next startup).
-  func fetchClientConfig(deps: FetchDeps,
-                         callback: @escaping Callback) rethrows {
-    let initialConfig = deps.initialConfig
-    let store = deps.persistentStore
-    fetchStatus = .inProgress(cachedAvailable: false)
-
+  func fetchClientConfig(callback: @escaping Callback? = nil) throws {
     // This loads the cached config synchronously.
     if let clientConfigDict = store.clientConfig {
       var warnings: [String]? = []
       var infos: [String]? = []
       let config = ClientConfig(initialConfig)
       config.merge(from: clientConfigDict, warnings: &warnings, infos: &infos)
-      cachedConfig = config
-      fetchStatus = .inProgress(cachedAvailable: true)
+      self.config = config
+      self.source = .localCache
     }
 
     try remoteConfigConnection?.fetchClientConfig(initialConfig: initialConfig) {
       [weak self] (config, error) in
       guard let self = self else { return }
-      let cachedAvailable = self.fetchStatus.cachedAvailable
 
+      // If any error loading remote config, bail.
       if let error = error {
         let e = ClientConfigError.remoteConfigFetchError(error)
-        self.fetchStatus = .failure(error: e, cachedAvailable: cachedAvailable)
-        try callback(nil, e)
+        callback?(nil, e)
         return
       }
 
+      // Successfully loaded config. Save for next session.
       if let config = config {
-        self.fetchStatus = .success
-        store.clientConfig = config.asDictionary()
-        try callback(config, nil)
+        self.store.clientConfig = config.asDictionary()
+        callback?(config, nil)
         return
       }
 
+      // Somehow failed to get error or config.
       let e = ClientConfigError.emptyRemoteConfig
-      self.fetchStatus = .failure(error: e, cachedAvailable: cachedAvailable)
-      try callback(nil, e)
-    }
-  }
-
-  open func fetchClientConfig(initialConfig: ClientConfig,
-                              callback: @escaping Callback) rethrows {
-    try callback(initialConfig, nil)
-  }
-}
-
-extension ClientConfigService.FetchStatus {
-  var cachedAvailable: Bool {
-    switch self {
-    case .pending:
-      return false
-    case .success:
-      return true
-    case .inProgress(let cachedAvailable),
-         .failure(_, let cachedAvailable):
-      return cachedAvailable
-    }
-  }
-}
-
-extension ClientConfigServiceFetchStatus: Equatable {
-  public static func == (lhs: ClientConfigServiceFetchStatus,
-                         rhs: ClientConfigServiceFetchStatus) -> Bool {
-    switch (lhs, rhs) {
-    case (.pending, .pending),
-         (.success, .success):
-      return true
-    case (.inProgress(let lhsCachedAvailable),
-          .inProgress(let rhsCachedAvailable)),
-         // TODO: We're discarding the error for now.
-         (.failure(_, let lhsCachedAvailable),
-          .failure(_, let rhsCachedAvailable)):
-      return (lhsCachedAvailable == rhsCachedAvailable)
-    default:
-      return false
+      callback?(nil, e)
     }
   }
 }

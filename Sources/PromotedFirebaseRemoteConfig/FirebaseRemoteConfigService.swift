@@ -5,10 +5,10 @@ import Foundation
 import PromotedCore
 #endif
 
-final class FirebaseRemoteConfigService: AbstractClientConfigService {
+final class FirebaseRemoteConfigConnection: RemoteConfigConnection {
 
-  override func fetchClientConfig(initialConfig: ClientConfig,
-                                  callback: @escaping Callback) throws {
+  func fetchClientConfig(initialConfig: ClientConfig,
+                         callback: @escaping Callback) throws {
     let remoteConfig = RemoteConfig.remoteConfig()
     #if DEBUG
       let settings = RemoteConfigSettings()

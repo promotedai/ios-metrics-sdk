@@ -15,9 +15,9 @@ import os.log
 public final class ModuleConfig: NSObject {
   @objc public var initialConfig = ClientConfig()
   public var analyticsConnection: AnalyticsConnection? = nil
-  public var clientConfigService: ClientConfigService? = nil
   public var networkConnection: NetworkConnection? = nil
   public var persistentStore: PersistentStore? = nil
+  public var remoteConfigConnection: RemoteConfigConnection? = nil
 
   private override init() {}
 
@@ -34,10 +34,13 @@ public final class ModuleConfig: NSObject {
  pull in these dependencies. Be careful modifying this, so that you
  don't accidentally pull in something that depends on `ClientConfig`.
  */
-typealias ClientConfigServiceDeps = InitialConfigSource & PersistentStoreSource
+typealias ClientConfigServiceDeps = InitialConfigSource &
+                                    PersistentStoreSource &
+                                    RemoteConfigConnectionSource
 
 typealias InternalDeps = AnalyticsSource &
                          ClientConfigSource &
+                         ClientConfigServiceDeps &
                          ClientConfigServiceSource &
                          ClockSource &
                          DeviceInfoSource &
@@ -168,21 +171,10 @@ final class Module: AllDeps {
 
   private(set) var analyticsConnection: AnalyticsConnection?
 
-  var clientConfig: ClientConfig {
-    #if DEBUG
-      switch clientConfigService.fetchStatus {
-      case .pending, .inProgress:
-        assertionFailure()
-      default:
-        break
-      }
-    #endif
-    return clientConfigService.config
-  }
+  var clientConfig: ClientConfig { clientConfigService.config }
 
   private(set) lazy var clientConfigService: ClientConfigService =
-    clientConfigServiceSpec ?? LocalClientConfigService()
-  private let clientConfigServiceSpec: ClientConfigService?
+    ClientConfigService(deps: self)
 
   let clock: Clock = SystemClock()
   
@@ -211,6 +203,8 @@ final class Module: AllDeps {
     persistentStoreSpec ?? UserDefaultsPersistentStore()
   private let persistentStoreSpec: PersistentStore?
 
+  private(set) var remoteConfigConnection: RemoteConfigConnection?
+
   let uiState: UIState = UIKitState()
 
   private(set) lazy var viewTracker: ViewTracker = ViewTracker(deps: self)
@@ -222,21 +216,21 @@ final class Module: AllDeps {
   convenience init(moduleConfig: ModuleConfig) {
     self.init(initialConfig: moduleConfig.initialConfig,
               analyticsConnection: moduleConfig.analyticsConnection,
-              clientConfigService: moduleConfig.clientConfigService,
               networkConnection: moduleConfig.networkConnection,
-              persistentStore: moduleConfig.persistentStore)
+              persistentStore: moduleConfig.persistentStore,
+              remoteConfigConnection: moduleConfig.remoteConfigConnection)
   }
 
   init(initialConfig: ClientConfig,
        analyticsConnection: AnalyticsConnection? = nil,
-       clientConfigService: ClientConfigService? = nil,
        networkConnection: NetworkConnection? = nil,
-       persistentStore: PersistentStore? = nil) {
+       persistentStore: PersistentStore? = nil,
+       remoteConfigConnection: RemoteConfigConnection? = nil) {
     self.initialConfig = ClientConfig(initialConfig)
     self.analyticsConnection = analyticsConnection
-    self.clientConfigServiceSpec = clientConfigService
     self.networkConnectionSpec = networkConnection
     self.persistentStoreSpec = persistentStore
+    self.remoteConfigConnection = remoteConfigConnection
   }
 
   /// Loads all dependencies from `ModuleConfig`. Ensures that any
@@ -250,18 +244,8 @@ final class Module: AllDeps {
 
   /// Starts any services among dependencies.
   func startLoggingServices() throws {
-    if let internalClientConfigService = clientConfigService as? InternalClientConfigService {
-      let deps = clientConfigServiceDeps
-      try internalClientConfigService.fetchClientConfig(deps: deps) {
-        [weak self] (_, _) in
-        try self?.startClientConfigDependentServices()
-      }
-    } else {
-      try clientConfigService.fetchClientConfig(initialConfig: initialConfig) {
-        [weak self] (_, _) in
-        try self?.startClientConfigDependentServices()
-      }
-    }
+    try clientConfigService.fetchClientConfig()
+    try startClientConfigDependentServices()
   }
 
   private func startClientConfigDependentServices() throws {
@@ -270,6 +254,4 @@ final class Module: AllDeps {
     // Initialize Xray as an OperationMonitorListener.
     _ = self.xray
   }
-
-  private var clientConfigServiceDeps: ClientConfigServiceDeps { self }
 }
