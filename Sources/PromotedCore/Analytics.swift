@@ -19,7 +19,7 @@ public protocol AnalyticsConnection: AnyObject {
   func log(errors: [Error])
 }
 
-protocol AnalyticsConnectionSource {
+protocol AnalyticsConnectionSource: NoDeps {
   var analyticsConnection: AnalyticsConnection? { get }
 }
 
@@ -56,7 +56,7 @@ final class Analytics {
   }
 }
 
-protocol AnalyticsSource {
+protocol AnalyticsSource: Analytics.Deps {
   var analytics: Analytics? { get }
 }
 

@@ -1,12 +1,7 @@
 import Foundation
 import os.log
 
-protocol OSLogSource {
-  /// Callers own the returned object.
-  func osLog(category: String) -> OSLog?
-}
-
-class SystemOSLogSource: OSLogSource {
+class SystemOSLogSource {
 
   fileprivate static var osLogLevel: ClientConfig.OSLogLevel = .none
 
@@ -19,6 +14,11 @@ class SystemOSLogSource: OSLogSource {
   func osLog(category: String) -> OSLog? {
     OSLog(subsystem: "ai.promoted", category: category)
   }
+}
+
+protocol OSLogSource: SystemOSLogSource.Deps {
+  /// Callers own the returned object.
+  func osLog(category: String) -> OSLog?
 }
 
 extension OSLog {

@@ -25,7 +25,7 @@ protocol IDMap: AnyObject {
   func viewID() -> String
 }
 
-protocol IDMapSource {
+protocol IDMapSource: NoDeps {
   var idMap: IDMap { get }
 }
 

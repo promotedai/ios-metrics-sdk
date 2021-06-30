@@ -2,24 +2,23 @@ import Foundation
 
 /**
  Configuration for Promoted logging library internal behavior.
- 
- Properties on the instance of `ClientConfig` obtained from
- `ClientConfigService` can change when the service loads from
- asynchronous sources. Users of this class may cache instances
- of the `ClientConfig` from the active `ClientConfigService`
- and repeatedly read values from the `ClientConfig`, and the
- values read will always be up to date.
- 
- Users should also be careful to read and cache values from
- this class in a way that takes into account the dynamic nature
- of these properties. Use KVO to listen for changes to any
- single property, or `ClientConfigListener` to listen for
- changes to the entire `ClientConfig`.
+ See `ClientConfigService` for information about how these
+ configs are loaded.
 
  This class should only contain properties that apply to the
  Promoted logging library in general. Mechanisms that alter
  the way that client code calls the Promoted logging library
  should go in client code, external from this config.
+
+ Do not change the properties of this object once loaded from
+ `ClientConfigService`.
+
+ # Validation
+
+ When adding new properties that are numerical or enum values,
+ make sure to validate in `didSet` to ensure that incorrect
+ values don't cause unreasonable behavior during runtime. See
+ `bound` and `validateEnum`.
  */
 @objc(PROClientConfig)
 public final class ClientConfig: NSObject {
@@ -70,15 +69,17 @@ public final class ClientConfig: NSObject {
 
   /// Format to use when sending protobuf log messages over network.
   @objc(PROMetricsLoggingWireFormat)
-  public enum MetricsLoggingWireFormat: Int {
+  public enum MetricsLoggingWireFormat: Int, CaseIterable {
     /// https://developers.google.com/protocol-buffers/docs/proto3#json
     case json = 1
     /// https://developers.google.com/protocol-buffers/docs/encoding
     case binary = 2
   }
   /// Format to use when sending protobuf log messages over network.
-  @objc public var metricsLoggingWireFormat: MetricsLoggingWireFormat = .binary
-  
+  @objc public var metricsLoggingWireFormat: MetricsLoggingWireFormat = .binary {
+    didSet { validateEnum(&metricsLoggingWireFormat, defaultValue: .binary) }
+  }
+
   /// Interval at which log messages are sent over the network.
   /// Setting this to lower values will increase the frequency
   /// at which log messages are sent.
@@ -109,7 +110,7 @@ public final class ClientConfig: NSObject {
   }
 
   @objc(PROXrayLevel)
-  public enum XrayLevel: Int, Comparable {
+  public enum XrayLevel: Int, Comparable, CaseIterable {
     // Don't gather any Xray stats data at all.
     case none = 0
     // Gather overall counts for the session for each batch.
@@ -128,6 +129,7 @@ public final class ClientConfig: NSObject {
   /// `diagnosticsIncludeBatchSummaries` to be false.
   @objc public var xrayLevel: XrayLevel = .none {
     didSet {
+      validateEnum(&xrayLevel, defaultValue: .none)
       if xrayLevel == .none && diagnosticsIncludeBatchSummaries {
         diagnosticsIncludeBatchSummaries = false
       }
@@ -135,7 +137,7 @@ public final class ClientConfig: NSObject {
   }
 
   @objc(PROOSLogLevel)
-  public enum OSLogLevel: Int, Comparable {
+  public enum OSLogLevel: Int, Comparable, CaseIterable {
     /// No logging for anything.
     case none = 0
     /// Logging only for errors.
@@ -152,7 +154,9 @@ public final class ClientConfig: NSObject {
   /// verifying that logging works from the client side.
   /// If `xrayEnabled` is also set, then setting `osLogLevel`
   /// to `info` or higher turns on signposts in Instruments.
-  @objc public var osLogLevel: OSLogLevel = .none
+  @objc public var osLogLevel: OSLogLevel = .none {
+    didSet { validateEnum(&osLogLevel, defaultValue: .none) }
+  }
 
   /// Whether mobile diagnostic messages include batch summaries
   /// from Xray. Setting this to `true` also forces `xrayLevel` to
@@ -174,6 +178,8 @@ public final class ClientConfig: NSObject {
       diagnosticsIncludeAncestorIDHistory
   }
 
+  private var assertInValidation: Bool = true
+
   @objc public override init() {}
 
   public init(_ config: ClientConfig) {
@@ -194,16 +200,43 @@ public final class ClientConfig: NSObject {
     self.diagnosticsIncludeBatchSummaries = config.diagnosticsIncludeBatchSummaries
     self.diagnosticsIncludeAncestorIDHistory = config.diagnosticsIncludeAncestorIDHistory
   }
+}
 
-  func bound<T: Comparable>(_ value: inout T, min: T? = nil, max: T? = nil,
-                            function: String = #function) {
+extension ClientConfig {
+
+  private func bound<T: Comparable>(
+    _ value: inout T,
+    min: T? = nil,
+    max: T? = nil,
+    propertyName: String = #function
+  ) {
     if let min = min {
-      assert(value >= min, "\(function): min value \(min) (> \(value))")
+      assert(!assertInValidation || value >= min,
+             "\(propertyName): min value \(min) (> \(value))")
       value = Swift.max(min, value)
     }
     if let max = max {
-      assert(value <= max, "\(function): max value \(max) (< \(value))")
+      assert(!assertInValidation || value <= max,
+             "\(propertyName): max value \(max) (< \(value))")
       value = Swift.min(max, value)
+    }
+  }
+
+  /// Validate enums and set them to appropriate defaults.
+  /// Deserialization might produce invalid enum values.
+  private func validateEnum<T: CaseIterable & Equatable>(
+    _ value: inout T,
+    defaultValue: T,
+    propertyName: String = #function
+  ) {
+    if !T.allCases.contains(value) {
+      // Not printing `value` because `String(describing: value)`
+      // just gives the enum class name.
+      // TODO: Figure out how to print the invalid value.
+      assert(!assertInValidation,
+             "\(propertyName): unknown case for enum " +
+              "\(String(describing: type(of: value)))")
+      value = defaultValue
     }
   }
 
@@ -227,39 +260,68 @@ public final class ClientConfig: NSObject {
 
 extension ClientConfig {
 
-  func merge(from dictionary: [String: Any],
-             warnings: inout [String]?,
-             infos: inout [String]?) {
+  func merge(
+    from dictionary: [String: AnyHashable],
+    warnings: inout [String],
+    infos: inout [String]
+  ) {
     var remainingKeys = Set(dictionary.keys)
     let mirror = Mirror(reflecting: self)
-    for var child in mirror.children {
-      guard let dictionaryKey = child.label else {
-        warnings?.append("Child with no label: \(String(describing: child))")
+    for child in mirror.children {
+      guard let key = child.label else {
+        warnings.append("Child with no label: \(String(describing: child))")
         continue
       }
-      guard let value = dictionary[dictionaryKey] else { continue }
-      infos?.append("Merge from dict: \(dictionaryKey) = \(String(describing: value))")
-      remainingKeys.remove(dictionaryKey)
-      child.value = value
+      guard let value = dictionary[key] else { continue }
+      infos.append("Merge from dict: \(key) = \(String(describing: value))")
+      remainingKeys.remove(key)
+      self.setValue(value, forKey: key)
+      checkValidatedValueChanged(key: key, dictValue: value, warnings: &warnings)
     }
     for remainingKey in remainingKeys {
-      warnings?.append("Unused key in dict: \(remainingKey)")
+      warnings.append("Unused key in dict: \(remainingKey)")
     }
   }
 
-  func asDictionary() -> [String: Any] {
-    var result = [String: Any]()
+  private func checkValidatedValueChanged(
+    key: String,
+    dictValue: AnyHashable,
+    warnings: inout [String]
+  ) {
+    if let validatedValue = value(forKey: key) as? AnyHashable,
+       dictValue != validatedValue {
+      warnings.append(
+        "Attempted to set invalid value:\(key) = \(dictValue) " +
+          "(using \(validatedValue) instead)"
+      )
+    }
+  }
+
+  func asDictionary(warnings: inout [String]) -> [String: AnyHashable] {
+    var result = [String: AnyHashable]()
     let mirror = Mirror(reflecting: self)
     for child in mirror.children {
-      guard let key = child.label else { continue }
-      let value = child.value
+      guard let key = child.label else {
+        warnings.append("Child with no label: \(String(describing: child))")
+        continue
+      }
+      guard let value = child.value as? AnyHashable else {
+        warnings.append(
+          "Value is not hashable: \(String(describing: child.value))"
+        )
+        continue
+      }
       result[key] = value
     }
     return result
   }
 }
 
-protocol InitialConfigSource {
+extension ClientConfig {
+  func disableAssertInValidationForTesting() { assertInValidation = false }
+}
+
+protocol InitialConfigSource: NoDeps {
   var initialConfig: ClientConfig { get }
 }
 
@@ -270,4 +332,19 @@ protocol ClientConfigSource: InitialConfigSource {
 public func < <T: RawRepresentable>(a: T, b: T) -> Bool
   where T.RawValue: Comparable {
   return a.rawValue < b.rawValue
+}
+
+extension ClientConfig.MetricsLoggingWireFormat: ExpressibleByStringLiteral {
+  public typealias StringLiteralType = String
+
+  public init(stringLiteral: StringLiteralType) {
+    switch stringLiteral {
+    case "json":
+      self = .json
+    case "binary":
+      self = .binary
+    default:
+      self = .binary
+    }
+  }
 }

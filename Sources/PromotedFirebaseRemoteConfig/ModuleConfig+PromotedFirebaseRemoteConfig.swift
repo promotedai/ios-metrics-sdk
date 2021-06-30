@@ -8,6 +8,6 @@ import PromotedCore
 
   /// Uses Firebase Remote Config to load remote `ClientConfig`.
   @objc func useFirebaseRemoteConfig() {
-    clientConfigService = FirebaseRemoteConfigService()
+    remoteConfigConnection = FirebaseRemoteConfigConnection()
   }
 }

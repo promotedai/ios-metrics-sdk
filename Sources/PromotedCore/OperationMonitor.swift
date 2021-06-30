@@ -145,7 +145,7 @@ final class OperationMonitor {
   }
 }
 
-protocol OperationMonitorSource {
+protocol OperationMonitorSource: NoDeps {
   var operationMonitor: OperationMonitor { get }
 }
 

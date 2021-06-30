@@ -40,7 +40,7 @@ protocol Clock: AnyObject {
   func cancel(scheduledTimer: ScheduledTimer)
 }
 
-protocol ClockSource {
+protocol ClockSource: NoDeps {
   var clock: Clock { get }
 }
 

@@ -102,7 +102,7 @@ final class ViewTracker {
   }
 }
 
-protocol ViewTrackerSource {
+protocol ViewTrackerSource: ViewTracker.Deps {
   var viewTracker: ViewTracker { get }
 }
 

@@ -220,7 +220,7 @@ public final class Xray: NSObject {
   }
 }
 
-protocol XraySource {
+protocol XraySource: Xray.Deps {
   var xray: Xray? { get }
 }
 

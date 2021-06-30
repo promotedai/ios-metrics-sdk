@@ -13,7 +13,7 @@ protocol DeviceInfo: AnyObject {
   var regionCode: String { get }
 }
 
-protocol DeviceInfoSource {
+protocol DeviceInfoSource: NoDeps {
   var deviceInfo: DeviceInfo { get }
 }
 

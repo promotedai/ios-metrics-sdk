@@ -19,14 +19,23 @@ final class ModuleTests: XCTestCase {
     initialConfig.metricsLoggingAPIKey = "apikey!"
   }
 
+  private func testAllFields(module: Module) {
+    let mirror = Mirror(reflecting: module)
+    for child in mirror.children {
+      _ = child.value
+    }
+    _ = module.clientConfig
+  }
+
   func testBaseModule() throws {
     let module = Module(initialConfig: initialConfig,
                         networkConnection: networkConnection)
     try module.validateModuleConfigDependencies()
     try module.startLoggingServices()
     XCTAssertNil(module.analytics)
-    XCTAssertNil(module.osLogSource)
+    XCTAssertNil(module.osLog(category: "ModuleTests"))
     XCTAssertNil(module.xray)
+    testAllFields(module: module)
   }
 
   func testModuleWithXray() throws {
@@ -36,8 +45,9 @@ final class ModuleTests: XCTestCase {
     try module.validateModuleConfigDependencies()
     try module.startLoggingServices()
     XCTAssertNil(module.analytics)
-    XCTAssertNil(module.osLogSource)
+    XCTAssertNil(module.osLog(category: "ModuleTests"))
     XCTAssertNotNil(module.xray)
+    testAllFields(module: module)
   }
 
   func testModuleWithOSLog() throws {
@@ -47,8 +57,9 @@ final class ModuleTests: XCTestCase {
     try module.validateModuleConfigDependencies()
     try module.startLoggingServices()
     XCTAssertNil(module.analytics)
-    XCTAssertNotNil(module.osLogSource)
+    XCTAssertNotNil(module.osLog(category: "ModuleTests"))
     XCTAssertNil(module.xray)
+    testAllFields(module: module)
   }
 
   func testModuleWithAnalytics() throws {
@@ -58,8 +69,9 @@ final class ModuleTests: XCTestCase {
     try module.validateModuleConfigDependencies()
     try module.startLoggingServices()
     XCTAssertNotNil(module.analytics)
-    XCTAssertNil(module.osLogSource)
+    XCTAssertNil(module.osLog(category: "ModuleTests"))
     XCTAssertNil(module.xray)
+    testAllFields(module: module)
   }
 
   func testNoNetworkConnection() {

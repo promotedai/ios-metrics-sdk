@@ -13,6 +13,6 @@ public protocol RemoteConfigConnection: AnyObject {
                          callback: @escaping Callback) throws
 }
 
-protocol RemoteConfigConnectionSource {
+protocol RemoteConfigConnectionSource: NoDeps {
   var remoteConfigConnection: RemoteConfigConnection? { get }
 }

@@ -24,45 +24,49 @@ import Foundation
     never take on the value of a remotely-loaded config that was
     loaded in the current session.
  */
-final class ClientConfigService: AnyObject {
-
-  /** Source of client config. */
-  enum ConfigSource: Equatable {
-    /// The initial config provided via hard-coded
-    /// initialization of the logging library.
-    case initial
-    /// Locally cached config provided by remote source
-    /// during the previous session.
-    case localCache
-  }
-  /// Source of client config.
-  private(set) var source: ConfigSource
+final class ClientConfigService {
 
   /// The current config for the session.
-  private(set) var config: ClientConfig
+  var config: ClientConfig {
+    assert(wasConfigFetched, "Attempt to access config before fetchClientConfig")
+    return _config
+  }
+  private var _config: ClientConfig
+  private var wasConfigFetched: Bool
 
   private let initialConfig: ClientConfig
   private unowned let store: PersistentStore
   private unowned let remoteConfigConnection: RemoteConfigConnection?
+
+  /// Warnings that occurred during fetch.
+  /// After initialization, these can be logged.
+  private(set) var fetchWarnings: [String]
+
+  /// Info messages that occurred during fetch.
+  /// After initialization, these can be logged.
+  private(set) var fetchInfos: [String]
 
   /// Available before `ClientConfig` loads. If you're working
   /// in a class that is a dependency of `ClientConfigService`
   /// then you can only pull in these dependencies. Be careful
   /// modifying this, so that you don't accidentally pull in
   /// something that depends on `ClientConfig`.
-  typealias Deps = InitialConfigSource & PersistentStoreSource &
-                   RemoteConfigConnectionSource
+  typealias Deps = (InitialConfigSource &
+                    PersistentStoreSource &
+                    RemoteConfigConnectionSource)
 
   init(deps: Deps) {
-    self.initialConfig = deps.initialConfig
+    self._config = ClientConfig(deps.initialConfig)
+    self.wasConfigFetched = false
+    self.initialConfig = ClientConfig(deps.initialConfig)
     self.store = deps.persistentStore
     self.remoteConfigConnection = deps.remoteConfigConnection
-    self.source = .initial
-    self.config = ClientConfig(deps.initialConfig)
+    self.fetchWarnings = []
+    self.fetchInfos = []
   }
 }
 
-protocol ClientConfigServiceSource {
+protocol ClientConfigServiceSource: ClientConfigService.Deps {
   var clientConfigService: ClientConfigService { get }
 }
 
@@ -72,18 +76,20 @@ extension ClientConfigService {
 
   /// Loads cached config synchronously and initiates asynchronous
   /// load of remote config (for use in next startup).
-  func fetchClientConfig(callback: @escaping Callback? = nil) throws {
+  func fetchClientConfig(callback: Callback? = nil) throws {
     // This loads the cached config synchronously.
     if let clientConfigDict = store.clientConfig {
-      var warnings: [String]? = []
-      var infos: [String]? = []
-      let config = ClientConfig(initialConfig)
-      config.merge(from: clientConfigDict, warnings: &warnings, infos: &infos)
-      self.config = config
-      self.source = .localCache
+      _config.merge(
+        from: clientConfigDict,
+        warnings: &fetchWarnings,
+        infos: &fetchInfos
+      )
     }
+    wasConfigFetched = true
 
-    try remoteConfigConnection?.fetchClientConfig(initialConfig: initialConfig) {
+    try remoteConfigConnection?.fetchClientConfig(
+      initialConfig: initialConfig
+    ) {
       [weak self] (config, error) in
       guard let self = self else { return }
 
@@ -96,7 +102,9 @@ extension ClientConfigService {
 
       // Successfully loaded config. Save for next session.
       if let config = config {
-        self.store.clientConfig = config.asDictionary()
+        self.store.clientConfig = config.asDictionary(
+          warnings: &self.fetchWarnings
+        )
         callback?(config, nil)
         return
       }

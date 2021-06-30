@@ -5,7 +5,7 @@ protocol UIState: AnyObject {
   func viewControllerStack() -> [UIViewController]
 }
 
-protocol UIStateSource {
+protocol UIStateSource: NoDeps {
   var uiState: UIState { get }
 }
 
