@@ -11,7 +11,7 @@ public protocol PersistentStore: AnyObject {
   var logUserID: String? { get set }
 
   typealias ConfigKey = String
-  typealias ConfigValue = AnyHashable
+  typealias ConfigValue = Any
   typealias ConfigDict = [ConfigKey: ConfigValue]
 
   /// Locally cached client config.

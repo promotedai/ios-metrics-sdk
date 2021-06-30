@@ -45,11 +45,15 @@ final class ClientConfigServiceTests: ModuleTestCase {
         XCTFail("ClientConfig not written to PersistentStore")
         return
       }
-      XCTAssertEqual(url, configDict["metricsLoggingURL"])
-      XCTAssertEqual(
-        ClientConfig.XrayLevel.callDetails.rawValue,
-        configDict["xrayLevel"]?.base as? Int
-      )
+      XCTAssertEqual(url, configDict["metricsLoggingURL"] as? String)
+      guard let intValue = configDict["xrayLevel"] as? Int else {
+        XCTFail(
+          "Did not find int value for configDict[xrayLevel] " +
+          "(found \(configDict["xrayLevel"]) instead)"
+        )
+        return
+      }
+      XCTAssertEqual(.callDetails, ClientConfig.XrayLevel(rawValue: intValue))
     }
   }
 }

@@ -1,5 +1,6 @@
 import Foundation
 
+// MARK: - ClientConfig properties
 /**
  Configuration for Promoted logging library internal behavior.
  See `ClientConfigService` for information about how these
@@ -202,6 +203,7 @@ public final class ClientConfig: NSObject {
   }
 }
 
+// MARK: - Validation
 extension ClientConfig {
 
   private func bound<T: Comparable>(
@@ -258,10 +260,11 @@ extension ClientConfig {
   }
 }
 
+// MARK: - Serialization
 extension ClientConfig {
 
   func merge(
-    from dictionary: [String: AnyHashable],
+    from dictionary: [String: Any],
     warnings: inout [String],
     infos: inout [String]
   ) {
@@ -285,11 +288,11 @@ extension ClientConfig {
 
   private func checkValidatedValueChanged(
     key: String,
-    dictValue: AnyHashable,
+    dictValue: Any,
     warnings: inout [String]
   ) {
-    if let validatedValue = value(forKey: key) as? AnyHashable,
-       dictValue != validatedValue {
+    if let validatedValue = value(forKey: key),
+       !AnyHashable.areEqual(dictValue, validatedValue) {
       warnings.append(
         "Attempted to set invalid value:\(key) = \(dictValue) " +
           "(using \(validatedValue) instead)"
@@ -297,30 +300,26 @@ extension ClientConfig {
     }
   }
 
-  func asDictionary(warnings: inout [String]) -> [String: AnyHashable] {
-    var result = [String: AnyHashable]()
+  func asDictionary(warnings: inout [String]) -> [String: Any] {
+    var result = [String: Any]()
     let mirror = Mirror(reflecting: self)
     for child in mirror.children {
       guard let key = child.label else {
         warnings.append("Child with no label: \(String(describing: child))")
         continue
       }
-      guard let value = child.value as? AnyHashable else {
-        warnings.append(
-          "Value is not hashable: \(String(describing: child.value))"
-        )
-        continue
-      }
-      result[key] = value
+      result[key] = child.value
     }
     return result
   }
 }
 
+// MARK: - Testing
 extension ClientConfig {
   func disableAssertInValidationForTesting() { assertInValidation = false }
 }
 
+// MARK: - Protocol composition
 protocol InitialConfigSource: NoDeps {
   var initialConfig: ClientConfig { get }
 }
@@ -329,10 +328,20 @@ protocol ClientConfigSource: InitialConfigSource {
   var clientConfig: ClientConfig { get }
 }
 
+// MARK: - Comparison and serialization
 public func < <T: RawRepresentable>(a: T, b: T) -> Bool
   where T.RawValue: Comparable {
   return a.rawValue < b.rawValue
 }
+
+extension Equatable {
+  static func areEqual(_ a: Any, _ b: Any) -> Bool {
+    guard let a = a as? Self, let b = b as? Self else { return false }
+    return a == b
+  }
+}
+
+protocol Serializable
 
 extension ClientConfig.MetricsLoggingWireFormat: ExpressibleByStringLiteral {
   public typealias StringLiteralType = String
