@@ -26,10 +26,10 @@ extension ClientConfig {
     let mirror = Mirror(reflecting: self)
 
     for child in mirror.children {
-      let childLabel = child.label
+      let optionalChildLabel = child.label
       // This is a local debugging flag.
-      if childLabel == "assertInValidation" { continue }
-      guard let childLabel = childLabel else {
+      if optionalChildLabel == "assertInValidation" { continue }
+      guard let childLabel = optionalChildLabel else {
         messages.warning(
           "Child with no label: \(String(describing: child))",
           visibility: .public
@@ -38,11 +38,11 @@ extension ClientConfig {
       }
 
       let key = "ai_promoted_" + childLabel.toSnakeCase()
-      let remoteValue = dictionary[key]
+      let optionalRemoteValue = dictionary[key]
 
       // The value may not be overridden in remote config.
       // This isn't a warning. Just ignore.
-      guard let remoteValue = remoteValue else { continue }
+      guard let remoteValue = optionalRemoteValue else { continue }
       remainingKeys.remove(key)
 
       guard let convertedValue = convertedValue(
