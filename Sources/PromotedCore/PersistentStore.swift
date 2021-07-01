@@ -10,12 +10,8 @@ public protocol PersistentStore: AnyObject {
   /// Log user ID of last signed-in or signed-out user.
   var logUserID: String? { get set }
 
-  typealias ConfigKey = String
-  typealias ConfigValue = Any
-  typealias ConfigDict = [ConfigKey: ConfigValue]
-
   /// Locally cached client config.
-  var clientConfig: ConfigDict? { get set }
+  var clientConfig: Data? { get set }
 }
 
 protocol PersistentStoreSource: NoDeps {
@@ -36,8 +32,8 @@ final class UserDefaultsPersistentStore: PersistentStore {
     set(value) { setValue(value, forKey: #function) }
   }
 
-  var clientConfig: ConfigDict? {
-    get { dictionaryValue(forKey: #function) }
+  var clientConfig: Data? {
+    get { dataValue(forKey: #function) }
     set(value) { setValue(value, forKey: #function) }
   }
 
@@ -51,8 +47,8 @@ final class UserDefaultsPersistentStore: PersistentStore {
     defaults.string(forKey: "ai.promoted." + key)
   }
 
-  private func dictionaryValue(forKey key: String) -> ConfigDict? {
-    defaults.dictionary(forKey: "ai.promoted." + key) as? ConfigDict
+  private func dataValue(forKey key: String) -> Data? {
+    defaults.data(forKey: "ai.promoted." + key)
   }
 
   private func setValue(_ value: Any?, forKey key: String) {

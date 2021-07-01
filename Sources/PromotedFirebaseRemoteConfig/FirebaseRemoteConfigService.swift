@@ -22,16 +22,16 @@ final class FirebaseRemoteConfigConnection: RemoteConfigConnection {
       }
       switch status {
       case .success:
-        var warnings: [String]? = []
-        var infos: [String]? = []
+        var warnings: [String] = []
+        var infos: [String] = []
         let config = ClientConfig(remoteConfig: remoteConfig, warnings: &warnings, infos: &infos)
         callback(config, nil)
       case .failure, .noFetchYet:
-        break
+        callback(nil, nil)
       case .throttled:
-        break
+        callback(nil, nil)
       @unknown default:
-        break
+        callback(nil, nil)
       }
     }
   }

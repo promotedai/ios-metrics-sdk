@@ -6,54 +6,50 @@ import XCTest
 
 final class ClientConfigServiceTests: ModuleTestCase {
 
-  func testLocalCache() {
-    initialConfig.metricsLoggingURL = "https://fake.promoted.ai"
-    initialConfig.metricsLoggingAPIKey = "apikey!"
-    let serializedConfig: PersistentStore.ConfigDict = [
-      "metricsLoggingURL": "https://fake2.promoted.ai",
-      "xrayLevel": ClientConfig.XrayLevel.callDetails.rawValue
-    ]
-    store.clientConfig = serializedConfig
+  func testLocalCache() throws {
+    let config = ClientConfig()
+    let url = "https://fake.promoted.ai"
+    config.metricsLoggingURL = url
+    config.metricsLoggingAPIKey = "apikey!"
+    config.xrayLevel = .callDetails
+
+    let configData = try JSONEncoder().encode(config)
+    store.clientConfig = configData
     try! module.clientConfigService.fetchClientConfig()
 
     // Don't use module.clientConfig here because TestModule
     // bypasses ClientConfigService.
-    let config = module.clientConfigService.config
+    let fetchedConfig = module.clientConfigService.config
 
-    // Overwritten.
-    XCTAssertEqual("https://fake2.promoted.ai", config.metricsLoggingURL)
-    XCTAssertEqual(.callDetails, config.xrayLevel)
-
-    // Not overwritten.
-    XCTAssertEqual("apikey!", config.metricsLoggingAPIKey)
+    XCTAssertEqual(url, fetchedConfig.metricsLoggingURL)
+    XCTAssertEqual("apikey!", fetchedConfig.metricsLoggingAPIKey)
+    XCTAssertEqual(.callDetails, fetchedConfig.xrayLevel)
   }
 
   func testCachesRemoteValue() {
-    let url = "https://fake3.promoted.ai"
+    let url = "https://fake2.promoted.ai"
     remoteConfigConnection.config.metricsLoggingURL = url
+    remoteConfigConnection.config.metricsLoggingAPIKey = "apikey!!"
     remoteConfigConnection.config.xrayLevel = .callDetails
 
     try! module.clientConfigService.fetchClientConfig { config, error in
-      guard let config = config else {
-        XCTFail("Callback did not provide ClientConfig")
-        return
-      }
-      XCTAssertEqual(url, config.metricsLoggingURL)
-      XCTAssertEqual(.callDetails, config.xrayLevel)
+      XCTAssertNotNil(config)
       XCTAssertNil(error)
-      guard let configDict = self.store.clientConfig else {
+      guard let configData = self.store.clientConfig else {
         XCTFail("ClientConfig not written to PersistentStore")
         return
       }
-      XCTAssertEqual(url, configDict["metricsLoggingURL"] as? String)
-      guard let intValue = configDict["xrayLevel"] as? Int else {
-        XCTFail(
-          "Did not find int value for configDict[xrayLevel] " +
-          "(found \(configDict["xrayLevel"]) instead)"
+      do {
+        let serializedConfig = try JSONDecoder().decode(
+          ClientConfig.self,
+          from: configData
         )
-        return
+        XCTAssertEqual(url, serializedConfig.metricsLoggingURL)
+        XCTAssertEqual("apikey!!", serializedConfig.metricsLoggingAPIKey)
+        XCTAssertEqual(.callDetails, serializedConfig.xrayLevel)
+      } catch {
+        XCTFail(String(describing: error))
       }
-      XCTAssertEqual(.callDetails, ClientConfig.XrayLevel(rawValue: intValue))
     }
   }
 }

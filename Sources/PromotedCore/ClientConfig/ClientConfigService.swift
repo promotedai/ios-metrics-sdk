@@ -38,14 +38,6 @@ final class ClientConfigService {
   private unowned let store: PersistentStore
   private unowned let remoteConfigConnection: RemoteConfigConnection?
 
-  /// Warnings that occurred during fetch.
-  /// After initialization, these can be logged.
-  private(set) var fetchWarnings: [String]
-
-  /// Info messages that occurred during fetch.
-  /// After initialization, these can be logged.
-  private(set) var fetchInfos: [String]
-
   /// Available before `ClientConfig` loads. If you're working
   /// in a class that is a dependency of `ClientConfigService`
   /// then you can only pull in these dependencies. Be careful
@@ -61,8 +53,6 @@ final class ClientConfigService {
     self.initialConfig = ClientConfig(deps.initialConfig)
     self.store = deps.persistentStore
     self.remoteConfigConnection = deps.remoteConfigConnection
-    self.fetchWarnings = []
-    self.fetchInfos = []
   }
 }
 
@@ -78,15 +68,14 @@ extension ClientConfigService {
   /// load of remote config (for use in next startup).
   func fetchClientConfig(callback: Callback? = nil) throws {
     // This loads the cached config synchronously.
-    if let clientConfigDict = store.clientConfig {
-      _config.merge(
-        from: clientConfigDict,
-        warnings: &fetchWarnings,
-        infos: &fetchInfos
-      )
+    if let clientConfigData = store.clientConfig {
+      let decoder = JSONDecoder()
+      _config = try decoder.decode(ClientConfig.self, from: clientConfigData)
     }
     wasConfigFetched = true
 
+    // Use initialConfig as the basis of the fetch so that
+    // incremental changes are applied to this baseline.
     try remoteConfigConnection?.fetchClientConfig(
       initialConfig: initialConfig
     ) {
@@ -102,9 +91,13 @@ extension ClientConfigService {
 
       // Successfully loaded config. Save for next session.
       if let config = config {
-        self.store.clientConfig = config.asDictionary(
-          warnings: &self.fetchWarnings
-        )
+        let encoder = JSONEncoder()
+        do {
+          self.store.clientConfig = try encoder.encode(config)
+        } catch {
+          callback?(nil, error)
+          return
+        }
         callback?(config, nil)
         return
       }

@@ -22,7 +22,8 @@ import Foundation
  `bound` and `validateEnum`.
  */
 @objc(PROClientConfig)
-public final class ClientConfig: NSObject {
+public final class ClientConfig: NSObject, Codable {
+  public typealias ConfigEnum = CaseIterable & Codable & ExpressibleByStringLiteral
 
   /// Controls whether log messages are sent over the network.
   /// Setting this property to `false` will prevent log messages
@@ -70,7 +71,7 @@ public final class ClientConfig: NSObject {
 
   /// Format to use when sending protobuf log messages over network.
   @objc(PROMetricsLoggingWireFormat)
-  public enum MetricsLoggingWireFormat: Int, CaseIterable {
+  public enum MetricsLoggingWireFormat: Int, ConfigEnum {
     /// https://developers.google.com/protocol-buffers/docs/proto3#json
     case json = 1
     /// https://developers.google.com/protocol-buffers/docs/encoding
@@ -111,7 +112,7 @@ public final class ClientConfig: NSObject {
   }
 
   @objc(PROXrayLevel)
-  public enum XrayLevel: Int, Comparable, CaseIterable {
+  public enum XrayLevel: Int, Comparable, ConfigEnum {
     // Don't gather any Xray stats data at all.
     case none = 0
     // Gather overall counts for the session for each batch.
@@ -138,7 +139,7 @@ public final class ClientConfig: NSObject {
   }
 
   @objc(PROOSLogLevel)
-  public enum OSLogLevel: Int, Comparable, CaseIterable {
+  public enum OSLogLevel: Int, Comparable, ConfigEnum {
     /// No logging for anything.
     case none = 0
     /// Logging only for errors.
@@ -260,60 +261,6 @@ extension ClientConfig {
   }
 }
 
-// MARK: - Serialization
-extension ClientConfig {
-
-  func merge(
-    from dictionary: [String: Any],
-    warnings: inout [String],
-    infos: inout [String]
-  ) {
-    var remainingKeys = Set(dictionary.keys)
-    let mirror = Mirror(reflecting: self)
-    for child in mirror.children {
-      guard let key = child.label else {
-        warnings.append("Child with no label: \(String(describing: child))")
-        continue
-      }
-      guard let value = dictionary[key] else { continue }
-      infos.append("Merge from dict: \(key) = \(String(describing: value))")
-      remainingKeys.remove(key)
-      self.setValue(value, forKey: key)
-      checkValidatedValueChanged(key: key, dictValue: value, warnings: &warnings)
-    }
-    for remainingKey in remainingKeys {
-      warnings.append("Unused key in dict: \(remainingKey)")
-    }
-  }
-
-  private func checkValidatedValueChanged(
-    key: String,
-    dictValue: Any,
-    warnings: inout [String]
-  ) {
-    if let validatedValue = value(forKey: key),
-       !AnyHashable.areEqual(dictValue, validatedValue) {
-      warnings.append(
-        "Attempted to set invalid value:\(key) = \(dictValue) " +
-          "(using \(validatedValue) instead)"
-      )
-    }
-  }
-
-  func asDictionary(warnings: inout [String]) -> [String: Any] {
-    var result = [String: Any]()
-    let mirror = Mirror(reflecting: self)
-    for child in mirror.children {
-      guard let key = child.label else {
-        warnings.append("Child with no label: \(String(describing: child))")
-        continue
-      }
-      result[key] = child.value
-    }
-    return result
-  }
-}
-
 // MARK: - Testing
 extension ClientConfig {
   func disableAssertInValidationForTesting() { assertInValidation = false }
@@ -334,19 +281,8 @@ public func < <T: RawRepresentable>(a: T, b: T) -> Bool
   return a.rawValue < b.rawValue
 }
 
-extension Equatable {
-  static func areEqual(_ a: Any, _ b: Any) -> Bool {
-    guard let a = a as? Self, let b = b as? Self else { return false }
-    return a == b
-  }
-}
-
-protocol Serializable
-
-extension ClientConfig.MetricsLoggingWireFormat: ExpressibleByStringLiteral {
-  public typealias StringLiteralType = String
-
-  public init(stringLiteral: StringLiteralType) {
+public extension ClientConfig.MetricsLoggingWireFormat {
+  init(stringLiteral: String) {
     switch stringLiteral {
     case "json":
       self = .json
@@ -355,5 +291,17 @@ extension ClientConfig.MetricsLoggingWireFormat: ExpressibleByStringLiteral {
     default:
       self = .binary
     }
+  }
+}
+
+public extension ClientConfig.XrayLevel {
+  init(stringLiteral: String) {
+    self = .none
+  }
+}
+
+public extension ClientConfig.OSLogLevel {
+  init(stringLiteral: String) {
+    self = .none
   }
 }
