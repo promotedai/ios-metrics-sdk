@@ -19,7 +19,7 @@ import Foundation
  When adding a new enum property, do the following:
 
  1. Make the type and value public.
- 2. Make it `@objc` and give it a name prefixed with `PRO`.
+ 2. Make the type `@objc` and give it a name prefixed with `PRO`.
  3. Make it an `Int` enum.
  4. Make it conform to `ConfigEnum`.
  5. Give it a `case unknown = 0`.
@@ -35,6 +35,7 @@ import Foundation
    case hello = 1
    case goodbye = 2
  }
+ @objc public var aloha: AlohaEnum = .hello
  ```
 
  # Validation

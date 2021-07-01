@@ -1,5 +1,11 @@
 import Foundation
 
+/**
+ Queues log messages until after `ClientConfig` is available.
+ If you need to log messages in any of the `ClientConfig`
+ classes, use this. The messages contained in here are
+ flushed immediately after the config is loaded.
+ */
 public struct PendingLogMessages {
 
   public enum Visibility {
