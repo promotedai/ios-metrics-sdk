@@ -296,12 +296,36 @@ public extension ClientConfig.MetricsLoggingWireFormat {
 
 public extension ClientConfig.XrayLevel {
   init(stringLiteral: String) {
-    self = .none
+    switch stringLiteral {
+    case "none":
+      self = .none
+    case "batchSummaries":
+      self = .batchSummaries
+    case "callDetails":
+      self = .callDetails
+    case "callDetailsAndStackTraces":
+      self = .callDetailsAndStackTraces
+    default:
+      self = .none
+    }
   }
 }
 
 public extension ClientConfig.OSLogLevel {
   init(stringLiteral: String) {
-    self = .none
+    switch stringLiteral {
+    case "none":
+      self = .none
+    case "error":
+      self = .error
+    case "warning":
+      self = .warning
+    case "info":
+      self = .info
+    case "debug":
+      self = .debug
+    default:
+      self = .none
+    }
   }
 }
