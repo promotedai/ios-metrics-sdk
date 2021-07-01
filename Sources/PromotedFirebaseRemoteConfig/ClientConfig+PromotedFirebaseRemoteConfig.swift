@@ -1,4 +1,4 @@
-import FirebaseRemoteConfig
+import Firebase
 import Foundation
 
 #if !COCOAPODS
