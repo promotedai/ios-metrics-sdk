@@ -196,18 +196,22 @@ final class Module: AllDeps {
     Xray(deps: self) : nil
 
   convenience init(moduleConfig: ModuleConfig) {
-    self.init(initialConfig: moduleConfig.initialConfig,
-              analyticsConnection: moduleConfig.analyticsConnection,
-              networkConnection: moduleConfig.networkConnection,
-              persistentStore: moduleConfig.persistentStore,
-              remoteConfigConnection: moduleConfig.remoteConfigConnection)
+    self.init(
+      initialConfig: moduleConfig.initialConfig,
+      analyticsConnection: moduleConfig.analyticsConnection,
+      networkConnection: moduleConfig.networkConnection,
+      persistentStore: moduleConfig.persistentStore,
+      remoteConfigConnection: moduleConfig.remoteConfigConnection
+    )
   }
 
-  init(initialConfig: ClientConfig,
-       analyticsConnection: AnalyticsConnection? = nil,
-       networkConnection: NetworkConnection? = nil,
-       persistentStore: PersistentStore? = nil,
-       remoteConfigConnection: RemoteConfigConnection? = nil) {
+  init(
+    initialConfig: ClientConfig,
+    analyticsConnection: AnalyticsConnection? = nil,
+    networkConnection: NetworkConnection? = nil,
+    persistentStore: PersistentStore? = nil,
+    remoteConfigConnection: RemoteConfigConnection? = nil
+  ) {
     self.initialConfig = ClientConfig(initialConfig)
     self.analyticsConnection = analyticsConnection
     self.networkConnectionSpec = networkConnection

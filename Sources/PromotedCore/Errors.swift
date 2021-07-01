@@ -161,7 +161,6 @@ extension MetricsLoggerError: NSErrorProperties {
 /** Errors produced by `RemoteConfigConnection`. */
 public enum RemoteConfigConnectionError: Error {
   case failed(underlying: Error?)
-  case throttled
   case unknown
 }
 
