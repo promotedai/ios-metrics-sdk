@@ -194,8 +194,12 @@ public final class Xray: NSObject {
   private let osLogLevel: ClientConfig.OSLogLevel
   private let osLog: OSLog?
 
-  typealias Deps = ClockSource & ClientConfigSource &
-      OperationMonitorSource & OSLogSource
+  typealias Deps = (
+    ClockSource &
+    ClientConfigSource &
+    OperationMonitorSource &
+    OSLogSource
+  )
 
   init(deps: Deps) {
     assert(deps.clientConfig.xrayLevel != .none)
@@ -257,8 +261,11 @@ fileprivate extension Xray {
       pendingCalls.append(call)
       return
     }
-    osLog?.signpostEvent(name: "call", format: "error: %{public}@",
-                         error.localizedDescription)
+    osLog?.signpostEvent(
+      name: "call",
+      format: "error: %{public}@",
+      error.localizedDescription
+    )
     guard let lastCall = pendingCalls.last else { return }
     lastCall.error = error
   }
@@ -305,14 +312,21 @@ fileprivate extension Xray {
 
   private func batchWillSend(data: Data) {
     let size = data.count
-    osLog?.signpostEvent(name: "batch", format: "sendURLRequest: %{public}d bytes", size)
+    osLog?.signpostEvent(
+      name: "batch",
+      format: "sendURLRequest: %{public}d bytes",
+      size
+    )
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.messageSizeBytes = UInt64(size)
   }
 
   private func batchDidError(_ error: Error) {
-    osLog?.signpostEvent(name: "batch", format: "error: %{public}@",
-                         error.localizedDescription)
+    osLog?.signpostEvent(
+      name: "batch",
+      format: "error: %{public}@",
+      error.localizedDescription
+    )
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.errors.append(error)
     totalErrors += 1
@@ -330,8 +344,11 @@ fileprivate extension Xray {
   }
 
   private func batchResponseDidError(_ error: Error) {
-    osLog?.signpostEvent(name: "network", format: "error: %{public}@",
-                         error.localizedDescription)
+    osLog?.signpostEvent(
+      name: "network",
+      format: "error: %{public}@",
+      error.localizedDescription
+    )
     guard let pendingBatch = pendingBatch else { return }
     pendingBatch.networkEndTime = clock.now
     pendingBatch.errors.append(error)
@@ -357,24 +374,35 @@ fileprivate extension Xray {
   private func consoleLogBatchResponseCompleteStats() {
     guard osLogLevel >= .info, let osLog = osLog else { return }
     if Self.timingMayBeInaccurate {
-      osLog.info("WARNING: Timing may be inaccurate when running in debug or simulator.")
+      osLog.info(
+        "WARNING: Timing may be inaccurate when running in debug or simulator."
+      )
     }
     if let batch = networkBatches.last {
       if xrayLevel >= .callDetails && osLogLevel >= .debug {
         consoleLogOperationSummaryTable(batch: batch)
         consoleLogMessageSummaryTable(batch: batch)
       } else {
-        osLog.info("Latest batch: %{private}@", String(describing: batch))
+        osLog.info(
+          "Latest batch: %{private}@",
+          batch.description(xrayLevel: xrayLevel)
+        )
       }
     }
-    osLog.info("Total: Millis: %{public}lld, Bytes: %{public}lld, Batches: %{public}d",
-               totalTimeSpent.millis, totalBytesSent, batchesSentSuccessfully)
+    osLog.info(
+      "Total: Millis: %{public}lld, Bytes: %{public}lld, Batches: %{public}d",
+      totalTimeSpent.millis,
+      totalBytesSent,
+      batchesSentSuccessfully
+    )
   }
 
   private func consoleLogOperationSummaryTable(batch: NetworkBatch) {
     guard osLogLevel >= .debug, let osLog = osLog else { return }
-    let formatter = TabularLogFormatter(name: "Operations in Batch \(batch.batchNumber) " +
-                                              "\(String(describing: batch))")
+    let formatter = TabularLogFormatter(
+      name: "Operations in Batch \(batch.batchNumber) " +
+        batch.description(xrayLevel: xrayLevel)
+    )
     formatter.addField(name: "Operation", width: 25, alignment: .left)
     formatter.addField(name: "Millis", width: 10, alignment: .right)
     formatter.addField(name: "Msg Count", width: 10, alignment: .right)
@@ -393,36 +421,59 @@ fileprivate extension Xray {
           return message.loggingName
         }
       }.joined(separator: ", ")
-      formatter.addRow(call.context,
-                       call.timeSpent.millis,
-                       call.messages.count,
-                       call.messagesSizeBytes,
-                       summary)
+      formatter.addRow(
+        call.context,
+        call.timeSpent.millis,
+        call.messages.count,
+        call.messagesSizeBytes,
+        summary
+      )
     }
     osLog.debug(formatter)
   }
 
   private func consoleLogMessageSummaryTable(batch: NetworkBatch) {
     guard osLogLevel >= .debug, let osLog = osLog else { return }
-    let formatter = TabularLogFormatter(name: "Messages in Batch \(batch.batchNumber)")
+    let formatter = TabularLogFormatter(
+      name: "Messages in Batch \(batch.batchNumber)"
+    )
     formatter.addField(name: "Type", width: 10)
     formatter.addField(name: "Name", width: 25)
     formatter.addField(name: "LogUserID", width: 36)
     formatter.addField(name: "ViewID", width: 36)
     formatter.addField(name: "ImpressionID", width: 36)
     formatter.addField(name: "ActionID", width: 36)
-    let logUserID = (batch.message as? Event_LogRequest)?.userInfo.logUserID ?? "-"
+    let logRequest = batch.message as? Event_LogRequest
+    let logUserID = logRequest?.userInfo.logUserID ?? "-"
     for message in batch.calls.flatMap(\.messages) {
       let type = message.loggingName
       switch message {
       case let view as Event_View:
-        formatter.addRow(type, view.name, logUserID, view.viewID, "-", "-")
+        formatter.addRow(
+          type,
+          view.name,
+          logUserID,
+          view.viewID,
+          "-",
+          "-"
+        )
       case let impression as Event_Impression:
-        formatter.addRow(type, "-", logUserID, impression.viewID,
-                         impression.impressionID, "-")
+        formatter.addRow(
+          type, "-",
+          logUserID,
+          impression.viewID,
+          impression.impressionID,
+          "-"
+        )
       case let action as Event_Action:
-        formatter.addRow(type, action.name, logUserID, action.viewID,
-                         action.impressionID, action.actionID)
+        formatter.addRow(
+          type,
+          action.name,
+          logUserID,
+          action.viewID,
+          action.impressionID,
+          action.actionID
+        )
       default:
         formatter.addRow(type, "-", "-", "-", "-", "-")
       }
@@ -500,8 +551,12 @@ extension Xray.Call {
     let context = String(describing: self.context)
     let messageCount = messages.count
     let messageSize = messagesSizeBytes
-    return "(Context: \(context), Millis: \(timeSpent.millis), " +
-           "Message Count: \(messageCount), Message Bytes: \(messageSize))"
+    return "(" +
+      "Context: \(context), " +
+      "Millis: \(timeSpent.millis), " +
+      "Message Count: \(messageCount), " +
+      "Message Bytes: \(messageSize)" +
+    ")"
   }
 }
 
@@ -511,10 +566,27 @@ extension Xray.NetworkBatch {
   }
 
   public override var debugDescription: String {
-    let callCount = calls.count
-    let eventCount = calls.flatMap(\.messages).count
-    let messageSize = messageSizeBytes
-    return "(Millis: \(timeSpentAcrossCalls.millis), Calls: \(callCount), " +
-           "Message Count: \(eventCount), Message Bytes: \(messageSize))"
+    description(xrayLevel: .callDetails)
+  }
+
+  func description(xrayLevel: ClientConfig.XrayLevel) -> String {
+    switch xrayLevel {
+    case .batchSummaries:
+      return "(" +
+        "Millis: \(timeSpentAcrossCalls.millis), " +
+        "Message Bytes: \(messageSizeBytes))" +
+      ")"
+    case .callDetails, .callDetailsAndStackTraces:
+      let callCount = calls.count
+      let eventCount = calls.flatMap(\.messages).count
+      return "(" +
+        "Millis: \(timeSpentAcrossCalls.millis), " +
+        "Calls: \(callCount), " +
+        "Message Count: \(eventCount), " +
+        "Message Bytes: \(messageSizeBytes)" +
+      ")"
+    default:
+      return ""
+    }
   }
 }
