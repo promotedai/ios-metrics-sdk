@@ -170,10 +170,8 @@ extension RemoteConfigConnectionError: NSErrorProperties {
     switch self {
     case .failed(_):
       return 501
-    case .throttled:
-      return 502
     case .unknown:
-      return 503
+      return 502
     }
   }
 }
