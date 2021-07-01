@@ -247,7 +247,13 @@ final class Module: AllDeps {
 
   /// Starts any services among dependencies.
   func startLoggingServices() throws {
-    try clientConfigService.fetchClientConfig()
+    clientConfigService.fetchClientConfig { [weak self] result in
+      guard let self = self else { return }
+      self.operationMonitor.execute {
+        let osLog = self.osLog(category: "ClientConfigService")
+        osLog?.log(pendingMessages: result.messages)
+      }
+    }
     try startClientConfigDependentServices()
   }
 

@@ -10,7 +10,7 @@ final class FirebaseRemoteConfigConnection: RemoteConfigConnection {
   func fetchClientConfig(
     initialConfig: ClientConfig,
     callback: @escaping Callback
-  ) throws {
+  ) {
     let remoteConfig = RemoteConfig.remoteConfig()
     #if DEBUG
       let settings = RemoteConfigSettings()

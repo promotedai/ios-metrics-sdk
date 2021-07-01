@@ -28,13 +28,11 @@ final class ClientConfigServiceTests: ModuleTestCase {
 
   func testCachesRemoteValue() {
     let url = "https://fake2.promoted.ai"
-    guard let remoteConfig = remoteConfigConnection.config else {
-      XCTFail("FakeRemoteConfigConnection.config was nil!?")
-      return
-    }
+    let remoteConfig = ClientConfig()
     remoteConfig.metricsLoggingURL = url
     remoteConfig.metricsLoggingAPIKey = "apikey!!"
     remoteConfig.xrayLevel = .callDetails
+    remoteConfigConnection.config = remoteConfig
 
     try! module.clientConfigService.fetchClientConfig { result in
       XCTAssertNotNil(result.config)
