@@ -101,17 +101,19 @@ extension PendingLogMessages.Visibility {
 
 extension OSLog {
   func log(pendingMessages: PendingLogMessages) {
-    for (message, visibility) in pendingMessages.errors {
-      error(visibility.formatString, message)
-    }
-    for (message, visibility) in pendingMessages.warnings {
-      warning(visibility.formatString, message)
-    }
-    for (message, visibility) in pendingMessages.infos {
-      info(visibility.formatString, message)
-    }
-    for (message, visibility) in pendingMessages.debugs {
-      debug(visibility.formatString, message)
+    for m in pendingMessages.messages {
+      switch m.level {
+      case .error:
+        error(m.visibility.formatString, m.message)
+      case .warning:
+        warning(m.visibility.formatString, m.message)
+      case .info:
+        info(m.visibility.formatString, m.message)
+      case .debug:
+        debug(m.visibility.formatString, m.message)
+      default:
+        break
+      }
     }
   }
 }

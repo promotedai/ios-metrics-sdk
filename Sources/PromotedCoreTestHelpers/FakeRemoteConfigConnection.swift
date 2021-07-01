@@ -11,7 +11,7 @@ final class FakeRemoteConfigConnection: RemoteConfigConnection {
   func fetchClientConfig(
     initialConfig: ClientConfig,
     callback: @escaping Callback
-  ) throws {
+  ) {
     let result = Result(config: config, error: error, messages: messages)
     callback(result)
   }

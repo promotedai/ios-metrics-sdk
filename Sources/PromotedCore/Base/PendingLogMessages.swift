@@ -6,14 +6,14 @@ public struct PendingLogMessages {
     case `public`
     case `private`
   }
+  typealias LogLevel = ClientConfig.OSLogLevel
 
-  private(set) var errors: [(String, Visibility)] = []
-
-  private(set) var warnings: [(String, Visibility)] = []
-
-  private(set) var infos: [(String, Visibility)] = []
-
-  private(set) var debugs: [(String, Visibility)] = []
+  struct PendingMessage {
+    let message: String
+    let visibility: Visibility
+    let level: LogLevel
+  }
+  private(set) var messages: [PendingMessage] = []
 
   public init() {}
 }
@@ -23,27 +23,41 @@ public extension PendingLogMessages {
     _ message: String,
     visibility: Visibility = .private
   ) {
-    errors.append((message, visibility))
+    append(message, visibility, .error)
   }
 
   mutating func warning(
     _ message: String,
     visibility: Visibility = .private
   ) {
-    warnings.append((message, visibility))
+    append(message, visibility, .warning)
   }
 
   mutating func info(
     _ message: String,
     visibility: Visibility = .private
   ) {
-    infos.append((message, visibility))
+    append(message, visibility, .info)
   }
 
   mutating func debug(
     _ message: String,
     visibility: Visibility = .private
   ) {
-    debugs.append((message, visibility))
+    append(message, visibility, .debug)
+  }
+
+  internal mutating func append(
+    _ message: String,
+    _ visibility: Visibility,
+    _ level: LogLevel
+  ) {
+    messages.append(
+      PendingMessage(
+        message: message,
+        visibility: visibility,
+        level: level
+      )
+    )
   }
 }

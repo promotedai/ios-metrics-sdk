@@ -15,7 +15,7 @@ final class ClientConfigServiceTests: ModuleTestCase {
 
     let configData = try JSONEncoder().encode(config)
     store.clientConfig = configData
-    try! module.clientConfigService.fetchClientConfig()
+    module.clientConfigService.fetchClientConfig { _ in }
 
     // Don't use module.clientConfig here because TestModule
     // bypasses ClientConfigService.
@@ -34,7 +34,7 @@ final class ClientConfigServiceTests: ModuleTestCase {
     remoteConfig.xrayLevel = .callDetails
     remoteConfigConnection.config = remoteConfig
 
-    try! module.clientConfigService.fetchClientConfig { result in
+    module.clientConfigService.fetchClientConfig { result in
       XCTAssertNotNil(result.config)
       XCTAssertNil(result.error)
       guard let configData = self.store.clientConfig else {

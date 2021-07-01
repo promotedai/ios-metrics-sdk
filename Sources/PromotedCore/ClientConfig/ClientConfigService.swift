@@ -28,7 +28,10 @@ final class ClientConfigService {
 
   /// The current config for the session.
   var config: ClientConfig {
-    assert(wasConfigFetched, "Attempt to access config before fetchClientConfig")
+    assert(
+      wasConfigFetched,
+      "Attempt to access config before fetchClientConfig"
+    )
     return _config
   }
   private var _config: ClientConfig
@@ -72,10 +75,16 @@ extension ClientConfigService {
 
   /// Loads cached config synchronously and initiates asynchronous
   /// load of remote config (for use in next startup).
-  func fetchClientConfig(callback: Callback? = nil) {
-    defer {
-      wasConfigFetched = true
-    }
+  ///
+  /// If any errors are encountered, the most recent value of
+  /// `config` is used for the remainder of the session:
+  ///
+  /// - If an error occurs when decoding local cached config, then
+  ///   `initialConfig` is used for the session.
+  /// - If an error occurs during remote fetch, then no local
+  ///   cached copy is made, and the existing `config` is used
+  ///   for the session (just as it would have been).
+  func fetchClientConfig(callback: @escaping Callback) {
 
     // This loads the cached config synchronously.
     var outerFetchMessages = PendingLogMessages()
@@ -105,6 +114,7 @@ extension ClientConfigService {
         visibility: .public
       )
     }
+    wasConfigFetched = true
 
     guard let connection = remoteConfigConnection else {
       outerFetchMessages.info(
@@ -136,14 +146,12 @@ extension ClientConfigService {
       var resultError: ClientConfigError? = nil
       var resultMessages = remoteResult.messages
       defer {
-        if let callback = callback {
-          let result = Result(
-            config: resultConfig,
-            error: resultError,
-            messages: resultMessages
-          )
-          callback(result)
-        }
+        let result = Result(
+          config: resultConfig,
+          error: resultError,
+          messages: resultMessages
+        )
+        callback(result)
       }
       guard let self = self else { return }
 
