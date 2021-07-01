@@ -224,7 +224,7 @@ public final class Xray: NSObject {
   }
 }
 
-protocol XraySource: Xray.Deps {
+protocol XraySource {
   var xray: Xray? { get }
 }
 

@@ -29,7 +29,7 @@ public protocol NetworkConnection: AnyObject {
                    callback: Callback?) throws -> Data
 }
 
-protocol NetworkConnectionSource: NoDeps {
+protocol NetworkConnectionSource {
   var networkConnection: NetworkConnection { get }
 }
 

@@ -30,27 +30,29 @@ final class ClientConfigMergeTests: XCTestCase {
 
     let url = "https://fake2.promoted.ai/hippo/potamus"
     let dictionary = [
-      "metrics_logging_url": url,
-      "metrics_logging_api_key": "hello-world",
-      "logging_flush_interval": "30.0",
-      "flush_logging_on_resign_active": "false",
-      "xray_level": "batchSummaries",
-      "os_log_level": "debug",
+      "ai_promoted_metrics_logging_url": url,
+      "ai_promoted_metrics_logging_api_key": "hello-world",
+      "ai_promoted_logging_flush_interval": "30.0",
+      "ai_promoted_flush_logging_on_resign_active": "false",
+      "ai_promoted_xray_level": "batchSummaries",
+      "ai_promoted_os_log_level": "debug",
     ]
     var messages = PendingLogMessages()
     config.merge(from: dictionary, messages: &messages)
 
     assertLoggedMessagesEqualNoOrder([
-      (.info,
-       "Read from remote config: metrics_logging_url = \(url)"),
-      (.info,
-       "Read from remote config: metrics_logging_api_key = hello-world"),
-      (.info,
-       "Read from remote config: logging_flush_interval = 30.0"),
-      (.info,
-       "Read from remote config: flush_logging_on_resign_active = false"),
-      (.info, "Read from remote config: xray_level = 2"),
-      (.info, "Read from remote config: os_log_level = 5"),
+      (.info, "Read from remote config: " +
+        "ai_promoted_metrics_logging_url = \(url)"),
+      (.info, "Read from remote config: " +
+        "ai_promoted_metrics_logging_api_key = hello-world"),
+      (.info, "Read from remote config: " +
+        "ai_promoted_logging_flush_interval = 30.0"),
+      (.info, "Read from remote config: " +
+        "ai_promoted_flush_logging_on_resign_active = false"),
+      (.info, "Read from remote config: " +
+        "ai_promoted_xray_level = 2"),
+      (.info, "Read from remote config: " +
+        "ai_promoted_os_log_level = 5"),
     ], messages)
 
     // Changed values.
@@ -85,15 +87,16 @@ final class ClientConfigMergeTests: XCTestCase {
 
     let url = "https://fake2.promoted.ai/hippo/potamus"
     let dictionary = [
-      "metrics_logging_url": url,
-      "foo_bar": "hello-world",
+      "ai_promoted_metrics_logging_url": url,
+      "ai_promoted_foo_bar": "hello-world",
     ]
     var messages = PendingLogMessages()
     config.merge(from: dictionary, messages: &messages)
 
     assertLoggedMessagesEqualNoOrder([
-      (.warning, "Unused key in remote config: foo_bar"),
-      (.info, "Read from remote config: metrics_logging_url = \(url)"),
+      (.warning, "Unused key in remote config: ai_promoted_foo_bar"),
+      (.info, "Read from remote config: " +
+        "ai_promoted_metrics_logging_url = \(url)"),
     ], messages)
 
     XCTAssertEqual(url, config.metricsLoggingURL)
@@ -105,22 +108,23 @@ final class ClientConfigMergeTests: XCTestCase {
 
     let url = "https://fake2.promoted.ai/hippo/potamus"
     let dictionary = [
-      "metrics_logging_url": url,
-      "logging_flush_interval": "hello-world",
-      "logging_enabled": "super-mario-world",
-      "xray_level": "oh-what-a-wonderful-world",
+      "ai_promoted_metrics_logging_url": url,
+      "ai_promoted_logging_flush_interval": "hello-world",
+      "ai_promoted_logging_enabled": "super-mario-world",
+      "ai_promoted_xray_level": "oh-what-a-wonderful-world",
     ]
     var messages = PendingLogMessages()
     config.merge(from: dictionary, messages: &messages)
 
     assertLoggedMessagesEqualNoOrder([
       (.warning, "No viable conversion for remote config value: " +
-        "logging_flush_interval = hello-world"),
+        "ai_promoted_logging_flush_interval = hello-world"),
       (.warning, "No viable conversion for remote config value: " +
-        "logging_enabled = super-mario-world"),
+        "ai_promoted_logging_enabled = super-mario-world"),
       (.warning, "No viable conversion for remote config value: " +
-        "xray_level = oh-what-a-wonderful-world"),
-      (.info, "Read from remote config: metrics_logging_url = \(url)"),
+        "ai_promoted_xray_level = oh-what-a-wonderful-world"),
+      (.info, "Read from remote config: " +
+        "ai_promoted_metrics_logging_url = \(url)"),
     ], messages)
 
     XCTAssertEqual(url, config.metricsLoggingURL)

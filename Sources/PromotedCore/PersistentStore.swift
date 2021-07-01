@@ -14,7 +14,7 @@ public protocol PersistentStore: AnyObject {
   var clientConfig: Data? { get set }
 }
 
-protocol PersistentStoreSource: NoDeps {
+protocol PersistentStoreSource {
   var persistentStore: PersistentStore { get }
 }
 

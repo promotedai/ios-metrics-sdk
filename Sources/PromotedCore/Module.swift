@@ -28,21 +28,23 @@ public final class ModuleConfig: NSObject {
   @objc public static func coreConfig() -> ModuleConfig { ModuleConfig() }
 }
 
-typealias AllDeps = (AnalyticsConnectionSource &
-                     AnalyticsSource &
-                     ClientConfigSource &
-                     ClientConfigServiceSource &
-                     ClockSource &
-                     DeviceInfoSource &
-                     IDMapSource &
-                     NetworkConnectionSource &
-                     OperationMonitorSource &
-                     OSLogSource &
-                     PersistentStoreSource &
-                     RemoteConfigConnectionSource &
-                     UIStateSource &
-                     ViewTrackerSource &
-                     XraySource)
+typealias AllDeps = (
+  AnalyticsConnectionSource &
+  AnalyticsSource &
+  ClientConfigSource &
+  ClientConfigServiceSource &
+  ClockSource &
+  DeviceInfoSource &
+  IDMapSource &
+  NetworkConnectionSource &
+  OperationMonitorSource &
+  OSLogSource &
+  PersistentStoreSource &
+  RemoteConfigConnectionSource &
+  UIStateSource &
+  ViewTrackerSource &
+  XraySource
+)
 
 /**
  Owner of all dependencies in the logging library.
@@ -55,24 +57,10 @@ typealias AllDeps = (AnalyticsConnectionSource &
  a potential dependency has a corresponding `Source` protocol, and that
  protocol has a single property that returns an instance of the
  dependency. The property name should be the class name of the provided
- object in camelCase.
-
- If your class has any dependencies (see below), then make your `Source`
- protocol extend those dependencies. This is so that transitive
- dependencies can be computed in unit tests. If your class doesn't have
- any dependencies, make its `Source` protocol extend `NoDeps`.
-
- For example, for `Clock`, which has no dependencies, the protocol is:
+ object in camelCase. For example, for `Clock`, the protocol is:
  ```swift
- protocol ClockSource: NoDeps {
+ protocol ClockSource {
    var clock: Clock { get }
- }
- ```
- For `Xray`, which has dependencies, the protocol extends the `Xray`
- dependencies:
- ```swift
- protocol XraySource: Xray.Deps {
-   var xray: Xray { get }
  }
  ```
  Next, every class that has dependencies should specify those dependencies
@@ -80,10 +68,10 @@ typealias AllDeps = (AnalyticsConnectionSource &
  ```swift
  class MyClass {
    typealias Deps = ClockSource & OperationMonitorSource
- 
+
    private let clock: Clock
    private let monitor: OperationMonitor
- 
+
    init(deps: Deps) {
      self.clock = deps.clock
      self.monitor = deps.operationMonitor
@@ -102,16 +90,7 @@ typealias AllDeps = (AnalyticsConnectionSource &
     `deps` object and instead save its dependencies into properties.
  4. A class that has dependencies can also be a dependency in itself.
     In the example above, it is valid to have a `MyClassSource` and
-    expose that in `Module`. If you do this, make sure to have
-    `MyClassSource` extend from `MyClass.Deps`:
-    ```swift
-    class MyClass {
-      typealias Deps = ClockSource & OperationMonitorSource
-    }
-    protocol MyClassSource: MyClass.Deps {
-      var myClass: MyClass { get }
-    }
-    ```
+    expose that in `Module`.
  
  # Adding new dependencies to `Module`
  

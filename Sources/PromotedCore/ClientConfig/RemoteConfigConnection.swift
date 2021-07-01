@@ -32,6 +32,6 @@ public protocol RemoteConfigConnection: AnyObject {
   )
 }
 
-protocol RemoteConfigConnectionSource: NoDeps {
+protocol RemoteConfigConnectionSource {
   var remoteConfigConnection: RemoteConfigConnection? { get }
 }

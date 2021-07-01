@@ -16,7 +16,7 @@ class SystemOSLogSource {
   }
 }
 
-protocol OSLogSource: SystemOSLogSource.Deps {
+protocol OSLogSource {
   /// Callers own the returned object.
   func osLog(category: String) -> OSLog?
 }

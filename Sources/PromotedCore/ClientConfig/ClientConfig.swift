@@ -299,7 +299,7 @@ extension ClientConfig {
 }
 
 // MARK: - Protocol composition
-protocol InitialConfigSource: NoDeps {
+protocol InitialConfigSource {
   var initialConfig: ClientConfig { get }
 }
 

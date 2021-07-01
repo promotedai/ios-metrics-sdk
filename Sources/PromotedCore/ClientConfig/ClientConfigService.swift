@@ -59,7 +59,7 @@ final class ClientConfigService {
   }
 }
 
-protocol ClientConfigServiceSource: ClientConfigService.Deps {
+protocol ClientConfigServiceSource {
   var clientConfigService: ClientConfigService { get }
 }
 
