@@ -40,13 +40,12 @@ final class ClientConfigServiceTests: ModuleTestCase {
         return
       }
       do {
-        let serializedConfig = try JSONDecoder().decode(
-          ClientConfig.self,
-          from: configData
+        let deserializedConfig = try JSONDecoder().decode(
+          ClientConfig.self, from: configData
         )
-        XCTAssertEqual(url, serializedConfig.metricsLoggingURL)
-        XCTAssertEqual("apikey!!", serializedConfig.metricsLoggingAPIKey)
-        XCTAssertEqual(.callDetails, serializedConfig.xrayLevel)
+        XCTAssertEqual(url, deserializedConfig.metricsLoggingURL)
+        XCTAssertEqual("apikey!!", deserializedConfig.metricsLoggingAPIKey)
+        XCTAssertEqual(.callDetails, deserializedConfig.xrayLevel)
       } catch {
         XCTFail(String(describing: error))
       }

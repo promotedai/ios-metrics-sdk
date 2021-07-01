@@ -7,8 +7,10 @@ import PromotedCore
 
 final class FirebaseRemoteConfigConnection: RemoteConfigConnection {
 
-  func fetchClientConfig(initialConfig: ClientConfig,
-                         callback: @escaping Callback) throws {
+  func fetchClientConfig(
+    initialConfig: ClientConfig,
+    callback: @escaping Callback
+  ) throws {
     let remoteConfig = RemoteConfig.remoteConfig()
     #if DEBUG
       let settings = RemoteConfigSettings()
@@ -24,7 +26,10 @@ final class FirebaseRemoteConfigConnection: RemoteConfigConnection {
       case .success:
         var warnings: [String] = []
         var infos: [String] = []
-        let config = ClientConfig(remoteConfig: remoteConfig, warnings: &warnings, infos: &infos)
+        let config = ClientConfig(initialConfig)
+        config.merge(
+          from: remoteConfig, warnings: &warnings, infos: &infos
+        )
         callback(config, nil)
       case .failure, .noFetchYet:
         callback(nil, nil)

@@ -14,6 +14,29 @@ import Foundation
  Do not change the properties of this object once loaded from
  `ClientConfigService`.
 
+ # Enums
+
+ When adding a new enum property, do the following:
+
+ 1. Make the type and value public.
+ 2. Make it `@objc` and give it a name prefixed with `PRO`.
+ 3. Make it an `Int` enum.
+ 4. Make it conform to `ConfigEnum`.
+ 5. Give it a `case unknown = 0`.
+
+ The final three items ensure that it works with remote config
+ and serialization.
+
+ Example:
+ ```swift
+ @objc(PROAlohaEnum)
+ public enum AlohaEnum: Int, ConfigEnum {
+   case unknown = 0
+   case hello = 1
+   case goodbye = 2
+ }
+ ```
+
  # Validation
 
  When adding new properties that are numerical or enum values,
@@ -23,7 +46,8 @@ import Foundation
  */
 @objc(PROClientConfig)
 public final class ClientConfig: NSObject, Codable {
-  public typealias ConfigEnum = CaseIterable & Codable & ExpressibleByStringLiteral
+  public typealias ConfigEnum =
+    CaseIterable & Codable & Equatable & ExpressibleByStringLiteral
 
   /// Controls whether log messages are sent over the network.
   /// Setting this property to `false` will prevent log messages
@@ -72,6 +96,7 @@ public final class ClientConfig: NSObject, Codable {
   /// Format to use when sending protobuf log messages over network.
   @objc(PROMetricsLoggingWireFormat)
   public enum MetricsLoggingWireFormat: Int, ConfigEnum {
+    case unknown = 0
     /// https://developers.google.com/protocol-buffers/docs/proto3#json
     case json = 1
     /// https://developers.google.com/protocol-buffers/docs/encoding
@@ -113,18 +138,19 @@ public final class ClientConfig: NSObject, Codable {
 
   @objc(PROXrayLevel)
   public enum XrayLevel: Int, Comparable, ConfigEnum {
+    case unknown = 0
     // Don't gather any Xray stats data at all.
-    case none = 0
+    case none = 1
     // Gather overall counts for the session for each batch.
     // ie. batches: 40, batches sent successfully: 39, errors: 1
-    case batchSummaries = 1
+    case batchSummaries = 2
     // Gather stats and logged messages for each call made
     // to the metrics library.
-    case callDetails = 2
+    case callDetails = 3
     // Gathers stats and logged messages for each call made
     // to the metrics library, as well as stack traces where the
     // calls were made.
-    case callDetailsAndStackTraces = 3
+    case callDetailsAndStackTraces = 4
   }
   /// Level of Xray profiling for this session.
   /// Setting this to `.none` also forces
@@ -140,16 +166,17 @@ public final class ClientConfig: NSObject, Codable {
 
   @objc(PROOSLogLevel)
   public enum OSLogLevel: Int, Comparable, ConfigEnum {
+    case unknown = 0
     /// No logging for anything.
-    case none = 0
+    case none = 1
     /// Logging only for errors.
-    case error = 1
+    case error = 2
     /// Logging for errors and warnings.
-    case warning = 2
+    case warning = 3
     /// Logging for info messages (and above).
-    case info = 3
+    case info = 4
     /// Logging for debug messages (and above).
-    case debug = 4
+    case debug = 5
   }
   /// Whether to use OSLog (console logging) to output messages.
   /// OSLog typically incurs minimal overhead and can be useful for
@@ -194,13 +221,18 @@ public final class ClientConfig: NSObject, Codable {
     self.devMetricsLoggingAPIKey = config.devMetricsLoggingAPIKey
     self.metricsLoggingWireFormat = config.metricsLoggingWireFormat
     self.loggingFlushInterval = config.loggingFlushInterval
-    self.scrollTrackerVisibilityThreshold = config.scrollTrackerVisibilityThreshold
-    self.scrollTrackerDurationThreshold = config.scrollTrackerDurationThreshold
-    self.scrollTrackerUpdateFrequency = config.scrollTrackerUpdateFrequency
+    self.scrollTrackerVisibilityThreshold =
+      config.scrollTrackerVisibilityThreshold
+    self.scrollTrackerDurationThreshold =
+      config.scrollTrackerDurationThreshold
+    self.scrollTrackerUpdateFrequency =
+      config.scrollTrackerUpdateFrequency
     self.xrayLevel = config.xrayLevel
     self.osLogLevel = config.osLogLevel
-    self.diagnosticsIncludeBatchSummaries = config.diagnosticsIncludeBatchSummaries
-    self.diagnosticsIncludeAncestorIDHistory = config.diagnosticsIncludeAncestorIDHistory
+    self.diagnosticsIncludeBatchSummaries =
+      config.diagnosticsIncludeBatchSummaries
+    self.diagnosticsIncludeAncestorIDHistory =
+      config.diagnosticsIncludeAncestorIDHistory
   }
 }
 
@@ -227,18 +259,18 @@ extension ClientConfig {
 
   /// Validate enums and set them to appropriate defaults.
   /// Deserialization might produce invalid enum values.
-  private func validateEnum<T: CaseIterable & Equatable>(
+  private func validateEnum<T: ConfigEnum & RawRepresentable>(
     _ value: inout T,
     defaultValue: T,
     propertyName: String = #function
-  ) {
-    if !T.allCases.contains(value) {
-      // Not printing `value` because `String(describing: value)`
-      // just gives the enum class name.
-      // TODO: Figure out how to print the invalid value.
-      assert(!assertInValidation,
-             "\(propertyName): unknown case for enum " +
-              "\(String(describing: type(of: value)))")
+  ) where T.RawValue == Int {
+    if !T.allCases.contains(value) || value.rawValue == 0 {
+      assert(
+        !assertInValidation,
+        "\(propertyName): unknown case for enum " +
+          "\(String(describing: type(of: value))) = " +
+          "\(String(describing: value.rawValue))"
+      )
       value = defaultValue
     }
   }
@@ -289,7 +321,7 @@ public extension ClientConfig.MetricsLoggingWireFormat {
     case "binary":
       self = .binary
     default:
-      self = .binary
+      self = .unknown
     }
   }
 }
@@ -299,14 +331,17 @@ public extension ClientConfig.XrayLevel {
     switch stringLiteral {
     case "none":
       self = .none
-    case "batchSummaries":
+    case "batchSummaries",
+         "batch_summaries":
       self = .batchSummaries
-    case "callDetails":
+    case "callDetails",
+         "call_details":
       self = .callDetails
-    case "callDetailsAndStackTraces":
+    case "callDetailsAndStackTraces",
+         "call_details_and_stack_traces":
       self = .callDetailsAndStackTraces
     default:
-      self = .none
+      self = .unknown
     }
   }
 }
@@ -325,7 +360,7 @@ public extension ClientConfig.OSLogLevel {
     case "debug":
       self = .debug
     default:
-      self = .none
+      self = .unknown
     }
   }
 }

@@ -7,29 +7,48 @@ import PromotedCore
 
 extension ClientConfig {
 
-  convenience init(
-    remoteConfig: RemoteConfig,
+  func merge(
+    from remoteConfig: RemoteConfig,
     warnings: inout [String],
     infos: inout [String]
   ) {
-    self.init()
-    var remainingKeys = Set(remoteConfig.allKeys(from: .remote))
+    var dictionary: [String: String] = [:]
+    for key in remoteConfig.allKeys(from: .remote) {
+      dictionary[key] = remoteConfig.configValue(forKey: key).stringValue
+    }
+    merge(from: dictionary, warnings: &warnings, infos: &infos)
+  }
+
+  func merge(
+    from dictionary: [String: String],
+    warnings: inout [String],
+    infos: inout [String]
+  ) {
+    var remainingKeys = Set(dictionary.keys)
     let mirror = Mirror(reflecting: self)
     for child in mirror.children {
-      guard let key = child.label?.toSnakeCase() else {
+      // This is a local debugging flag.
+      let childLabel = child.label
+      if childLabel == "assertInValidation" { continue }
+      guard let childLabel = childLabel else {
         warnings.append(
           "Child with no label: \(String(describing: child))"
         )
         continue
       }
 
-      let remoteValue = remoteConfig.configValue(
-        forKey: key, source: .remote
-      )
+      var key = childLabel
+      var remoteValue = dictionary[key]
+      if remoteValue == nil {
+        key = key.toSnakeCase()
+        remoteValue = dictionary[key]
+      }
 
       // The value may not be overridden in remote config.
       // This isn't a warning. Just ignore.
-      guard remoteValue.stringValue != nil else { continue }
+      guard let remoteValue = remoteValue else { continue }
+      remainingKeys.remove(key)
+
       guard let convertedValue = convertedValue(
         forRemoteValue: remoteValue, child: child
       ) else {
@@ -45,13 +64,12 @@ extension ClientConfig {
           "\(key) = \(String(describing: convertedValue))"
       )
 
-      self.setValue(convertedValue, forKey: key)
+      self.setValue(convertedValue, forKey: childLabel)
       checkValidatedValueChanged(
-        key: key,
+        key: childLabel,
         dictValue: convertedValue,
         warnings: &warnings
       )
-      remainingKeys.remove(key)
     }
     for remainingKey in remainingKeys {
       warnings.append("Unused key in remote config: \(remainingKey)")
@@ -59,30 +77,33 @@ extension ClientConfig {
   }
 
   private func convertedValue(
-    forRemoteValue remoteValue: RemoteConfigValue,
+    forRemoteValue value: String,
     child: Mirror.Child
   ) -> Any? {
     switch child.value {
     case is Int:
-      return remoteValue.numberValue.intValue
+      return Int(value)
     case is Double:
-      return remoteValue.numberValue.doubleValue
+      return Double(value)
     case is Bool:
-      return remoteValue.boolValue
+      return Bool(value)
     case is String:
-      return remoteValue.stringValue
+      return value
     case is ClientConfig.MetricsLoggingWireFormat:
-      return ClientConfig.MetricsLoggingWireFormat(
-        stringLiteral: remoteValue.stringValue!
+      let value = ClientConfig.MetricsLoggingWireFormat(
+        stringLiteral: value
       )
+      return value == .unknown ? nil : value.rawValue
     case is ClientConfig.XrayLevel:
-      return ClientConfig.XrayLevel(
-        stringLiteral: remoteValue.stringValue!
+      let value = ClientConfig.XrayLevel(
+        stringLiteral: value
       )
+      return value == .unknown ? nil : value.rawValue
     case is ClientConfig.OSLogLevel:
-      return ClientConfig.OSLogLevel(
-        stringLiteral: remoteValue.stringValue!
+      let value = ClientConfig.OSLogLevel(
+        stringLiteral: value
       )
+      return value == .unknown ? nil : value.rawValue
     default:
       return nil
     }
@@ -105,12 +126,26 @@ extension ClientConfig {
 
 extension String {
   func toSnakeCase() -> String {
-    let aA = try! NSRegularExpression(pattern: "[a-z][A-Z]", options: [])
+    let aA = try! NSRegularExpression(
+      pattern: "([a-z])([A-Z])", options: []
+    )
     var range = NSRange(location: 0, length: count)
-    var result = aA.stringByReplacingMatches(in: self, options: [], range: range, withTemplate: "$1_$2")
-    let AAa = try! NSRegularExpression(pattern: "[A-Z][A-Z][a-z]", options: [])
+    var result = aA.stringByReplacingMatches(
+      in: self,
+      options: [],
+      range: range,
+      withTemplate: "$1_$2"
+    )
+    let AAa = try! NSRegularExpression(
+      pattern: "([A-Z])([A-Z])([a-z])", options: []
+    )
     range = NSRange(location: 0, length: result.count)
-    result = AAa.stringByReplacingMatches(in: result, options: [], range: range, withTemplate: "$1_$2$3")
+    result = AAa.stringByReplacingMatches(
+      in: result,
+      options: [],
+      range: range,
+      withTemplate: "$1_$2$3"
+    )
     return result.lowercased()
   }
 }

@@ -83,5 +83,12 @@ let package = Package(
         .target(name: "PromotedCore"),
         .target(name: "PromotedCoreTestHelpers"),
       ]),
+    .testTarget(
+      name: "PromotedFirebaseRemoteConfigTests",
+      dependencies: [
+        .target(name: "PromotedCore"),
+        .target(name: "PromotedCoreTestHelpers"),
+        .target(name: "PromotedFirebaseRemoteConfig"),
+      ]),
   ]
 )

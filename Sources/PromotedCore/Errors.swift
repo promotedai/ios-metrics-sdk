@@ -68,6 +68,9 @@ public enum ClientConfigError: Error {
 
   /// Remote fetch finished, but provided no config.
   case emptyRemoteConfig
+
+  /// Specified wire format doesn't exist.
+  case invalidWireFormat
 }
 
 extension ClientConfigError: NSErrorProperties {
@@ -85,6 +88,8 @@ extension ClientConfigError: NSErrorProperties {
       return 104
     case .emptyRemoteConfig:
       return 105
+    case .invalidWireFormat:
+      return 106
     }
   }
 }
