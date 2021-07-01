@@ -9,30 +9,30 @@ extension ClientConfig {
 
   func merge(
     from remoteConfig: RemoteConfig,
-    warnings: inout [String],
-    infos: inout [String]
+    messages: inout PendingLogMessages
   ) {
     var dictionary: [String: String] = [:]
     for key in remoteConfig.allKeys(from: .remote) {
       dictionary[key] = remoteConfig.configValue(forKey: key).stringValue
     }
-    merge(from: dictionary, warnings: &warnings, infos: &infos)
+    merge(from: dictionary, messages: &messages)
   }
 
   func merge(
     from dictionary: [String: String],
-    warnings: inout [String],
-    infos: inout [String]
+    messages: inout PendingLogMessages
   ) {
     var remainingKeys = Set(dictionary.keys)
     let mirror = Mirror(reflecting: self)
+
     for child in mirror.children {
-      // This is a local debugging flag.
       let childLabel = child.label
+      // This is a local debugging flag.
       if childLabel == "assertInValidation" { continue }
       guard let childLabel = childLabel else {
-        warnings.append(
-          "Child with no label: \(String(describing: child))"
+        messages.warning(
+          "Child with no label: \(String(describing: child))",
+          visibility: .public
         )
         continue
       }
@@ -52,27 +52,30 @@ extension ClientConfig {
       guard let convertedValue = convertedValue(
         forRemoteValue: remoteValue, child: child
       ) else {
-        warnings.append(
+        messages.warning(
           "No viable conversion for remote config value: " +
-            "\(key) = \(String(describing: remoteValue))"
+            "\(key) = \(String(describing: remoteValue))",
+          visibility: .public
         )
         continue
       }
 
-      infos.append(
+      messages.info(
         "Read from remote config: " +
-          "\(key) = \(String(describing: convertedValue))"
+          "\(key) = \(String(describing: convertedValue))",
+        visibility: .public
       )
 
       self.setValue(convertedValue, forKey: childLabel)
       checkValidatedValueChanged(
         key: childLabel,
         dictValue: convertedValue,
-        warnings: &warnings
+        messages: &messages
       )
     }
+
     for remainingKey in remainingKeys {
-      warnings.append("Unused key in remote config: \(remainingKey)")
+      messages.warning("Unused key in remote config: \(remainingKey)")
     }
   }
 
@@ -112,13 +115,14 @@ extension ClientConfig {
   private func checkValidatedValueChanged(
     key: String,
     dictValue: Any,
-    warnings: inout [String]
+    messages: inout PendingLogMessages
   ) {
     if let validatedValue = value(forKey: key),
        !AnyHashable.areEqual(dictValue, validatedValue) {
-      warnings.append(
-        "Attempted to set invalid value:\(key) = \(dictValue) " +
-          "(using \(validatedValue) instead)"
+      messages.warning(
+        "Attempted to set invalid value: \(key) = \(dictValue) " +
+          "(using \(validatedValue) instead)",
+        visibility: .public
       )
     }
   }

@@ -9,11 +9,11 @@ final class ClientConfigMergeTests: XCTestCase {
 
   private func assertListsEqualNoOrder(
     _ a: [String],
-    _ b: [String],
+    _ b: [(String, PendingLogMessages.Visibility)],
     file: StaticString = #filePath,
     line: UInt = #line
   ) {
-    XCTAssertEqual(Set(a), Set(b), file: file, line: line)
+    XCTAssertEqual(Set(a), Set(b.map { $0.0 }), file: file, line: line)
   }
 
   func testMerge() {
@@ -29,11 +29,10 @@ final class ClientConfigMergeTests: XCTestCase {
       "xray_level": "batchSummaries",
       "os_log_level": "debug",
     ]
-    var warnings: [String] = []
-    var infos: [String] = []
-    config.merge(from: dictionary, warnings: &warnings, infos: &infos)
+    var messages = PendingLogMessages()
+    config.merge(from: dictionary, messages: &messages)
 
-    assertListsEqualNoOrder([], warnings)
+    assertListsEqualNoOrder([], messages.warnings)
     assertListsEqualNoOrder([
       "Read from remote config: metrics_logging_url = \(url)",
       "Read from remote config: metrics_logging_api_key = hello-world",
@@ -41,7 +40,7 @@ final class ClientConfigMergeTests: XCTestCase {
       "Read from remote config: flush_logging_on_resign_active = false",
       "Read from remote config: xray_level = 2",
       "Read from remote config: os_log_level = 5",
-    ], infos)
+    ], messages.infos)
 
     // Changed values.
     XCTAssertEqual(url, config.metricsLoggingURL)
@@ -78,16 +77,15 @@ final class ClientConfigMergeTests: XCTestCase {
       "metrics_logging_url": url,
       "foo_bar": "hello-world",
     ]
-    var warnings: [String] = []
-    var infos: [String] = []
-    config.merge(from: dictionary, warnings: &warnings, infos: &infos)
+    var messages = PendingLogMessages()
+    config.merge(from: dictionary, messages: &messages)
 
     assertListsEqualNoOrder([
       "Unused key in remote config: foo_bar",
-    ], warnings)
+    ], messages.warnings)
     assertListsEqualNoOrder([
       "Read from remote config: metrics_logging_url = \(url)",
-    ], infos)
+    ], messages.infos)
 
     XCTAssertEqual(url, config.metricsLoggingURL)
   }
@@ -103,9 +101,8 @@ final class ClientConfigMergeTests: XCTestCase {
       "logging_enabled": "super-mario-world",
       "xray_level": "oh-what-a-wonderful-world",
     ]
-    var warnings: [String] = []
-    var infos: [String] = []
-    config.merge(from: dictionary, warnings: &warnings, infos: &infos)
+    var messages = PendingLogMessages()
+    config.merge(from: dictionary, messages: &messages)
 
     assertListsEqualNoOrder([
       "No viable conversion for remote config value: " +
@@ -114,10 +111,10 @@ final class ClientConfigMergeTests: XCTestCase {
         "logging_enabled = super-mario-world",
       "No viable conversion for remote config value: " +
         "xray_level = oh-what-a-wonderful-world",
-    ], warnings)
+    ], messages.warnings)
     assertListsEqualNoOrder([
       "Read from remote config: metrics_logging_url = \(url)",
-    ], infos)
+    ], messages.infos)
 
     XCTAssertEqual(url, config.metricsLoggingURL)
     XCTAssertEqual(10.0, config.loggingFlushInterval, accuracy: 0.001)

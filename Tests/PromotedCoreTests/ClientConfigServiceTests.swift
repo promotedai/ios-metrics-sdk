@@ -28,13 +28,17 @@ final class ClientConfigServiceTests: ModuleTestCase {
 
   func testCachesRemoteValue() {
     let url = "https://fake2.promoted.ai"
-    remoteConfigConnection.config.metricsLoggingURL = url
-    remoteConfigConnection.config.metricsLoggingAPIKey = "apikey!!"
-    remoteConfigConnection.config.xrayLevel = .callDetails
+    guard let remoteConfig = remoteConfigConnection.config else {
+      XCTFail("FakeRemoteConfigConnection.config was nil!?")
+      return
+    }
+    remoteConfig.metricsLoggingURL = url
+    remoteConfig.metricsLoggingAPIKey = "apikey!!"
+    remoteConfig.xrayLevel = .callDetails
 
-    try! module.clientConfigService.fetchClientConfig { config, error in
-      XCTAssertNotNil(config)
-      XCTAssertNil(error)
+    try! module.clientConfigService.fetchClientConfig { result in
+      XCTAssertNotNil(result.config)
+      XCTAssertNil(result.error)
       guard let configData = self.store.clientConfig else {
         XCTFail("ClientConfig not written to PersistentStore")
         return

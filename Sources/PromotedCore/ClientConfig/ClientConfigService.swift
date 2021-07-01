@@ -62,7 +62,13 @@ protocol ClientConfigServiceSource: ClientConfigService.Deps {
 
 extension ClientConfigService {
 
-  typealias Callback = (ClientConfig?, Error?) -> Void
+  struct Result {
+    let config: ClientConfig?
+    let error: ClientConfigError?
+    let messages: PendingLogMessages
+  }
+
+  typealias Callback = (Result) -> Void
 
   /// Loads cached config synchronously and initiates asynchronous
   /// load of remote config (for use in next startup).
@@ -70,7 +76,9 @@ extension ClientConfigService {
     // This loads the cached config synchronously.
     if let clientConfigData = store.clientConfig {
       let decoder = JSONDecoder()
-      _config = try decoder.decode(ClientConfig.self, from: clientConfigData)
+      _config = try decoder.decode(
+        ClientConfig.self, from: clientConfigData
+      )
     }
     wasConfigFetched = true
 
@@ -79,32 +87,41 @@ extension ClientConfigService {
     try remoteConfigConnection?.fetchClientConfig(
       initialConfig: initialConfig
     ) {
-      [weak self] (config, error) in
+      [weak self] remoteResult in
       guard let self = self else { return }
 
-      // If any error loading remote config, bail.
-      if let error = error {
-        let e = ClientConfigError.remoteConfigFetchError(error)
-        callback?(nil, e)
+      var resultConfig: ClientConfig? = nil
+      var resultError: ClientConfigError? = nil
+      defer {
+        if let callback = callback {
+          let result = Result(
+            config: resultConfig,
+            error: resultError,
+            messages: remoteResult.messages
+          )
+          callback(result)
+        }
+      }
+
+      if let remoteError = remoteResult.error {
+        resultError = .remoteConfigFetchError(remoteError)
+        return
+      }
+
+      guard let remoteConfig = remoteResult.config else {
+        // Somehow failed to get error or config.
+        resultError = .emptyRemoteConfig
         return
       }
 
       // Successfully loaded config. Save for next session.
-      if let config = config {
-        let encoder = JSONEncoder()
-        do {
-          self.store.clientConfig = try encoder.encode(config)
-        } catch {
-          callback?(nil, error)
-          return
-        }
-        callback?(config, nil)
-        return
+      let encoder = JSONEncoder()
+      do {
+        self.store.clientConfig = try encoder.encode(remoteConfig)
+        resultConfig = remoteConfig
+      } catch {
+        resultError = .localCacheEncodeError(error)
       }
-
-      // Somehow failed to get error or config.
-      let e = ClientConfigError.emptyRemoteConfig
-      callback?(nil, e)
     }
   }
 }

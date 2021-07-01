@@ -18,25 +18,32 @@ final class FirebaseRemoteConfigConnection: RemoteConfigConnection {
       remoteConfig.configSettings = settings
     #endif
     remoteConfig.fetch { status, error in
+      var resultConfig: ClientConfig? = nil
+      var resultError: RemoteConfigConnectionError? = nil
+      var resultMessages = PendingLogMessages()
+      defer {
+        let result = Result(
+          config: resultConfig,
+          error: resultError,
+          messages: resultMessages
+        )
+        callback(result)
+      }
       if let error = error {
-        callback(nil, error)
+        resultError = .failed(underlying: error)
         return
       }
       switch status {
       case .success:
-        var warnings: [String] = []
-        var infos: [String] = []
         let config = ClientConfig(initialConfig)
-        config.merge(
-          from: remoteConfig, warnings: &warnings, infos: &infos
-        )
-        callback(config, nil)
+        config.merge(from: remoteConfig, messages: &resultMessages)
+        resultConfig = config
       case .failure, .noFetchYet:
-        callback(nil, nil)
+        resultError = .failed(underlying: nil)
       case .throttled:
-        callback(nil, nil)
+        resultError = .throttled
       @unknown default:
-        callback(nil, nil)
+        resultError = .unknown
       }
     }
   }

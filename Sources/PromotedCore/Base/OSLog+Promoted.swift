@@ -88,6 +88,34 @@ extension OSLog {
   }
 }
 
+extension PendingLogMessages.Visibility {
+  var formatString: StaticString {
+    switch self {
+    case .public:
+      return "%{public}s"
+    case .private:
+      return "%{private}s"
+    }
+  }
+}
+
+extension OSLog {
+  func log(pendingMessages: PendingLogMessages) {
+    for (message, visibility) in pendingMessages.errors {
+      error(visibility.formatString, message)
+    }
+    for (message, visibility) in pendingMessages.warnings {
+      warning(visibility.formatString, message)
+    }
+    for (message, visibility) in pendingMessages.infos {
+      info(visibility.formatString, message)
+    }
+    for (message, visibility) in pendingMessages.debugs {
+      debug(visibility.formatString, message)
+    }
+  }
+}
+
 extension OSLog {
   func error(_ formatter: TabularLogFormatter) {
     guard shouldLog(.error) else { return }
