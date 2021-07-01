@@ -44,41 +44,28 @@ Pod::Spec.new do |s|
     metrics.dependency 'PromotedAIMetricsSDK/Fetcher'
   end
 
-#  analytics_xcconfig = {
-#    'USER_HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/Firebase/CoreOnly/Sources"',
-#    'FRAMEWORK_SEARCH_PATHS' => '"${PODS_XCFRAMEWORKS_BUILD_DIR}/FirebaseAnalytics" "${PODS_XCFRAMEWORKS_BUILD_DIR}/GoogleUtilities" "${PODS_XCFRAMEWORKS_BUILD_DIR}/nanopb"',
-#    'OTHER_LDFLAGS' => '-framework "FirebaseAnalytics" -framework "GoogleUtilities" -framework "nanopb"'
-#  }
-  def self.firebase_xcconfig(subspec, product, additional_other_ldflags = "")
-    subspec.pod_target_xcconfig = {
-      'USER_HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/Firebase/CoreOnly/Sources"',
-      'FRAMEWORK_SEARCH_PATHS' => '"${PODS_XCFRAMEWORKS_BUILD_DIR}/' + product + '" "${PODS_XCFRAMEWORKS_BUILD_DIR}/GoogleUtilities" "${PODS_XCFRAMEWORKS_BUILD_DIR}/nanopb"',
-      'OTHER_LDFLAGS' => '-framework "' + product + '" -framework "GoogleUtilities" -framework "nanopb" ' + additional_other_ldflags
-    }
-  end
+  firebase_xcconfig = {
+    'USER_HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/Firebase/CoreOnly/Sources"',
+  }
 
   s.subspec 'FirebaseAnalytics' do |a|
     a.source_files = ['Sources/PromotedFirebaseAnalytics/**/*.{h,m,swift}']
     a.dependency 'Firebase/Analytics', '~> 7.11.0'
     a.dependency 'PromotedAIMetricsSDK/Core'
-    #a.pod_target_xcconfig = firebase_xcconfig('FirebaseAnalytics')
-    firebase_xcconfig(a, 'FirebaseAnalytics')
+    a.pod_target_xcconfig = firebase_xcconfig
   end
 
   s.subspec 'FirebaseAnalyticsWithoutAdIdSupport' do |a|
     a.source_files = ['Sources/PromotedFirebaseAnalytics/**/*.{h,m,swift}']
     a.dependency 'Firebase/AnalyticsWithoutAdIdSupport', '~> 7.11.0'
     a.dependency 'PromotedAIMetricsSDK/Core'
-#    analytics_without_ad_id_xcconfig = firebase_xcconfig('FirebaseAnalytics')
-#    analytics_without_ad_id_xcconfig['OTHER_LDFLAGS'] = analytics_xcconfig['OTHER_LDFLAGS'] + ' -framework "GoogleAppMeasurementWithoutAdIdSupport"'
-#    a.pod_target_xcconfig = analytics_without_ad_id_xcconfig
-    firebase_xcconfig(a, 'FirebaseAnalytics', '-framework "GoogleAppMeasurementWithoutAdIdSupport"')
+    a.pod_target_xcconfig = firebase_xcconfig
   end
 
   s.subspec 'FirebaseRemoteConfig' do |rc|
     rc.source_files = ['Sources/PromotedFirebaseRemoteConfig/**/*.{h,m,swift}']
     rc.dependency 'Firebase/RemoteConfig', '~> 7.11.0'
     rc.dependency 'PromotedAIMetricsSDK/Core'
-    firebase_xcconfig(rc, 'FirebaseRemoteConfig')
+    rc.pod_target_xcconfig = firebase_xcconfig
   end
 end
