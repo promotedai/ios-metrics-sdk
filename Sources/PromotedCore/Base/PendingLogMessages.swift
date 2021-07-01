@@ -13,7 +13,7 @@ public struct PendingLogMessages {
     let visibility: Visibility
     let level: LogLevel
   }
-  private(set) var messages: [PendingMessage] = []
+  fileprivate(set) var messages: [PendingMessage] = []
 
   public init() {}
 }
@@ -60,4 +60,13 @@ public extension PendingLogMessages {
       )
     )
   }
+}
+
+public func + (
+  a: PendingLogMessages,
+  b: PendingLogMessages
+) -> PendingLogMessages {
+  var result = PendingLogMessages()
+  result.messages = a.messages + b.messages
+  return result
 }

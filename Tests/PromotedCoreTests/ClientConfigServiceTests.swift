@@ -6,14 +6,14 @@ import XCTest
 
 final class ClientConfigServiceTests: ModuleTestCase {
 
-  func testLocalCache() throws {
+  func testLocalCache() {
     let config = ClientConfig()
     let url = "https://fake.promoted.ai"
     config.metricsLoggingURL = url
     config.metricsLoggingAPIKey = "apikey!"
     config.xrayLevel = .callDetails
 
-    let configData = try JSONEncoder().encode(config)
+    let configData = try! JSONEncoder().encode(config)
     store.clientConfig = configData
     module.clientConfigService.fetchClientConfig { _ in }
 

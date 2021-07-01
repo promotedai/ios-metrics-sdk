@@ -144,7 +144,7 @@ extension ClientConfigService {
 
       var resultConfig: ClientConfig? = nil
       var resultError: ClientConfigError? = nil
-      var resultMessages = remoteResult.messages
+      var resultMessages = outerFetchMessages + remoteResult.messages
       defer {
         let result = Result(
           config: resultConfig,

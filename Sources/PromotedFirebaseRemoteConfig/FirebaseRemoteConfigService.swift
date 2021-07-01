@@ -1,4 +1,4 @@
-import FirebaseRemoteConfig
+import Firebase
 import Foundation
 
 #if !COCOAPODS
@@ -7,11 +7,17 @@ import PromotedCore
 
 final class FirebaseRemoteConfigConnection: RemoteConfigConnection {
 
+  private let firebaseApp: FirebaseApp
+
+  init(app: FirebaseApp) {
+    self.firebaseApp = app
+  }
+
   func fetchClientConfig(
     initialConfig: ClientConfig,
     callback: @escaping Callback
   ) {
-    let remoteConfig = RemoteConfig.remoteConfig()
+    let remoteConfig = RemoteConfig.remoteConfig(app: firebaseApp)
     #if DEBUG
       let settings = RemoteConfigSettings()
       settings.minimumFetchInterval = 0

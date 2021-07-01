@@ -308,8 +308,9 @@ protocol ClientConfigSource: InitialConfigSource {
 }
 
 // MARK: - Comparison and serialization
-public func < <T: RawRepresentable>(a: T, b: T) -> Bool
-  where T.RawValue: Comparable {
+public func < <T: RawRepresentable>(
+  a: T, b: T
+) -> Bool where T.RawValue: Comparable {
   return a.rawValue < b.rawValue
 }
 
