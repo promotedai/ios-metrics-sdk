@@ -172,7 +172,7 @@ extension ClientConfigService {
         self.store.clientConfig = try encoder.encode(remoteConfig)
         resultConfig = remoteConfig
         resultMessages.info(
-          "Remote config successfully fetched and cached.",
+          "Remote config successfully cached.",
           visibility: .public
         )
       } catch {

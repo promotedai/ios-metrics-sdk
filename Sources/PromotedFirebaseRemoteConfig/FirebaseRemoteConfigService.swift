@@ -23,7 +23,7 @@ final class FirebaseRemoteConfigConnection: RemoteConfigConnection {
       settings.minimumFetchInterval = 0
       remoteConfig.configSettings = settings
     #endif
-    remoteConfig.fetch { status, error in
+    remoteConfig.fetchAndActivate { status, error in
       var resultConfig: ClientConfig? = nil
       var resultError: RemoteConfigConnectionError? = nil
       var resultMessages = PendingLogMessages()
@@ -40,14 +40,19 @@ final class FirebaseRemoteConfigConnection: RemoteConfigConnection {
         return
       }
       switch status {
-      case .success:
+      case .successUsingPreFetchedData:
+        resultMessages.info("Using prefetched config.", visibility: .public)
+        fallthrough
+      case .successFetchedFromRemote:
         let config = ClientConfig(initialConfig)
         config.merge(from: remoteConfig, messages: &resultMessages)
         resultConfig = config
-      case .failure, .noFetchYet:
+        resultMessages.info(
+          "Remote config successfully fetched and merged.",
+          visibility: .public
+        )
+      case .error:
         resultError = .failed(underlying: nil)
-      case .throttled:
-        resultError = .throttled
       @unknown default:
         resultError = .unknown
       }

@@ -37,12 +37,8 @@ extension ClientConfig {
         continue
       }
 
-      var key = childLabel
-      var remoteValue = dictionary[key]
-      if remoteValue == nil {
-        key = key.toSnakeCase()
-        remoteValue = dictionary[key]
-      }
+      let key = "ai_promoted_" + childLabel.toSnakeCase()
+      let remoteValue = dictionary[key]
 
       // The value may not be overridden in remote config.
       // This isn't a warning. Just ignore.
