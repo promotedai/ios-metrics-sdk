@@ -81,7 +81,7 @@ Pod::Spec.new do |s|
     rc.dependency 'PromotedAIMetricsSDK/Core'
     rc.pod_target_xcconfig = {
       'USER_HEADER_SEARCH_PATHS' => firebase_header_search_paths,
-      'GCC_PREPROCESSOR_DEFINITIONS' => remote_config_gcc_defs
+      'GCC_PREPROCESSOR_DEFINITIONS' => remote_config_gcc_defs,
       'OTHER_LDFLAGS' => '-framework "FirebaseRemoteConfig"'
     }
     # Although `user_target_xcconfig` is discouraged, need
