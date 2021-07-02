@@ -25,31 +25,19 @@ public struct PendingLogMessages {
 }
 
 public extension PendingLogMessages {
-  mutating func error(
-    _ message: String,
-    visibility: Visibility = .private
-  ) {
+  mutating func error(_ message: String, visibility: Visibility = .private) {
     append(message, visibility, .error)
   }
 
-  mutating func warning(
-    _ message: String,
-    visibility: Visibility = .private
-  ) {
+  mutating func warning(_ message: String, visibility: Visibility = .private) {
     append(message, visibility, .warning)
   }
 
-  mutating func info(
-    _ message: String,
-    visibility: Visibility = .private
-  ) {
+  mutating func info(_ message: String, visibility: Visibility = .private) {
     append(message, visibility, .info)
   }
 
-  mutating func debug(
-    _ message: String,
-    visibility: Visibility = .private
-  ) {
+  mutating func debug(_ message: String, visibility: Visibility = .private) {
     append(message, visibility, .debug)
   }
 
@@ -59,18 +47,13 @@ public extension PendingLogMessages {
     _ level: LogLevel
   ) {
     messages.append(
-      PendingMessage(
-        message: message,
-        visibility: visibility,
-        level: level
-      )
+      PendingMessage(message: message, visibility: visibility, level: level)
     )
   }
 }
 
 public func + (
-  a: PendingLogMessages,
-  b: PendingLogMessages
+  a: PendingLogMessages, b: PendingLogMessages
 ) -> PendingLogMessages {
   var result = PendingLogMessages()
   result.messages = a.messages + b.messages

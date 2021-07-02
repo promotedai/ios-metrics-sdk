@@ -95,7 +95,8 @@ final class ClientConfigMergeTests: XCTestCase {
     config.merge(from: dictionary, messages: &messages)
 
     assertLoggedMessagesEqualNoOrder([
-      (.warning, "Unrecognized key in remote config: ai_promoted_foo_bar"),
+      (.warning, "Unrecognized key in remote config: ai_promoted_foo_bar " +
+        "(ignoring)"),
       (.info, "Read from remote config: " +
         "ai_promoted_metrics_logging_url = <<sha256: e39ead058a0475ec…>>"),
     ], messages)
@@ -119,11 +120,11 @@ final class ClientConfigMergeTests: XCTestCase {
 
     assertLoggedMessagesEqualNoOrder([
       (.warning, "No viable conversion for remote config value: " +
-        "ai_promoted_logging_flush_interval = hello-world"),
+        "ai_promoted_logging_flush_interval = hello-world (ignoring)"),
       (.warning, "No viable conversion for remote config value: " +
-        "ai_promoted_logging_enabled = super-mario-world"),
+        "ai_promoted_logging_enabled = super-mario-world (ignoring)"),
       (.warning, "No viable conversion for remote config value: " +
-        "ai_promoted_xray_level = oh-what-a-wonderful-world"),
+        "ai_promoted_xray_level = oh-what-a-wonderful-world (ignoring)"),
       (.info, "Read from remote config: " +
         "ai_promoted_metrics_logging_url = <<sha256: e39ead058a0475ec…>>"),
     ], messages)

@@ -60,7 +60,7 @@ extension ClientConfig {
       ) else {
         messages.warning(
           "No viable conversion for remote config value: " +
-            "\(key) = \(String(describing: remoteValue))",
+            "\(key) = \(String(describing: remoteValue)) (ignoring)",
           visibility: .public
         )
         continue
@@ -85,7 +85,9 @@ extension ClientConfig {
     }
 
     for remainingKey in remainingKeys {
-      messages.warning("Unrecognized key in remote config: \(remainingKey)")
+      messages.warning(
+        "Unrecognized key in remote config: \(remainingKey) (ignoring)"
+      )
     }
   }
 
