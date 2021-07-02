@@ -44,42 +44,49 @@ Pod::Spec.new do |s|
     metrics.dependency 'PromotedAIMetricsSDK/Fetcher'
   end
 
-  def self.firebase_xcconfig(spec, other_ldflags = '')
-    spec.pod_target_xcconfig = {
-      # So we can find the module for `import Firebase`.
-      'USER_HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/Firebase/CoreOnly/Sources"',
-      'OTHER_LDFLAGS' => other_ldflags
-    }
-  end
+  # For the `import Firebase` module.
+  firebase_header_search_paths = '"${PODS_ROOT}/Firebase/CoreOnly/Sources"'
 
-  # So we can link the FirebaseAnalytics dependency when the
+  # Links the FirebaseAnalytics dependency when the
   # host app has no other Firebase dependencies.
   analytics_ldflags = '-framework "FirebaseAnalytics" -framework "GoogleUtilities" -framework "nanopb"'
   analytics_noadid_ldflags = analytics_ldflags + ' -framework "GoogleAppMeasurementWithoutAdIdSupport"'
+
+  # Silences a Firebase warning to allow `pod lib lint` to pass.
+  remote_config_gcc_defs = 'FIREBASE_ANALYTICS_SUPPRESS_WARNING=1'
 
   s.subspec 'FirebaseAnalytics' do |a|
     a.source_files = ['Sources/PromotedFirebaseAnalytics/**/*.{h,m,swift}']
     a.dependency 'Firebase/Analytics', '~> 7.11.0'
     a.dependency 'PromotedAIMetricsSDK/Core'
-    firebase_xcconfig(a, analytics_ldflags)
+    a.pod_target_xcconfig = {
+      'USER_HEADER_SEARCH_PATHS' => firebase_header_search_paths,
+      'OTHER_LDFLAGS' => analytics_ldflags
+    }
   end
 
   s.subspec 'FirebaseAnalyticsWithoutAdIdSupport' do |a|
     a.source_files = ['Sources/PromotedFirebaseAnalytics/**/*.{h,m,swift}']
     a.dependency 'Firebase/AnalyticsWithoutAdIdSupport', '~> 7.11.0'
     a.dependency 'PromotedAIMetricsSDK/Core'
-    firebase_xcconfig(a, analytics_noadid_ldflags)
+    a.pod_target_xcconfig = {
+      'USER_HEADER_SEARCH_PATHS' => firebase_header_search_paths,
+      'OTHER_LDFLAGS' => analytics_noadid_ldflags
+    }
   end
 
   s.subspec 'FirebaseRemoteConfig' do |rc|
     rc.source_files = ['Sources/PromotedFirebaseRemoteConfig/**/*.{h,m,swift}']
     rc.dependency 'Firebase/RemoteConfig', '~> 7.11.0'
     rc.dependency 'PromotedAIMetricsSDK/Core'
-    firebase_xcconfig(rc)
+    rc.pod_target_xcconfig = {
+      'USER_HEADER_SEARCH_PATHS' => firebase_header_search_paths,
+      'GCC_PREPROCESSOR_DEFINITIONS' => remote_config_gcc_defs
+    }
     # Although `user_target_xcconfig` is discouraged, need
     # this for `pod lib lint` to pass.
     rc.user_target_xcconfig = {
-      'GCC_PREPROCESSOR_DEFINITIONS' => 'FIREBASE_ANALYTICS_SUPPRESS_WARNING=1'
+      'GCC_PREPROCESSOR_DEFINITIONS' => remote_config_gcc_defs
     }
   end
 end
