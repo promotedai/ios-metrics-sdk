@@ -21,7 +21,8 @@ final class ClientConfigMergeTests: XCTestCase {
         "\($0.level.rawValue): \($0.message)"
       }),
       file: file,
-      line: line)
+      line: line
+    )
   }
 
   func testMerge() {
@@ -42,9 +43,9 @@ final class ClientConfigMergeTests: XCTestCase {
 
     assertLoggedMessagesEqualNoOrder([
       (.info, "Read from remote config: " +
-        "ai_promoted_metrics_logging_url = \(url)"),
+        "ai_promoted_metrics_logging_url = <<hash: f06a88a3>>"),
       (.info, "Read from remote config: " +
-        "ai_promoted_metrics_logging_api_key = hello-world"),
+        "ai_promoted_metrics_logging_api_key = <<hash: a8ce286d>>"),
       (.info, "Read from remote config: " +
         "ai_promoted_logging_flush_interval = 30.0"),
       (.info, "Read from remote config: " +
@@ -96,7 +97,7 @@ final class ClientConfigMergeTests: XCTestCase {
     assertLoggedMessagesEqualNoOrder([
       (.warning, "Unused key in remote config: ai_promoted_foo_bar"),
       (.info, "Read from remote config: " +
-        "ai_promoted_metrics_logging_url = \(url)"),
+        "ai_promoted_metrics_logging_url = <<hash: f06a88a3>>"),
     ], messages)
 
     XCTAssertEqual(url, config.metricsLoggingURL)
@@ -124,7 +125,7 @@ final class ClientConfigMergeTests: XCTestCase {
       (.warning, "No viable conversion for remote config value: " +
         "ai_promoted_xray_level = oh-what-a-wonderful-world"),
       (.info, "Read from remote config: " +
-        "ai_promoted_metrics_logging_url = \(url)"),
+        "ai_promoted_metrics_logging_url = <<hash: f06a88a3>>"),
     ], messages)
 
     XCTAssertEqual(url, config.metricsLoggingURL)

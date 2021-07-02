@@ -1,3 +1,4 @@
+import CryptoKit
 import Firebase
 import Foundation
 
@@ -26,6 +27,13 @@ extension ClientConfig {
     var remainingKeys = Set(dictionary.keys)
     let mirror = Mirror(reflecting: self)
 
+    // Although it may seem wasteful to iterate over all keys
+    // in ClientConfig when the dictionary should only contain
+    // a subset of them, this approach is much safer.
+    // If you pass a non-existent key to NSObject.setValue(),
+    // it throws an ObjC exception that you can't catch in
+    // Swift. Iterating through ClientConfig's keys ensures
+    // that the key we're using for setValue is valid.
     for child in mirror.children {
       let optionalChildLabel = child.label
       // This is a local debugging flag.
@@ -41,7 +49,7 @@ extension ClientConfig {
       let key = "ai_promoted_" + childLabel.toSnakeCase()
       let optionalRemoteValue = dictionary[key]
 
-      // The value may not be overridden in remote config.
+      // The value might not be overridden in remote config.
       // This isn't a warning. Just ignore.
       guard let remoteValue = optionalRemoteValue else { continue }
       remainingKeys.remove(key)
@@ -57,9 +65,13 @@ extension ClientConfig {
         continue
       }
 
+      let consoleLoggedValue = consoleLoggedValue(
+        forChildLabel: childLabel,
+        convertedValue: convertedValue
+      )
       messages.info(
         "Read from remote config: " +
-          "\(key) = \(String(describing: convertedValue))",
+          "\(key) = \(consoleLoggedValue)",
         visibility: .public
       )
 
@@ -121,6 +133,29 @@ extension ClientConfig {
           "(using \(validatedValue) instead)",
         visibility: .public
       )
+    }
+  }
+
+  private func consoleLoggedValue(
+    forChildLabel label: String,
+    convertedValue: Any
+  ) -> String {
+    switch label {
+    case "metricsLoggingURL",
+         "metricsLoggingAPIKey",
+         "devMetricsLoggingURL",
+         "devMetricsLoggingAPIKey":
+      if #available(iOS 13, *),
+         let value = convertedValue as? String {
+        let hash = SHA256.hash(data: Data(value.utf8))
+        // We don't need to echo the whole digest, only
+        // enough to confirm whether a known value made
+        // it through.
+        return "<<hash: \(String(describing: hash).suffix(8))>>"
+      }
+      return "<<private>>"
+    default:
+      return String(describing: convertedValue)
     }
   }
 }

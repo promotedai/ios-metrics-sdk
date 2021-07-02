@@ -251,9 +251,10 @@ final class Module: AllDeps {
   }
 
   private func startClientConfigDependentServices() throws {
-    _ = self.analytics
-    try self.analyticsConnection?.startServices()
-    // Initialize Xray as an OperationMonitorListener.
-    _ = self.xray
+    // Initialize Analytics and Xray so they add themselves
+    // as OperationMonitorListeners.
+    _ = analytics
+    try analyticsConnection?.startServices()
+    _ = xray
   }
 }
