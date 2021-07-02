@@ -95,7 +95,7 @@ final class ClientConfigMergeTests: XCTestCase {
     config.merge(from: dictionary, messages: &messages)
 
     assertLoggedMessagesEqualNoOrder([
-      (.warning, "Unused key in remote config: ai_promoted_foo_bar"),
+      (.warning, "Unrecognized key in remote config: ai_promoted_foo_bar"),
       (.info, "Read from remote config: " +
         "ai_promoted_metrics_logging_url = <<sha256: e39ead058a0475ec…>>"),
     ], messages)

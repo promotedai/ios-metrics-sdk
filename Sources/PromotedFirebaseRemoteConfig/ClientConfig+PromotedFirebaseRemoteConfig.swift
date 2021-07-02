@@ -85,7 +85,7 @@ extension ClientConfig {
     }
 
     for remainingKey in remainingKeys {
-      messages.warning("Unused key in remote config: \(remainingKey)")
+      messages.warning("Unrecognized key in remote config: \(remainingKey)")
     }
   }
 
