@@ -3,15 +3,16 @@ import Foundation
 // MARK: - ClientConfigService
 
 /**
- Provides `ClientConfig` for this logging session.
+ Loads `ClientConfig` for this logging session.
  Remote config loads only happen if `RemoteConfigConnection`
- is provided.
+ is provided. When a remote config is loaded, it is applied on
+ the **next** startup, not the current session.
 
- This config may be loaded from the following sources:
- 
+ The `ClientConfig` may be loaded from the following sources:
+
  1. The `initialConfig` with hard-coded values provided via
     logging startup code. This is used on first startup and
-    in cases where reading cached/remote configs fail.
+    when we don't load cached/remote configs.
  2. Cached config on disk. When a remote config is successfully
     fetched, it is stored locally and read on the next startup
     of the logging system. (The first startup uses the hard-coded
@@ -46,9 +47,11 @@ final class ClientConfigService {
   /// then you can only pull in these dependencies. Be careful
   /// modifying this, so that you don't accidentally pull in
   /// something that depends on `ClientConfig`.
-  typealias Deps = (InitialConfigSource &
-                    PersistentStoreSource &
-                    RemoteConfigConnectionSource)
+  typealias Deps = (
+    InitialConfigSource &
+    PersistentStoreSource &
+    RemoteConfigConnectionSource
+  )
 
   init(deps: Deps) {
     self._config = ClientConfig(deps.initialConfig)

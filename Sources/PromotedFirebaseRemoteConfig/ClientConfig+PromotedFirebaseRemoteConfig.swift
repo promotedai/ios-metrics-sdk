@@ -27,16 +27,17 @@ extension ClientConfig {
     var remainingKeys = Set(dictionary.keys)
     let mirror = Mirror(reflecting: self)
 
-    // Although it may seem wasteful to iterate over all keys
-    // in ClientConfig when the dictionary should only contain
-    // a subset of them, this approach is much safer.
-    // If you pass a non-existent key to NSObject.setValue(),
-    // it throws an ObjC exception that you can't catch in
-    // Swift. Iterating through ClientConfig's keys ensures
-    // that the key we're using for setValue is valid.
+    // It's much safer to iterate over all keys in ClientConfig,
+    // even though the dictionary should only contain a subset of
+    // these keys.
+    // If we pass a non-existent key to NSObject.setValue(), it
+    // throws an ObjC exception that we can't catch in Swift.
+    // This could cause a runtime crash.
+    // Iterating through ClientConfig's keys ensures that the keys
+    // we pass to setValue are valid.
     for child in mirror.children {
       let optionalChildLabel = child.label
-      // This is a local debugging flag.
+      // `assertInValidation` is a local debugging flag.
       if optionalChildLabel == "assertInValidation" { continue }
       guard let childLabel = optionalChildLabel else {
         messages.warning(
@@ -65,7 +66,7 @@ extension ClientConfig {
         continue
       }
 
-      let consoleValue = valueForConsoleLog(
+      let consoleValue = valueToConsoleLog(
         forChildLabel: childLabel,
         convertedValue: convertedValue
       )
@@ -143,7 +144,7 @@ extension ClientConfig {
   ///
   /// You can compute SHA-256 values for strings here:
   /// https://emn178.github.io/online-tools/sha256.html
-  private func valueForConsoleLog(
+  private func valueToConsoleLog(
     forChildLabel label: String,
     convertedValue: Any
   ) -> String {
@@ -155,10 +156,10 @@ extension ClientConfig {
       if #available(iOS 13, *),
          let value = convertedValue as? String {
         let hash = SHA256.hash(data: Data(value.utf8))
-        // We don't need to echo the whole digest, only
-        // enough to confirm whether a known value made
-        // it through.
-        return "<<hash: \(String(describing: hash).suffix(8))>>"
+        // We don't need to echo the whole digest, only enough
+        // to confirm if this equals a known value's hash.
+        let prefix = hash.prefix(8).map { String(format: "%02x", $0) }.joined()
+        return "<<sha256: \(prefix)…>>"
       }
       return "<<private>>"
     default:

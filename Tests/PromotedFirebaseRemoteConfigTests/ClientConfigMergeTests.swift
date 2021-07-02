@@ -43,9 +43,9 @@ final class ClientConfigMergeTests: XCTestCase {
 
     assertLoggedMessagesEqualNoOrder([
       (.info, "Read from remote config: " +
-        "ai_promoted_metrics_logging_url = <<hash: f06a88a3>>"),
+        "ai_promoted_metrics_logging_url = <<sha256: e39ead058a0475ec…>>"),
       (.info, "Read from remote config: " +
-        "ai_promoted_metrics_logging_api_key = <<hash: a8ce286d>>"),
+        "ai_promoted_metrics_logging_api_key = <<sha256: afa27b44d43b02a9…>>"),
       (.info, "Read from remote config: " +
         "ai_promoted_logging_flush_interval = 30.0"),
       (.info, "Read from remote config: " +
@@ -97,7 +97,7 @@ final class ClientConfigMergeTests: XCTestCase {
     assertLoggedMessagesEqualNoOrder([
       (.warning, "Unused key in remote config: ai_promoted_foo_bar"),
       (.info, "Read from remote config: " +
-        "ai_promoted_metrics_logging_url = <<hash: f06a88a3>>"),
+        "ai_promoted_metrics_logging_url = <<sha256: e39ead058a0475ec…>>"),
     ], messages)
 
     XCTAssertEqual(url, config.metricsLoggingURL)
@@ -125,7 +125,7 @@ final class ClientConfigMergeTests: XCTestCase {
       (.warning, "No viable conversion for remote config value: " +
         "ai_promoted_xray_level = oh-what-a-wonderful-world"),
       (.info, "Read from remote config: " +
-        "ai_promoted_metrics_logging_url = <<hash: f06a88a3>>"),
+        "ai_promoted_metrics_logging_url = <<sha256: e39ead058a0475ec…>>"),
     ], messages)
 
     XCTAssertEqual(url, config.metricsLoggingURL)
