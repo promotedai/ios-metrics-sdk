@@ -77,8 +77,9 @@ extension ClientConfig {
 
       self.setValue(convertedValue, forKey: childLabel)
       checkValidatedValueChanged(
-        key: childLabel,
-        dictValue: convertedValue,
+        childLabel: childLabel,
+        dictionaryKey: key,
+        convertedValue: convertedValue,
         messages: &messages
       )
     }
@@ -122,14 +123,16 @@ extension ClientConfig {
   }
 
   private func checkValidatedValueChanged(
-    key: String,
-    dictValue: Any,
+    childLabel: String,
+    dictionaryKey: String,
+    convertedValue: Any,
     messages: inout PendingLogMessages
   ) {
-    if let validatedValue = value(forKey: key),
-       !AnyHashable.areEqual(dictValue, validatedValue) {
+    if let validatedValue = value(forKey: childLabel),
+       !AnyHashable.areEqual(convertedValue, validatedValue) {
       messages.warning(
-        "Attempted to set invalid value: \(key) = \(dictValue) " +
+        "Attempted to set invalid value: " +
+          "\(dictionaryKey) = \(convertedValue) " +
           "(using \(validatedValue) instead)",
         visibility: .public
       )

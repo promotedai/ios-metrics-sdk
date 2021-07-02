@@ -133,4 +133,24 @@ final class ClientConfigMergeTests: XCTestCase {
     XCTAssertTrue(config.loggingEnabled)
     XCTAssertEqual(.none, config.xrayLevel)
   }
+
+  func testOutOfBoundsValues() {
+    let config = ClientConfig()
+    config.disableAssertInValidationForTesting()
+
+    let dictionary = [
+      "ai_promoted_logging_flush_interval": "0.0",
+    ]
+    var messages = PendingLogMessages()
+    config.merge(from: dictionary, messages: &messages)
+
+    assertLoggedMessagesEqualNoOrder([
+      (.warning, "Attempted to set invalid value: " +
+        "ai_promoted_logging_flush_interval = 0.0 (using 1 instead)"),
+      (.info, "Read from remote config: " +
+        "ai_promoted_logging_flush_interval = 0.0"),
+    ], messages)
+
+    XCTAssertEqual(1.0, config.loggingFlushInterval, accuracy: 0.001)
+  }
 }
