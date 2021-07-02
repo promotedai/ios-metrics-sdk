@@ -48,9 +48,6 @@ Pod::Spec.new do |s|
     spec.pod_target_xcconfig = {
       # So we can find the module for `import Firebase`.
       'USER_HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/Firebase/CoreOnly/Sources"',
-
-      #'FRAMEWORK_SEARCH_PATHS' => '"${PODS_ROOT}/FirebaseAnalytics/Frameworks"',
-
       'OTHER_LDFLAGS' => other_ldflags
     }
   end
@@ -58,6 +55,7 @@ Pod::Spec.new do |s|
   # So we can link the FirebaseAnalytics dependency when the
   # host app has no other Firebase dependencies.
   analytics_ldflags = '-framework "FirebaseAnalytics" -framework "GoogleUtilities" -framework "nanopb"'
+  analytics_noadid_ldflags = analytics_ldflags + ' -framework "GoogleAppMeasurementWithoutAdIdSupport"'
 
   s.subspec 'FirebaseAnalytics' do |a|
     a.source_files = ['Sources/PromotedFirebaseAnalytics/**/*.{h,m,swift}']
@@ -70,14 +68,18 @@ Pod::Spec.new do |s|
     a.source_files = ['Sources/PromotedFirebaseAnalytics/**/*.{h,m,swift}']
     a.dependency 'Firebase/AnalyticsWithoutAdIdSupport', '~> 7.11.0'
     a.dependency 'PromotedAIMetricsSDK/Core'
-    firebase_xcconfig(a, analytics_ldflags + ' -framework "GoogleAppMeasurementWithoutAdIdSupport"')
+    firebase_xcconfig(a, analytics_noadid_ldflags)
   end
 
   s.subspec 'FirebaseRemoteConfig' do |rc|
     rc.source_files = ['Sources/PromotedFirebaseRemoteConfig/**/*.{h,m,swift}']
-    #rc.dependency 'Firebase/Analytics', '~> 7.11.0'
     rc.dependency 'Firebase/RemoteConfig', '~> 7.11.0'
     rc.dependency 'PromotedAIMetricsSDK/Core'
     firebase_xcconfig(rc)
+    # Although `user_target_xcconfig` is discouraged, need
+    # this for `pod lib lint` to pass.
+    rc.user_target_xcconfig = {
+      'GCC_PREPROCESSOR_DEFINITIONS' => 'FIREBASE_ANALYTICS_SUPPRESS_WARNING=1'
+    }
   end
 end
