@@ -1,7 +1,7 @@
 import Firebase
 import Foundation
 
-#if !COCOAPODS
+#if SWIFT_PACKAGE
 import PromotedCore
 #endif
 
