@@ -55,7 +55,7 @@ final class FirebaseRemoteConfigConnection: RemoteConfigConnection {
       case .error:
         resultError = .failed(underlying: nil)
       @unknown default:
-        resultError = .unknown
+        resultError = .failed(underlying: nil)
       }
     }
   }

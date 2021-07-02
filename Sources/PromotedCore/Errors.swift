@@ -161,7 +161,6 @@ extension MetricsLoggerError: NSErrorProperties {
 /** Errors produced by `RemoteConfigConnection`. */
 public enum RemoteConfigConnectionError: Error {
   case failed(underlying: Error?)
-  case unknown
 }
 
 extension RemoteConfigConnectionError: NSErrorProperties {
@@ -169,8 +168,6 @@ extension RemoteConfigConnectionError: NSErrorProperties {
     switch self {
     case .failed(_):
       return 501
-    case .unknown:
-      return 502
     }
   }
 }
