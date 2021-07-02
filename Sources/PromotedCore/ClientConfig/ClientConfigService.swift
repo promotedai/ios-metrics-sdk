@@ -24,6 +24,15 @@ import Foundation
     configs. The `config` property as observed in this class will
     never take on the value of a remotely-loaded config that was
     loaded in the current session.
+
+ If any errors are encountered, the most recent value of `config`
+ is used for the remainder of the session:
+
+ - If an error occurs when decoding local cached config, then
+   `initialConfig` is used for the session.
+ - If an error occurs during remote fetch, then no local cached
+   copy is made, and the existing `config` is used for the
+   session (just as it would have been).
  */
 final class ClientConfigService {
 
@@ -78,15 +87,6 @@ extension ClientConfigService {
 
   /// Loads cached config synchronously and initiates asynchronous
   /// load of remote config (for use in next startup).
-  ///
-  /// If any errors are encountered, the most recent value of
-  /// `config` is used for the remainder of the session:
-  ///
-  /// - If an error occurs when decoding local cached config, then
-  ///   `initialConfig` is used for the session.
-  /// - If an error occurs during remote fetch, then no local
-  ///   cached copy is made, and the existing `config` is used
-  ///   for the session (just as it would have been).
   func fetchClientConfig(callback: @escaping Callback) {
 
     // This loads the cached config synchronously.
@@ -105,8 +105,7 @@ extension ClientConfigService {
         // Prevent error from happening again next startup.
         store.clientConfig = nil
         outerFetchMessages.error(
-          "Local cached config failed to apply: " +
-            "\(String(describing: error)) " +
+          "Local cached config failed to apply: \(String(describing: error)) " +
             "Falling back to initial config.",
           visibility: .public
         )
@@ -140,9 +139,7 @@ extension ClientConfigService {
 
     // Use initialConfig as the basis of the fetch so that
     // incremental changes are applied to this baseline.
-    connection.fetchClientConfig(
-      initialConfig: initialConfig
-    ) {
+    connection.fetchClientConfig(initialConfig: initialConfig) {
       [weak self] remoteResult in
 
       var resultConfig: ClientConfig? = nil
