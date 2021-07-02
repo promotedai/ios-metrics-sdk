@@ -65,13 +65,12 @@ extension ClientConfig {
         continue
       }
 
-      let consoleLoggedValue = consoleLoggedValue(
+      let consoleValue = valueForConsoleLog(
         forChildLabel: childLabel,
         convertedValue: convertedValue
       )
       messages.info(
-        "Read from remote config: " +
-          "\(key) = \(consoleLoggedValue)",
+        "Read from remote config: \(key) = \(consoleValue)",
         visibility: .public
       )
 
@@ -136,7 +135,15 @@ extension ClientConfig {
     }
   }
 
-  private func consoleLoggedValue(
+  /// When console logging certain sensitive values, we don't
+  /// want to echo the exact value where anyone can inspect it.
+  ///
+  /// In these cases, it's  likely that we already know the
+  /// expected value, so we output the SHA-256 hash instead.
+  ///
+  /// You can compute SHA-256 values for strings here:
+  /// https://emn178.github.io/online-tools/sha256.html
+  private func valueForConsoleLog(
     forChildLabel label: String,
     convertedValue: Any
   ) -> String {
