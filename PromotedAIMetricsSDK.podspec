@@ -47,8 +47,8 @@ Pod::Spec.new do |s|
   # For the `import Firebase` module.
   firebase_header_search_paths = '"${PODS_ROOT}/Firebase/CoreOnly/Sources"'
 
-  # Links the FirebaseAnalytics dependency when the
-  # host app has no other Firebase dependencies.
+  # Links the FirebaseAnalytics dependency when the host app has
+  # no other Firebase dependencies.
   analytics_ldflags = '-framework "FirebaseAnalytics" -framework "GoogleUtilities" -framework "nanopb"'
   analytics_noadid_ldflags = analytics_ldflags + ' -framework "GoogleAppMeasurementWithoutAdIdSupport"'
 
@@ -82,6 +82,7 @@ Pod::Spec.new do |s|
     rc.pod_target_xcconfig = {
       'USER_HEADER_SEARCH_PATHS' => firebase_header_search_paths,
       'GCC_PREPROCESSOR_DEFINITIONS' => remote_config_gcc_defs
+      'OTHER_LDFLAGS' => '-framework "FirebaseRemoteConfig"'
     }
     # Although `user_target_xcconfig` is discouraged, need
     # this for `pod lib lint` to pass.
