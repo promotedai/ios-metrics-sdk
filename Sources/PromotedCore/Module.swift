@@ -15,9 +15,9 @@ import os.log
 public final class ModuleConfig: NSObject {
   @objc public var initialConfig = ClientConfig()
   public var analyticsConnection: AnalyticsConnection? = nil
-  public var clientConfigService: ClientConfigService? = nil
   public var networkConnection: NetworkConnection? = nil
   public var persistentStore: PersistentStore? = nil
+  public var remoteConfigConnection: RemoteConfigConnection? = nil
 
   private override init() {}
 
@@ -28,30 +28,23 @@ public final class ModuleConfig: NSObject {
   @objc public static func coreConfig() -> ModuleConfig { ModuleConfig() }
 }
 
-typealias ClientConfigDeps = ClientConfigSource & ClientConfigServiceSource
-
-typealias InternalDeps = AnalyticsSource &
-                         ClientConfigDeps &
-                         ClockSource &
-                         DeviceInfoSource &
-                         IDMapSource &
-                         OperationMonitorSource &
-                         OSLogSource &
-                         UIStateSource &
-                         ViewTrackerSource &
-                         XraySource
-
-typealias AnalyticsConnectionDeps = InternalDeps & AnalyticsConnectionSource
-
-typealias NetworkConnectionDeps = InternalDeps & NetworkConnectionSource
-
-typealias PersistentStoreDeps = InternalDeps & PersistentStoreSource
-
-typealias AllDeps = InternalDeps &
-                    AnalyticsConnectionDeps &
-                    ClientConfigDeps &
-                    NetworkConnectionDeps &
-                    PersistentStoreDeps
+typealias AllDeps = (
+  AnalyticsConnectionSource &
+  AnalyticsSource &
+  ClientConfigSource &
+  ClientConfigServiceSource &
+  ClockSource &
+  DeviceInfoSource &
+  IDMapSource &
+  NetworkConnectionSource &
+  OperationMonitorSource &
+  OSLogSource &
+  PersistentStoreSource &
+  RemoteConfigConnectionSource &
+  UIStateSource &
+  ViewTrackerSource &
+  XraySource
+)
 
 /**
  Owner of all dependencies in the logging library.
@@ -75,10 +68,10 @@ typealias AllDeps = InternalDeps &
  ```swift
  class MyClass {
    typealias Deps = ClockSource & OperationMonitorSource
- 
+
    private let clock: Clock
    private let monitor: OperationMonitor
- 
+
    init(deps: Deps) {
      self.clock = deps.clock
      self.monitor = deps.operationMonitor
@@ -161,13 +154,10 @@ final class Module: AllDeps {
 
   private(set) var analyticsConnection: AnalyticsConnection?
 
-  var clientConfig: ClientConfig {
-    clientConfigService.config
-  }
+  var clientConfig: ClientConfig { clientConfigService.config }
 
   private(set) lazy var clientConfigService: ClientConfigService =
-    clientConfigServiceSpec ?? LocalClientConfigService(initialConfig: initialConfig)
-  private let clientConfigServiceSpec: ClientConfigService?
+    ClientConfigService(deps: self)
 
   let clock: Clock = SystemClock()
   
@@ -188,13 +178,14 @@ final class Module: AllDeps {
   func osLog(category: String) -> OSLog? {
     osLogSource?.osLog(category: category)
   }
-
-  private(set) lazy var osLogSource: OSLogSource? =
+  private lazy var osLogSource: SystemOSLogSource? =
     clientConfig.osLogLevel > .none ? SystemOSLogSource(deps: self) : nil
 
   private(set) lazy var persistentStore: PersistentStore =
     persistentStoreSpec ?? UserDefaultsPersistentStore()
   private let persistentStoreSpec: PersistentStore?
+
+  private(set) var remoteConfigConnection: RemoteConfigConnection?
 
   let uiState: UIState = UIKitState()
 
@@ -205,28 +196,33 @@ final class Module: AllDeps {
     Xray(deps: self) : nil
 
   convenience init(moduleConfig: ModuleConfig) {
-    self.init(initialConfig: moduleConfig.initialConfig,
-              analyticsConnection: moduleConfig.analyticsConnection,
-              clientConfigService: moduleConfig.clientConfigService,
-              networkConnection: moduleConfig.networkConnection,
-              persistentStore: moduleConfig.persistentStore)
+    self.init(
+      initialConfig: moduleConfig.initialConfig,
+      analyticsConnection: moduleConfig.analyticsConnection,
+      networkConnection: moduleConfig.networkConnection,
+      persistentStore: moduleConfig.persistentStore,
+      remoteConfigConnection: moduleConfig.remoteConfigConnection
+    )
   }
 
-  init(initialConfig: ClientConfig,
-       analyticsConnection: AnalyticsConnection? = nil,
-       clientConfigService: ClientConfigService? = nil,
-       networkConnection: NetworkConnection? = nil,
-       persistentStore: PersistentStore? = nil) {
+  init(
+    initialConfig: ClientConfig,
+    analyticsConnection: AnalyticsConnection? = nil,
+    networkConnection: NetworkConnection? = nil,
+    persistentStore: PersistentStore? = nil,
+    remoteConfigConnection: RemoteConfigConnection? = nil
+  ) {
     self.initialConfig = ClientConfig(initialConfig)
     self.analyticsConnection = analyticsConnection
-    self.clientConfigServiceSpec = clientConfigService
     self.networkConnectionSpec = networkConnection
     self.persistentStoreSpec = persistentStore
+    self.remoteConfigConnection = remoteConfigConnection
   }
 
   /// Loads all dependencies from `ModuleConfig`. Ensures that any
   /// runtime errors occur early on in initialization.
   func validateModuleConfigDependencies() throws {
+    // Don't reference clientConfig in this method.
     if networkConnectionSpec == nil {
       throw ModuleConfigError.missingNetworkConnection
     }
@@ -234,10 +230,31 @@ final class Module: AllDeps {
 
   /// Starts any services among dependencies.
   func startLoggingServices() throws {
+    clientConfigService.fetchClientConfig { [weak self] result in
+      self?.logClientConfigFetchResult(result)
+    }
+    try startClientConfigDependentServices()
+  }
+
+  private func logClientConfigFetchResult(
+    _ result: ClientConfigService.Result
+  ) {
+    operationMonitor.execute {
+      guard let osLog = osLog(category: "ClientConfigService") else {
+        return
+      }
+      osLog.log(pendingMessages: result.messages)
+      if let error = result.error {
+        operationMonitor.executionDidError(error)
+      }
+    }
+  }
+
+  private func startClientConfigDependentServices() throws {
+    // Initialize Analytics and Xray so they add themselves
+    // as OperationMonitorListeners.
     _ = analytics
     try analyticsConnection?.startServices()
-    try clientConfigService.fetchClientConfig()
-    // Initialize Xray as an OperationMonitorListener.
     _ = xray
   }
 }

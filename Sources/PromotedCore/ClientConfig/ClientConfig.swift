@@ -1,28 +1,54 @@
 import Foundation
 
+// MARK: - ClientConfig properties
 /**
  Configuration for Promoted logging library internal behavior.
- 
- Properties on the instance of `ClientConfig` obtained from
- `ClientConfigService` can change when the service loads from
- asynchronous sources. Users of this class may cache instances
- of the `ClientConfig` from the active `ClientConfigService`
- and repeatedly read values from the `ClientConfig`, and the
- values read will always be up to date.
- 
- Users should also be careful to read and cache values from
- this class in a way that takes into account the dynamic nature
- of these properties. Use KVO to listen for changes to any
- single property, or `ClientConfigListener` to listen for
- changes to the entire `ClientConfig`.
+ See `ClientConfigService` for information about how these
+ configs are loaded.
 
  This class should only contain properties that apply to the
  Promoted logging library in general. Mechanisms that alter
  the way that client code calls the Promoted logging library
  should go in client code, external from this config.
+
+ Do not change the properties of this object once loaded from
+ `ClientConfigService`.
+
+ # Enums
+
+ When adding a new enum property, do the following:
+
+ 1. Make the type and value public.
+ 2. Make the type `@objc` and give it a name prefixed with `PRO`.
+ 3. Make it an `Int` enum.
+ 4. Make it conform to `ConfigEnum`.
+ 5. Give it a `case unknown = 0`.
+
+ The final three items ensure that it works with remote config
+ and serialization.
+
+ Example:
+ ```swift
+ @objc(PROAlohaEnum)
+ public enum AlohaEnum: Int, ConfigEnum {
+   case unknown = 0
+   case hello = 1
+   case goodbye = 2
+ }
+ @objc public var aloha: AlohaEnum = .hello
+ ```
+
+ # Validation
+
+ When adding new properties that are numerical or enum values,
+ make sure to validate in `didSet` to ensure that incorrect
+ values don't cause unreasonable behavior during runtime. See
+ `bound` and `validateEnum`.
  */
 @objc(PROClientConfig)
-public final class ClientConfig: NSObject {
+public final class ClientConfig: NSObject, Codable {
+  public typealias ConfigEnum =
+    CaseIterable & Codable & Equatable & ExpressibleByStringLiteral
 
   /// Controls whether log messages are sent over the network.
   /// Setting this property to `false` will prevent log messages
@@ -69,64 +95,70 @@ public final class ClientConfig: NSObject {
   @objc public var apiKeyHTTPHeaderField: String = "x-api-key"
 
   /// Format to use when sending protobuf log messages over network.
-  public enum MetricsLoggingWireFormat: Int {
+  @objc(PROMetricsLoggingWireFormat)
+  public enum MetricsLoggingWireFormat: Int, ConfigEnum {
+    case unknown = 0
     /// https://developers.google.com/protocol-buffers/docs/proto3#json
     case json = 1
     /// https://developers.google.com/protocol-buffers/docs/encoding
     case binary = 2
   }
   /// Format to use when sending protobuf log messages over network.
-  public var metricsLoggingWireFormat: MetricsLoggingWireFormat = .binary
-  
+  @objc public var metricsLoggingWireFormat: MetricsLoggingWireFormat = .binary {
+    didSet { validateEnum(&metricsLoggingWireFormat, defaultValue: .binary) }
+  }
+
   /// Interval at which log messages are sent over the network.
   /// Setting this to lower values will increase the frequency
   /// at which log messages are sent.
-  public var loggingFlushInterval: TimeInterval = 10.0 {
+  @objc public var loggingFlushInterval: TimeInterval = 10.0 {
     didSet { bound(&loggingFlushInterval, min: 1.0, max: 300.0) }
   }
 
   /// Whether to automatically flush all pending log messages
   /// when the application resigns active.
-  public var flushLoggingOnResignActive: Bool = true
+  @objc public var flushLoggingOnResignActive: Bool = true
 
   /// Ratio of the view that must be visible to log impression
   /// with `ScrollTracker`.
-  public var scrollTrackerVisibilityThreshold: Float = 0.5 {
+  @objc public var scrollTrackerVisibilityThreshold: Float = 0.5 {
     didSet { bound(&scrollTrackerVisibilityThreshold, min: 0.0, max: 1.0) }
   }
 
   /// Time on screen required to log impression with `ScrollTracker`.
-  public var scrollTrackerDurationThreshold: TimeInterval = 1.0 {
+  @objc public var scrollTrackerDurationThreshold: TimeInterval = 1.0 {
     didSet { bound(&scrollTrackerDurationThreshold, min: 0.0) }
   }
 
   /// Frequency at which `ScrollTracker` calculates impressions.
   /// Setting this to lower values will increase the amount of
   /// processing that `ScrollTracker` performs.
-  public var scrollTrackerUpdateFrequency: TimeInterval = 0.5 {
+  @objc public var scrollTrackerUpdateFrequency: TimeInterval = 0.5 {
     didSet { bound(&scrollTrackerUpdateFrequency, min: 0.1, max: 30.0) }
   }
 
   @objc(PROXrayLevel)
-  public enum XrayLevel: Int, Comparable {
+  public enum XrayLevel: Int, Comparable, ConfigEnum {
+    case unknown = 0
     // Don't gather any Xray stats data at all.
-    case none = 0
+    case none = 1
     // Gather overall counts for the session for each batch.
     // ie. batches: 40, batches sent successfully: 39, errors: 1
-    case batchSummaries = 1
+    case batchSummaries = 2
     // Gather stats and logged messages for each call made
     // to the metrics library.
-    case callDetails = 2
+    case callDetails = 3
     // Gathers stats and logged messages for each call made
     // to the metrics library, as well as stack traces where the
     // calls were made.
-    case callDetailsAndStackTraces = 3
+    case callDetailsAndStackTraces = 4
   }
   /// Level of Xray profiling for this session.
   /// Setting this to `.none` also forces
   /// `diagnosticsIncludeBatchSummaries` to be false.
   @objc public var xrayLevel: XrayLevel = .none {
     didSet {
+      validateEnum(&xrayLevel, defaultValue: .none)
       if xrayLevel == .none && diagnosticsIncludeBatchSummaries {
         diagnosticsIncludeBatchSummaries = false
       }
@@ -134,24 +166,27 @@ public final class ClientConfig: NSObject {
   }
 
   @objc(PROOSLogLevel)
-  public enum OSLogLevel: Int, Comparable {
+  public enum OSLogLevel: Int, Comparable, ConfigEnum {
+    case unknown = 0
     /// No logging for anything.
-    case none = 0
+    case none = 1
     /// Logging only for errors.
-    case error = 1
+    case error = 2
     /// Logging for errors and warnings.
-    case warning = 2
+    case warning = 3
     /// Logging for info messages (and above).
-    case info = 3
+    case info = 4
     /// Logging for debug messages (and above).
-    case debug = 4
+    case debug = 5
   }
   /// Whether to use OSLog (console logging) to output messages.
   /// OSLog typically incurs minimal overhead and can be useful for
   /// verifying that logging works from the client side.
   /// If `xrayEnabled` is also set, then setting `osLogLevel`
   /// to `info` or higher turns on signposts in Instruments.
-  @objc public var osLogLevel: OSLogLevel = .none
+  @objc public var osLogLevel: OSLogLevel = .none {
+    didSet { validateEnum(&osLogLevel, defaultValue: .none) }
+  }
 
   /// Whether mobile diagnostic messages include batch summaries
   /// from Xray. Setting this to `true` also forces `xrayLevel` to
@@ -173,8 +208,10 @@ public final class ClientConfig: NSObject {
       diagnosticsIncludeAncestorIDHistory
   }
 
+  private var assertInValidation: Bool = true
+
   @objc public override init() {}
-  
+
   public init(_ config: ClientConfig) {
     // ClientConfig really should be a struct, but isn't because
     // of Objective C compatibility.
@@ -185,24 +222,57 @@ public final class ClientConfig: NSObject {
     self.devMetricsLoggingAPIKey = config.devMetricsLoggingAPIKey
     self.metricsLoggingWireFormat = config.metricsLoggingWireFormat
     self.loggingFlushInterval = config.loggingFlushInterval
-    self.scrollTrackerVisibilityThreshold = config.scrollTrackerVisibilityThreshold
-    self.scrollTrackerDurationThreshold = config.scrollTrackerDurationThreshold
-    self.scrollTrackerUpdateFrequency = config.scrollTrackerUpdateFrequency
+    self.scrollTrackerVisibilityThreshold =
+      config.scrollTrackerVisibilityThreshold
+    self.scrollTrackerDurationThreshold =
+      config.scrollTrackerDurationThreshold
+    self.scrollTrackerUpdateFrequency =
+      config.scrollTrackerUpdateFrequency
     self.xrayLevel = config.xrayLevel
     self.osLogLevel = config.osLogLevel
-    self.diagnosticsIncludeBatchSummaries = config.diagnosticsIncludeBatchSummaries
-    self.diagnosticsIncludeAncestorIDHistory = config.diagnosticsIncludeAncestorIDHistory
+    self.diagnosticsIncludeBatchSummaries =
+      config.diagnosticsIncludeBatchSummaries
+    self.diagnosticsIncludeAncestorIDHistory =
+      config.diagnosticsIncludeAncestorIDHistory
   }
+}
 
-  func bound<T: Comparable>(_ value: inout T, min: T? = nil, max: T? = nil,
-                            function: String = #function) {
+// MARK: - Validation
+extension ClientConfig {
+
+  private func bound<T: Comparable>(
+    _ value: inout T,
+    min: T? = nil,
+    max: T? = nil,
+    propertyName: String = #function
+  ) {
     if let min = min {
-      assert(value >= min, "\(function): min value \(min) (> \(value))")
+      assert(!assertInValidation || value >= min,
+             "\(propertyName): min value \(min) (> \(value))")
       value = Swift.max(min, value)
     }
     if let max = max {
-      assert(value <= max, "\(function): max value \(max) (< \(value))")
+      assert(!assertInValidation || value <= max,
+             "\(propertyName): max value \(max) (< \(value))")
       value = Swift.min(max, value)
+    }
+  }
+
+  /// Validate enums and set them to appropriate defaults.
+  /// Deserialization might produce invalid enum values.
+  private func validateEnum<T: ConfigEnum & RawRepresentable>(
+    _ value: inout T,
+    defaultValue: T,
+    propertyName: String = #function
+  ) where T.RawValue == Int {
+    if !T.allCases.contains(value) || value.rawValue == 0 {
+      assert(
+        !assertInValidation,
+        "\(propertyName): unknown case for enum " +
+          "\(String(describing: type(of: value))) = " +
+          "\(String(describing: value.rawValue))"
+      )
+      value = defaultValue
     }
   }
 
@@ -224,12 +294,75 @@ public final class ClientConfig: NSObject {
   }
 }
 
-protocol ClientConfigSource {
-  var clientConfig: ClientConfig { get }
+// MARK: - Testing
+extension ClientConfig {
+  func disableAssertInValidationForTesting() { assertInValidation = false }
+}
+
+// MARK: - Protocol composition
+protocol InitialConfigSource {
   var initialConfig: ClientConfig { get }
 }
 
-public func < <T: RawRepresentable>(a: T, b: T) -> Bool
-  where T.RawValue: Comparable {
+protocol ClientConfigSource: InitialConfigSource {
+  var clientConfig: ClientConfig { get }
+}
+
+// MARK: - Comparison and serialization
+public func < <T: RawRepresentable>(
+  a: T, b: T
+) -> Bool where T.RawValue: Comparable {
   return a.rawValue < b.rawValue
+}
+
+public extension ClientConfig.MetricsLoggingWireFormat {
+  init(stringLiteral: String) {
+    switch stringLiteral {
+    case "json":
+      self = .json
+    case "binary":
+      self = .binary
+    default:
+      self = .unknown
+    }
+  }
+}
+
+public extension ClientConfig.XrayLevel {
+  init(stringLiteral: String) {
+    switch stringLiteral {
+    case "none":
+      self = .none
+    case "batchSummaries",
+         "batch_summaries":
+      self = .batchSummaries
+    case "callDetails",
+         "call_details":
+      self = .callDetails
+    case "callDetailsAndStackTraces",
+         "call_details_and_stack_traces":
+      self = .callDetailsAndStackTraces
+    default:
+      self = .unknown
+    }
+  }
+}
+
+public extension ClientConfig.OSLogLevel {
+  init(stringLiteral: String) {
+    switch stringLiteral {
+    case "none":
+      self = .none
+    case "error":
+      self = .error
+    case "warning":
+      self = .warning
+    case "info":
+      self = .info
+    case "debug":
+      self = .debug
+    default:
+      self = .unknown
+    }
+  }
 }

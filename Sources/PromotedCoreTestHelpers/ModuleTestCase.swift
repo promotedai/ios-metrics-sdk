@@ -14,6 +14,8 @@ open class ModuleTestCase: XCTestCase {
   var connection: FakeNetworkConnection { module.fakeNetworkConnection }
   var clock: FakeClock { module.fakeClock }
   var idMap: FakeIDMap { module.fakeIDMap }
+  var initialConfig: ClientConfig { module.initialConfig }
+  var remoteConfigConnection: FakeRemoteConfigConnection { module.fakeRemoteConfigConnection }
   var store: FakePersistentStore { module.fakePersistentStore }
   var uiState: FakeUIState { module.fakeUIState }
   var viewTracker: ViewTracker { module.viewTracker }

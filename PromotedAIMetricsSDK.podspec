@@ -44,25 +44,64 @@ Pod::Spec.new do |s|
     metrics.dependency 'PromotedAIMetricsSDK/Fetcher'
   end
 
-  analytics_xcconfig = {
-    'USER_HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/Firebase/CoreOnly/Sources"',
-    'FRAMEWORK_SEARCH_PATHS' => '"${PODS_XCFRAMEWORKS_BUILD_DIR}/FirebaseAnalytics" "${PODS_XCFRAMEWORKS_BUILD_DIR}/GoogleUtilities" "${PODS_XCFRAMEWORKS_BUILD_DIR}/nanopb"',
-    'OTHER_LDFLAGS' => '-framework "FirebaseAnalytics" -framework "GoogleUtilities" -framework "nanopb"'
-  }
+  # The Firebase targets all need extra xcconfig bits to build.
+
+  # Header search paths are needed at compile time in order to
+  # resolve the `import Firebase` module.
+  firebase_header_search_paths = '"${PODS_ROOT}/Firebase/CoreOnly/Sources"'
+
+  # Linker flags are needed when the host app has no other
+  # Firebase dependencies.
+  analytics_ldflags = '-framework "FirebaseAnalytics" -framework "GoogleUtilities" -framework "nanopb"'
 
   s.subspec 'FirebaseAnalytics' do |a|
     a.source_files = ['Sources/PromotedFirebaseAnalytics/**/*.{h,m,swift}']
     a.dependency 'Firebase/Analytics', '~> 7.11.0'
     a.dependency 'PromotedAIMetricsSDK/Core'
-    a.pod_target_xcconfig = analytics_xcconfig
+
+    a.pod_target_xcconfig = {
+      'USER_HEADER_SEARCH_PATHS' => firebase_header_search_paths,
+      'OTHER_LDFLAGS' => analytics_ldflags
+    }
   end
 
   s.subspec 'FirebaseAnalyticsWithoutAdIdSupport' do |a|
     a.source_files = ['Sources/PromotedFirebaseAnalytics/**/*.{h,m,swift}']
     a.dependency 'Firebase/AnalyticsWithoutAdIdSupport', '~> 7.11.0'
     a.dependency 'PromotedAIMetricsSDK/Core'
-    analytics_without_ad_id_xcconfig = analytics_xcconfig
-    analytics_without_ad_id_xcconfig['OTHER_LDFLAGS'] = analytics_xcconfig['OTHER_LDFLAGS'] + ' -framework "GoogleAppMeasurementWithoutAdIdSupport"'
-    a.pod_target_xcconfig = analytics_without_ad_id_xcconfig
+
+    # Linker flags are needed when the host app has no other
+    # Firebase dependencies.
+    analytics_noadid_ldflags = analytics_ldflags + ' -framework "GoogleAppMeasurementWithoutAdIdSupport"'
+
+    a.pod_target_xcconfig = {
+      'USER_HEADER_SEARCH_PATHS' => firebase_header_search_paths,
+      'OTHER_LDFLAGS' => analytics_noadid_ldflags
+    }
+  end
+
+  s.subspec 'FirebaseRemoteConfig' do |rc|
+    rc.source_files = ['Sources/PromotedFirebaseRemoteConfig/**/*.{h,m,swift}']
+    rc.dependency 'Firebase/RemoteConfig', '~> 7.11.0'
+    rc.dependency 'PromotedAIMetricsSDK/Core'
+
+    # Linker flags are needed when the host app has no other
+    # Firebase dependencies.
+    remote_config_ldflags = '-framework "FirebaseRemoteConfig" -framework "FirebaseCore"'
+
+    # Silences a Firebase warning to allow `pod lib lint` to pass.
+    remote_config_gcc_defs = 'FIREBASE_ANALYTICS_SUPPRESS_WARNING=1'
+
+    rc.pod_target_xcconfig = {
+      'USER_HEADER_SEARCH_PATHS' => firebase_header_search_paths,
+      'GCC_PREPROCESSOR_DEFINITIONS' => remote_config_gcc_defs,
+      'OTHER_LDFLAGS' => remote_config_ldflags
+    }
+
+    # Although `user_target_xcconfig` is discouraged, need
+    # this for `pod lib lint` to pass.
+    rc.user_target_xcconfig = {
+      'GCC_PREPROCESSOR_DEFINITIONS' => remote_config_gcc_defs
+    }
   end
 end

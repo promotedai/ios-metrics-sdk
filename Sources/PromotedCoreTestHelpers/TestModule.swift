@@ -18,6 +18,8 @@ final class TestModule: AllDeps {
 
   var fakePersistentStore = FakePersistentStore()
 
+  var fakeRemoteConfigConnection = FakeRemoteConfigConnection()
+
   var fakeUIState = FakeUIState()
 
   // MARK: - AllDeps
@@ -25,9 +27,7 @@ final class TestModule: AllDeps {
 
   lazy var analyticsConnection: AnalyticsConnection? = fakeAnalyticsConnection
 
-  var clientConfigService: ClientConfigService {
-    LocalClientConfigService(initialConfig: initialConfig)
-  }
+  lazy var clientConfigService: ClientConfigService = ClientConfigService(deps: self)
 
   var clientConfig = ClientConfig()
 
@@ -48,6 +48,8 @@ final class TestModule: AllDeps {
   var osLogSource: OSLogSource? = nil
 
   lazy var persistentStore: PersistentStore = fakePersistentStore
+
+  lazy var remoteConfigConnection: RemoteConfigConnection? = fakeRemoteConfigConnection
 
   lazy var uiState: UIState = fakeUIState
 

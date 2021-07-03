@@ -1,17 +1,6 @@
 import Foundation
 import SwiftProtobuf
 
-// MARK: - ErrorHandler
-
-/** Notified when internal errors occur in Promoted logging. */
-@objc(PROErrorListener)
-public protocol ErrorListener {
-  /// Called once per error after call to Promoted logging finishes.
-  /// Internal errors are surfaced to clients as `NSError` (see
-  /// `ClientConfigError`).
-  @objc func promotedLoggerDidError(_ error: NSError)
-}
-
 // MARK: - NSErrorProperties
 public protocol NSErrorProperties {
   
@@ -22,9 +11,9 @@ public protocol NSErrorProperties {
   var externalDescription: String { get }
 }
 
-extension NSErrorProperties {
+public extension NSErrorProperties {
 
-  var promotedAIDomain: String { "ai.promoted" }
+  var domain: String { "ai.promoted" }
 }
 
 // MARK: - Error
@@ -73,10 +62,22 @@ public enum ClientConfigError: Error {
   /// `ClientConfig` specified a `devMetricsLoggingURL` but did not
   /// provide `devMetricsLoggingAPIKey`.
   case missingDevAPIKey
+
+  /// Error when fetching remote config.
+  case remoteConfigFetchError(_ error: Error)
+
+  /// Remote fetch finished, but provided no config.
+  case emptyRemoteConfig
+
+  /// Specified wire format doesn't exist.
+  case invalidWireFormat
+
+  /// Error when persisting fetched config to local cache.
+  /// This means that the config will not be applied.
+  case localCacheEncodeError(_ error: Error)
 }
 
 extension ClientConfigError: NSErrorProperties {
-  public var domain: String { promotedAIDomain }
 
   public var code: Int {
     switch self {
@@ -86,6 +87,14 @@ extension ClientConfigError: NSErrorProperties {
       return 102
     case .missingDevAPIKey:
       return 103
+    case .remoteConfigFetchError(_):
+      return 104
+    case .emptyRemoteConfig:
+      return 105
+    case .invalidWireFormat:
+      return 106
+    case .localCacheEncodeError(_):
+      return 107
     }
   }
 }
@@ -98,7 +107,6 @@ public enum ModuleConfigError: Error {
 }
 
 extension ModuleConfigError: NSErrorProperties {
-  public var domain: String { promotedAIDomain }
 
   public var code: Int {
     switch self {
@@ -136,8 +144,7 @@ public enum MetricsLoggerError: Error {
 }
 
 extension MetricsLoggerError: NSErrorProperties {
-  public var domain: String { promotedAIDomain }
-  
+
   public var code: Int {
     switch self {
     case .propertiesSerializationError(_):
@@ -146,6 +153,21 @@ extension MetricsLoggerError: NSErrorProperties {
       return 402
     case .unexpectedEvent(_):
       return 403
+    }
+  }
+}
+
+// MARK: - RemoteConfigConnectionError
+/** Errors produced by `RemoteConfigConnection`. */
+public enum RemoteConfigConnectionError: Error {
+  case failed(underlying: Error?)
+}
+
+extension RemoteConfigConnectionError: NSErrorProperties {
+  public var code: Int {
+    switch self {
+    case .failed(_):
+      return 501
     }
   }
 }

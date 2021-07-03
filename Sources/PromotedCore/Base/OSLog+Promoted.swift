@@ -1,12 +1,7 @@
 import Foundation
 import os.log
 
-protocol OSLogSource {
-  /// Callers own the returned object.
-  func osLog(category: String) -> OSLog?
-}
-
-class SystemOSLogSource: OSLogSource {
+class SystemOSLogSource {
 
   fileprivate static var osLogLevel: ClientConfig.OSLogLevel = .none
 
@@ -19,6 +14,11 @@ class SystemOSLogSource: OSLogSource {
   func osLog(category: String) -> OSLog? {
     OSLog(subsystem: "ai.promoted", category: category)
   }
+}
+
+protocol OSLogSource {
+  /// Callers own the returned object.
+  func osLog(category: String) -> OSLog?
 }
 
 extension OSLog {
@@ -85,6 +85,36 @@ extension OSLog {
              _ arg3: CVarArg = "") {
     guard shouldLog(.debug) else { return }
     os_log(message, log: self, type: .debug, arg0, arg1, arg2, arg3)
+  }
+}
+
+extension PendingLogMessages.Visibility {
+  var formatString: StaticString {
+    switch self {
+    case .public:
+      return "%{public}s"
+    case .private:
+      return "%{private}s"
+    }
+  }
+}
+
+extension OSLog {
+  func log(pendingMessages: PendingLogMessages) {
+    for m in pendingMessages.messages {
+      switch m.level {
+      case .error:
+        error(m.visibility.formatString, m.message)
+      case .warning:
+        warning(m.visibility.formatString, m.message)
+      case .info:
+        info(m.visibility.formatString, m.message)
+      case .debug:
+        debug(m.visibility.formatString, m.message)
+      default:
+        break
+      }
+    }
   }
 }
 
