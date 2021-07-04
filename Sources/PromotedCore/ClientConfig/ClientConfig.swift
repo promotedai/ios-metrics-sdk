@@ -374,12 +374,12 @@ extension ClientConfig {
 
   /// Validate enums and set them to appropriate defaults.
   /// Deserialization might produce invalid enum values.
-  private func validateEnum<T: ConfigEnum & RawRepresentable>(
+  private func validateEnum<T: ConfigEnum>(
     _ value: inout T,
     defaultValue: T,
     propertyName: String = #function
-  ) where T.RawValue == Int {
-    if !T.allCases.contains(value) || value.rawValue == 0 {
+  ) {
+    if !T.allCases.contains(value) || value == T.unknownValue {
       assert(
         !assertInValidation,
         "\(propertyName): unknown case for enum " +
