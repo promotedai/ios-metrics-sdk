@@ -251,15 +251,17 @@ public extension ClientConfig {
     "scrollTrackerVisibilityThreshold": \.scrollTrackerVisibilityThreshold
   ]
 
-  static let metricsLoggingWireFormatKeyPaths: [String: ConfigKeyPath<ClientConfig.MetricsLoggingWireFormat>] = [
+  static let metricsLoggingWireFormatKeyPaths:
+    [String: ConfigKeyPath<MetricsLoggingWireFormat>] =
+  [
     "metricsLoggingWireFormat": \.metricsLoggingWireFormat
   ]
 
-  static let xrayLevelKeyPaths: [String: ConfigKeyPath<ClientConfig.XrayLevel>] = [
+  static let xrayLevelKeyPaths: [String: ConfigKeyPath<XrayLevel>] = [
     "xrayLevel": \.xrayLevel
   ]
 
-  static let osLogLevelKeyPaths: [String: ConfigKeyPath<ClientConfig.OSLogLevel>] = [
+  static let osLogLevelKeyPaths: [String: ConfigKeyPath<OSLogLevel>] = [
     "osLogLevel": \.osLogLevel
   ]
 
@@ -286,11 +288,11 @@ public extension ClientConfig {
       return self[keyPath: k]
     case let k as ConfigKeyPath<Float>:
       return self[keyPath: k]
-    case let k as ConfigKeyPath<ClientConfig.MetricsLoggingWireFormat>:
+    case let k as ConfigKeyPath<MetricsLoggingWireFormat>:
       return self[keyPath: k]
-    case let k as ConfigKeyPath<ClientConfig.XrayLevel>:
+    case let k as ConfigKeyPath<XrayLevel>:
       return self[keyPath: k]
-    case let k as ConfigKeyPath<ClientConfig.OSLogLevel>:
+    case let k as ConfigKeyPath<OSLogLevel>:
       return self[keyPath: k]
     default:
       return nil
@@ -315,15 +317,15 @@ public extension ClientConfig {
       if let k = Self.floatKeyPaths[name] {
         self[keyPath: k] = floatValue
       }
-    case let m as ClientConfig.MetricsLoggingWireFormat:
+    case let m as MetricsLoggingWireFormat:
       if let k = Self.metricsLoggingWireFormatKeyPaths[name] {
         self[keyPath: k] = m
       }
-    case let x as ClientConfig.XrayLevel:
+    case let x as XrayLevel:
       if let k = Self.xrayLevelKeyPaths[name] {
         self[keyPath: k] = x
       }
-    case let o as ClientConfig.OSLogLevel:
+    case let o as OSLogLevel:
       if let k = Self.osLogLevelKeyPaths[name] {
         self[keyPath: k] = o
       }
@@ -355,13 +357,17 @@ extension ClientConfig {
     propertyName: String = #function
   ) {
     if let min = min {
-      assert(!assertInValidation || value >= min,
-             "\(propertyName): min value \(min) (> \(value))")
+      assert(
+        !assertInValidation || value >= min,
+        "\(propertyName): min value \(min) (> \(value))"
+      )
       value = Swift.max(min, value)
     }
     if let max = max {
-      assert(!assertInValidation || value <= max,
-             "\(propertyName): max value \(max) (< \(value))")
+      assert(
+        !assertInValidation || value <= max,
+        "\(propertyName): max value \(max) (< \(value))"
+      )
       value = Swift.min(max, value)
     }
   }

@@ -92,32 +92,28 @@ extension ClientConfig {
   }
 
   private func convertedValue(
-    forRemoteValue value: String,
+    forRemoteValue remoteValue: String,
     child: Mirror.Child
   ) -> Any? {
     switch child.value {
     case is Int:
-      return Int(value)
+      return Int(remoteValue)
     case is Double:
-      return Double(value)
+      return Double(remoteValue)
     case is Bool:
-      return Bool(value)
+      return Bool(remoteValue)
     case is String:
-      return value
+      return remoteValue
     case is ClientConfig.MetricsLoggingWireFormat:
       let value = ClientConfig.MetricsLoggingWireFormat(
-        stringLiteral: value
+        stringLiteral: remoteValue
       )
       return value == .unknown ? nil : value
     case is ClientConfig.XrayLevel:
-      let value = ClientConfig.XrayLevel(
-        stringLiteral: value
-      )
+      let value = ClientConfig.XrayLevel(stringLiteral: remoteValue)
       return value == .unknown ? nil : value
     case is ClientConfig.OSLogLevel:
-      let value = ClientConfig.OSLogLevel(
-        stringLiteral: value
-      )
+      let value = ClientConfig.OSLogLevel(stringLiteral: remoteValue)
       return value == .unknown ? nil : value
     default:
       return nil
@@ -131,7 +127,10 @@ extension ClientConfig {
     messages: inout PendingLogMessages
   ) {
     guard let validatedValue = value(forName: name) else {
-      messages.warning("", visibility: .public)
+      messages.warning(
+        "Could not read value for property: \(name)",
+        visibility: .public
+      )
       return
     }
     if !AnyHashable.areEqual(convertedValue, validatedValue) {
