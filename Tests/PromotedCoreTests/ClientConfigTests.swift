@@ -6,14 +6,14 @@ import XCTest
 final class ClientConfigTests: XCTestCase {
 
   func testBound() {
-    let config = ClientConfig()
+    var config = ClientConfig()
     config.disableAssertInValidationForTesting()
     config.loggingFlushInterval = -1.0
     XCTAssertEqual(1.0, config.loggingFlushInterval, accuracy: 0.001)
   }
 
   func testBadEnumValues() {
-    let config = ClientConfig()
+    var config = ClientConfig()
     config.disableAssertInValidationForTesting()
 
     config.metricsLoggingWireFormat = .unknown
@@ -25,15 +25,13 @@ final class ClientConfigTests: XCTestCase {
     config.osLogLevel = .unknown
     XCTAssertEqual(.none, config.osLogLevel)
 
-    // Use ObjC key-value coding to force invalid enum values.
-    // You should never do this normally.
-    config.setValue("invalid", forKey: "metricsLoggingWireFormat")
+    config.setValue("invalid", forName: "metricsLoggingWireFormat")
     XCTAssertEqual(.binary, config.metricsLoggingWireFormat)
 
-    config.setValue("invalid", forKey: "xrayLevel")
+    config.setValue("invalid", forName: "xrayLevel")
     XCTAssertEqual(.none, config.xrayLevel)
 
-    config.setValue("invalid", forKey: "osLogLevel")
+    config.setValue("invalid", forName: "osLogLevel")
     XCTAssertEqual(.none, config.osLogLevel)
   }
 }

@@ -100,7 +100,7 @@ public final class MetricsLoggerService: NSObject {
     return MetricsLogger(deps: module)
   } ()
 
-  @objc public var config: ClientConfig { module.clientConfig }
+  public var config: ClientConfig { module.clientConfig }
 
   @objc public var xray: Xray? { module.xray }
 
@@ -113,13 +113,17 @@ public final class MetricsLoggerService: NSObject {
   }
   public private(set) var startupResult: StartupResult
 
+  @objc public convenience init(coreInitialConfig: _ObjCClientConfig) throws {
+    try self.init(coreInitialConfig: ClientConfig(coreInitialConfig))
+  }
+
   /// Creates a new service with a core configuration.
   /// This does not provide a `NetworkConnection`. If you are not
   /// supplying your own `NetworkConnection`, you should use
   /// `init(initialConfig:)` from the `PromotedMetrics` dependency.
   ///
   /// Initialization errors may not be logged to analytics.
-  @objc public convenience init(coreInitialConfig: ClientConfig) throws {
+  public convenience init(coreInitialConfig: ClientConfig) throws {
     let moduleConfig = ModuleConfig.coreConfig()
     moduleConfig.initialConfig = coreInitialConfig
     try self.init(moduleConfig: moduleConfig)
@@ -173,17 +177,21 @@ private extension MetricsLoggerService {
 
   private func startObservingApplicationLifecycle() {
     let nc = NotificationCenter.default
-    nc.addObserver(self,
-                   selector: #selector(applicationWillResignActive),
-                   name: UIApplication.willResignActiveNotification,
-                   object: nil)
+    nc.addObserver(
+      self,
+      selector: #selector(applicationWillResignActive),
+      name: UIApplication.willResignActiveNotification,
+      object: nil
+    )
   }
 
   private func stopObservingApplicationLifecycle() {
     let nc = NotificationCenter.default
-    nc.removeObserver(self,
-                      name: UIApplication.willResignActiveNotification,
-                      object: nil)
+    nc.removeObserver(
+      self,
+      name: UIApplication.willResignActiveNotification,
+      object: nil
+    )
   }
 
   @objc private func applicationWillResignActive() {
@@ -214,17 +222,21 @@ public extension MetricsLoggerService {
   /// via `setFramesFrom(collectionView:...)` to initiate tracking.
   @objc func scrollTracker(scrollView: UIScrollView) -> ScrollTracker? {
     guard let metricsLogger = self.metricsLogger else { return nil }
-    return ScrollTracker(metricsLogger: metricsLogger,
-                         scrollView: scrollView,
-                         deps: module)
+    return ScrollTracker(
+      metricsLogger: metricsLogger,
+      scrollView: scrollView,
+      deps: module
+    )
   }
 
   /// Returns a new `ScrollTracker` tied to the given `UICollectionView`.
   @objc func scrollTracker(collectionView: UICollectionView) -> ScrollTracker? {
     guard let metricsLogger = self.metricsLogger else { return nil }
-    return ScrollTracker(metricsLogger: metricsLogger,
-                         collectionView: collectionView,
-                         deps: module)
+    return ScrollTracker(
+      metricsLogger: metricsLogger,
+      collectionView: collectionView,
+      deps: module
+    )
   }
 }
 
@@ -233,6 +245,10 @@ public extension MetricsLoggerService {
 
   private static var moduleConfig: ModuleConfig?
 
+  @objc static func startServices(coreInitialConfig: _ObjCClientConfig) throws {
+    try startServices(coreInitialConfig: ClientConfig(coreInitialConfig))
+  }
+
   /// Call this to start logging services, prior to accessing `sharedService`.
   /// This does not provide a `NetworkConnection`. If you are not
   /// supplying your own `NetworkConnection`, you should use
@@ -240,7 +256,7 @@ public extension MetricsLoggerService {
   ///
   /// Equivalent to calling `init`, then `startLoggingServices()` on
   /// the shared service.
-  @objc static func startServices(coreInitialConfig: ClientConfig) throws {
+  static func startServices(coreInitialConfig: ClientConfig) throws {
     let moduleConfig = ModuleConfig.coreConfig()
     moduleConfig.initialConfig = coreInitialConfig
     try startServices(moduleConfig: moduleConfig)
@@ -259,7 +275,10 @@ public extension MetricsLoggerService {
   /// was not called.
   @objc(sharedService)
   static let shared: MetricsLoggerService = {
-    assert(moduleConfig != nil, "Call startServices() before accessing shared service")
+    assert(
+      moduleConfig != nil,
+      "Call startServices() before accessing shared service"
+    )
     return try! MetricsLoggerService(moduleConfig: moduleConfig!)
   } ()
 }

@@ -11,7 +11,7 @@ final class XrayTests: ModuleTestCase {
   typealias Context = OperationMonitor.Context
   
   func testSingleBatch() {
-    config.xrayLevel = .callDetails
+    module.clientConfig.xrayLevel = .callDetails
     xray = Xray(deps: module)
 
     clock.advance(toMillis: 0)
@@ -81,7 +81,7 @@ final class XrayTests: ModuleTestCase {
   }
 
   func testBatchSummaries() {
-    config.xrayLevel = .batchSummaries
+    module.clientConfig.xrayLevel = .batchSummaries
     xray = Xray(deps: module)
 
     clock.advance(toMillis: 0)
@@ -126,7 +126,7 @@ final class XrayTests: ModuleTestCase {
   }
 
   func testCalls() {
-    config.xrayLevel = .callDetails
+    module.clientConfig.xrayLevel = .callDetails
     xray = Xray(deps: module)
 
     func callXray(_ function: String) -> Context {
@@ -155,7 +155,7 @@ final class XrayTests: ModuleTestCase {
   }
 
   func testErrors() {
-    config.xrayLevel = .callDetails
+    module.clientConfig.xrayLevel = .callDetails
     xray = Xray(deps: module)
 
     func batchXray(batchError: Error? = nil,
@@ -203,7 +203,7 @@ final class XrayTests: ModuleTestCase {
   }
 
   func testBatchSummariesErrors() {
-    config.xrayLevel = .batchSummaries
+    module.clientConfig.xrayLevel = .batchSummaries
     xray = Xray(deps: module)
 
     func batchXray(batchError: Error? = nil,

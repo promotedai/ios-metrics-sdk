@@ -8,7 +8,7 @@ import XCTest
 final class NetworkConnectionTests: ModuleTestCase {
 
   func testMetricsLoggingURL() {
-    let config = ClientConfig()
+    var config = ClientConfig()
     config.metricsLoggingURL = "http://fake.promoted.ai/prod"
     do {
       let url = try connection.metricsLoggingURL(clientConfig: config)
@@ -32,6 +32,7 @@ final class NetworkConnectionTests: ModuleTestCase {
     message.actionID = "foo"
     
     do {
+      var config = ClientConfig()
       config.metricsLoggingWireFormat = .json
       let jsonData = try connection.bodyData(message: message, clientConfig: config)
       let jsonString = String(data: jsonData, encoding: .utf8)!
@@ -46,6 +47,7 @@ final class NetworkConnectionTests: ModuleTestCase {
     message.actionID = "foo"
     
     do {
+      var config = ClientConfig()
       config.metricsLoggingWireFormat = .binary
       let binaryData = try connection.bodyData(message: message, clientConfig: config)
       XCTAssertGreaterThan(binaryData.count, 0)
@@ -55,6 +57,7 @@ final class NetworkConnectionTests: ModuleTestCase {
   }
     
   func testURLRequestAPIKey() {
+    var config = ClientConfig()
     config.metricsLoggingAPIKey = "key!"
     config.apiKeyHTTPHeaderField = "API_KEY"
     let url = URL(string: "http://promoted.ai")!

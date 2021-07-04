@@ -7,13 +7,12 @@ import XCTest
 final class ClientConfigServiceTests: ModuleTestCase {
 
   func testLocalCache() {
-    let config = ClientConfig()
     let url = "https://fake.promoted.ai"
-    config.metricsLoggingURL = url
-    config.metricsLoggingAPIKey = "apikey!"
-    config.xrayLevel = .callDetails
+    module.clientConfig.metricsLoggingURL = url
+    module.clientConfig.metricsLoggingAPIKey = "apikey!"
+    module.clientConfig.xrayLevel = .callDetails
 
-    let configData = try! JSONEncoder().encode(config)
+    let configData = try! JSONEncoder().encode(module.clientConfig)
     store.clientConfig = configData
     module.clientConfigService.fetchClientConfig { _ in }
 
@@ -28,7 +27,7 @@ final class ClientConfigServiceTests: ModuleTestCase {
 
   func testCachesRemoteValue() {
     let url = "https://fake2.promoted.ai"
-    let remoteConfig = ClientConfig()
+    var remoteConfig = ClientConfig()
     remoteConfig.metricsLoggingURL = url
     remoteConfig.metricsLoggingAPIKey = "apikey!!"
     remoteConfig.xrayLevel = .callDetails

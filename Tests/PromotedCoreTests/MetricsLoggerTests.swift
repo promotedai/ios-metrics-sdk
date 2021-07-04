@@ -13,7 +13,7 @@ final class MetricsLoggerTests: ModuleTestCase {
 
   override func setUp() {
     super.setUp()
-    config.metricsLoggingURL = "http://fake.promoted.ai/metrics"
+    module.clientConfig.metricsLoggingURL = "http://fake.promoted.ai/metrics"
     clock.advance(to: 123)
     store.userID = "foobar"
     store.logUserID = "fake-log-user-id"

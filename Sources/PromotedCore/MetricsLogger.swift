@@ -49,7 +49,7 @@ import os.log
 public final class MetricsLogger: NSObject {
 
   private unowned let clock: Clock
-  private unowned let config: ClientConfig
+  private let config: ClientConfig
   private unowned let connection: NetworkConnection
   private unowned let deviceInfo: DeviceInfo
   private unowned let idMap: IDMap

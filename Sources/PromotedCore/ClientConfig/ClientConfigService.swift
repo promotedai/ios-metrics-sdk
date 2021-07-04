@@ -63,9 +63,9 @@ final class ClientConfigService {
   )
 
   init(deps: Deps) {
-    self._config = ClientConfig(deps.initialConfig)
+    self._config = deps.initialConfig
     self.wasConfigFetched = false
-    self.initialConfig = ClientConfig(deps.initialConfig)
+    self.initialConfig = deps.initialConfig
     self.store = deps.persistentStore
     self.remoteConfigConnection = deps.remoteConfigConnection
   }

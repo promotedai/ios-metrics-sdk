@@ -45,7 +45,7 @@ final class FirebaseRemoteConfigConnection: RemoteConfigConnection {
         resultMessages.info("Using prefetched config.", visibility: .public)
         fallthrough
       case .successFetchedFromRemote:
-        let config = ClientConfig(initialConfig)
+        var config = initialConfig
         config.merge(from: remoteConfig, messages: &resultMessages)
         resultConfig = config
         resultMessages.info(

@@ -9,7 +9,7 @@ import PromotedCore
 
 extension ClientConfig {
 
-  func merge(
+  mutating func merge(
     from remoteConfig: RemoteConfig,
     messages: inout PendingLogMessages
   ) {
@@ -20,7 +20,7 @@ extension ClientConfig {
     merge(from: dictionary, messages: &messages)
   }
 
-  func merge(
+  mutating func merge(
     from dictionary: [String: String],
     messages: inout PendingLogMessages
   ) {
@@ -75,9 +75,9 @@ extension ClientConfig {
         visibility: .public
       )
 
-      self.setValue(convertedValue, forKey: childLabel)
+      self.setValue(convertedValue, forName: childLabel)
       checkValidatedValueChanged(
-        childLabel: childLabel,
+        name: childLabel,
         dictionaryKey: key,
         convertedValue: convertedValue,
         messages: &messages
@@ -108,30 +108,33 @@ extension ClientConfig {
       let value = ClientConfig.MetricsLoggingWireFormat(
         stringLiteral: value
       )
-      return value == .unknown ? nil : value.rawValue
+      return value == .unknown ? nil : value
     case is ClientConfig.XrayLevel:
       let value = ClientConfig.XrayLevel(
         stringLiteral: value
       )
-      return value == .unknown ? nil : value.rawValue
+      return value == .unknown ? nil : value
     case is ClientConfig.OSLogLevel:
       let value = ClientConfig.OSLogLevel(
         stringLiteral: value
       )
-      return value == .unknown ? nil : value.rawValue
+      return value == .unknown ? nil : value
     default:
       return nil
     }
   }
 
-  private func checkValidatedValueChanged(
-    childLabel: String,
+  private func checkValidatedValueChanged<Value>(
+    name: String,
     dictionaryKey: String,
-    convertedValue: Any,
+    convertedValue: Value,
     messages: inout PendingLogMessages
   ) {
-    if let validatedValue = value(forKey: childLabel),
-       !AnyHashable.areEqual(convertedValue, validatedValue) {
+    guard let validatedValue = value(forName: name) else {
+      messages.warning("", visibility: .public)
+      return
+    }
+    if !AnyHashable.areEqual(convertedValue, validatedValue) {
       messages.warning(
         "Attempted to set invalid value: " +
           "\(dictionaryKey) = \(convertedValue) " +

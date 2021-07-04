@@ -13,7 +13,9 @@ import os.log
  */
 @objc(PROModuleConfig)
 public final class ModuleConfig: NSObject {
-  @objc public var initialConfig = ClientConfig()
+  @objc(initialConfig)
+  public var _objCInitialConfig = _ObjCClientConfig()
+  public var initialConfig = ClientConfig()
   public var analyticsConnection: AnalyticsConnection? = nil
   public var networkConnection: NetworkConnection? = nil
   public var persistentStore: PersistentStore? = nil
@@ -212,7 +214,7 @@ final class Module: AllDeps {
     persistentStore: PersistentStore? = nil,
     remoteConfigConnection: RemoteConfigConnection? = nil
   ) {
-    self.initialConfig = ClientConfig(initialConfig)
+    self.initialConfig = initialConfig
     self.analyticsConnection = analyticsConnection
     self.networkConnectionSpec = networkConnection
     self.persistentStoreSpec = persistentStore
