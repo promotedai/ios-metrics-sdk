@@ -384,7 +384,7 @@ extension ClientConfig {
         !assertInValidation,
         "\(propertyName): unknown case for enum " +
           "\(String(describing: type(of: value))) = " +
-          "\(String(describing: value.rawValue))"
+          "\(String(describing: value))"
       )
       value = defaultValue
     }
