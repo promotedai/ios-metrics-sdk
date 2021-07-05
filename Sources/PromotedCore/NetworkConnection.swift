@@ -61,8 +61,6 @@ public extension NetworkConnection {
       return try message.serializedData()
     case .json:
       return try message.jsonUTF8Data()
-    case .unknown:
-      throw ClientConfigError.invalidWireFormat
     }
   }
 

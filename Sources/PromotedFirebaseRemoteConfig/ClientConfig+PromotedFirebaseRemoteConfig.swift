@@ -105,16 +105,11 @@ extension ClientConfig {
     case is String:
       return remoteValue
     case is ClientConfig.MetricsLoggingWireFormat:
-      let value = ClientConfig.MetricsLoggingWireFormat(
-        stringLiteral: remoteValue
-      )
-      return value == .unknown ? nil : value
+      return ClientConfig.MetricsLoggingWireFormat(name: remoteValue)
     case is ClientConfig.XrayLevel:
-      let value = ClientConfig.XrayLevel(stringLiteral: remoteValue)
-      return value == .unknown ? nil : value
+      return ClientConfig.XrayLevel(name: remoteValue)
     case is ClientConfig.OSLogLevel:
-      let value = ClientConfig.OSLogLevel(stringLiteral: remoteValue)
-      return value == .unknown ? nil : value
+      return ClientConfig.OSLogLevel(name: remoteValue)
     default:
       return nil
     }

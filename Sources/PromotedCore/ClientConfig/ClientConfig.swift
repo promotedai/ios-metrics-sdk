@@ -1,14 +1,7 @@
 import Foundation
 
 public protocol _ConfigEnum:
-  CaseIterable,
-  Codable,
-  CustomStringConvertible,
-  Equatable,
-  ExpressibleByStringLiteral
-{
-  static var unknownValue: Self { get }
-}
+  CaseIterable, Codable, CustomStringConvertible, Equatable {}
 
 // MARK: - ClientConfig properties
 /**
@@ -32,7 +25,6 @@ public protocol _ConfigEnum:
  2. Make the type `@objc` and give it a name prefixed with `PRO`.
  3. Make it an `Int` enum.
  4. Make it conform to `ConfigEnum`.
- 5. Give it a `case unknown = 0`.
 
  The final three items ensure that it works with remote config
  and serialization.
@@ -41,7 +33,6 @@ public protocol _ConfigEnum:
  ```swift
  @objc(PROAlohaEnum)
  public enum AlohaEnum: Int, ConfigEnum {
-   case unknown = 0
    case hello = 1
    case goodbye = 2
  }
@@ -105,7 +96,6 @@ public struct ClientConfig: Codable {
   /// Format to use when sending protobuf log messages over network.
   @objc(PROMetricsLoggingWireFormat)
   public enum MetricsLoggingWireFormat: Int, ConfigEnum {
-    case unknown = 0
     /// https://developers.google.com/protocol-buffers/docs/proto3#json
     case json = 1
     /// https://developers.google.com/protocol-buffers/docs/encoding
@@ -147,7 +137,6 @@ public struct ClientConfig: Codable {
 
   @objc(PROXrayLevel)
   public enum XrayLevel: Int, Comparable, ConfigEnum {
-    case unknown = 0
     // Don't gather any Xray stats data at all.
     case none = 1
     // Gather overall counts for the session for each batch.
@@ -175,7 +164,6 @@ public struct ClientConfig: Codable {
 
   @objc(PROOSLogLevel)
   public enum OSLogLevel: Int, Comparable, ConfigEnum {
-    case unknown = 0
     /// No logging for anything.
     case none = 1
     /// Logging only for errors.
@@ -379,7 +367,7 @@ extension ClientConfig {
     defaultValue: T,
     propertyName: String = #function
   ) {
-    if !T.allCases.contains(value) || value == T.unknownValue {
+    if !T.allCases.contains(value) {
       assert(
         !assertInValidation,
         "\(propertyName): unknown case for enum " +
@@ -432,20 +420,18 @@ public func < <T: RawRepresentable>(
 }
 
 public extension _ConfigEnum {
-  init(stringLiteral: String) {
+  init?(name: String) {
     for value in Self.allCases {
-      if value.description == stringLiteral {
+      if value.description == name {
         self = value
         return
       }
     }
-    self = Self.unknownValue
+    return nil
   }
 }
 
 extension ClientConfig.MetricsLoggingWireFormat {
-  public static var unknownValue: Self { .unknown }
-
   public var description: String {
     switch self {
     case .json:
@@ -459,8 +445,6 @@ extension ClientConfig.MetricsLoggingWireFormat {
 }
 
 extension ClientConfig.XrayLevel {
-  public static var unknownValue: Self { .unknown }
-
   public var description: String {
     switch self {
     case .none:
@@ -478,8 +462,6 @@ extension ClientConfig.XrayLevel {
 }
 
 extension ClientConfig.OSLogLevel {
-  public static var unknownValue: Self { .unknown }
-
   public var description: String {
     switch self {
     case .none:

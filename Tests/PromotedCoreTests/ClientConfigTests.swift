@@ -16,15 +16,6 @@ final class ClientConfigTests: XCTestCase {
     var config = ClientConfig()
     config.disableAssertInValidationForTesting()
 
-    config.metricsLoggingWireFormat = .unknown
-    XCTAssertEqual(.binary, config.metricsLoggingWireFormat)
-
-    config.xrayLevel = .unknown
-    XCTAssertEqual(.none, config.xrayLevel)
-
-    config.osLogLevel = .unknown
-    XCTAssertEqual(.none, config.osLogLevel)
-
     config.setValue("invalid", forName: "metricsLoggingWireFormat")
     XCTAssertEqual(.binary, config.metricsLoggingWireFormat)
 
