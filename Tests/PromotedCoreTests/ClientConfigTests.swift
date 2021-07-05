@@ -5,6 +5,30 @@ import XCTest
 
 final class ClientConfigTests: XCTestCase {
 
+  func testValue() {
+    let config = ClientConfig()
+    let mirror = Mirror(reflecting: config)
+    for child in mirror.children {
+      guard let name = child.label else {
+        XCTFail("Child with no label: \(String(describing: child))")
+        return
+      }
+      _ = config.value(forName: name)
+    }
+  }
+
+  func testSetValue() {
+    var config = ClientConfig()
+    let mirror = Mirror(reflecting: config)
+    for child in mirror.children {
+      guard let name = child.label else {
+        XCTFail("Child with no label: \(String(describing: child))")
+        return
+      }
+      config.setValue(child.value, forName: name)
+    }
+  }
+
   func testBound() {
     var config = ClientConfig()
     config.disableAssertInValidationForTesting()

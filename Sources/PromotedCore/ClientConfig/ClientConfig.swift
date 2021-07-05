@@ -211,60 +211,31 @@ public struct ClientConfig: Codable {
 
 public extension ClientConfig {
 
-  typealias ConfigKeyPath<Value> = WritableKeyPath<ClientConfig, Value>
+  typealias AnyConfigKeyPath = PartialKeyPath<ClientConfig>
 
-  static let boolKeyPaths: [String: ConfigKeyPath<Bool>] = [
-    "loggingEnabled": \.loggingEnabled,
-    "flushLoggingOnResignActive": \.flushLoggingOnResignActive,
-    "diagnosticsIncludeBatchSummaries": \.diagnosticsIncludeBatchSummaries,
+  static let allKeyPaths: [String: AnyConfigKeyPath] = [
+    "apiKeyHTTPHeaderField": \ClientConfig.apiKeyHTTPHeaderField,
+    "devMetricsLoggingAPIKey": \ClientConfig.devMetricsLoggingAPIKey,
+    "devMetricsLoggingURL": \ClientConfig.devMetricsLoggingURL,
     "diagnosticsIncludeAncestorIDHistory":
-      \.diagnosticsIncludeAncestorIDHistory
+      \ClientConfig.diagnosticsIncludeAncestorIDHistory,
+    "diagnosticsIncludeBatchSummaries": \ClientConfig.diagnosticsIncludeBatchSummaries,
+    "flushLoggingOnResignActive": \ClientConfig.flushLoggingOnResignActive,
+    "loggingEnabled": \ClientConfig.loggingEnabled,
+    "loggingFlushInterval": \ClientConfig.loggingFlushInterval,
+    "metricsLoggingAPIKey": \ClientConfig.metricsLoggingAPIKey,
+    "metricsLoggingWireFormat": \ClientConfig.metricsLoggingWireFormat,
+    "metricsLoggingURL": \ClientConfig.metricsLoggingURL,
+    "osLogLevel": \ClientConfig.osLogLevel,
+    "scrollTrackerDurationThreshold": \ClientConfig.scrollTrackerDurationThreshold,
+    "scrollTrackerUpdateFrequency": \ClientConfig.scrollTrackerUpdateFrequency,
+    "scrollTrackerVisibilityThreshold": \ClientConfig.scrollTrackerVisibilityThreshold,
+    "xrayLevel": \ClientConfig.xrayLevel,
   ]
 
-  static let stringKeyPaths: [String: ConfigKeyPath<String>] = [
-    "metricsLoggingURL": \.metricsLoggingURL,
-    "devMetricsLoggingURL": \.devMetricsLoggingURL,
-    "metricsLoggingAPIKey": \.metricsLoggingAPIKey,
-    "devMetricsLoggingAPIKey": \.devMetricsLoggingAPIKey,
-    "apiKeyHTTPHeaderField": \.apiKeyHTTPHeaderField
-  ]
+  typealias ConfigKeyPath<Value> = KeyPath<ClientConfig, Value>
 
-  static let timeIntervalKeyPaths: [String: ConfigKeyPath<TimeInterval>] = [
-    "loggingFlushInterval": \.loggingFlushInterval,
-    "scrollTrackerDurationThreshold": \.scrollTrackerDurationThreshold,
-    "scrollTrackerUpdateFrequency": \.scrollTrackerUpdateFrequency
-  ]
-
-  static let floatKeyPaths: [String: ConfigKeyPath<Float>] = [
-    "scrollTrackerVisibilityThreshold": \.scrollTrackerVisibilityThreshold
-  ]
-
-  static let metricsLoggingWireFormatKeyPaths:
-    [String: ConfigKeyPath<MetricsLoggingWireFormat>] =
-  [
-    "metricsLoggingWireFormat": \.metricsLoggingWireFormat
-  ]
-
-  static let xrayLevelKeyPaths: [String: ConfigKeyPath<XrayLevel>] = [
-    "xrayLevel": \.xrayLevel
-  ]
-
-  static let osLogLevelKeyPaths: [String: ConfigKeyPath<OSLogLevel>] = [
-    "osLogLevel": \.osLogLevel
-  ]
-
-  static let allKeyPaths: [String: Any] = {
-    var result: [String: Any] = [:]
-    boolKeyPaths.forEach { result[$0] = $1 }
-    stringKeyPaths.forEach { result[$0] = $1 }
-    timeIntervalKeyPaths.forEach { result[$0] = $1 }
-    floatKeyPaths.forEach { result[$0] = $1 }
-    metricsLoggingWireFormatKeyPaths.forEach { result[$0] = $1 }
-    xrayLevelKeyPaths.forEach { result[$0] = $1 }
-    osLogLevelKeyPaths.forEach { result[$0] = $1 }
-    return result
-  } ()
-
+  /// Returns value for named property.
   func value(forName name: String) -> Any? {
     guard let keyPath = Self.allKeyPaths[name] else { return nil }
     switch keyPath {
@@ -283,43 +254,60 @@ public extension ClientConfig {
     case let k as ConfigKeyPath<OSLogLevel>:
       return self[keyPath: k]
     default:
-      return nil
+      break
     }
+    assert(!assertInValidation, "Unknown key: \(name)")
+    return nil
   }
 
+  typealias WritableConfigKeyPath<Value> = WritableKeyPath<ClientConfig, Value>
+
+  /// Sets value for named property.
   mutating func setValue(_ value: Any, forName name: String) {
+    guard let keyPath = Self.allKeyPaths[name] else { return }
     switch value {
     case let intValue as Bool:
-      if let k = Self.boolKeyPaths[name] {
+      if let k = keyPath as? WritableConfigKeyPath<Bool> {
         self[keyPath: k] = intValue
+        return
       }
     case let stringValue as String:
-      if let k = Self.stringKeyPaths[name] {
+      if let k = keyPath as? WritableConfigKeyPath<String> {
         self[keyPath: k] = stringValue
+        return
       }
     case let timeValue as TimeInterval:
-      if let k = Self.timeIntervalKeyPaths[name] {
+      if let k = keyPath as? WritableConfigKeyPath<TimeInterval> {
         self[keyPath: k] = timeValue
+        return
       }
     case let floatValue as Float:
-      if let k = Self.floatKeyPaths[name] {
+      if let k = keyPath as? WritableConfigKeyPath<Float> {
         self[keyPath: k] = floatValue
+        return
       }
     case let m as MetricsLoggingWireFormat:
-      if let k = Self.metricsLoggingWireFormatKeyPaths[name] {
+      if let k = keyPath as? WritableConfigKeyPath<MetricsLoggingWireFormat> {
         self[keyPath: k] = m
+        return
       }
     case let x as XrayLevel:
-      if let k = Self.xrayLevelKeyPaths[name] {
+      if let k = keyPath as? WritableConfigKeyPath<XrayLevel> {
         self[keyPath: k] = x
+        return
       }
     case let o as OSLogLevel:
-      if let k = Self.osLogLevelKeyPaths[name] {
+      if let k = keyPath as? WritableConfigKeyPath<OSLogLevel> {
         self[keyPath: k] = o
+        return
       }
     default:
       break
     }
+    assert(
+      !assertInValidation,
+      "Could not set value \(String(describing: value)) for key \(name)"
+    )
   }
 }
 
