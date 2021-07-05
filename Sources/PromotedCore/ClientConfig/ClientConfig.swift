@@ -420,7 +420,7 @@ public func < <T: RawRepresentable>(
 }
 
 public extension _ConfigEnum {
-  init?(name: String) {
+  init?(_ name: String) {
     for value in Self.allCases {
       if value.description == name {
         self = value

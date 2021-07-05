@@ -105,11 +105,11 @@ extension ClientConfig {
     case is String:
       return remoteValue
     case is ClientConfig.MetricsLoggingWireFormat:
-      return ClientConfig.MetricsLoggingWireFormat(name: remoteValue)
+      return ClientConfig.MetricsLoggingWireFormat(remoteValue)
     case is ClientConfig.XrayLevel:
-      return ClientConfig.XrayLevel(name: remoteValue)
+      return ClientConfig.XrayLevel(remoteValue)
     case is ClientConfig.OSLogLevel:
-      return ClientConfig.OSLogLevel(name: remoteValue)
+      return ClientConfig.OSLogLevel(remoteValue)
     default:
       return nil
     }
