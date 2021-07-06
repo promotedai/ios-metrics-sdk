@@ -323,9 +323,9 @@ public extension ClientConfig {
       return
     }
     switch value {
-    case let intValue as Bool:
+    case let boolValue as Bool:
       if let k = keyPath as? WritableConfigKeyPath<Bool> {
-        self[keyPath: k] = intValue
+        self[keyPath: k] = boolValue
         return
       }
     case let stringValue as String:

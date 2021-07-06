@@ -245,8 +245,11 @@ public extension MetricsLoggerService {
 
   private static var moduleConfig: ModuleConfig?
 
-  @objc static func startServices(coreInitialConfig: _ObjCClientConfig) throws {
-    try startServices(coreInitialConfig: ClientConfig(coreInitialConfig))
+  @objc(startServicesWithCoreInitialConfig:error:)
+  static func startServices(
+    objCCoreInitialConfig: _ObjCClientConfig
+  ) throws {
+    try startServices(coreInitialConfig: ClientConfig(objCCoreInitialConfig))
   }
 
   /// Call this to start logging services, prior to accessing `sharedService`.

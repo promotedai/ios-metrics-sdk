@@ -6,8 +6,11 @@ import PromotedCore
 
 public extension MetricsLoggerService {
 
-  @objc static func startServices(initialConfig: _ObjCClientConfig) throws {
-    try startServices(coreInitialConfig: ClientConfig(initialConfig))
+  @objc(startServicesWithInitialConfig:error:)
+  static func startServices(
+    objCInitialConfig: _ObjCClientConfig
+  ) throws {
+    try startServices(coreInitialConfig: ClientConfig(objCInitialConfig))
   }
 
   /// Call this to start logging services, prior to accessing `shared`.
@@ -21,8 +24,11 @@ public extension MetricsLoggerService {
     try startServices(moduleConfig: moduleConfig)
   }
 
-  @objc convenience init(initialConfig: _ObjCClientConfig) throws {
-    try self.init(initialConfig: ClientConfig(initialConfig))
+  @objc(initWithInitialConfig:error:)
+  convenience init(
+    objCInitialConfig: _ObjCClientConfig
+  ) throws {
+    try self.init(initialConfig: ClientConfig(objCInitialConfig))
   }
 
   /// Creates a new service with a core configuration.
