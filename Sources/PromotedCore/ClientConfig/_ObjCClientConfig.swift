@@ -1,5 +1,9 @@
 import Foundation
 
+/**
+ See `ClientConfig`. This class exists only for compatibility
+ with Objective C. Do not use from Swift.
+ */
 @objc(PROClientConfig)
 public final class _ObjCClientConfig: NSObject {
 
