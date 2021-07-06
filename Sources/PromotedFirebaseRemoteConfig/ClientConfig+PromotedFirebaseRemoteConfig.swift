@@ -75,9 +75,9 @@ extension ClientConfig {
         visibility: .public
       )
 
-      self.setValue(convertedValue, forName: childLabel)
+      self.setValue(convertedValue, forKey: childLabel)
       checkValidatedValueChanged(
-        name: childLabel,
+        label: childLabel,
         dictionaryKey: key,
         convertedValue: convertedValue,
         messages: &messages
@@ -116,14 +116,14 @@ extension ClientConfig {
   }
 
   private func checkValidatedValueChanged<Value>(
-    name: String,
+    label: String,
     dictionaryKey: String,
     convertedValue: Value,
     messages: inout PendingLogMessages
   ) {
-    guard let validatedValue = value(forName: name) else {
+    guard let validatedValue = value(forKey: label) else {
       messages.warning(
-        "Could not read value for property: \(name)",
+        "Could not read value for property: \(label)",
         visibility: .public
       )
       return

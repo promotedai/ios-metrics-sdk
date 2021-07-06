@@ -15,7 +15,7 @@ final class ClientConfigTests: XCTestCase {
         return
       }
       if name == "assertInValidation" { continue }
-      XCTAssertNotNil(config.value(forName: name))
+      XCTAssertNotNil(config.value(forKey: name))
     }
   }
 
@@ -31,7 +31,7 @@ final class ClientConfigTests: XCTestCase {
         return
       }
       if name == "assertInValidation" { continue }
-      config.setValue(child.value, forName: name)
+      config.setValue(child.value, forKey: name)
     }
   }
 
@@ -46,13 +46,13 @@ final class ClientConfigTests: XCTestCase {
     var config = ClientConfig()
     config.disableAssertInValidationForTesting()
 
-    config.setValue("invalid", forName: "metricsLoggingWireFormat")
+    config.setValue("invalid", forKey: "metricsLoggingWireFormat")
     XCTAssertEqual(.binary, config.metricsLoggingWireFormat)
 
-    config.setValue("invalid", forName: "xrayLevel")
+    config.setValue("invalid", forKey: "xrayLevel")
     XCTAssertEqual(.none, config.xrayLevel)
 
-    config.setValue("invalid", forName: "osLogLevel")
+    config.setValue("invalid", forKey: "osLogLevel")
     XCTAssertEqual(.none, config.osLogLevel)
   }
 
