@@ -35,6 +35,7 @@ public typealias ConfigEnum = (
  4. Make it an `Int` enum.
  5. Make it conform to `ConfigEnum`.
  6. Add an extension that contains `var description`.
+ 7. Add the enum to `value()` and `setValue()` workarounds.
 
  The final three items ensure that it works with remote config
  and serialization.
@@ -241,6 +242,8 @@ public final class _ObjCClientConfig: NSObject {
     }
   }
 
+  // There are some rough edges with Obj C interop and
+  // Swift enums. These next two methods deal with that.
   public override func value(forKey key: String) -> Any? {
     let value = super.value(forKey: key)
     switch key {
