@@ -1,16 +1,72 @@
 import Foundation
 
 /// Enumeration value in config.
-public protocol ConfigEnum:
-  CaseIterable,
-  Codable,
-  CustomStringConvertible,
-  Equatable,
-  RawRepresentable {}
+public typealias ConfigEnum = (
+  CaseIterable &
+  Codable &
+  CustomStringConvertible &
+  Equatable &
+  RawRepresentable
+)
 
 /**
  See `ClientConfig`. This class exists only for compatibility
  with Objective C. Do not use from Swift.
+
+ Add new config properties in this class.
+
+ # Adding new properties.
+
+ When adding a new property, do the following:
+
+ 1. Add the property in this class.
+ 2. Ensure the type is `Codable` and can be expressed in
+    Objective C.
+ 3. Make the property `@objc`.
+
+ # Adding new enums
+
+ When adding a new enum property, do the following:
+
+ 1. Add the type in this class.
+ 2. Make the type `@objc` and prefix its name with `PRO`.
+ 3. Add a `typealias` to your type in `ClientConfig`. Swift
+    code should only refer to the type in `ClientConfig`.
+ 4. Make it an `Int` enum.
+ 5. Make it conform to `ConfigEnum`.
+ 6. Add an extension that contains `var description`.
+
+ The final three items ensure that it works with remote config
+ and serialization.
+
+ Example:
+ ```swift
+ @objc(PROAlohaEnum)
+ public enum AlohaEnum: Int, ConfigEnum {
+   case hello = 1
+   case goodbye = 2
+ }
+ @objc public var aloha: AlohaEnum = .hello
+
+ extension ClientConfig.AlohaEnum {
+   public var description: String {
+     switch self {
+     case .hello:
+       return "hello"
+     case .goodbye:
+       return "goodbye"
+     default:
+       return "unknown"
+   }
+ }
+ ```
+
+ # Validation
+
+ When adding new properties that are numerical or enum values,
+ make sure to validate in `didSet` to ensure that incorrect
+ values don't cause unreasonable behavior during runtime. See
+ `bound` and `validateEnum`.
  */
 @objc(PROClientConfig)
 public final class _ObjCClientConfig: NSObject {
