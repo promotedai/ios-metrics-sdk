@@ -1,13 +1,12 @@
 import Foundation
 
 /// Enumeration value in config.
-public typealias ConfigEnum = (
-  CaseIterable &
-  Codable &
-  CustomStringConvertible &
-  Equatable &
-  RawRepresentable
-)
+public protocol ConfigEnum:
+  CaseIterable,
+  Codable,
+  CustomStringConvertible,
+  Equatable,
+  RawRepresentable {}
 
 /**
  See `ClientConfig`. This class exists only for compatibility
