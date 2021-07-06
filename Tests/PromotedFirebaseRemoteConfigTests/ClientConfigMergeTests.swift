@@ -147,7 +147,7 @@ final class ClientConfigMergeTests: XCTestCase {
 
     assertLoggedMessagesEqualNoOrder([
       (.warning, "Attempted to set invalid value: " +
-        "ai_promoted_logging_flush_interval = 0.0 (using 1.0 instead)"),
+        "ai_promoted_logging_flush_interval = 0.0 (using 1 instead)"),
       (.info, "Read from remote config: " +
         "ai_promoted_logging_flush_interval = 0.0"),
     ], messages)

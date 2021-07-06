@@ -2,7 +2,11 @@ import Foundation
 
 /// Enumeration value in config.
 public protocol ConfigEnum:
-  CaseIterable, Codable, CustomStringConvertible, Equatable {}
+  CaseIterable,
+  Codable,
+  CustomStringConvertible,
+  Equatable,
+  RawRepresentable {}
 
 /**
  See `ClientConfig`. This class exists only for compatibility
@@ -164,7 +168,7 @@ public final class _ObjCClientConfig: NSObject {
       diagnosticsIncludeAncestorIDHistory
   }
 
-  private var assertInValidation: Bool = true
+  @objc private var assertInValidation: Bool = true
 
   /// Whether mobile diagnostic messages include a history of
   /// ancestor IDs being set for the session.
@@ -179,6 +183,42 @@ public final class _ObjCClientConfig: NSObject {
       guard let label = child.label else { continue }
       setValue(child.value, forKey: label)
     }
+  }
+
+  public override func value(forKey key: String) -> Any? {
+    let value = super.value(forKey: key)
+    switch key {
+    case "metricsLoggingWireFormat":
+      if let intValue = value as? Int {
+        return MetricsLoggingWireFormat(rawValue: intValue)
+      }
+    case "xrayLevel":
+      if let intValue = value as? Int {
+        return XrayLevel(rawValue: intValue)
+      }
+    case "osLogLevel":
+      if let intValue = value as? Int {
+        return OSLogLevel(rawValue: intValue)
+      }
+    default:
+      break
+    }
+    return value
+  }
+
+  public override func setValue(_ value: Any?, forKey key: String) {
+    let convertedValue: Any?
+    switch value {
+    case let wire as MetricsLoggingWireFormat:
+      convertedValue = wire.rawValue
+    case let xray as XrayLevel:
+      convertedValue = xray.rawValue
+    case let osLog as OSLogLevel:
+      convertedValue = osLog.rawValue
+    default:
+      convertedValue = value
+    }
+    super.setValue(convertedValue, forKey: key)
   }
 }
 

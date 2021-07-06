@@ -55,23 +55,4 @@ final class ClientConfigTests: XCTestCase {
     config.setValue("invalid", forKey: "osLogLevel")
     XCTAssertEqual(.none, config.osLogLevel)
   }
-
-  func testObjCFields() {
-    let swiftConfig = ClientConfig()
-    let swiftKeyToType = Mirror(reflecting: swiftConfig)
-      .children
-      .filter { $0.label != "assertInValidation" }
-      .reduce(into: [String: String]()) {
-        $0[$1.label!] = String(describing: type(of: $1.value))
-      }
-
-    let objcConfig = _ObjCClientConfig()
-    let objcKeyToType = Mirror(reflecting: objcConfig)
-      .children
-      .reduce(into: [String: String]()) {
-        $0[$1.label!] = String(describing: type(of: $1.value))
-      }
-
-    XCTAssertEqual(swiftKeyToType, objcKeyToType)
-  }
 }

@@ -104,9 +104,7 @@ public struct ClientConfig {
   ) -> T {
     get { config[keyPath: keyPath] }
     set {
-      if !isKnownUniquelyReferenced(&config) {
-        config = _ObjCClientConfig(config)
-      }
+      ensureConfigUniquelyReferenced()
       config[keyPath: keyPath] = newValue
     }
   }
@@ -116,10 +114,14 @@ public struct ClientConfig {
   }
 
   public mutating func setValue(_ value: Any?, forKey key: String) {
+    ensureConfigUniquelyReferenced()
+    config.setValue(value, forKey: key)
+  }
+
+  private mutating func ensureConfigUniquelyReferenced() {
     if !isKnownUniquelyReferenced(&config) {
       config = _ObjCClientConfig(config)
     }
-    config.setValue(value, forKey: key)
   }
 
   public init() {}
@@ -131,6 +133,11 @@ public struct ClientConfig {
 
 // MARK: - Codable
 extension ClientConfig: Codable {}
+
+// MARK: - CustomReflectable
+extension ClientConfig: CustomReflectable {
+  public var customMirror: Mirror { Mirror(reflecting: config) }
+}
 
 // MARK: - Internal
 extension ClientConfig {
