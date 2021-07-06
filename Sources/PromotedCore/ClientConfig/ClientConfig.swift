@@ -267,7 +267,8 @@ public extension ClientConfig {
     "devMetricsLoggingURL": \ClientConfig.devMetricsLoggingURL,
     "diagnosticsIncludeAncestorIDHistory":
       \ClientConfig.diagnosticsIncludeAncestorIDHistory,
-    "diagnosticsIncludeBatchSummaries": \ClientConfig.diagnosticsIncludeBatchSummaries,
+    "diagnosticsIncludeBatchSummaries":
+      \ClientConfig.diagnosticsIncludeBatchSummaries,
     "flushLoggingOnResignActive": \ClientConfig.flushLoggingOnResignActive,
     "loggingEnabled": \ClientConfig.loggingEnabled,
     "loggingFlushInterval": \ClientConfig.loggingFlushInterval,
@@ -275,9 +276,11 @@ public extension ClientConfig {
     "metricsLoggingWireFormat": \ClientConfig.metricsLoggingWireFormat,
     "metricsLoggingURL": \ClientConfig.metricsLoggingURL,
     "osLogLevel": \ClientConfig.osLogLevel,
-    "scrollTrackerDurationThreshold": \ClientConfig.scrollTrackerDurationThreshold,
+    "scrollTrackerDurationThreshold":
+      \ClientConfig.scrollTrackerDurationThreshold,
     "scrollTrackerUpdateFrequency": \ClientConfig.scrollTrackerUpdateFrequency,
-    "scrollTrackerVisibilityThreshold": \ClientConfig.scrollTrackerVisibilityThreshold,
+    "scrollTrackerVisibilityThreshold":
+      \ClientConfig.scrollTrackerVisibilityThreshold,
     "xrayLevel": \ClientConfig.xrayLevel,
   ]
 
@@ -285,7 +288,10 @@ public extension ClientConfig {
 
   /// Returns value for named property.
   func value(forName name: String) -> Any? {
-    guard let keyPath = Self.allKeyPaths[name] else { return nil }
+    guard let keyPath = Self.allKeyPaths[name] else {
+      assert(!assertInValidation, "Unknown key: \(name)")
+      return nil
+    }
     switch keyPath {
     case let k as ConfigKeyPath<Bool>:
       return self[keyPath: k]
@@ -312,7 +318,10 @@ public extension ClientConfig {
 
   /// Sets value for named property.
   mutating func setValue(_ value: Any, forName name: String) {
-    guard let keyPath = Self.allKeyPaths[name] else { return }
+    guard let keyPath = Self.allKeyPaths[name] else {
+      assert(!assertInValidation, "Unknown key: \(name)")
+      return
+    }
     switch value {
     case let intValue as Bool:
       if let k = keyPath as? WritableConfigKeyPath<Bool> {

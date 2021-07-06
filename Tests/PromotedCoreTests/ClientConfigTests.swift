@@ -6,25 +6,31 @@ import XCTest
 final class ClientConfigTests: XCTestCase {
 
   func testValue() {
-    let config = ClientConfig()
+    var config = ClientConfig()
+    config.disableAssertInValidationForTesting()
     let mirror = Mirror(reflecting: config)
     for child in mirror.children {
       guard let name = child.label else {
         XCTFail("Child with no label: \(String(describing: child))")
         return
       }
-      _ = config.value(forName: name)
+      if name == "assertInValidation" { continue }
+      XCTAssertNotNil(config.value(forName: name))
     }
   }
 
   func testSetValue() {
     var config = ClientConfig()
+    // Don't call config.disableAssertInValidationForTesting().
+    // If this test trips the assert, you need to add support
+    // for your new property in value()/setValue().
     let mirror = Mirror(reflecting: config)
     for child in mirror.children {
       guard let name = child.label else {
         XCTFail("Child with no label: \(String(describing: child))")
         return
       }
+      if name == "assertInValidation" { continue }
       config.setValue(child.value, forName: name)
     }
   }
@@ -66,7 +72,6 @@ final class ClientConfigTests: XCTestCase {
         $0[$1.label!] = String(describing: type(of: $1.value))
       }
 
-    XCTAssertEqual(swiftKeyToType.keys, objcKeyToType.keys)
     XCTAssertEqual(swiftKeyToType, objcKeyToType)
   }
 }
