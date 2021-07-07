@@ -74,7 +74,7 @@ public struct ClientConfig {
   }
 
   public init(_ config: _ObjCClientConfig) {
-    self.config = config
+    self.config = _ObjCClientConfig(config)
   }
 }
 
