@@ -403,6 +403,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
+      "content_id": "foobar",
       "name": "FakeScreen",
       "action_type": "NAVIGATE",
       "element_id": "FakeScreen",
@@ -429,6 +430,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
+      "content_id": "foobar",
       "name": "add-to-cart",
       "action_type": "ADD_TO_CART",
       "element_id": "add-to-cart"
@@ -453,6 +455,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
+      "content_id": "foobar",
       "name": "remove-from-cart",
       "action_type": "REMOVE_FROM_CART",
       "element_id": "remove-from-cart"
@@ -500,6 +503,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
+      "content_id": "foobar",
       "name": "purchase",
       "action_type": "PURCHASE",
       "element_id": "purchase"
@@ -524,6 +528,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
+      "content_id": "foobar",
       "name": "share",
       "action_type": "SHARE",
       "element_id": "share"
@@ -548,6 +553,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
+      "content_id": "foobar",
       "name": "like",
       "action_type": "LIKE",
       "element_id": "like"
@@ -572,6 +578,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
+      "content_id": "foobar",
       "name": "unlike",
       "action_type": "UNLIKE",
       "element_id": "unlike"
@@ -596,6 +603,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
+      "content_id": "foobar",
       "name": "comment",
       "action_type": "COMMENT",
       "element_id": "comment"
@@ -620,6 +628,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
+      "content_id": "foobar",
       "name": "make-offer",
       "action_type": "MAKE_OFFER",
       "element_id": "make-offer"
@@ -644,6 +653,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
+      "content_id": "foobar",
       "name": "ask-question",
       "action_type": "ASK_QUESTION",
       "element_id": "ask-question"
@@ -668,6 +678,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       "action_id": "fake-action-id",
       "session_id": "fake-session-id",
       "view_id": "fake-view-id",
+      "content_id": "foobar",
       "name": "answer-question",
       "action_type": "ANSWER_QUESTION",
       "element_id": "answer-question"
