@@ -26,7 +26,7 @@ final class ClientConfigMergeTests: XCTestCase {
   }
 
   func testMerge() {
-    let config = ClientConfig()
+    var config = ClientConfig()
     config.disableAssertInValidationForTesting()
 
     let url = "https://fake2.promoted.ai/hippo/potamus"
@@ -51,9 +51,9 @@ final class ClientConfigMergeTests: XCTestCase {
       (.info, "Read from remote config: " +
         "ai_promoted_flush_logging_on_resign_active = false"),
       (.info, "Read from remote config: " +
-        "ai_promoted_xray_level = 2"),
+        "ai_promoted_xray_level = batchSummaries"),
       (.info, "Read from remote config: " +
-        "ai_promoted_os_log_level = 5"),
+        "ai_promoted_os_log_level = debug"),
     ], messages)
 
     // Changed values.
@@ -83,7 +83,7 @@ final class ClientConfigMergeTests: XCTestCase {
   }
 
   func testUnusedKey() {
-    let config = ClientConfig()
+    var config = ClientConfig()
     config.disableAssertInValidationForTesting()
 
     let url = "https://fake2.promoted.ai/hippo/potamus"
@@ -105,7 +105,7 @@ final class ClientConfigMergeTests: XCTestCase {
   }
 
   func testBadValues() {
-    let config = ClientConfig()
+    var config = ClientConfig()
     config.disableAssertInValidationForTesting()
 
     let url = "https://fake2.promoted.ai/hippo/potamus"
@@ -136,7 +136,7 @@ final class ClientConfigMergeTests: XCTestCase {
   }
 
   func testOutOfBoundsValues() {
-    let config = ClientConfig()
+    var config = ClientConfig()
     config.disableAssertInValidationForTesting()
 
     let dictionary = [

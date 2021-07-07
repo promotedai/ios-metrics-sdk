@@ -9,7 +9,7 @@ import PromotedCore
 
 extension ClientConfig {
 
-  func merge(
+  mutating func merge(
     from remoteConfig: RemoteConfig,
     messages: inout PendingLogMessages
   ) {
@@ -20,7 +20,7 @@ extension ClientConfig {
     merge(from: dictionary, messages: &messages)
   }
 
-  func merge(
+  mutating func merge(
     from dictionary: [String: String],
     messages: inout PendingLogMessages
   ) {
@@ -77,7 +77,7 @@ extension ClientConfig {
 
       self.setValue(convertedValue, forKey: childLabel)
       checkValidatedValueChanged(
-        childLabel: childLabel,
+        label: childLabel,
         dictionaryKey: key,
         convertedValue: convertedValue,
         messages: &messages
@@ -92,46 +92,43 @@ extension ClientConfig {
   }
 
   private func convertedValue(
-    forRemoteValue value: String,
+    forRemoteValue remoteValue: String,
     child: Mirror.Child
   ) -> Any? {
     switch child.value {
     case is Int:
-      return Int(value)
+      return Int(remoteValue)
     case is Double:
-      return Double(value)
+      return Double(remoteValue)
     case is Bool:
-      return Bool(value)
+      return Bool(remoteValue)
     case is String:
-      return value
+      return remoteValue
     case is ClientConfig.MetricsLoggingWireFormat:
-      let value = ClientConfig.MetricsLoggingWireFormat(
-        stringLiteral: value
-      )
-      return value == .unknown ? nil : value.rawValue
+      return ClientConfig.MetricsLoggingWireFormat(remoteValue.toCamelCase())
     case is ClientConfig.XrayLevel:
-      let value = ClientConfig.XrayLevel(
-        stringLiteral: value
-      )
-      return value == .unknown ? nil : value.rawValue
+      return ClientConfig.XrayLevel(remoteValue.toCamelCase())
     case is ClientConfig.OSLogLevel:
-      let value = ClientConfig.OSLogLevel(
-        stringLiteral: value
-      )
-      return value == .unknown ? nil : value.rawValue
+      return ClientConfig.OSLogLevel(remoteValue.toCamelCase())
     default:
       return nil
     }
   }
 
-  private func checkValidatedValueChanged(
-    childLabel: String,
+  private func checkValidatedValueChanged<Value>(
+    label: String,
     dictionaryKey: String,
-    convertedValue: Any,
+    convertedValue: Value,
     messages: inout PendingLogMessages
   ) {
-    if let validatedValue = value(forKey: childLabel),
-       !AnyHashable.areEqual(convertedValue, validatedValue) {
+    guard let validatedValue = value(forKey: label) else {
+      messages.warning(
+        "Could not read value for property: \(label)",
+        visibility: .public
+      )
+      return
+    }
+    if !AnyHashable.areEqual(convertedValue, validatedValue) {
       messages.warning(
         "Attempted to set invalid value: " +
           "\(dictionaryKey) = \(convertedValue) " +
@@ -196,6 +193,18 @@ extension String {
       withTemplate: "$1_$2$3"
     )
     return result.lowercased()
+  }
+
+  func toCamelCase() -> String {
+    var first = true
+    return split(separator: "_")
+      .map { value in
+        let result = first ? value :
+          value.prefix(1).uppercased() + value.dropFirst()
+        first = false
+        return String(result)
+      }
+      .joined()
   }
 }
 
