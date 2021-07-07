@@ -105,11 +105,11 @@ extension ClientConfig {
     case is String:
       return remoteValue
     case is ClientConfig.MetricsLoggingWireFormat:
-      return ClientConfig.MetricsLoggingWireFormat(remoteValue)
+      return ClientConfig.MetricsLoggingWireFormat(remoteValue.toCamelCase())
     case is ClientConfig.XrayLevel:
-      return ClientConfig.XrayLevel(remoteValue)
+      return ClientConfig.XrayLevel(remoteValue.toCamelCase())
     case is ClientConfig.OSLogLevel:
-      return ClientConfig.OSLogLevel(remoteValue)
+      return ClientConfig.OSLogLevel(remoteValue.toCamelCase())
     default:
       return nil
     }
@@ -193,6 +193,18 @@ extension String {
       withTemplate: "$1_$2$3"
     )
     return result.lowercased()
+  }
+
+  func toCamelCase() -> String {
+    var first = true
+    return split(separator: "_")
+      .map { value in
+        let result = first ? value :
+          value.prefix(1).uppercased() + value.dropFirst()
+        first = false
+        return String(result)
+      }
+      .joined()
   }
 }
 

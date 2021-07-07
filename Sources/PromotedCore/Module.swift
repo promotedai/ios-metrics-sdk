@@ -13,13 +13,24 @@ import os.log
  */
 @objc(PROModuleConfig)
 public final class ModuleConfig: NSObject {
+
   @objc(initialConfig)
   public var _objCInitialConfig = _ObjCClientConfig()
+
   public var initialConfig = ClientConfig()
+
   public var analyticsConnection: AnalyticsConnection? = nil
+
   public var networkConnection: NetworkConnection? = nil
+
   public var persistentStore: PersistentStore? = nil
+
   public var remoteConfigConnection: RemoteConfigConnection? = nil
+
+  fileprivate var initialConfigForModule: ClientConfig {
+    !_objCInitialConfig.metricsLoggingURL.isEmpty ?
+      ClientConfig(_objCInitialConfig) : initialConfig
+  }
 
   private override init() {}
 
@@ -199,7 +210,7 @@ final class Module: AllDeps {
 
   convenience init(moduleConfig: ModuleConfig) {
     self.init(
-      initialConfig: moduleConfig.initialConfig,
+      initialConfig: moduleConfig.initialConfigForModule,
       analyticsConnection: moduleConfig.analyticsConnection,
       networkConnection: moduleConfig.networkConnection,
       persistentStore: moduleConfig.persistentStore,
