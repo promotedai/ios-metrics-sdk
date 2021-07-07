@@ -113,8 +113,10 @@ public final class MetricsLoggerService: NSObject {
   }
   public private(set) var startupResult: StartupResult
 
-  @objc public convenience init(coreInitialConfig: _ObjCClientConfig) throws {
-    try self.init(coreInitialConfig: ClientConfig(coreInitialConfig))
+  @objc public convenience init(
+    objcCoreInitialConfig: _ObjCClientConfig
+  ) throws {
+    try self.init(coreInitialConfig: ClientConfig(objcCoreInitialConfig))
   }
 
   /// Creates a new service with a core configuration.
