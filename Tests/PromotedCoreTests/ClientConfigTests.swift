@@ -55,4 +55,19 @@ final class ClientConfigTests: XCTestCase {
     config.setValue("invalid", forKey: "osLogLevel")
     XCTAssertEqual(.none, config.osLogLevel)
   }
+
+  func testPassByValue() {
+    var config1 = ClientConfig()
+    config1.metricsLoggingURL = "https://fake.promoted.ai/hippo/potamus"
+    var config2 = config1
+    config2.metricsLoggingURL = "https://fake.promoted.ai/rhino/cerous"
+    XCTAssertEqual(
+      "https://fake.promoted.ai/hippo/potamus",
+      config1.metricsLoggingURL
+    )
+    XCTAssertEqual(
+      "https://fake.promoted.ai/rhino/cerous",
+      config2.metricsLoggingURL
+    )
+  }
 }

@@ -32,9 +32,13 @@ public protocol ConfigEnum:
  3. Add a `typealias` to your type in `ClientConfig`. Swift
     code should only refer to the type in `ClientConfig`.
  4. Make it an `Int` enum.
- 5. Make it conform to `ConfigEnum`.
- 6. Add an extension that contains `var description`.
- 7. Add the enum to `value()` and `setValue()` workarounds.
+ 5. Give it a case with value 0, and make that case the default
+    value, or at least a harmless value. This is because any
+    invalid values for the enum will be evaluated to the raw
+    value of 0.
+ 6. Make it conform to `ConfigEnum`.
+ 7. Add an extension that contains `var description`.
+ 8. Add the enum to `value()` and `setValue()` workarounds.
 
  The final three items ensure that it works with remote config
  and serialization.
@@ -43,8 +47,8 @@ public protocol ConfigEnum:
  ```swift
  @objc(PROAlohaEnum)
  public enum AlohaEnum: Int, ConfigEnum {
-   case hello = 1
-   case goodbye = 2
+   case hello = 0
+   case goodbye = 1
  }
  @objc public var aloha: AlohaEnum = .hello
 
@@ -118,10 +122,10 @@ public final class _ObjCClientConfig: NSObject {
   /// Format to use when sending protobuf log messages over network.
   @objc(PROMetricsLoggingWireFormat)
   public enum MetricsLoggingWireFormat: Int, ConfigEnum {
+    /// https://developers.google.com/protocol-buffers/docs/encoding
+    case binary = 0
     /// https://developers.google.com/protocol-buffers/docs/proto3#json
     case json = 1
-    /// https://developers.google.com/protocol-buffers/docs/encoding
-    case binary = 2
   }
   /// Format to use when sending protobuf log messages over network.
   @objc public var metricsLoggingWireFormat:
@@ -162,17 +166,17 @@ public final class _ObjCClientConfig: NSObject {
   @objc(PROXrayLevel)
   public enum XrayLevel: Int, Comparable, ConfigEnum {
     // Don't gather any Xray stats data at all.
-    case none = 1
+    case none = 0
     // Gather overall counts for the session for each batch.
     // ie. batches: 40, batches sent successfully: 39, errors: 1
-    case batchSummaries = 2
+    case batchSummaries = 1
     // Gather stats and logged messages for each call made
     // to the metrics library.
-    case callDetails = 3
+    case callDetails = 2
     // Gathers stats and logged messages for each call made
     // to the metrics library, as well as stack traces where the
     // calls were made.
-    case callDetailsAndStackTraces = 4
+    case callDetailsAndStackTraces = 3
   }
   /// Level of Xray profiling for this session.
   /// Setting this to `.none` also forces
@@ -189,15 +193,15 @@ public final class _ObjCClientConfig: NSObject {
   @objc(PROOSLogLevel)
   public enum OSLogLevel: Int, Comparable, ConfigEnum {
     /// No logging for anything.
-    case none = 1
+    case none = 0
     /// Logging only for errors.
-    case error = 2
+    case error = 1
     /// Logging for errors and warnings.
-    case warning = 3
+    case warning = 2
     /// Logging for info messages (and above).
-    case info = 4
+    case info = 3
     /// Logging for debug messages (and above).
-    case debug = 5
+    case debug = 4
   }
   /// Whether to use OSLog (console logging) to output messages.
   /// OSLog typically incurs minimal overhead and can be useful for
