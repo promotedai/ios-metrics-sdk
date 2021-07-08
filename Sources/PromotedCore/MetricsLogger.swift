@@ -382,6 +382,7 @@ public extension MetricsLogger {
       var action = Event_Action()
       action.timing = timingMessage()
       action.actionID = idMap.actionID()
+      if let id = contentID { action.contentID = id }
       if let id = insertionID { action.insertionID = id }
       if let id = requestID { action.requestID = id }
       if let id = sessionID { action.sessionID = id }
