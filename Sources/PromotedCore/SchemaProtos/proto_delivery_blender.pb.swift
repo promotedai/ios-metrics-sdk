@@ -453,39 +453,55 @@ extension Delivery_BlenderRule: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
       case 1: try { try decoder.decodeSingularStringField(value: &self.attributeName) }()
       case 6: try {
         var v: Delivery_PositiveRule?
+        var hadOneofValue = false
         if let current = self.rule {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .positiveRule(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.rule = .positiveRule(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.rule = .positiveRule(v)
+        }
       }()
       case 7: try {
         var v: Delivery_InsertRule?
+        var hadOneofValue = false
         if let current = self.rule {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .insertRule(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.rule = .insertRule(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.rule = .insertRule(v)
+        }
       }()
       case 8: try {
         var v: Delivery_NegativeRule?
+        var hadOneofValue = false
         if let current = self.rule {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .negativeRule(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.rule = .negativeRule(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.rule = .negativeRule(v)
+        }
       }()
       case 9: try {
         var v: Delivery_DiversityRule?
+        var hadOneofValue = false
         if let current = self.rule {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .diversityRule(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.rule = .diversityRule(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.rule = .diversityRule(v)
+        }
       }()
       default: break
       }
@@ -794,25 +810,33 @@ extension Delivery_QualityScoreTerm: SwiftProtobuf.Message, SwiftProtobuf._Messa
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try {
-        if self.fetchMethod != nil {try decoder.handleConflictingOneOf()}
         var v: String?
         try decoder.decodeSingularStringField(value: &v)
-        if let v = v {self.fetchMethod = .attributeName(v)}
+        if let v = v {
+          if self.fetchMethod != nil {try decoder.handleConflictingOneOf()}
+          self.fetchMethod = .attributeName(v)
+        }
       }()
       case 2: try {
         var v: Delivery_NormalDistribution?
+        var hadOneofValue = false
         if let current = self.fetchMethod {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .randomNormal(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.fetchMethod = .randomNormal(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.fetchMethod = .randomNormal(v)
+        }
       }()
       case 3: try {
-        if self.fetchMethod != nil {try decoder.handleConflictingOneOf()}
         var v: Bool?
         try decoder.decodeSingularBoolField(value: &v)
-        if let v = v {self.fetchMethod = .ones(v)}
+        if let v = v {
+          if self.fetchMethod != nil {try decoder.handleConflictingOneOf()}
+          self.fetchMethod = .ones(v)
+        }
       }()
       case 10: try { try decoder.decodeSingularDoubleField(value: &self._fetchHigh) }()
       case 11: try { try decoder.decodeSingularDoubleField(value: &self._fetchLow) }()

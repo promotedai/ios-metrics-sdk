@@ -1347,7 +1347,7 @@ public struct Event_AncestorIdHistory {
   // methods supported on all messages.
 
   /// Window of latest log user ids.
-  public var ancestorIDHistory: [Event_AncestorIdHistoryItem] = []
+  public var logUserIDHistory: [Event_AncestorIdHistoryItem] = []
 
   /// Total number of log user ids logged this session.
   public var totalLogUserIdsLogged: Int32 = 0
@@ -1472,9 +1472,50 @@ public struct Event_MobileDiagnostics {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
+/// Wrapper message for all kinds of diagnostic messages.
+/// Next ID = 2.
+public struct Event_Diagnostics {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var diagnosticsMessage: Event_Diagnostics.OneOf_DiagnosticsMessage? = nil
+
+  public var mobileDiagnostics: Event_MobileDiagnostics {
+    get {
+      if case .mobileDiagnostics(let v)? = diagnosticsMessage {return v}
+      return Event_MobileDiagnostics()
+    }
+    set {diagnosticsMessage = .mobileDiagnostics(newValue)}
+  }
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public enum OneOf_DiagnosticsMessage: Equatable {
+    case mobileDiagnostics(Event_MobileDiagnostics)
+
+  #if !swift(>=4.1)
+    public static func ==(lhs: Event_Diagnostics.OneOf_DiagnosticsMessage, rhs: Event_Diagnostics.OneOf_DiagnosticsMessage) -> Bool {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch (lhs, rhs) {
+      case (.mobileDiagnostics, .mobileDiagnostics): return {
+        guard case .mobileDiagnostics(let l) = lhs, case .mobileDiagnostics(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      }
+    }
+  #endif
+  }
+
+  public init() {}
+}
+
 /// A way to batch up log requests into the same request.
 /// Clients can reference logs in different batches.
-/// Next ID = 17.
+/// Keep in sync with FlatEvent.
+/// Next ID = 24.
 public struct Event_LogRequest {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -1529,14 +1570,7 @@ public struct Event_LogRequest {
 
   public var action: [Event_Action] = []
 
-  public var mobileDiagnostics: Event_MobileDiagnostics {
-    get {return _mobileDiagnostics ?? Event_MobileDiagnostics()}
-    set {_mobileDiagnostics = newValue}
-  }
-  /// Returns true if `mobileDiagnostics` has been explicitly set.
-  public var hasMobileDiagnostics: Bool {return self._mobileDiagnostics != nil}
-  /// Clears the value of `mobileDiagnostics`. Subsequent reads from it will return its default value.
-  public mutating func clearMobileDiagnostics() {self._mobileDiagnostics = nil}
+  public var diagnostics: [Event_Diagnostics] = []
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -1545,7 +1579,6 @@ public struct Event_LogRequest {
   fileprivate var _userInfo: Common_UserInfo? = nil
   fileprivate var _timing: Common_Timing? = nil
   fileprivate var _clientInfo: Common_ClientInfo? = nil
-  fileprivate var _mobileDiagnostics: Event_MobileDiagnostics? = nil
 }
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -2331,21 +2364,29 @@ extension Event_View: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementatio
         case 13: try { try decoder.decodeSingularEnumField(value: &_storage._viewType) }()
         case 14: try {
           var v: Event_WebPageView?
+          var hadOneofValue = false
           if let current = _storage._uiType {
-            try decoder.handleConflictingOneOf()
+            hadOneofValue = true
             if case .webPageView(let m) = current {v = m}
           }
           try decoder.decodeSingularMessageField(value: &v)
-          if let v = v {_storage._uiType = .webPageView(v)}
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._uiType = .webPageView(v)
+          }
         }()
         case 15: try {
           var v: Event_AppScreenView?
+          var hadOneofValue = false
           if let current = _storage._uiType {
-            try decoder.handleConflictingOneOf()
+            hadOneofValue = true
             if case .appScreenView(let m) = current {v = m}
           }
           try decoder.decodeSingularMessageField(value: &v)
-          if let v = v {_storage._uiType = .appScreenView(v)}
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._uiType = .appScreenView(v)
+          }
         }()
         case 16: try { try decoder.decodeSingularMessageField(value: &_storage._locale) }()
         default: break
@@ -2676,12 +2717,16 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
         case 17: try { try decoder.decodeSingularStringField(value: &_storage._elementID) }()
         case 18: try {
           var v: Event_NavigateAction?
+          var hadOneofValue = false
           if let current = _storage._action {
-            try decoder.handleConflictingOneOf()
+            hadOneofValue = true
             if case .navigateAction(let m) = current {v = m}
           }
           try decoder.decodeSingularMessageField(value: &v)
-          if let v = v {_storage._action = .navigateAction(v)}
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._action = .navigateAction(v)
+          }
         }()
         case 20: try { try decoder.decodeSingularMessageField(value: &_storage._properties) }()
         case 21: try { try decoder.decodeSingularStringField(value: &_storage._contentID) }()
@@ -2886,27 +2931,37 @@ extension Event_AncestorIdHistoryItem: SwiftProtobuf.Message, SwiftProtobuf._Mes
       case 1: try { try decoder.decodeSingularStringField(value: &self.ancestorID) }()
       case 2: try {
         var v: Event_User?
+        var hadOneofValue = false
         if let current = self.loggedEvent {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .userEvent(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.loggedEvent = .userEvent(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.loggedEvent = .userEvent(v)
+        }
       }()
       case 3: try {
-        if self.loggedEvent != nil {try decoder.handleConflictingOneOf()}
         var v: String?
         try decoder.decodeSingularStringField(value: &v)
-        if let v = v {self.loggedEvent = .sessionIDFromUserEvent(v)}
+        if let v = v {
+          if self.loggedEvent != nil {try decoder.handleConflictingOneOf()}
+          self.loggedEvent = .sessionIDFromUserEvent(v)
+        }
       }()
       case 4: try {
         var v: Event_View?
+        var hadOneofValue = false
         if let current = self.loggedEvent {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .viewEvent(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.loggedEvent = .viewEvent(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.loggedEvent = .viewEvent(v)
+        }
       }()
       case 5: try { try decoder.decodeSingularInt32Field(value: &self.batchNumber) }()
       default: break
@@ -2954,7 +3009,7 @@ extension Event_AncestorIdHistoryItem: SwiftProtobuf.Message, SwiftProtobuf._Mes
 extension Event_AncestorIdHistory: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".AncestorIdHistory"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .standard(proto: "ancestor_id_history"),
+    1: .standard(proto: "log_user_id_history"),
     2: .standard(proto: "total_log_user_ids_logged"),
     3: .standard(proto: "session_id_history"),
     4: .standard(proto: "total_session_ids_logged"),
@@ -2968,7 +3023,7 @@ extension Event_AncestorIdHistory: SwiftProtobuf.Message, SwiftProtobuf._Message
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeRepeatedMessageField(value: &self.ancestorIDHistory) }()
+      case 1: try { try decoder.decodeRepeatedMessageField(value: &self.logUserIDHistory) }()
       case 2: try { try decoder.decodeSingularInt32Field(value: &self.totalLogUserIdsLogged) }()
       case 3: try { try decoder.decodeRepeatedMessageField(value: &self.sessionIDHistory) }()
       case 4: try { try decoder.decodeSingularInt32Field(value: &self.totalSessionIdsLogged) }()
@@ -2980,8 +3035,8 @@ extension Event_AncestorIdHistory: SwiftProtobuf.Message, SwiftProtobuf._Message
   }
 
   public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if !self.ancestorIDHistory.isEmpty {
-      try visitor.visitRepeatedMessageField(value: self.ancestorIDHistory, fieldNumber: 1)
+    if !self.logUserIDHistory.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.logUserIDHistory, fieldNumber: 1)
     }
     if self.totalLogUserIdsLogged != 0 {
       try visitor.visitSingularInt32Field(value: self.totalLogUserIdsLogged, fieldNumber: 2)
@@ -3002,7 +3057,7 @@ extension Event_AncestorIdHistory: SwiftProtobuf.Message, SwiftProtobuf._Message
   }
 
   public static func ==(lhs: Event_AncestorIdHistory, rhs: Event_AncestorIdHistory) -> Bool {
-    if lhs.ancestorIDHistory != rhs.ancestorIDHistory {return false}
+    if lhs.logUserIDHistory != rhs.logUserIDHistory {return false}
     if lhs.totalLogUserIdsLogged != rhs.totalLogUserIdsLogged {return false}
     if lhs.sessionIDHistory != rhs.sessionIDHistory {return false}
     if lhs.totalSessionIdsLogged != rhs.totalSessionIdsLogged {return false}
@@ -3165,6 +3220,50 @@ extension Event_MobileDiagnostics: SwiftProtobuf.Message, SwiftProtobuf._Message
   }
 }
 
+extension Event_Diagnostics: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Diagnostics"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "mobile_diagnostics"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try {
+        var v: Event_MobileDiagnostics?
+        var hadOneofValue = false
+        if let current = self.diagnosticsMessage {
+          hadOneofValue = true
+          if case .mobileDiagnostics(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.diagnosticsMessage = .mobileDiagnostics(v)
+        }
+      }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if case .mobileDiagnostics(let v)? = self.diagnosticsMessage {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Event_Diagnostics, rhs: Event_Diagnostics) -> Bool {
+    if lhs.diagnosticsMessage != rhs.diagnosticsMessage {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
 extension Event_LogRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".LogRequest"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -3179,7 +3278,7 @@ extension Event_LogRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     13: .same(proto: "insertion"),
     14: .same(proto: "impression"),
     15: .same(proto: "action"),
-    17: .standard(proto: "mobile_diagnostics"),
+    23: .same(proto: "diagnostics"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -3199,7 +3298,7 @@ extension Event_LogRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       case 13: try { try decoder.decodeRepeatedMessageField(value: &self.insertion) }()
       case 14: try { try decoder.decodeRepeatedMessageField(value: &self.impression) }()
       case 15: try { try decoder.decodeRepeatedMessageField(value: &self.action) }()
-      case 17: try { try decoder.decodeSingularMessageField(value: &self._mobileDiagnostics) }()
+      case 23: try { try decoder.decodeRepeatedMessageField(value: &self.diagnostics) }()
       default: break
       }
     }
@@ -3239,8 +3338,8 @@ extension Event_LogRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     if !self.action.isEmpty {
       try visitor.visitRepeatedMessageField(value: self.action, fieldNumber: 15)
     }
-    if let v = self._mobileDiagnostics {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 17)
+    if !self.diagnostics.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.diagnostics, fieldNumber: 23)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -3257,7 +3356,7 @@ extension Event_LogRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     if lhs.insertion != rhs.insertion {return false}
     if lhs.impression != rhs.impression {return false}
     if lhs.action != rhs.action {return false}
-    if lhs._mobileDiagnostics != rhs._mobileDiagnostics {return false}
+    if lhs.diagnostics != rhs.diagnostics {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

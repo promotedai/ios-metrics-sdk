@@ -50,7 +50,7 @@ extension MetricsLogger {
   func fillAncestorIDHistory(in diagnostics: inout Event_MobileDiagnostics) {
     guard let history = history else { return }
     var historyMessage = Event_AncestorIdHistory()
-    historyMessage.ancestorIDHistory = history.logUserIDs.values
+    historyMessage.logUserIDHistory = history.logUserIDs.values
     historyMessage.sessionIDHistory = history.sessionIDs.values
     historyMessage.viewIDHistory = history.viewIDs.values
     diagnostics.ancestorIDHistory = historyMessage

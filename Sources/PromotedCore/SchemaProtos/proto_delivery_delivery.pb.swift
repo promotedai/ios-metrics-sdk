@@ -381,7 +381,7 @@ public struct Delivery_PagingInfo {
 
 /// This Event represents a Content being served at a certain position regardless
 /// of it was views by a user. Insertions are immutable.
-/// Next ID = 17.
+/// Next ID = 18.
 public struct Delivery_Insertion {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -675,16 +675,20 @@ extension Delivery_Paging: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
       case 1: try { try decoder.decodeSingularStringField(value: &self.pagingID) }()
       case 2: try { try decoder.decodeSingularInt32Field(value: &self.size) }()
       case 3: try {
-        if self.starting != nil {try decoder.handleConflictingOneOf()}
         var v: String?
         try decoder.decodeSingularStringField(value: &v)
-        if let v = v {self.starting = .cursor(v)}
+        if let v = v {
+          if self.starting != nil {try decoder.handleConflictingOneOf()}
+          self.starting = .cursor(v)
+        }
       }()
       case 4: try {
-        if self.starting != nil {try decoder.handleConflictingOneOf()}
         var v: Int32?
         try decoder.decodeSingularInt32Field(value: &v)
-        if let v = v {self.starting = .offset(v)}
+        if let v = v {
+          if self.starting != nil {try decoder.handleConflictingOneOf()}
+          self.starting = .offset(v)
+        }
       }()
       default: break
       }

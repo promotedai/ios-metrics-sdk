@@ -232,7 +232,7 @@ public struct Common_ClientInfo {
   }
 
   /// Used to indicate the type of traffic.  We can use this to prioritize resources.
-  /// Next ID = 4.
+  /// Next ID = 5.
   public enum TrafficType: SwiftProtobuf.Enum {
     public typealias RawValue = Int
     case unknownTrafficType // = 0
@@ -242,6 +242,9 @@ public struct Common_ClientInfo {
 
     /// Replayed traffic.  We'd like similar to PRODUCTION level.
     case replay // = 2
+
+    /// Shadow traffic to delivery during logging.
+    case shadow // = 4
     case UNRECOGNIZED(Int)
 
     public init() {
@@ -253,6 +256,7 @@ public struct Common_ClientInfo {
       case 0: self = .unknownTrafficType
       case 1: self = .production
       case 2: self = .replay
+      case 4: self = .shadow
       default: self = .UNRECOGNIZED(rawValue)
       }
     }
@@ -262,6 +266,7 @@ public struct Common_ClientInfo {
       case .unknownTrafficType: return 0
       case .production: return 1
       case .replay: return 2
+      case .shadow: return 4
       case .UNRECOGNIZED(let i): return i
       }
     }
@@ -288,6 +293,7 @@ extension Common_ClientInfo.TrafficType: CaseIterable {
     .unknownTrafficType,
     .production,
     .replay,
+    .shadow,
   ]
 }
 
@@ -552,6 +558,7 @@ extension Common_ClientInfo.TrafficType: SwiftProtobuf._ProtoNameProviding {
     0: .same(proto: "UNKNOWN_TRAFFIC_TYPE"),
     1: .same(proto: "PRODUCTION"),
     2: .same(proto: "REPLAY"),
+    4: .same(proto: "SHADOW"),
   ]
 }
 
@@ -601,19 +608,25 @@ extension Common_Properties: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try {
-        if self.structField != nil {try decoder.handleConflictingOneOf()}
         var v: Data?
         try decoder.decodeSingularBytesField(value: &v)
-        if let v = v {self.structField = .structBytes(v)}
+        if let v = v {
+          if self.structField != nil {try decoder.handleConflictingOneOf()}
+          self.structField = .structBytes(v)
+        }
       }()
       case 2: try {
         var v: SwiftProtobuf.Google_Protobuf_Struct?
+        var hadOneofValue = false
         if let current = self.structField {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .struct(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.structField = .struct(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.structField = .struct(v)
+        }
       }()
       default: break
       }
