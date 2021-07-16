@@ -503,15 +503,18 @@ public extension MetricsLogger {
       }
     }
     if config.anyDiagnosticsEnabled {
-      var diagnostics = mobileDiagnosticsMessage()
+      var mobileDiagnostics = mobileDiagnosticsMessage()
       if config.diagnosticsIncludeBatchSummaries, let xray = xray {
-        fillDiagnostics(in: &diagnostics, xray: xray)
+        fillDiagnostics(in: &mobileDiagnostics, xray: xray)
       }
       if config.diagnosticsIncludeAncestorIDHistory {
-        fillAncestorIDHistory(in: &diagnostics)
+        fillAncestorIDHistory(in: &mobileDiagnostics)
       }
-      osLog?.debug("diagnostics: %{private}@", String(describing: diagnostics))
-      logRequest.mobileDiagnostics = diagnostics
+      osLog?.debug("diagnostics: %{private}@", String(describing: mobileDiagnostics))
+      var diagnostics = Event_Diagnostics()
+      diagnostics.timing = timingMessage()
+      diagnostics.mobileDiagnostics = mobileDiagnostics
+      logRequest.diagnostics.append(diagnostics)
     }
     return logRequest
   }

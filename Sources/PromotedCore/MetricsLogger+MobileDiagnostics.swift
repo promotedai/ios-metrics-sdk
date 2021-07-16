@@ -16,7 +16,6 @@ extension MetricsLogger {
 
   func mobileDiagnosticsMessage() -> Event_MobileDiagnostics {
     var diagnostics = Event_MobileDiagnostics()
-    diagnostics.timing = timingMessage()
     if let id = UIDevice.current.identifierForVendor?.uuidString {
       diagnostics.deviceIdentifier = id
     }
@@ -50,7 +49,7 @@ extension MetricsLogger {
   func fillAncestorIDHistory(in diagnostics: inout Event_MobileDiagnostics) {
     guard let history = history else { return }
     var historyMessage = Event_AncestorIdHistory()
-    historyMessage.ancestorIDHistory = history.logUserIDs.values
+    historyMessage.logUserIDHistory = history.logUserIDs.values
     historyMessage.sessionIDHistory = history.sessionIDs.values
     historyMessage.viewIDHistory = history.viewIDs.values
     diagnostics.ancestorIDHistory = historyMessage
