@@ -16,7 +16,6 @@ extension MetricsLogger {
 
   func mobileDiagnosticsMessage() -> Event_MobileDiagnostics {
     var diagnostics = Event_MobileDiagnostics()
-    diagnostics.timing = timingMessage()
     if let id = UIDevice.current.identifierForVendor?.uuidString {
       diagnostics.deviceIdentifier = id
     }

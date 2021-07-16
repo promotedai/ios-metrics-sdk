@@ -512,6 +512,7 @@ public extension MetricsLogger {
       }
       osLog?.debug("diagnostics: %{private}@", String(describing: mobileDiagnostics))
       var diagnostics = Event_Diagnostics()
+      diagnostics.timing = timingMessage()
       diagnostics.mobileDiagnostics = mobileDiagnostics
       logRequest.diagnostics.append(diagnostics)
     }

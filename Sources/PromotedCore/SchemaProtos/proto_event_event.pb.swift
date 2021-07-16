@@ -735,7 +735,7 @@ public struct Event_WebPageView {
 }
 
 /// Submessage on View for screen views.
-/// Next ID = 1.
+/// Next ID = 2.
 public struct Event_AppScreenView {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -1370,8 +1370,61 @@ public struct Event_AncestorIdHistory {
 }
 
 /// Diagnostic information for mobile clients.
-/// Next ID = 13.
+/// Next ID = 9.
 public struct Event_MobileDiagnostics {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// Unique identifier for device sending this message.
+  public var deviceIdentifier: String = String()
+
+  /// Version identifier for client app.
+  public var clientVersion: String = String()
+
+  /// Version of Promoted library.
+  public var promotedLibraryVersion: String = String()
+
+  /// Number of batch logs attempted.
+  public var batchesAttempted: Int32 = 0
+
+  /// Number of batch logs sent successfully.
+  public var batchesSentSuccessfully: Int32 = 0
+
+  /// Number of batch logs that failed to send.
+  public var batchesWithErrors: Int32 = 0
+
+  /// Error history.
+  public var errorHistory: Event_ErrorHistory {
+    get {return _errorHistory ?? Event_ErrorHistory()}
+    set {_errorHistory = newValue}
+  }
+  /// Returns true if `errorHistory` has been explicitly set.
+  public var hasErrorHistory: Bool {return self._errorHistory != nil}
+  /// Clears the value of `errorHistory`. Subsequent reads from it will return its default value.
+  public mutating func clearErrorHistory() {self._errorHistory = nil}
+
+  /// Ancestor ID history. See #133.
+  public var ancestorIDHistory: Event_AncestorIdHistory {
+    get {return _ancestorIDHistory ?? Event_AncestorIdHistory()}
+    set {_ancestorIDHistory = newValue}
+  }
+  /// Returns true if `ancestorIDHistory` has been explicitly set.
+  public var hasAncestorIDHistory: Bool {return self._ancestorIDHistory != nil}
+  /// Clears the value of `ancestorIDHistory`. Subsequent reads from it will return its default value.
+  public mutating func clearAncestorIDHistory() {self._ancestorIDHistory = nil}
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+
+  fileprivate var _errorHistory: Event_ErrorHistory? = nil
+  fileprivate var _ancestorIDHistory: Event_AncestorIdHistory? = nil
+}
+
+/// Wrapper message for all kinds of diagnostic messages.
+/// Next ID = 6.
+public struct Event_Diagnostics {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1409,84 +1462,17 @@ public struct Event_MobileDiagnostics {
   /// Clears the value of `clientInfo`. Subsequent reads from it will return its default value.
   public mutating func clearClientInfo() {_uniqueStorage()._clientInfo = nil}
 
-  /// Unique identifier for device sending this message.
-  public var deviceIdentifier: String {
-    get {return _storage._deviceIdentifier}
-    set {_uniqueStorage()._deviceIdentifier = newValue}
+  public var diagnosticsMessage: OneOf_DiagnosticsMessage? {
+    get {return _storage._diagnosticsMessage}
+    set {_uniqueStorage()._diagnosticsMessage = newValue}
   }
-
-  /// Version identifier for client app.
-  public var clientVersion: String {
-    get {return _storage._clientVersion}
-    set {_uniqueStorage()._clientVersion = newValue}
-  }
-
-  /// Version of Promoted library.
-  public var promotedLibraryVersion: String {
-    get {return _storage._promotedLibraryVersion}
-    set {_uniqueStorage()._promotedLibraryVersion = newValue}
-  }
-
-  /// Number of batch logs attempted.
-  public var batchesAttempted: Int32 {
-    get {return _storage._batchesAttempted}
-    set {_uniqueStorage()._batchesAttempted = newValue}
-  }
-
-  /// Number of batch logs sent successfully.
-  public var batchesSentSuccessfully: Int32 {
-    get {return _storage._batchesSentSuccessfully}
-    set {_uniqueStorage()._batchesSentSuccessfully = newValue}
-  }
-
-  /// Number of batch logs that failed to send.
-  public var batchesWithErrors: Int32 {
-    get {return _storage._batchesWithErrors}
-    set {_uniqueStorage()._batchesWithErrors = newValue}
-  }
-
-  /// Error history.
-  public var errorHistory: Event_ErrorHistory {
-    get {return _storage._errorHistory ?? Event_ErrorHistory()}
-    set {_uniqueStorage()._errorHistory = newValue}
-  }
-  /// Returns true if `errorHistory` has been explicitly set.
-  public var hasErrorHistory: Bool {return _storage._errorHistory != nil}
-  /// Clears the value of `errorHistory`. Subsequent reads from it will return its default value.
-  public mutating func clearErrorHistory() {_uniqueStorage()._errorHistory = nil}
-
-  /// Ancestor ID history. See #133.
-  public var ancestorIDHistory: Event_AncestorIdHistory {
-    get {return _storage._ancestorIDHistory ?? Event_AncestorIdHistory()}
-    set {_uniqueStorage()._ancestorIDHistory = newValue}
-  }
-  /// Returns true if `ancestorIDHistory` has been explicitly set.
-  public var hasAncestorIDHistory: Bool {return _storage._ancestorIDHistory != nil}
-  /// Clears the value of `ancestorIDHistory`. Subsequent reads from it will return its default value.
-  public mutating func clearAncestorIDHistory() {_uniqueStorage()._ancestorIDHistory = nil}
-
-  public var unknownFields = SwiftProtobuf.UnknownStorage()
-
-  public init() {}
-
-  fileprivate var _storage = _StorageClass.defaultInstance
-}
-
-/// Wrapper message for all kinds of diagnostic messages.
-/// Next ID = 2.
-public struct Event_Diagnostics {
-  // SwiftProtobuf.Message conformance is added in an extension below. See the
-  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-  // methods supported on all messages.
-
-  public var diagnosticsMessage: Event_Diagnostics.OneOf_DiagnosticsMessage? = nil
 
   public var mobileDiagnostics: Event_MobileDiagnostics {
     get {
-      if case .mobileDiagnostics(let v)? = diagnosticsMessage {return v}
+      if case .mobileDiagnostics(let v)? = _storage._diagnosticsMessage {return v}
       return Event_MobileDiagnostics()
     }
-    set {diagnosticsMessage = .mobileDiagnostics(newValue)}
+    set {_uniqueStorage()._diagnosticsMessage = .mobileDiagnostics(newValue)}
   }
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
@@ -1510,6 +1496,8 @@ public struct Event_Diagnostics {
   }
 
   public init() {}
+
+  fileprivate var _storage = _StorageClass.defaultInstance
 }
 
 /// A way to batch up log requests into the same request.
@@ -3071,18 +3059,85 @@ extension Event_AncestorIdHistory: SwiftProtobuf.Message, SwiftProtobuf._Message
 extension Event_MobileDiagnostics: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".MobileDiagnostics"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "device_identifier"),
+    2: .standard(proto: "client_version"),
+    3: .standard(proto: "promoted_library_version"),
+    4: .standard(proto: "batches_attempted"),
+    5: .standard(proto: "batches_sent_successfully"),
+    6: .standard(proto: "batches_with_errors"),
+    7: .standard(proto: "error_history"),
+    8: .standard(proto: "ancestor_id_history"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.deviceIdentifier) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.clientVersion) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.promotedLibraryVersion) }()
+      case 4: try { try decoder.decodeSingularInt32Field(value: &self.batchesAttempted) }()
+      case 5: try { try decoder.decodeSingularInt32Field(value: &self.batchesSentSuccessfully) }()
+      case 6: try { try decoder.decodeSingularInt32Field(value: &self.batchesWithErrors) }()
+      case 7: try { try decoder.decodeSingularMessageField(value: &self._errorHistory) }()
+      case 8: try { try decoder.decodeSingularMessageField(value: &self._ancestorIDHistory) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.deviceIdentifier.isEmpty {
+      try visitor.visitSingularStringField(value: self.deviceIdentifier, fieldNumber: 1)
+    }
+    if !self.clientVersion.isEmpty {
+      try visitor.visitSingularStringField(value: self.clientVersion, fieldNumber: 2)
+    }
+    if !self.promotedLibraryVersion.isEmpty {
+      try visitor.visitSingularStringField(value: self.promotedLibraryVersion, fieldNumber: 3)
+    }
+    if self.batchesAttempted != 0 {
+      try visitor.visitSingularInt32Field(value: self.batchesAttempted, fieldNumber: 4)
+    }
+    if self.batchesSentSuccessfully != 0 {
+      try visitor.visitSingularInt32Field(value: self.batchesSentSuccessfully, fieldNumber: 5)
+    }
+    if self.batchesWithErrors != 0 {
+      try visitor.visitSingularInt32Field(value: self.batchesWithErrors, fieldNumber: 6)
+    }
+    if let v = self._errorHistory {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 7)
+    }
+    if let v = self._ancestorIDHistory {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 8)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Event_MobileDiagnostics, rhs: Event_MobileDiagnostics) -> Bool {
+    if lhs.deviceIdentifier != rhs.deviceIdentifier {return false}
+    if lhs.clientVersion != rhs.clientVersion {return false}
+    if lhs.promotedLibraryVersion != rhs.promotedLibraryVersion {return false}
+    if lhs.batchesAttempted != rhs.batchesAttempted {return false}
+    if lhs.batchesSentSuccessfully != rhs.batchesSentSuccessfully {return false}
+    if lhs.batchesWithErrors != rhs.batchesWithErrors {return false}
+    if lhs._errorHistory != rhs._errorHistory {return false}
+    if lhs._ancestorIDHistory != rhs._ancestorIDHistory {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Event_Diagnostics: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Diagnostics"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .standard(proto: "platform_id"),
     2: .standard(proto: "user_info"),
     3: .same(proto: "timing"),
     4: .standard(proto: "client_info"),
-    5: .standard(proto: "device_identifier"),
-    6: .standard(proto: "client_version"),
-    7: .standard(proto: "promoted_library_version"),
-    8: .standard(proto: "batches_attempted"),
-    9: .standard(proto: "batches_sent_successfully"),
-    10: .standard(proto: "batches_with_errors"),
-    11: .standard(proto: "error_history"),
-    12: .standard(proto: "ancestor_id_history"),
+    5: .standard(proto: "mobile_diagnostics"),
   ]
 
   fileprivate class _StorageClass {
@@ -3090,14 +3145,7 @@ extension Event_MobileDiagnostics: SwiftProtobuf.Message, SwiftProtobuf._Message
     var _userInfo: Common_UserInfo? = nil
     var _timing: Common_Timing? = nil
     var _clientInfo: Common_ClientInfo? = nil
-    var _deviceIdentifier: String = String()
-    var _clientVersion: String = String()
-    var _promotedLibraryVersion: String = String()
-    var _batchesAttempted: Int32 = 0
-    var _batchesSentSuccessfully: Int32 = 0
-    var _batchesWithErrors: Int32 = 0
-    var _errorHistory: Event_ErrorHistory? = nil
-    var _ancestorIDHistory: Event_AncestorIdHistory? = nil
+    var _diagnosticsMessage: Event_Diagnostics.OneOf_DiagnosticsMessage?
 
     static let defaultInstance = _StorageClass()
 
@@ -3108,14 +3156,7 @@ extension Event_MobileDiagnostics: SwiftProtobuf.Message, SwiftProtobuf._Message
       _userInfo = source._userInfo
       _timing = source._timing
       _clientInfo = source._clientInfo
-      _deviceIdentifier = source._deviceIdentifier
-      _clientVersion = source._clientVersion
-      _promotedLibraryVersion = source._promotedLibraryVersion
-      _batchesAttempted = source._batchesAttempted
-      _batchesSentSuccessfully = source._batchesSentSuccessfully
-      _batchesWithErrors = source._batchesWithErrors
-      _errorHistory = source._errorHistory
-      _ancestorIDHistory = source._ancestorIDHistory
+      _diagnosticsMessage = source._diagnosticsMessage
     }
   }
 
@@ -3138,14 +3179,19 @@ extension Event_MobileDiagnostics: SwiftProtobuf.Message, SwiftProtobuf._Message
         case 2: try { try decoder.decodeSingularMessageField(value: &_storage._userInfo) }()
         case 3: try { try decoder.decodeSingularMessageField(value: &_storage._timing) }()
         case 4: try { try decoder.decodeSingularMessageField(value: &_storage._clientInfo) }()
-        case 5: try { try decoder.decodeSingularStringField(value: &_storage._deviceIdentifier) }()
-        case 6: try { try decoder.decodeSingularStringField(value: &_storage._clientVersion) }()
-        case 7: try { try decoder.decodeSingularStringField(value: &_storage._promotedLibraryVersion) }()
-        case 8: try { try decoder.decodeSingularInt32Field(value: &_storage._batchesAttempted) }()
-        case 9: try { try decoder.decodeSingularInt32Field(value: &_storage._batchesSentSuccessfully) }()
-        case 10: try { try decoder.decodeSingularInt32Field(value: &_storage._batchesWithErrors) }()
-        case 11: try { try decoder.decodeSingularMessageField(value: &_storage._errorHistory) }()
-        case 12: try { try decoder.decodeSingularMessageField(value: &_storage._ancestorIDHistory) }()
+        case 5: try {
+          var v: Event_MobileDiagnostics?
+          var hadOneofValue = false
+          if let current = _storage._diagnosticsMessage {
+            hadOneofValue = true
+            if case .mobileDiagnostics(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._diagnosticsMessage = .mobileDiagnostics(v)
+          }
+        }()
         default: break
         }
       }
@@ -3166,35 +3212,14 @@ extension Event_MobileDiagnostics: SwiftProtobuf.Message, SwiftProtobuf._Message
       if let v = _storage._clientInfo {
         try visitor.visitSingularMessageField(value: v, fieldNumber: 4)
       }
-      if !_storage._deviceIdentifier.isEmpty {
-        try visitor.visitSingularStringField(value: _storage._deviceIdentifier, fieldNumber: 5)
-      }
-      if !_storage._clientVersion.isEmpty {
-        try visitor.visitSingularStringField(value: _storage._clientVersion, fieldNumber: 6)
-      }
-      if !_storage._promotedLibraryVersion.isEmpty {
-        try visitor.visitSingularStringField(value: _storage._promotedLibraryVersion, fieldNumber: 7)
-      }
-      if _storage._batchesAttempted != 0 {
-        try visitor.visitSingularInt32Field(value: _storage._batchesAttempted, fieldNumber: 8)
-      }
-      if _storage._batchesSentSuccessfully != 0 {
-        try visitor.visitSingularInt32Field(value: _storage._batchesSentSuccessfully, fieldNumber: 9)
-      }
-      if _storage._batchesWithErrors != 0 {
-        try visitor.visitSingularInt32Field(value: _storage._batchesWithErrors, fieldNumber: 10)
-      }
-      if let v = _storage._errorHistory {
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 11)
-      }
-      if let v = _storage._ancestorIDHistory {
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 12)
+      if case .mobileDiagnostics(let v)? = _storage._diagnosticsMessage {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 5)
       }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  public static func ==(lhs: Event_MobileDiagnostics, rhs: Event_MobileDiagnostics) -> Bool {
+  public static func ==(lhs: Event_Diagnostics, rhs: Event_Diagnostics) -> Bool {
     if lhs._storage !== rhs._storage {
       let storagesAreEqual: Bool = withExtendedLifetime((lhs._storage, rhs._storage)) { (_args: (_StorageClass, _StorageClass)) in
         let _storage = _args.0
@@ -3203,62 +3228,11 @@ extension Event_MobileDiagnostics: SwiftProtobuf.Message, SwiftProtobuf._Message
         if _storage._userInfo != rhs_storage._userInfo {return false}
         if _storage._timing != rhs_storage._timing {return false}
         if _storage._clientInfo != rhs_storage._clientInfo {return false}
-        if _storage._deviceIdentifier != rhs_storage._deviceIdentifier {return false}
-        if _storage._clientVersion != rhs_storage._clientVersion {return false}
-        if _storage._promotedLibraryVersion != rhs_storage._promotedLibraryVersion {return false}
-        if _storage._batchesAttempted != rhs_storage._batchesAttempted {return false}
-        if _storage._batchesSentSuccessfully != rhs_storage._batchesSentSuccessfully {return false}
-        if _storage._batchesWithErrors != rhs_storage._batchesWithErrors {return false}
-        if _storage._errorHistory != rhs_storage._errorHistory {return false}
-        if _storage._ancestorIDHistory != rhs_storage._ancestorIDHistory {return false}
+        if _storage._diagnosticsMessage != rhs_storage._diagnosticsMessage {return false}
         return true
       }
       if !storagesAreEqual {return false}
     }
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension Event_Diagnostics: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  public static let protoMessageName: String = _protobuf_package + ".Diagnostics"
-  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .standard(proto: "mobile_diagnostics"),
-  ]
-
-  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try {
-        var v: Event_MobileDiagnostics?
-        var hadOneofValue = false
-        if let current = self.diagnosticsMessage {
-          hadOneofValue = true
-          if case .mobileDiagnostics(let m) = current {v = m}
-        }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.diagnosticsMessage = .mobileDiagnostics(v)
-        }
-      }()
-      default: break
-      }
-    }
-  }
-
-  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if case .mobileDiagnostics(let v)? = self.diagnosticsMessage {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
-    }
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  public static func ==(lhs: Event_Diagnostics, rhs: Event_Diagnostics) -> Bool {
-    if lhs.diagnosticsMessage != rhs.diagnosticsMessage {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
