@@ -6,7 +6,10 @@ struct Build {
     guard let path = bundle?.path(forResource: "Version", ofType: "txt") else {
       return "Unknown"
     }
-    return (try? String(contentsOfFile: path)) ?? "Unknown"
+    return (
+      try? String(contentsOfFile: path)
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+    ) ?? "Unknown"
   } ()
 
   private static let bundle: Bundle? = {
