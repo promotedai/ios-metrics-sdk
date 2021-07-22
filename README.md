@@ -1,5 +1,5 @@
 # Promoted.ai iOS Client Library
-Promoted.ai provides an iOS logging library for gathering metrics and training delivery systems. This library contains the functionality required to track events in your iOS app and deliver them efficiently to Promoted.ai backends.
+[Promoted.ai](http://promoted.ai) provides an iOS logging library for gathering metrics and training delivery systems. This library contains the functionality required to track events in your iOS app and deliver them efficiently to Promoted.ai backends.
 
 Our client library is available for iOS 11+, and works with both Swift and Objective C apps.
 
