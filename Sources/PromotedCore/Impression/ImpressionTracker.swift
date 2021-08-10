@@ -119,7 +119,8 @@ public final class ImpressionTracker: NSObject, ImpressionConfig {
   private let clock: Clock
   private unowned let monitor: OperationMonitor
   
-  private var impressionStarts: [Content: TimeInterval]
+  private var contentToImpressionStart: [Content: TimeInterval]
+  private var contentToImpressionID: [Content: String]
   private var sourceType: ImpressionSourceType
 
   public weak var delegate: ImpressionTrackerDelegate?
@@ -130,7 +131,8 @@ public final class ImpressionTracker: NSObject, ImpressionConfig {
     self.metricsLogger = metricsLogger
     self.clock = deps.clock
     self.monitor = deps.operationMonitor
-    self.impressionStarts = [:]
+    self.contentToImpressionStart = [:]
+    self.contentToImpressionID = [:]
     self.sourceType = .unknown
   }
 }
@@ -170,11 +172,11 @@ public extension ImpressionTracker {
     monitor.execute {
       let now = clock.now
       let newlyShownContent = contents.filter {
-        impressionStarts[$0] == nil
+        contentToImpressionStart[$0] == nil
       }
       // TODO(yu-hong): Below is potentially O(n^2), but in practice,
       // the arrays are pretty small.
-      let newlyHiddenContent = impressionStarts.keys.filter {       !contents.contains($0)
+      let newlyHiddenContent = contentToImpressionStart.keys.filter {       !contents.contains($0)
       }
       broadcastStartAndAddImpressions(contents: newlyShownContent, now: now)
       broadcastEndAndRemoveImpressions(contents: newlyHiddenContent, now: now)
@@ -185,7 +187,7 @@ public extension ImpressionTracker {
   @objc func collectionViewDidHideAllContent() {
     monitor.execute {
       broadcastEndAndRemoveImpressions(
-        contents: impressionStarts.keys,
+        contents: contentToImpressionStart.keys,
         now: clock.now
       )
     }
@@ -196,26 +198,26 @@ public extension ImpressionTracker {
     now: TimeInterval
   ) where T.Element == Content {
     guard !contents.isEmpty else { return }
-    var impressions = [Impression]()
-    for content in contents {
-      let impression = Impression(
+    let impressions = contents.map { content in
+      Impression(
         content: content,
         startTime: now,
         endTime: nil,
         sourceType: sourceType
       )
-      impressions.append(impression)
-      impressionStarts[content] = now
+    }
+    for content in contents {
+      contentToImpressionStart[content] = now
     }
     monitor.execute {
       for impression in impressions {
-        metricsLogger.logImpression(
-          content: impression.content,
+        let impressionProto = metricsLogger.logImpression(
+          content: content,
           sourceType: impression.sourceType
         )
+        contentToImpressionID[content] = impressionProto.impressionID
       }
     }
-    print("***** imp \(impressions)")
     delegate?.impressionTracker(self, didStartImpressions: impressions)
   }
 
@@ -224,18 +226,19 @@ public extension ImpressionTracker {
     now: TimeInterval
   ) where T.Element == Content {
     guard !contents.isEmpty else { return }
-    var impressions = [Impression]()
-    for content in contents {
+    let impressions = contents.compactMap { content in
       guard
         let start = impressionStarts.removeValue(forKey: content)
-      else { continue }
-      let impression = Impression(
+      else { return nil }
+      return Impression(
         content: content,
         startTime: start,
         endTime: now,
         sourceType: sourceType
       )
-      impressions.append(impression)
+    }
+    for content in contents {
+      contentToImpressionID.removeValue(forKey: content)
     }
     // Not calling `metricsLogger`. No logging end impressions for now.
     delegate?.impressionTracker(self, didEndImpressions: impressions)

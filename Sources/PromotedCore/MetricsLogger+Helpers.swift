@@ -1,185 +1,114 @@
 import Foundation
 import UIKit
 
-// MARK: - Impression logging helper methods
+// MARK: - Impression logging helper methods (ObjC)
 public extension MetricsLogger {
   /// Logs an impression for the given content.
   /// See also `ImpressionTracker` and `ScrollTracker` for more
   /// advanced impression tracking methods.
-  @objc func logImpression(content: Content) {
+  @objc(logImpressionWithContent:)
+  func _objcLogImpression(content: Content) {
     logImpression(content: content, sourceType: .unknown)
   }
 
   /// Logs an impression for the given content and source type.
   /// See also `ImpressionTracker` and `ScrollTracker` for more
   /// advanced impression tracking methods.
-  @objc func logImpression(content: Content,
-                           sourceType: ImpressionSourceType) {
-    logImpression(contentID: content.contentID,
-                  insertionID: content.insertionID,
-                  sourceType: sourceType)
+  @objc(logImpressionWithContent:sourceType:)
+  func _objcLogImpression(
+    content: Content,
+    sourceType: ImpressionSourceType
+  ) {
+    logImpression(content: content, sourceType: sourceType)
   }
 }
 
-// MARK: - Action logging helper methods
+// MARK: - Impression logging helper methods (Swift)
 public extension MetricsLogger {
-  /// Logs a navigate action to the given view controller.
-  @objc func logNavigateAction(viewController: UIViewController) {
-    logNavigateAction(name: viewController.promotedViewLoggingName,
-                      optionalContent: nil)
+  /// Logs an impression for the given content and source type.
+  /// See also `ImpressionTracker` and `ScrollTracker` for more
+  /// advanced impression tracking methods.
+  @discardableResult
+  func logImpression(
+    content: Content,
+    sourceType: ImpressionSourceType = .unknown
+  ) -> Event_Impression {
+    return logImpression(
+      contentID: content.contentID,
+      insertionID: content.insertionID,
+      sourceType: sourceType
+    )
   }
+}
 
-  /// Logs a navigate action to the given view controller for given content.
-  @objc func logNavigateAction(viewController: UIViewController,
-                               forContent content: Content) {
-    logNavigateAction(name: viewController.promotedViewLoggingName,
-                      optionalContent: content)
+// MARK: - Navigate action logging helper methods (ObjC)
+public extension MetricsLogger {
+  /// Logs a navigate action for given content.
+  @objc(logNavigateActionWithContent:)
+  func _objcLogNavigateAction(content: Content) {
+    logNavigateAction(content: content)
   }
+}
 
-  /// Logs a navigate action to a screen with given name.
-  @objc func logNavigateAction(screenName: String) {
-    logNavigateAction(name: screenName, optionalContent: nil)
+// MARK: - Navigate action logging helper methods (Swift)
+public extension MetricsLogger {
+  /// Logs a navigate action for given content.
+  /// Optionally includes destination screen/UIViewController.
+  @discardableResult
+  func logNavigateAction(
+    content: Content,
+    screenName: String? = nil,
+    viewController: UIViewController? = nil
+  ) -> Event_Action {
+    return logAction(
+      name: screenName ?? viewController?.promotedViewLoggingName,
+      type: .navigate,
+      contentID: content?.contentID,
+      insertionID: content?.insertionID
+    )
   }
+}
 
-  /// Logs a navigate action to a screen with given name for given content.
-  @objc func logNavigateAction(screenName: String, forContent content: Content) {
-    logNavigateAction(name: screenName, optionalContent: content)
-  }
-
-  private func logNavigateAction(name: String, optionalContent content: Content?) {
-    logAction(name: name,
-              type: .navigate,
-              contentID: content?.contentID,
-              insertionID: content?.insertionID)
-  }
-
-  /// Logs an action to add the given item to cart.
-  @objc func logAddToCartAction(item: Item) {
-    logAction(name: "add-to-cart",
-              type: .addToCart,
-              contentID: item.contentID,
-              insertionID: item.insertionID)
-  }
-
-  /// Logs an action to remove the given item from cart.
-  @objc func logRemoveFromCartAction(item: Item) {
-    logAction(name: "remove-from-cart",
-              type: .removeFromCart,
-              contentID: item.contentID,
-              insertionID: item.insertionID)
-  }
-    
-  /// Logs an action to check out the cart.
-  @objc func logCheckoutAction() {
-    logAction(name: "checkout",
-              type: .checkout,
-              contentID: nil,
-              insertionID: nil)
-  }
-
-
-  /// Logs an action to purchase the given item.
-  @objc func logPurchaseAction(item: Item) {
-    logAction(name: "purchase",
-              type: .purchase,
-              contentID: item.contentID,
-              insertionID: item.insertionID)
-  }
-
-  /// Logs an action to share the given content.
-  @objc func logShareAction(content: Content) {
-    logAction(name: "share",
-              type: .share,
-              contentID: content.contentID,
-              insertionID: content.insertionID)
+// MARK: - Action logging helper methods (ObjC)
+public extension MetricsLogger {
+  /// Logs an action with given type and content.
+  @objc(logActionWithType:content:)
+  func _objcLogAction(type: ActionType, content: Content?) {
+    logAction(
+      name: nil,
+      type: type,
+      contentID: content?.contentID,
+      insertionID: content?.insertionID
+    )
   }
   
-  /// Logs an action to like the given content.
-  @objc func logLikeAction(content: Content) {
-    logAction(name: "like",
-              type: .like,
-              contentID: content.contentID,
-              insertionID: content.insertionID)
+  /// Logs an action with given type, content, and name.
+  @objc(logActionWithType:content:name:)
+  func _objcLogAction(type: ActionType, content: Content?, name: String?) {
+    logAction(
+      name: name,
+      type: type,
+      contentID: content.contentID,
+      insertionID: content.insertionID
+    )
   }
+}
 
-  /// Logs an action to unlike the given content.
-  @objc func logUnlikeAction(content: Content) {
-    logAction(name: "unlike",
-              type: .unlike,
-              contentID: content.contentID,
-              insertionID: content.insertionID)
-  }
-
-  /// Logs an action to comment on the given content.
-  @objc func logCommentAction(content: Content) {
-    logAction(name: "comment",
-              type: .comment,
-              contentID: content.contentID,
-              insertionID: content.insertionID)
-  }
-
-  /// Logs an action to make an offer on the given item.
-  @objc func logMakeOfferAction(item: Item) {
-    logAction(name: "make-offer",
-              type: .makeOffer,
-              contentID: item.contentID,
-              insertionID: item.insertionID)
-  }
-
-  /// Logs an action to ask a question about the given content.
-  @objc func logAskQuestionAction(content: Content) {
-    logAction(name: "ask-question",
-              type: .askQuestion,
-              contentID: content.contentID,
-              insertionID: content.insertionID)
-  }
-
-  /// Logs an action to answer a question about the given content.
-  @objc func logAnswerQuestionAction(content: Content) {
-    logAction(name: "answer-question",
-              type: .answerQuestion,
-              contentID: content.contentID,
-              insertionID: content.insertionID)
-  }
-
-  /// Logs an action to sign in to an account.
-  @objc func logCompleteSignInAction() {
-    logAction(name: "sign-in",
-              type: .completeSignIn,
-              contentID: nil,
-              insertionID: nil)
-  }
-
-  /// Logs an action to sign up for an account.
-  @objc func logCompleteSignUpAction() {
-    logAction(name: "sign-up",
-              type: .completeSignUp,
-              contentID: nil,
-              insertionID: nil)
-  }
-
-  /// Logs an action with given name and type `.customActionType`.
-  @objc func logAction(name: String) {
-    logAction(name: name,
-              type: .customActionType,
-              contentID: nil,
-              insertionID: nil)
-  }
-  
-  /// Logs an action with given name.
-  @objc func logAction(name: String, type: ActionType) {
-    logAction(name: name,
-              type: type,
-              contentID: nil,
-              insertionID: nil)
-  }
-  
-  /// Logs an action with given name, type, and content.
-  @objc func logAction(name: String, type: ActionType, content: Content) {
-    logAction(name: name,
-              type: type,
-              contentID: content.contentID,
-              insertionID: content.insertionID)
+// MARK: - Action logging helper methods (Swift)
+public extension MetricsLogger {
+  /// Logs an action with given type, content, and name.
+  @discardableResult
+  func logAction(
+    type: ActionType,
+    content: Content?,
+    name: String? = nil
+  ) -> Event_Action {
+    return logAction(
+      name: name,
+      type: type,
+      contentID: content?.contentID,
+      insertionID: content?.insertionID
+    )
   }
 }
 
