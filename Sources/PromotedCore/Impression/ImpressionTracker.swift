@@ -137,7 +137,7 @@ public final class ImpressionTracker: NSObject, ImpressionConfig {
   }
 }
 
-// MARK: - Tracking
+// MARK: - Collection Tracking
 public extension ImpressionTracker {
 
   /// Call this method when new items are displayed.
@@ -211,6 +211,7 @@ public extension ImpressionTracker {
     }
     monitor.execute {
       for impression in impressions {
+        let content = impression.content
         let impressionProto = metricsLogger.logImpression(
           content: content,
           sourceType: impression.sourceType
@@ -226,17 +227,20 @@ public extension ImpressionTracker {
     now: TimeInterval
   ) where T.Element == Content {
     guard !contents.isEmpty else { return }
-    let impressions = contents.compactMap { content in
-      guard
-        let start = impressionStarts.removeValue(forKey: content)
-      else { return nil }
-      return Impression(
-        content: content,
-        startTime: start,
-        endTime: now,
-        sourceType: sourceType
+    let impressions =
+      zip(
+        contents,
+        contents.map { contentToImpressionStart.removeValue(forKey: $0) }
       )
-    }
+      .filter { $0.1 != nil }
+      .map {
+        Impression(
+          content: $0.0,
+          startTime: $0.1!,
+          endTime: now,
+          sourceType: sourceType
+        )
+      }
     for content in contents {
       contentToImpressionID.removeValue(forKey: content)
     }

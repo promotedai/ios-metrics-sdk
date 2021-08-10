@@ -463,6 +463,7 @@ public extension MetricsLogger {
     return nil
   }
 
+  @discardableResult
   private func logView(
     trackerState: ViewTracker.State,
     properties: Message? = nil

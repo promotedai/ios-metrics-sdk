@@ -66,17 +66,18 @@ extension CollectionTracker {
     guard
       let selectedPath = collectionView
         .indexPathForItem(at: sender.location(in: collectionView))
-    else { return }
+    else {
+      print(
+        "***** DEBUG: No index path at \(sender.location(in: collectionView))"
+      )
+      return
+    }
     guard let content = dataProducer(selectedPath) else {
       print("***** WARNING: \(#function) no content for \(selectedPath)")
       return
     }
     print("***** logAction \(String(describing: content))")
-    metricsLogger.logAction(
-      name: "Clickthrough",
-      type: .navigate,
-      content: content
-    )
+    metricsLogger.logNavigateAction(content: content)
   }
 }
 

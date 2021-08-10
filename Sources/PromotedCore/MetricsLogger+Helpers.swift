@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-// MARK: - Impression logging helper methods (ObjC)
+// MARK: - Impression Logging Helper Methods (ObjC)
 public extension MetricsLogger {
   /// Logs an impression for the given content.
   /// See also `ImpressionTracker` and `ScrollTracker` for more
@@ -23,7 +23,7 @@ public extension MetricsLogger {
   }
 }
 
-// MARK: - Impression logging helper methods (Swift)
+// MARK: - Impression Logging Helper Methods (Swift)
 public extension MetricsLogger {
   /// Logs an impression for the given content and source type.
   /// See also `ImpressionTracker` and `ScrollTracker` for more
@@ -41,7 +41,7 @@ public extension MetricsLogger {
   }
 }
 
-// MARK: - Navigate action logging helper methods (ObjC)
+// MARK: - Navigate Action Logging Helper Methods (ObjC)
 public extension MetricsLogger {
   /// Logs a navigate action for given content.
   @objc(logNavigateActionWithContent:)
@@ -50,7 +50,7 @@ public extension MetricsLogger {
   }
 }
 
-// MARK: - Navigate action logging helper methods (Swift)
+// MARK: - Navigate Action Logging Helper Methods (Swift)
 public extension MetricsLogger {
   /// Logs a navigate action for given content.
   /// Optionally includes destination screen/UIViewController.
@@ -61,21 +61,25 @@ public extension MetricsLogger {
     viewController: UIViewController? = nil
   ) -> Event_Action {
     return logAction(
-      name: screenName ?? viewController?.promotedViewLoggingName,
+      name: (
+        screenName
+          ?? viewController?.promotedViewLoggingName
+          ?? ActionType.navigate.description
+      ),
       type: .navigate,
-      contentID: content?.contentID,
-      insertionID: content?.insertionID
+      contentID: content.contentID,
+      insertionID: content.insertionID
     )
   }
 }
 
-// MARK: - Action logging helper methods (ObjC)
+// MARK: - Action Logging Helper Methods (ObjC)
 public extension MetricsLogger {
   /// Logs an action with given type and content.
   @objc(logActionWithType:content:)
   func _objcLogAction(type: ActionType, content: Content?) {
     logAction(
-      name: nil,
+      name: type.description,
       type: type,
       contentID: content?.contentID,
       insertionID: content?.insertionID
@@ -86,15 +90,15 @@ public extension MetricsLogger {
   @objc(logActionWithType:content:name:)
   func _objcLogAction(type: ActionType, content: Content?, name: String?) {
     logAction(
-      name: name,
+      name: name ?? type.description,
       type: type,
-      contentID: content.contentID,
-      insertionID: content.insertionID
+      contentID: content?.contentID,
+      insertionID: content?.insertionID
     )
   }
 }
 
-// MARK: - Action logging helper methods (Swift)
+// MARK: - Action Logging Helper Methods (Swift)
 public extension MetricsLogger {
   /// Logs an action with given type, content, and name.
   @discardableResult
@@ -104,7 +108,7 @@ public extension MetricsLogger {
     name: String? = nil
   ) -> Event_Action {
     return logAction(
-      name: name,
+      name: name ?? type.description,
       type: type,
       contentID: content?.contentID,
       insertionID: content?.insertionID
@@ -112,7 +116,7 @@ public extension MetricsLogger {
   }
 }
 
-// MARK: - View logging helper methods
+// MARK: - View Logging Helper Methods
 public extension MetricsLogger {
   /// Logs a view of the given `UIViewController`.
   @objc func logView(viewController: UIViewController) {
@@ -122,19 +126,34 @@ public extension MetricsLogger {
   /// Logs a view of the given `UIViewController` and use case.
   @objc func logView(viewController: UIViewController,
                      useCase: UseCase) {
-    logView(trackerKey: .uiKit(viewController: viewController), useCase: useCase)
+    logView(
+      trackerKey: .uiKit(viewController: viewController),
+      useCase: useCase
+    )
   }
 
   /// Logs a view with the given route name and key (React Native).
-  func logViewReady(routeName: String, routeKey: String, useCase: UseCase? = nil) {
+  func logViewReady(
+    routeName: String,
+    routeKey: String,
+    useCase: UseCase? = nil
+  ) {
     viewTracker.reset()
-    logView(trackerKey: .reactNative(routeName: routeName, routeKey: routeKey),
-            useCase: useCase)
+    logView(
+      trackerKey: .reactNative(routeName: routeName, routeKey: routeKey),
+      useCase: useCase
+    )
   }
   
   /// Logs a view with the given route name and key (React Native).
-  func logViewChange(routeName: String, routeKey: String, useCase: UseCase? = nil) {
-    logView(trackerKey: .reactNative(routeName: routeName, routeKey: routeKey),
-            useCase: useCase)
+  func logViewChange(
+    routeName: String,
+    routeKey: String,
+    useCase: UseCase? = nil
+  ) {
+    logView(
+      trackerKey: .reactNative(routeName: routeName, routeKey: routeKey),
+      useCase: useCase
+    )
   }
 }
