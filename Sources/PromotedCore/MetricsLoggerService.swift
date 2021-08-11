@@ -253,6 +253,7 @@ public extension MetricsLoggerService {
       metricsLogger: metricsLogger,
       impressionTracker: impressionTracker,
       collectionView: collectionView,
+      deps: module,
       dataProducer: dataProducer
     )
   }

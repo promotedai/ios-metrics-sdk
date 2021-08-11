@@ -73,12 +73,15 @@ extension CollectionTracker {
     else {
       osLog?.debug(
         "No index path at %{public}@",
-        sender.location(in: collectionView)
+        String(describing: sender.location(in: collectionView))
       )
       return
     }
     guard let content = dataProducer(selectedPath) else {
-      osLog.warning("No content for %{public}@", selectedPath)
+      osLog?.warning(
+        "No content for %{public}@",
+        String(describing: selectedPath)
+      )
       return
     }
     let impressionID = impressionTracker.impressionID(for: content)
