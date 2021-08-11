@@ -249,6 +249,13 @@ public extension ImpressionTracker {
   }
 }
 
+// MARK: - Impression ID
+public extension ImpressionTracker {
+  func impressionID(for content: Content) -> String? {
+    contentToImpressionID[content]
+  }
+}
+
 // MARK: - ImpressionConfig
 public extension ImpressionTracker {
   @discardableResult

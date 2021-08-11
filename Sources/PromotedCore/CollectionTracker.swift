@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import UIKit
 
 public class CollectionTracker {
@@ -8,6 +9,7 @@ public class CollectionTracker {
   private unowned let metricsLogger: MetricsLogger
   private let impressionTracker: ImpressionTracker
   private unowned let collectionView: UICollectionView
+  private let osLog: OSLog?
   private let dataProducer: DataProducer
 
   private let visibilityThreshhold: Float = 0.5
@@ -16,15 +18,19 @@ public class CollectionTracker {
   private var gestureRecognizersObservation: NSKeyValueObservation!
   private var tapGestureRecognizer: UITapGestureRecognizer!
 
-  public init(
+  typealias Deps = OSLogSource
+
+  init(
     metricsLogger: MetricsLogger,
     impressionTracker: ImpressionTracker,
     collectionView: UICollectionView,
+    deps: Deps,
     dataProducer: @escaping DataProducer
   ) {
     self.metricsLogger = metricsLogger
     self.impressionTracker = impressionTracker
     self.collectionView = collectionView
+    self.osLog = deps.osLog(category: "CollectionTracker")
     self.dataProducer = dataProducer
 
     addObserversToCollectionView()
@@ -37,16 +43,16 @@ extension CollectionTracker {
       .observe(\.contentOffset) { [weak self] _, _ in
         self?.collectionViewDidScroll()
       }
-    gestureRecognizersObservation = collectionView
-      .observe(\.gestureRecognizers) { [weak self] _, _ in
-        self?.collectionViewDidChangeGestureRecognizers()
-      }
     tapGestureRecognizer = UITapGestureRecognizer(
       target: self,
       action: #selector(didTapCollectionView(sender:))
     )
     tapGestureRecognizer.cancelsTouchesInView = false
     collectionView.addGestureRecognizer(tapGestureRecognizer)
+    gestureRecognizersObservation = collectionView
+      .observe(\.gestureRecognizers) { [weak self] _, _ in
+        self?.collectionViewDidChangeGestureRecognizers()
+      }
   }
 
   private func collectionViewDidScroll() {
@@ -56,9 +62,7 @@ extension CollectionTracker {
   private func collectionViewDidChangeGestureRecognizers() {
     let recognizers = collectionView.gestureRecognizers ?? []
     if !recognizers.contains(tapGestureRecognizer) {
-      print(
-        "***** WARNING: CollectionTracker's UITapGestureRecognizer was removed."
-      )
+      osLog?.warning("CollectionTracker's UITapGestureRecognizer was removed")
     }
   }
 
@@ -67,16 +71,27 @@ extension CollectionTracker {
       let selectedPath = collectionView
         .indexPathForItem(at: sender.location(in: collectionView))
     else {
-      print(
-        "***** DEBUG: No index path at \(sender.location(in: collectionView))"
+      osLog?.debug(
+        "No index path at %{public}@",
+        sender.location(in: collectionView)
       )
       return
     }
     guard let content = dataProducer(selectedPath) else {
-      print("***** WARNING: \(#function) no content for \(selectedPath)")
+      osLog.warning("No content for %{public}@", selectedPath)
       return
     }
-    print("***** logAction \(String(describing: content))")
+    let impressionID = impressionTracker.impressionID(for: content)
+    if impressionID == nil {
+      osLog?.warning(
+        "No impressionID for %{private}@",
+        String(describing: content)
+      )
+    }
+    osLog?.info(
+      "Logging clickthrough for %{private}@",
+      String(describing: content)
+    )
     metricsLogger.logNavigateAction(content: content)
   }
 }
@@ -92,8 +107,7 @@ extension CollectionTracker {
 
     let contents = collectionView
       .indexPathsForVisibleItems
-      .filter { path in
-        (
+      .filter { path in (
           layout
             .layoutAttributesForItem(at: path)?
             .frame
@@ -102,26 +116,5 @@ extension CollectionTracker {
       }
       .compactMap { path in dataProducer(path) }
     impressionTracker.collectionViewDidChangeVisibleContent(contents)
-  }
-}
-
-@available(iOS 13.0, *)
-public extension CollectionTracker {
-  typealias ItemToContent<T> = (T?) -> Content?
-
-  convenience init<S, T: Hashable>(
-    metricsLogger: MetricsLogger,
-    impressionTracker: ImpressionTracker,
-    collectionView: UICollectionView,
-    dataSource: UICollectionViewDiffableDataSource<S, T>,
-    itemToContent: @escaping ItemToContent<T>
-  ) {
-    self.init(
-      metricsLogger: metricsLogger,
-      impressionTracker: impressionTracker,
-      collectionView: collectionView
-    ) { path in
-      itemToContent(dataSource.itemIdentifier(for: path))
-    }
   }
 }

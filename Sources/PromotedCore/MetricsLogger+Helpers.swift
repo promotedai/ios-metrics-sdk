@@ -105,11 +105,13 @@ public extension MetricsLogger {
   func logAction(
     type: ActionType,
     content: Content?,
+    impressionID: String? = nil,
     name: String? = nil
   ) -> Event_Action {
     return logAction(
       name: name ?? type.description,
       type: type,
+      impressionID: impressionID,
       contentID: content?.contentID,
       insertionID: content?.insertionID
     )

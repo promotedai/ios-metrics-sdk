@@ -403,6 +403,7 @@ public extension MetricsLogger {
   func logAction(
     name: String,
     type: ActionType,
+    impressionID: String? = nil,
     contentID: String? = nil,
     insertionID: String? = nil,
     requestID: String? = nil,
@@ -414,6 +415,7 @@ public extension MetricsLogger {
     monitor.execute {
       action.timing = timingMessage()
       action.actionID = idMap.actionID()
+      if let id = impressionID { action.impressionID = id }
       if let id = contentID { action.contentID = id }
       if let id = insertionID { action.insertionID = id }
       if let id = requestID { action.requestID = id }
