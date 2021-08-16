@@ -176,7 +176,8 @@ public extension ImpressionTracker {
       }
       // TODO(yu-hong): Below is potentially O(n^2), but in practice,
       // the arrays are pretty small.
-      let newlyHiddenContent = contentToImpressionStart.keys.filter {       !contents.contains($0)
+      let newlyHiddenContent = contentToImpressionStart.keys.filter {
+        !contents.contains($0)
       }
       broadcastStartAndAddImpressions(contents: newlyShownContent, now: now)
       broadcastEndAndRemoveImpressions(contents: newlyHiddenContent, now: now)
