@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-public protocol UIState: AnyObject {
+protocol UIState: AnyObject {
   func viewControllerStack() -> [UIViewController]
 }
 
@@ -9,11 +9,9 @@ protocol UIStateSource {
   var uiState: UIState { get }
 }
 
-public final class UIKitState: UIState {
+final class UIKitState: UIState {
 
-  public init() {}
-  
-  public func viewControllerStack() -> [UIViewController] {
+  func viewControllerStack() -> [UIViewController] {
     guard let root = UIApplication.shared.keyWindow?.rootViewController else {
       return []
     }
