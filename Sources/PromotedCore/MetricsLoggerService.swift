@@ -240,23 +240,6 @@ public extension MetricsLoggerService {
       deps: module
     )
   }
-
-  func collectionTracker(
-    collectionView: UICollectionView,
-    dataProducer: @escaping CollectionTracker.DataProducer
-  ) -> CollectionTracker? {
-    guard
-      let metricsLogger = metricsLogger,
-      let impressionTracker = impressionTracker()
-    else { return nil }
-    return CollectionTracker(
-      metricsLogger: metricsLogger,
-      impressionTracker: impressionTracker,
-      collectionView: collectionView,
-      deps: module,
-      dataProducer: dataProducer
-    )
-  }
 }
 
 // MARK: - Singleton support for `MetricsLoggingService`
