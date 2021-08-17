@@ -2,7 +2,7 @@ import Foundation
 
 /** Type for origin of impressed content. */
 @objc(PROImpressionSourceType)
-public enum ImpressionSourceType: Int {
+public enum ImpressionSourceType: Int, RawRepresentable {
   case unknown = 0
 
   /// Promoted Delivery API.

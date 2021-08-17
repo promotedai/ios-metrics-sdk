@@ -52,7 +52,7 @@ final class AnalyticsTests: ModuleTestCase {
       metricsLogger.logImpression(content: item1)
       let item2 = Item(contentID: "hippo", insertionID: "potamus")
       metricsLogger.logImpression(content: item2)
-      metricsLogger.logPurchaseAction(item: item1)
+      metricsLogger.logAction(type: .purchase, content: item1)
     }
     XCTAssertEqual(3, analyticsConnection.lastEventCount)
     XCTAssertGreaterThan(analyticsConnection.lastBytesSent, 0)

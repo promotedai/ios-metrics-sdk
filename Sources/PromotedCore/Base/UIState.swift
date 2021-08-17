@@ -10,7 +10,7 @@ protocol UIStateSource {
 }
 
 final class UIKitState: UIState {
-  
+
   func viewControllerStack() -> [UIViewController] {
     guard let root = UIApplication.shared.keyWindow?.rootViewController else {
       return []

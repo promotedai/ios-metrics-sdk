@@ -2,11 +2,11 @@ import Foundation
 
 /** Type for user actions. */
 @objc(PROActionType)
-public enum ActionType: Int {
-  case unknownActionType // = 0
+public enum ActionType: Int, CustomStringConvertible, RawRepresentable {
+  case unknown // = 0
 
   /// Action that doesn't correspond to any of the below.
-  case customActionType // = 1
+  case custom // = 1
 
   /// Navigating to details about content.
   case navigate // = 2
@@ -54,8 +54,8 @@ public enum ActionType: Int {
 
   public init?(rawValue: Int) {
     switch rawValue {
-    case 0: self = .unknownActionType
-    case 1: self = .customActionType
+    case 0: self = .unknown
+    case 1: self = .custom
     case 2: self = .navigate
     case 3: self = .purchase
     case 4: self = .addToCart
@@ -70,14 +70,14 @@ public enum ActionType: Int {
     case 13: self = .answerQuestion
     case 14: self = .completeSignIn
     case 15: self = .completeSignUp
-    default: self = .unknownActionType
+    default: self = .unknown
     }
   }
 
   public var rawValue: Int {
     switch self {
-    case .unknownActionType: return 0
-    case .customActionType: return 1
+    case .unknown: return 0
+    case .custom: return 1
     case .navigate: return 2
     case .purchase: return 3
     case .addToCart: return 4
@@ -96,5 +96,29 @@ public enum ActionType: Int {
     }
   }
 
-  var protoValue: Event_ActionType? { Event_ActionType(rawValue: self.rawValue) }
+  public var description: String {
+    switch self {
+    case .unknown: return "unknown"
+    case .custom: return "custom"
+    case .navigate: return "navigate"
+    case .purchase: return "purchase"
+    case .addToCart: return "add-to-cart"
+    case .share: return "share"
+    case .like: return "like"
+    case .comment: return "comment"
+    case .checkout: return "checkout"
+    case .unlike: return "unlike"
+    case .removeFromCart: return "remove-from-cart"
+    case .makeOffer: return "make-offer"
+    case .askQuestion: return "ask-question"
+    case .answerQuestion: return "answer-question"
+    case .completeSignIn: return "sign-in"
+    case .completeSignUp: return "sign-up"
+    default: return "unknown"
+    }
+  }
+
+  var protoValue: Event_ActionType? {
+    Event_ActionType(rawValue: self.rawValue)
+  }
 }

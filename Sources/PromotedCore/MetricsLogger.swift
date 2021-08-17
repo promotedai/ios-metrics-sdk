@@ -78,9 +78,18 @@ public final class MetricsLogger: NSObject {
   private lazy var cachedDeviceMessage: Event_Device = deviceMessage()
   private lazy var cachedLocaleMessage: Event_Locale = localeMessage()
 
-  typealias Deps = ClientConfigSource & ClockSource & NetworkConnectionSource &
-                   DeviceInfoSource & IDMapSource & OperationMonitorSource &
-                   OSLogSource & PersistentStoreSource & ViewTrackerSource & XraySource
+  typealias Deps = (
+    ClientConfigSource &
+    ClockSource &
+    DeviceInfoSource &
+    IDMapSource &
+    NetworkConnectionSource &
+    OperationMonitorSource &
+    OSLogSource &
+    PersistentStoreSource &
+    ViewTrackerSource &
+    XraySource
+  )
 
   init(deps: Deps) {
     clock = deps.clock
@@ -96,11 +105,14 @@ public final class MetricsLogger: NSObject {
     logMessages = []
     userID = nil
 
-    logUserIDProducer = IDProducer(initialValueProducer: {
-      [store, idMap] in store.logUserID ?? idMap.logUserID()
-    }, nextValueProducer: {
-      [idMap] in idMap.logUserID()
-    })
+    logUserIDProducer = IDProducer(
+      initialValueProducer: {
+        [store, idMap] in store.logUserID ?? idMap.logUserID()
+      },
+      nextValueProducer: {
+        [idMap] in idMap.logUserID()
+      }
+    )
     sessionIDProducer = IDProducer { [idMap] in idMap.sessionID() }
     viewTracker = deps.viewTracker
     needsViewStateCheck = false
@@ -287,8 +299,13 @@ extension MetricsLogger {
         return dataMessage
       }
     } catch {
-      osLog?.error("propertiesMessage: %{private}@", error.localizedDescription)
-      let wrapped = MetricsLoggerError.propertiesSerializationError(underlying: error)
+      osLog?.error(
+        "propertiesMessage: %{private}@",
+        error.localizedDescription
+      )
+      let wrapped = MetricsLoggerError.propertiesSerializationError(
+        underlying: error
+      )
       monitor.executionDidError(wrapped)
     }
     return nil
@@ -304,15 +321,19 @@ public extension MetricsLogger {
   ///
   /// - Parameters:
   ///   - properties: Client-specific message
-  internal func logUser(properties: Message? = nil) {
+  /// - Returns:
+  ///   Logged event message.
+  @discardableResult
+  internal func logUser(properties: Message? = nil) -> Event_User {
+    var user = Event_User()
     monitor.execute {
-      var user = Event_User()
       user.timing = timingMessage()
       if let p = propertiesMessage(properties) { user.properties = p }
       log(message: user)
       history?.logUserIDDidChange(value: logUserID, event: user)
       history?.sessionIDDidChange(value: sessionID)
     }
+    return user
   }
 
   /// Logs an impression event.
@@ -332,13 +353,18 @@ public extension MetricsLogger {
   ///   - requestID: Request ID as provided by Promoted
   ///   - sourceType: Origin of the impressed content
   ///   - properties: Client-specific message
-  func logImpression(contentID: String? = nil,
-                     insertionID: String? = nil,
-                     requestID: String? = nil,
-                     sourceType: ImpressionSourceType? = nil,
-                     properties: Message? = nil) {
+  /// - Returns:
+  ///   Logged event message.
+  @discardableResult
+  func logImpression(
+    contentID: String? = nil,
+    insertionID: String? = nil,
+    requestID: String? = nil,
+    sourceType: ImpressionSourceType? = nil,
+    properties: Message? = nil
+  ) -> Event_Impression {
+    var impression = Event_Impression()
     monitor.execute {
-      var impression = Event_Impression()
       impression.timing = timingMessage()
       impression.impressionID = idMap.impressionID()
       if let id = insertionID { impression.insertionID = id }
@@ -350,6 +376,7 @@ public extension MetricsLogger {
       if let p = propertiesMessage(properties) { impression.properties = p }
       log(message: impression)
     }
+    return impression
   }
   
   /// Logs a user action event.
@@ -370,18 +397,25 @@ public extension MetricsLogger {
   ///   - insertionID: Insertion ID as provided by Promoted
   ///   - requestID: Request ID as provided by Promoted
   ///   - properties: Client-specific message
-  func logAction(name: String,
-                 type: ActionType,
-                 contentID: String? = nil,
-                 insertionID: String? = nil,
-                 requestID: String? = nil,
-                 targetURL: String? = nil,
-                 elementID: String? = nil,
-                 properties: Message? = nil) {
+  /// - Returns:
+  ///   Logged event message.
+  @discardableResult
+  func logAction(
+    name: String,
+    type: ActionType,
+    impressionID: String? = nil,
+    contentID: String? = nil,
+    insertionID: String? = nil,
+    requestID: String? = nil,
+    targetURL: String? = nil,
+    elementID: String? = nil,
+    properties: Message? = nil
+  ) -> Event_Action {
+    var action = Event_Action()
     monitor.execute {
-      var action = Event_Action()
       action.timing = timingMessage()
       action.actionID = idMap.actionID()
+      if let id = impressionID { action.impressionID = id }
       if let id = contentID { action.contentID = id }
       if let id = insertionID { action.insertionID = id }
       if let id = requestID { action.requestID = id }
@@ -401,6 +435,7 @@ public extension MetricsLogger {
       if let p = propertiesMessage(properties) { action.properties = p }
       log(message: action)
     }
+    return action
   }
 
   /// Logs a view event if the given key causes a state change in
@@ -416,17 +451,27 @@ public extension MetricsLogger {
   /// - Parameters:
   ///   - trackerKey: ViewTracker.Key that specifies view.
   ///   - properties: Client-specific message
-  internal func logView(trackerKey: ViewTracker.Key,
-                        useCase: UseCase? = nil,
-                        properties: Message? = nil) {
+  /// - Returns:
+  ///   Logged event message.
+  @discardableResult
+  internal func logView(
+    trackerKey: ViewTracker.Key,
+    useCase: UseCase? = nil,
+    properties: Message? = nil
+  ) -> Event_View? {
     if let state = viewTracker.trackView(key: trackerKey, useCase: useCase) {
-      logView(trackerState: state, properties: properties)
+      return logView(trackerState: state, properties: properties)
     }
+    return nil
   }
 
-  private func logView(trackerState: ViewTracker.State, properties: Message? = nil) {
+  @discardableResult
+  private func logView(
+    trackerState: ViewTracker.State,
+    properties: Message? = nil
+  ) -> Event_View {
+    var view = Event_View()
     monitor.execute {
-      var view = Event_View()
       view.timing = timingMessage()
       needsViewStateCheck = false  // No need for check when logging view.
       if let id = viewID { view.viewID = id }
@@ -443,6 +488,7 @@ public extension MetricsLogger {
       log(message: view)
       history?.viewIDDidChange(value: viewID, event: view)
     }
+    return view
   }
 }
 
@@ -510,7 +556,10 @@ public extension MetricsLogger {
       if config.diagnosticsIncludeAncestorIDHistory {
         fillAncestorIDHistory(in: &mobileDiagnostics)
       }
-      osLog?.debug("diagnostics: %{private}@", String(describing: mobileDiagnostics))
+      osLog?.debug(
+        "diagnostics: %{private}@",
+        String(describing: mobileDiagnostics)
+      )
       var diagnostics = Event_Diagnostics()
       diagnostics.timing = timingMessage()
       diagnostics.mobileDiagnostics = mobileDiagnostics
@@ -536,8 +585,9 @@ public extension MetricsLogger {
       logMessages.removeAll()
       let request = logRequestMessage(events: eventsCopy)
       do {
-        let data = try connection.sendMessage(request, clientConfig: config) {
-          [weak self] (data, error) in
+        let data = try connection.sendMessage(
+          request, clientConfig: config
+        ) { [weak self] (data, error) in
           self?.handleFlushResponse(data: data, error: error)
         }
         monitor.executionWillLog(message: request)
