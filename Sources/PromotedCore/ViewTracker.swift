@@ -92,11 +92,8 @@ final class ViewTracker {
     // Regenerate stack, including only VCs that were explicitly
     // logged. These are the VCs in the previous stack.
     let viewControllerStack = uiState.viewControllerStack()
-    let newStack = viewControllerStack.compactMap { vc -> State? in
-      if let entry = previousStack.first(matching: vc) {
-        return entry
-      }
-      return nil
+    let newStack = viewControllerStack.compactMap {
+      previousStack.first(matching: $0)
     }
     return newStack
   }

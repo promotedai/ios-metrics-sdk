@@ -70,7 +70,7 @@ public final class MetricsLogger: NSObject {
   
   private let logUserIDProducer: IDProducer
   private let sessionIDProducer: IDProducer
-  unowned let viewTracker: ViewTracker
+  private unowned let viewTracker: ViewTracker
   private var needsViewStateCheck: Bool
 
   var history: AncestorIDHistory?
@@ -351,6 +351,8 @@ public extension MetricsLogger {
   ///   - contentID: Content ID from which to derive `impressionID`
   ///   - insertionID: Insertion ID as provided by Promoted
   ///   - requestID: Request ID as provided by Promoted
+  ///   - viewID: View ID to set in impression. If not provided, defaults to
+  ///     the view ID last logged via `logView`.
   ///   - sourceType: Origin of the impressed content
   ///   - properties: Client-specific message
   /// - Returns:
@@ -360,6 +362,7 @@ public extension MetricsLogger {
     contentID: String? = nil,
     insertionID: String? = nil,
     requestID: String? = nil,
+    viewID: String? = nil,
     sourceType: ImpressionSourceType? = nil,
     properties: Message? = nil
   ) -> Event_Impression {
@@ -370,7 +373,7 @@ public extension MetricsLogger {
       if let id = insertionID { impression.insertionID = id }
       if let id = requestID { impression.requestID = id }
       if let id = sessionID { impression.sessionID = id }
-      if let id = viewID { impression.viewID = id }
+      if let id = viewID ?? self.viewID { impression.viewID = id }
       if let id = contentID { impression.contentID = idMap.contentID(clientID: id) }
       if let t = sourceType?.protoValue { impression.sourceType = t }
       if let p = propertiesMessage(properties) { impression.properties = p }
@@ -396,6 +399,8 @@ public extension MetricsLogger {
   ///   - contentID: Content ID from which to derive `impressionID`
   ///   - insertionID: Insertion ID as provided by Promoted
   ///   - requestID: Request ID as provided by Promoted
+  ///   - viewID: View ID to set in impression. If not provided, defaults to
+  ///     the view ID last logged via `logView`.
   ///   - properties: Client-specific message
   /// - Returns:
   ///   Logged event message.
@@ -407,6 +412,7 @@ public extension MetricsLogger {
     contentID: String? = nil,
     insertionID: String? = nil,
     requestID: String? = nil,
+    viewID: String? = nil,
     targetURL: String? = nil,
     elementID: String? = nil,
     properties: Message? = nil
@@ -420,7 +426,7 @@ public extension MetricsLogger {
       if let id = insertionID { action.insertionID = id }
       if let id = requestID { action.requestID = id }
       if let id = sessionID { action.sessionID = id }
-      if let id = viewID { action.viewID = id }
+      if let id = viewID ?? self.viewID { action.viewID = id }
       action.name = name
       if let type = type.protoValue { action.actionType = type }
       action.elementID = elementID ?? name
@@ -468,16 +474,32 @@ public extension MetricsLogger {
   @discardableResult
   private func logView(
     trackerState: ViewTracker.State,
+    viewID: String? = nil,
+    properties: Message? = nil
+  ) -> Event_View {
+    return logView(
+      name: trackerState.name,
+      useCase: trackerState.useCase,
+      viewID: viewID,
+      properties: properties
+    )
+  }
+
+  @discardableResult
+  internal func logView(
+    name: String? = nil,
+    useCase: UseCase? = nil,
+    viewID: String? = nil,
     properties: Message? = nil
   ) -> Event_View {
     var view = Event_View()
     monitor.execute {
       view.timing = timingMessage()
       needsViewStateCheck = false  // No need for check when logging view.
-      if let id = viewID { view.viewID = id }
+      if let id = viewID ?? self.viewID { view.viewID = id }
       if let id = sessionID { view.sessionID = id }
-      view.name = trackerState.name
-      if let use = trackerState.useCase?.protoValue { view.useCase = use }
+      if let n = name { view.name = n }
+      if let use = useCase?.protoValue { view.useCase = use }
       if let p = propertiesMessage(properties) { view.properties = p }
       view.device = cachedDeviceMessage
       view.locale = cachedLocaleMessage

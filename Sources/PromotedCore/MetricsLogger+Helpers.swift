@@ -31,11 +31,13 @@ public extension MetricsLogger {
   @discardableResult
   func logImpression(
     content: Content,
+    viewID: String? = nil,
     sourceType: ImpressionSourceType = .unknown
   ) -> Event_Impression {
     return logImpression(
       contentID: content.contentID,
       insertionID: content.insertionID,
+      viewID: viewID,
       sourceType: sourceType
     )
   }
@@ -106,6 +108,7 @@ public extension MetricsLogger {
     type: ActionType,
     content: Content?,
     impressionID: String? = nil,
+    viewID: String? = nil,
     name: String? = nil
   ) -> Event_Action {
     return logAction(
@@ -113,7 +116,8 @@ public extension MetricsLogger {
       type: type,
       impressionID: impressionID,
       contentID: content?.contentID,
-      insertionID: content?.insertionID
+      insertionID: content?.insertionID,
+      viewID: viewID
     )
   }
 }
@@ -126,8 +130,10 @@ public extension MetricsLogger {
   }
   
   /// Logs a view of the given `UIViewController` and use case.
-  @objc func logView(viewController: UIViewController,
-                     useCase: UseCase) {
+  @objc func logView(
+    viewController: UIViewController,
+    useCase: UseCase
+  ) {
     logView(
       trackerKey: .uiKit(viewController: viewController),
       useCase: useCase
@@ -135,27 +141,19 @@ public extension MetricsLogger {
   }
 
   /// Logs a view with the given route name and key (React Native).
-  func logViewReady(
-    routeName: String,
-    routeKey: String,
-    useCase: UseCase? = nil
+  func logView(
+    routeName: String?,
+    routeKey: String?
   ) {
-    viewTracker.reset()
-    logView(
-      trackerKey: .reactNative(routeName: routeName, routeKey: routeKey),
-      useCase: useCase
-    )
+    logView(name: routeName)
   }
   
   /// Logs a view with the given route name and key (React Native).
-  func logViewChange(
-    routeName: String,
-    routeKey: String,
-    useCase: UseCase? = nil
+  func logAutoView(
+    routeName: String?,
+    routeKey: String?,
+    viewID: String?
   ) {
-    logView(
-      trackerKey: .reactNative(routeName: routeName, routeKey: routeKey),
-      useCase: useCase
-    )
+    logView(name: routeName, viewID: viewID)
   }
 }
