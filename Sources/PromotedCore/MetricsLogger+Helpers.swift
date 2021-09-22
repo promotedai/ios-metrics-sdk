@@ -143,9 +143,10 @@ public extension MetricsLogger {
   /// Logs a view with the given route name and key (React Native).
   func logView(
     routeName: String?,
-    routeKey: String?
+    routeKey: String?,
+    viewID: String?
   ) {
-    logView(name: routeName)
+    logView(name: routeName, viewID: viewID)
   }
   
   /// Logs a view with the given route name and key (React Native).
