@@ -5,9 +5,10 @@ import UIKit
 final class ViewTracker {
 
   /// Representation of an entry in the view stack.
+  // TODO(yu-hong): Remove this enum and simplify this class
+  // as part of auto view tracking for UIKit.
   enum Key: Equatable {
     case uiKit(viewController: UIViewController)
-    case reactNative(routeName: String, routeKey: String)
   }
   
   /// Current state of view stack that can be translated to a View event.
@@ -19,8 +20,6 @@ final class ViewTracker {
       switch viewKey {
       case .uiKit(let viewController):
         return viewController.promotedViewLoggingName
-      case .reactNative(let name, _):
-        return name
       }
     }
   }
@@ -80,7 +79,7 @@ final class ViewTracker {
   private func updateViewStack(previousStack: Stack) -> Stack {
     // Use `isReactNativeHint` only to break ties in the case
     // where the stack is empty.
-    if viewStack.isEmpty && isReactNativeHint {
+    if viewStack.isEmpty {
       return previousStack
     }
 
@@ -112,8 +111,6 @@ extension ViewTracker.Key: CustomDebugStringConvertible {
     switch self {
     case .uiKit(let viewController):
       return "UIKit(\(viewController.promotedViewLoggingName))"
-    case .reactNative(let routeName, _):
-      return "ReactNative(\(routeName))"
     }
   }
 }
@@ -146,15 +143,6 @@ fileprivate extension ViewTracker.Stack {
     }
   }
 
-  func firstIndex(matching routeKey: String) -> Int? {
-    self.firstIndex { e in
-      if case ViewTracker.Key.reactNative(_, let k) = e.viewKey {
-        return k == routeKey
-      }
-      return false
-    }
-  }
-
   /// Pops off the stack until given index is at the top.
   ///
   /// - Postcondition: !isEmpty
@@ -163,13 +151,6 @@ fileprivate extension ViewTracker.Stack {
     guard (removalCount > 0) && (removalCount < count) else { return false }
     removeLast(removalCount)
     return true
-  }
-
-  mutating func popTo(routeKey: String) -> Bool {
-    if let index = firstIndex(matching: routeKey) {
-      return popTo(index: index)
-    }
-    return false
   }
 
   mutating func popTo(viewController: UIViewController) -> Bool {
@@ -183,8 +164,6 @@ fileprivate extension ViewTracker.Stack {
     switch key {
     case .uiKit(let viewController):
       return popTo(viewController: viewController)
-    case .reactNative(_, let routeKey):
-      return popTo(routeKey: routeKey)
     }
   }
 }
