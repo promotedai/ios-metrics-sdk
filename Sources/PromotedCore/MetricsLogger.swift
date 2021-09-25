@@ -363,6 +363,7 @@ public extension MetricsLogger {
     insertionID: String? = nil,
     requestID: String? = nil,
     viewID: String? = nil,
+    autoViewID: String? = nil,
     sourceType: ImpressionSourceType? = nil,
     properties: Message? = nil
   ) -> Event_Impression {
@@ -374,6 +375,7 @@ public extension MetricsLogger {
       if let id = requestID { impression.requestID = id }
       if let id = sessionID { impression.sessionID = id }
       if let id = viewID ?? self.viewID { impression.viewID = id }
+      if let id = autoViewID { /* TODO */ }
       if let id = contentID { impression.contentID = idMap.contentID(clientID: id) }
       if let t = sourceType?.protoValue { impression.sourceType = t }
       if let p = propertiesMessage(properties) { impression.properties = p }
@@ -413,6 +415,7 @@ public extension MetricsLogger {
     insertionID: String? = nil,
     requestID: String? = nil,
     viewID: String? = nil,
+    autoViewID: String? = nil,
     targetURL: String? = nil,
     elementID: String? = nil,
     properties: Message? = nil
@@ -427,6 +430,7 @@ public extension MetricsLogger {
       if let id = requestID { action.requestID = id }
       if let id = sessionID { action.sessionID = id }
       if let id = viewID ?? self.viewID { action.viewID = id }
+      if let id = autoViewID { /* TODO */ }
       action.name = name
       if let type = type.protoValue { action.actionType = type }
       action.elementID = elementID ?? name
@@ -511,6 +515,31 @@ public extension MetricsLogger {
       history?.viewIDDidChange(value: viewID, event: view)
     }
     return view
+  }
+
+  @discardableResult
+  func logAutoView(
+    name: String? = nil,
+    useCase: UseCase? = nil,
+    autoViewID: String? = nil,
+    properties: Message? = nil
+  ) -> Event_View {
+    var autoView = Event_View()
+    monitor.execute {
+      autoView.timing = timingMessage()
+      if let id = autoViewID { autoView.viewID = id }
+      if let id = sessionID { autoView.sessionID = id }
+      if let n = name { autoView.name = n }
+      if let use = useCase?.protoValue { autoView.useCase = use }
+      if let p = propertiesMessage(properties) { autoView.properties = p }
+      autoView.locale = cachedLocaleMessage
+      let appScreenView = Event_AppScreenView()
+      // TODO(yu-hong): Fill out AppScreenView.
+      autoView.appScreenView = appScreenView
+      log(message: autoView)
+      //history?.viewIDDidChange(value: viewID, event: view)
+    }
+    return autoView
   }
 }
 
