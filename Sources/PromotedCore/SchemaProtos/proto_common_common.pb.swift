@@ -136,6 +136,55 @@ extension Common_CurrencyCode: CaseIterable {
 
 #endif  // swift(>=4.2)
 
+/// Next ID = 4.
+public enum Common_DeviceType: SwiftProtobuf.Enum {
+  public typealias RawValue = Int
+  case unknownDeviceType // = 0
+  case desktop // = 1
+  case mobile // = 2
+  case tablet // = 3
+  case UNRECOGNIZED(Int)
+
+  public init() {
+    self = .unknownDeviceType
+  }
+
+  public init?(rawValue: Int) {
+    switch rawValue {
+    case 0: self = .unknownDeviceType
+    case 1: self = .desktop
+    case 2: self = .mobile
+    case 3: self = .tablet
+    default: self = .UNRECOGNIZED(rawValue)
+    }
+  }
+
+  public var rawValue: Int {
+    switch self {
+    case .unknownDeviceType: return 0
+    case .desktop: return 1
+    case .mobile: return 2
+    case .tablet: return 3
+    case .UNRECOGNIZED(let i): return i
+    }
+  }
+
+}
+
+#if swift(>=4.2)
+
+extension Common_DeviceType: CaseIterable {
+  // The compiler won't synthesize support with the UNRECOGNIZED case.
+  public static var allCases: [Common_DeviceType] = [
+    .unknownDeviceType,
+    .desktop,
+    .mobile,
+    .tablet,
+  ]
+}
+
+#endif  // swift(>=4.2)
+
 public struct Common_EntityPath {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -160,7 +209,7 @@ public struct Common_EntityPath {
 
 /// Common submessage that scopes helps scope a request/log to a user.
 ///
-/// Next ID = 3.
+/// Next ID = 4.
 public struct Common_UserInfo {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -176,6 +225,10 @@ public struct Common_UserInfo {
   /// 2. logging unauthenticated users.
   /// The user UUID is in a different ID space than user_id.
   public var logUserID: String = String()
+
+  /// Optional, defaults to false. Indicates that the user is from the
+  /// marketplace or Promoted team.
+  public var isInternalUser: Bool = false
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -232,7 +285,7 @@ public struct Common_ClientInfo {
   }
 
   /// Used to indicate the type of traffic.  We can use this to prioritize resources.
-  /// Next ID = 5.
+  /// Next ID = 6.
   public enum TrafficType: SwiftProtobuf.Enum {
     public typealias RawValue = Int
     case unknownTrafficType // = 0
@@ -298,6 +351,267 @@ extension Common_ClientInfo.TrafficType: CaseIterable {
 }
 
 #endif  // swift(>=4.2)
+
+/// Locale for session
+/// Next ID = 3.
+public struct Common_Locale {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// CodeReview - Which ISO code is this?  ISO 639-1? 2? 3?
+  /// "en", "zh_Hant", "fr"
+  public var languageCode: String = String()
+
+  /// CodeReview - Which ISO code?  ISO 3166-1?
+  /// "US", "CA", "FR"
+  public var regionCode: String = String()
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// Rectangle size in pixels
+/// Next ID = 3.
+public struct Common_Size {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var width: UInt32 = 0
+
+  public var height: UInt32 = 0
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// Device screen
+/// Next ID = 3.
+public struct Common_Screen {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// Android: DisplayMetrics.widthPixels/heightPixels
+  /// iOS: UIScreen.nativeBounds.width/height
+  public var size: Common_Size {
+    get {return _size ?? Common_Size()}
+    set {_size = newValue}
+  }
+  /// Returns true if `size` has been explicitly set.
+  public var hasSize: Bool {return self._size != nil}
+  /// Clears the value of `size`. Subsequent reads from it will return its default value.
+  public mutating func clearSize() {self._size = nil}
+
+  /// Natural scale factor.
+  /// Android: DisplayMetrics.density
+  /// iOS: UIScreen.scale
+  public var scale: Float = 0
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+
+  fileprivate var _size: Common_Size? = nil
+}
+
+/// A sub-message containing Device info.
+/// Next ID = 11.
+public struct Common_Device {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var deviceType: Common_DeviceType {
+    get {return _storage._deviceType}
+    set {_uniqueStorage()._deviceType = newValue}
+  }
+
+  /// Android: android.os.Build.BRAND
+  ///          (eg. "google", "verizon", "tmobile", "Samsung")
+  /// iOS: "Apple"
+  public var brand: String {
+    get {return _storage._brand}
+    set {_uniqueStorage()._brand = newValue}
+  }
+
+  /// Android: android.os.Build.MANUFACTURER
+  ///          (eg. "HTC", "Motorola", "HUAWEI")
+  /// iOS: "Apple"
+  public var manufacturer: String {
+    get {return _storage._manufacturer}
+    set {_uniqueStorage()._manufacturer = newValue}
+  }
+
+  /// Android: android.os.Build.MODEL
+  ///          (eg. "GT-S5830L", "MB860")
+  /// iOS: "iPhoneXX,YY" or "iPadXX,YY"
+  public var identifier: String {
+    get {return _storage._identifier}
+    set {_uniqueStorage()._identifier = newValue}
+  }
+
+  /// Android: android.os.Build.VERSION.RELEASE
+  /// iOS: "14.4.1"
+  public var osVersion: String {
+    get {return _storage._osVersion}
+    set {_uniqueStorage()._osVersion = newValue}
+  }
+
+  /// Deprecated.
+  public var locale: Common_Locale {
+    get {return _storage._locale ?? Common_Locale()}
+    set {_uniqueStorage()._locale = newValue}
+  }
+  /// Returns true if `locale` has been explicitly set.
+  public var hasLocale: Bool {return _storage._locale != nil}
+  /// Clears the value of `locale`. Subsequent reads from it will return its default value.
+  public mutating func clearLocale() {_uniqueStorage()._locale = nil}
+
+  public var screen: Common_Screen {
+    get {return _storage._screen ?? Common_Screen()}
+    set {_uniqueStorage()._screen = newValue}
+  }
+  /// Returns true if `screen` has been explicitly set.
+  public var hasScreen: Bool {return _storage._screen != nil}
+  /// Clears the value of `screen`. Subsequent reads from it will return its default value.
+  public mutating func clearScreen() {_uniqueStorage()._screen = nil}
+
+  /// Optional.  We'll use IP Address to guess the user's
+  /// location when necessary and possible on desktop.
+  /// Most likely in a server integration this should be the value
+  /// of the X-Forwarded-For header.
+  public var ipAddress: String {
+    get {return _storage._ipAddress}
+    set {_uniqueStorage()._ipAddress = newValue}
+  }
+
+  /// Optional. User device's actual geolocation if available.
+  public var location: Common_Location {
+    get {return _storage._location ?? Common_Location()}
+    set {_uniqueStorage()._location = newValue}
+  }
+  /// Returns true if `location` has been explicitly set.
+  public var hasLocation: Bool {return _storage._location != nil}
+  /// Clears the value of `location`. Subsequent reads from it will return its default value.
+  public mutating func clearLocation() {_uniqueStorage()._location = nil}
+
+  /// Optional. Information about the user's web client (on web or mobile browser).
+  public var browser: Common_Browser {
+    get {return _storage._browser ?? Common_Browser()}
+    set {_uniqueStorage()._browser = newValue}
+  }
+  /// Returns true if `browser` has been explicitly set.
+  public var hasBrowser: Bool {return _storage._browser != nil}
+  /// Clears the value of `browser`. Subsequent reads from it will return its default value.
+  public mutating func clearBrowser() {_uniqueStorage()._browser = nil}
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+
+  fileprivate var _storage = _StorageClass.defaultInstance
+}
+
+/// https://raw.githubusercontent.com/snowplow/iglu-central/master/schemas/org.ietf/http_client_hints/jsonschema/1-0-0
+/// A newer alternative to user agent strings.
+public struct Common_ClientHints {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var isMobile: Bool = false
+
+  public var brand: [Common_ClientHintBrand] = []
+
+  public var architecture: String = String()
+
+  public var model: String = String()
+
+  public var platform: String = String()
+
+  public var platformVersion: String = String()
+
+  public var uaFullVersion: String = String()
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// https://raw.githubusercontent.com/snowplow/iglu-central/master/schemas/org.ietf/http_client_hints/jsonschema/1-0-0
+/// a part of ClientHints.
+public struct Common_ClientHintBrand {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var brand: String = String()
+
+  public var version: String = String()
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// A sub-message containing Browser info.
+/// Next ID = 4.
+public struct Common_Browser {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var userAgent: String = String()
+
+  public var viewportSize: Common_Size {
+    get {return _viewportSize ?? Common_Size()}
+    set {_viewportSize = newValue}
+  }
+  /// Returns true if `viewportSize` has been explicitly set.
+  public var hasViewportSize: Bool {return self._viewportSize != nil}
+  /// Clears the value of `viewportSize`. Subsequent reads from it will return its default value.
+  public mutating func clearViewportSize() {self._viewportSize = nil}
+
+  public var clientHints: Common_ClientHints {
+    get {return _clientHints ?? Common_ClientHints()}
+    set {_clientHints = newValue}
+  }
+  /// Returns true if `clientHints` has been explicitly set.
+  public var hasClientHints: Bool {return self._clientHints != nil}
+  /// Clears the value of `clientHints`. Subsequent reads from it will return its default value.
+  public mutating func clearClientHints() {self._clientHints = nil}
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+
+  fileprivate var _viewportSize: Common_Size? = nil
+  fileprivate var _clientHints: Common_ClientHints? = nil
+}
+
+/// Next ID = 4.
+public struct Common_Location {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// [-90, 90]
+  public var latitude: Double = 0
+
+  /// [-180, 180]
+  public var longitude: Double = 0
+
+  /// Optional. Accuracy of location if known.
+  public var accuracyInMeters: Double = 0
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
 
 /// A message containing timing information.
 ///
@@ -407,6 +721,15 @@ extension Common_CurrencyCode: SwiftProtobuf._ProtoNameProviding {
   ]
 }
 
+extension Common_DeviceType: SwiftProtobuf._ProtoNameProviding {
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    0: .same(proto: "UNKNOWN_DEVICE_TYPE"),
+    1: .same(proto: "DESKTOP"),
+    2: .same(proto: "MOBILE"),
+    3: .same(proto: "TABLET"),
+  ]
+}
+
 extension Common_EntityPath: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".EntityPath"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -474,6 +797,7 @@ extension Common_UserInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .standard(proto: "user_id"),
     2: .standard(proto: "log_user_id"),
+    3: .standard(proto: "is_internal_user"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -484,6 +808,7 @@ extension Common_UserInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularStringField(value: &self.userID) }()
       case 2: try { try decoder.decodeSingularStringField(value: &self.logUserID) }()
+      case 3: try { try decoder.decodeSingularBoolField(value: &self.isInternalUser) }()
       default: break
       }
     }
@@ -496,12 +821,16 @@ extension Common_UserInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
     if !self.logUserID.isEmpty {
       try visitor.visitSingularStringField(value: self.logUserID, fieldNumber: 2)
     }
+    if self.isInternalUser != false {
+      try visitor.visitSingularBoolField(value: self.isInternalUser, fieldNumber: 3)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   public static func ==(lhs: Common_UserInfo, rhs: Common_UserInfo) -> Bool {
     if lhs.userID != rhs.userID {return false}
     if lhs.logUserID != rhs.logUserID {return false}
+    if lhs.isInternalUser != rhs.isInternalUser {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -560,6 +889,450 @@ extension Common_ClientInfo.TrafficType: SwiftProtobuf._ProtoNameProviding {
     2: .same(proto: "REPLAY"),
     4: .same(proto: "SHADOW"),
   ]
+}
+
+extension Common_Locale: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Locale"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "language_code"),
+    2: .standard(proto: "region_code"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.languageCode) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.regionCode) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.languageCode.isEmpty {
+      try visitor.visitSingularStringField(value: self.languageCode, fieldNumber: 1)
+    }
+    if !self.regionCode.isEmpty {
+      try visitor.visitSingularStringField(value: self.regionCode, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Common_Locale, rhs: Common_Locale) -> Bool {
+    if lhs.languageCode != rhs.languageCode {return false}
+    if lhs.regionCode != rhs.regionCode {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Common_Size: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Size"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "width"),
+    2: .same(proto: "height"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularUInt32Field(value: &self.width) }()
+      case 2: try { try decoder.decodeSingularUInt32Field(value: &self.height) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.width != 0 {
+      try visitor.visitSingularUInt32Field(value: self.width, fieldNumber: 1)
+    }
+    if self.height != 0 {
+      try visitor.visitSingularUInt32Field(value: self.height, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Common_Size, rhs: Common_Size) -> Bool {
+    if lhs.width != rhs.width {return false}
+    if lhs.height != rhs.height {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Common_Screen: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Screen"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "size"),
+    2: .same(proto: "scale"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularMessageField(value: &self._size) }()
+      case 2: try { try decoder.decodeSingularFloatField(value: &self.scale) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if let v = self._size {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
+    }
+    if self.scale != 0 {
+      try visitor.visitSingularFloatField(value: self.scale, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Common_Screen, rhs: Common_Screen) -> Bool {
+    if lhs._size != rhs._size {return false}
+    if lhs.scale != rhs.scale {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Common_Device: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Device"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "device_type"),
+    2: .same(proto: "brand"),
+    3: .same(proto: "manufacturer"),
+    4: .same(proto: "identifier"),
+    5: .standard(proto: "os_version"),
+    6: .same(proto: "locale"),
+    7: .same(proto: "screen"),
+    8: .standard(proto: "ip_address"),
+    9: .same(proto: "location"),
+    10: .same(proto: "browser"),
+  ]
+
+  fileprivate class _StorageClass {
+    var _deviceType: Common_DeviceType = .unknownDeviceType
+    var _brand: String = String()
+    var _manufacturer: String = String()
+    var _identifier: String = String()
+    var _osVersion: String = String()
+    var _locale: Common_Locale? = nil
+    var _screen: Common_Screen? = nil
+    var _ipAddress: String = String()
+    var _location: Common_Location? = nil
+    var _browser: Common_Browser? = nil
+
+    static let defaultInstance = _StorageClass()
+
+    private init() {}
+
+    init(copying source: _StorageClass) {
+      _deviceType = source._deviceType
+      _brand = source._brand
+      _manufacturer = source._manufacturer
+      _identifier = source._identifier
+      _osVersion = source._osVersion
+      _locale = source._locale
+      _screen = source._screen
+      _ipAddress = source._ipAddress
+      _location = source._location
+      _browser = source._browser
+    }
+  }
+
+  fileprivate mutating func _uniqueStorage() -> _StorageClass {
+    if !isKnownUniquelyReferenced(&_storage) {
+      _storage = _StorageClass(copying: _storage)
+    }
+    return _storage
+  }
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    _ = _uniqueStorage()
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      while let fieldNumber = try decoder.nextFieldNumber() {
+        // The use of inline closures is to circumvent an issue where the compiler
+        // allocates stack space for every case branch when no optimizations are
+        // enabled. https://github.com/apple/swift-protobuf/issues/1034
+        switch fieldNumber {
+        case 1: try { try decoder.decodeSingularEnumField(value: &_storage._deviceType) }()
+        case 2: try { try decoder.decodeSingularStringField(value: &_storage._brand) }()
+        case 3: try { try decoder.decodeSingularStringField(value: &_storage._manufacturer) }()
+        case 4: try { try decoder.decodeSingularStringField(value: &_storage._identifier) }()
+        case 5: try { try decoder.decodeSingularStringField(value: &_storage._osVersion) }()
+        case 6: try { try decoder.decodeSingularMessageField(value: &_storage._locale) }()
+        case 7: try { try decoder.decodeSingularMessageField(value: &_storage._screen) }()
+        case 8: try { try decoder.decodeSingularStringField(value: &_storage._ipAddress) }()
+        case 9: try { try decoder.decodeSingularMessageField(value: &_storage._location) }()
+        case 10: try { try decoder.decodeSingularMessageField(value: &_storage._browser) }()
+        default: break
+        }
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      if _storage._deviceType != .unknownDeviceType {
+        try visitor.visitSingularEnumField(value: _storage._deviceType, fieldNumber: 1)
+      }
+      if !_storage._brand.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._brand, fieldNumber: 2)
+      }
+      if !_storage._manufacturer.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._manufacturer, fieldNumber: 3)
+      }
+      if !_storage._identifier.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._identifier, fieldNumber: 4)
+      }
+      if !_storage._osVersion.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._osVersion, fieldNumber: 5)
+      }
+      if let v = _storage._locale {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 6)
+      }
+      if let v = _storage._screen {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 7)
+      }
+      if !_storage._ipAddress.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._ipAddress, fieldNumber: 8)
+      }
+      if let v = _storage._location {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 9)
+      }
+      if let v = _storage._browser {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 10)
+      }
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Common_Device, rhs: Common_Device) -> Bool {
+    if lhs._storage !== rhs._storage {
+      let storagesAreEqual: Bool = withExtendedLifetime((lhs._storage, rhs._storage)) { (_args: (_StorageClass, _StorageClass)) in
+        let _storage = _args.0
+        let rhs_storage = _args.1
+        if _storage._deviceType != rhs_storage._deviceType {return false}
+        if _storage._brand != rhs_storage._brand {return false}
+        if _storage._manufacturer != rhs_storage._manufacturer {return false}
+        if _storage._identifier != rhs_storage._identifier {return false}
+        if _storage._osVersion != rhs_storage._osVersion {return false}
+        if _storage._locale != rhs_storage._locale {return false}
+        if _storage._screen != rhs_storage._screen {return false}
+        if _storage._ipAddress != rhs_storage._ipAddress {return false}
+        if _storage._location != rhs_storage._location {return false}
+        if _storage._browser != rhs_storage._browser {return false}
+        return true
+      }
+      if !storagesAreEqual {return false}
+    }
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Common_ClientHints: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".ClientHints"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "is_mobile"),
+    2: .same(proto: "brand"),
+    3: .same(proto: "architecture"),
+    4: .same(proto: "model"),
+    5: .same(proto: "platform"),
+    6: .standard(proto: "platform_version"),
+    7: .standard(proto: "ua_full_version"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularBoolField(value: &self.isMobile) }()
+      case 2: try { try decoder.decodeRepeatedMessageField(value: &self.brand) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.architecture) }()
+      case 4: try { try decoder.decodeSingularStringField(value: &self.model) }()
+      case 5: try { try decoder.decodeSingularStringField(value: &self.platform) }()
+      case 6: try { try decoder.decodeSingularStringField(value: &self.platformVersion) }()
+      case 7: try { try decoder.decodeSingularStringField(value: &self.uaFullVersion) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.isMobile != false {
+      try visitor.visitSingularBoolField(value: self.isMobile, fieldNumber: 1)
+    }
+    if !self.brand.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.brand, fieldNumber: 2)
+    }
+    if !self.architecture.isEmpty {
+      try visitor.visitSingularStringField(value: self.architecture, fieldNumber: 3)
+    }
+    if !self.model.isEmpty {
+      try visitor.visitSingularStringField(value: self.model, fieldNumber: 4)
+    }
+    if !self.platform.isEmpty {
+      try visitor.visitSingularStringField(value: self.platform, fieldNumber: 5)
+    }
+    if !self.platformVersion.isEmpty {
+      try visitor.visitSingularStringField(value: self.platformVersion, fieldNumber: 6)
+    }
+    if !self.uaFullVersion.isEmpty {
+      try visitor.visitSingularStringField(value: self.uaFullVersion, fieldNumber: 7)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Common_ClientHints, rhs: Common_ClientHints) -> Bool {
+    if lhs.isMobile != rhs.isMobile {return false}
+    if lhs.brand != rhs.brand {return false}
+    if lhs.architecture != rhs.architecture {return false}
+    if lhs.model != rhs.model {return false}
+    if lhs.platform != rhs.platform {return false}
+    if lhs.platformVersion != rhs.platformVersion {return false}
+    if lhs.uaFullVersion != rhs.uaFullVersion {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Common_ClientHintBrand: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".ClientHintBrand"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "brand"),
+    2: .same(proto: "version"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.brand) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.version) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.brand.isEmpty {
+      try visitor.visitSingularStringField(value: self.brand, fieldNumber: 1)
+    }
+    if !self.version.isEmpty {
+      try visitor.visitSingularStringField(value: self.version, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Common_ClientHintBrand, rhs: Common_ClientHintBrand) -> Bool {
+    if lhs.brand != rhs.brand {return false}
+    if lhs.version != rhs.version {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Common_Browser: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Browser"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "user_agent"),
+    2: .standard(proto: "viewport_size"),
+    3: .standard(proto: "client_hints"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.userAgent) }()
+      case 2: try { try decoder.decodeSingularMessageField(value: &self._viewportSize) }()
+      case 3: try { try decoder.decodeSingularMessageField(value: &self._clientHints) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.userAgent.isEmpty {
+      try visitor.visitSingularStringField(value: self.userAgent, fieldNumber: 1)
+    }
+    if let v = self._viewportSize {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
+    }
+    if let v = self._clientHints {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Common_Browser, rhs: Common_Browser) -> Bool {
+    if lhs.userAgent != rhs.userAgent {return false}
+    if lhs._viewportSize != rhs._viewportSize {return false}
+    if lhs._clientHints != rhs._clientHints {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Common_Location: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Location"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "latitude"),
+    2: .same(proto: "longitude"),
+    3: .standard(proto: "accuracy_in_meters"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularDoubleField(value: &self.latitude) }()
+      case 2: try { try decoder.decodeSingularDoubleField(value: &self.longitude) }()
+      case 3: try { try decoder.decodeSingularDoubleField(value: &self.accuracyInMeters) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.latitude != 0 {
+      try visitor.visitSingularDoubleField(value: self.latitude, fieldNumber: 1)
+    }
+    if self.longitude != 0 {
+      try visitor.visitSingularDoubleField(value: self.longitude, fieldNumber: 2)
+    }
+    if self.accuracyInMeters != 0 {
+      try visitor.visitSingularDoubleField(value: self.accuracyInMeters, fieldNumber: 3)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Common_Location, rhs: Common_Location) -> Bool {
+    if lhs.latitude != rhs.latitude {return false}
+    if lhs.longitude != rhs.longitude {return false}
+    if lhs.accuracyInMeters != rhs.accuracyInMeters {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
 }
 
 extension Common_Timing: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
