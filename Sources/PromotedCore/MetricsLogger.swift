@@ -75,8 +75,8 @@ public final class MetricsLogger: NSObject {
 
   var history: AncestorIDHistory?
 
-  private lazy var cachedDeviceMessage: Event_Device = deviceMessage()
-  private lazy var cachedLocaleMessage: Event_Locale = localeMessage()
+  private lazy var cachedDeviceMessage: Common_Device = deviceMessage()
+  private lazy var cachedLocaleMessage: Common_Locale = localeMessage()
 
   typealias Deps = (
     ClientConfigSource &
@@ -257,8 +257,8 @@ public extension MetricsLogger {
 
 // MARK: - Internal methods
 extension MetricsLogger {
-  private func deviceMessage() -> Event_Device {
-    var device = Event_Device()
+  private func deviceMessage() -> Common_Device {
+    var device = Common_Device()
     if let type = deviceInfo.deviceType.protoValue { device.deviceType = type }
     device.brand = deviceInfo.brand
     device.manufacturer = deviceInfo.manufacturer
@@ -271,8 +271,8 @@ extension MetricsLogger {
     return device
   }
 
-  private func localeMessage() -> Event_Locale {
-    var locale = Event_Locale()
+  private func localeMessage() -> Common_Locale {
+    var locale = Common_Locale()
     locale.languageCode = deviceInfo.languageCode
     locale.regionCode = deviceInfo.regionCode
     return locale
@@ -285,7 +285,7 @@ extension MetricsLogger {
     return userInfo
   }
   
-  func timingMessage() -> Common_Timing {
+  private func timingMessage() -> Common_Timing {
     var timing = Common_Timing()
     timing.clientLogTimestamp = UInt64(clock.nowMillis)
     return timing
@@ -310,6 +310,10 @@ extension MetricsLogger {
     }
     return nil
   }
+
+  private func setValue<T>(_ value: T?, in field: inout T) {
+    if let value = value { field = value }
+  }
 }
 
 // MARK: - Event logging base methods
@@ -328,7 +332,7 @@ public extension MetricsLogger {
     var user = Event_User()
     monitor.execute {
       user.timing = timingMessage()
-      if let p = propertiesMessage(properties) { user.properties = p }
+      setValue(propertiesMessage(properties), in: &user.properties)
       log(message: user)
       history?.logUserIDDidChange(value: logUserID, event: user)
       history?.sessionIDDidChange(value: sessionID)
@@ -371,14 +375,14 @@ public extension MetricsLogger {
     monitor.execute {
       impression.timing = timingMessage()
       impression.impressionID = idMap.impressionID()
-      if let id = insertionID { impression.insertionID = id }
-      if let id = requestID { impression.requestID = id }
-      if let id = sessionID { impression.sessionID = id }
-      if let id = viewID ?? self.viewID { impression.viewID = id }
-      if let id = autoViewID { /* TODO */ }
-      if let id = contentID { impression.contentID = idMap.contentID(clientID: id) }
-      if let t = sourceType?.protoValue { impression.sourceType = t }
-      if let p = propertiesMessage(properties) { impression.properties = p }
+      setValue(insertionID, in: &impression.insertionID)
+      setValue(requestID, in: &impression.requestID)
+      setValue(sessionID, in: &impression.sessionID)
+      setValue(viewID ?? self.viewID, in: &impression.viewID)
+      setValue(autoViewID, in: &impression.autoViewID)
+      setValue(contentID, in: &impression.contentID)
+      setValue(sourceType?.protoValue, in: &impression.sourceType)
+      setValue(propertiesMessage(properties), in: &impression.properties)
       log(message: impression)
     }
     return impression
@@ -424,25 +428,25 @@ public extension MetricsLogger {
     monitor.execute {
       action.timing = timingMessage()
       action.actionID = idMap.actionID()
-      if let id = impressionID { action.impressionID = id }
-      if let id = contentID { action.contentID = id }
-      if let id = insertionID { action.insertionID = id }
-      if let id = requestID { action.requestID = id }
-      if let id = sessionID { action.sessionID = id }
-      if let id = viewID ?? self.viewID { action.viewID = id }
-      if let id = autoViewID { /* TODO */ }
+      setValue(impressionID, in: &action.impressionID)
+      setValue(contentID, in: &action.contentID)
+      setValue(insertionID, in: &action.insertionID)
+      setValue(requestID, in: &action.requestID)
+      setValue(sessionID, in: &action.sessionID)
+      setValue(viewID ?? self.viewID, in: &action.viewID)
+      setValue(autoViewID, in: &action.autoViewID)
       action.name = name
-      if let type = type.protoValue { action.actionType = type }
+      setValue(type.protoValue, in: &action.actionType)
       action.elementID = elementID ?? name
       switch type {
       case .navigate:
         var navigateAction = Event_NavigateAction()
-        if let url = targetURL { navigateAction.targetURL = url }
+        setValue(targetURL, in: &navigateAction.targetURL)
         action.navigateAction = navigateAction
       default:
         break
       }
-      if let p = propertiesMessage(properties) { action.properties = p }
+      setValue(propertiesMessage(properties), in: &action.properties)
       log(message: action)
     }
     return action
@@ -500,12 +504,11 @@ public extension MetricsLogger {
     monitor.execute {
       view.timing = timingMessage()
       needsViewStateCheck = false  // No need for check when logging view.
-      if let id = viewID ?? self.viewID { view.viewID = id }
-      if let id = sessionID { view.sessionID = id }
-      if let n = name { view.name = n }
-      if let use = useCase?.protoValue { view.useCase = use }
-      if let p = propertiesMessage(properties) { view.properties = p }
-      view.device = cachedDeviceMessage
+      setValue(viewID ?? self.viewID, in: &view.viewID)
+      setValue(sessionID, in: &view.sessionID)
+      setValue(name, in: &view.name)
+      setValue(useCase?.protoValue, in: &view.useCase)
+      setValue(propertiesMessage(properties), in: &view.properties)
       view.locale = cachedLocaleMessage
       view.viewType = .appScreen
       let appScreenView = Event_AppScreenView()
@@ -523,15 +526,15 @@ public extension MetricsLogger {
     useCase: UseCase? = nil,
     autoViewID: String? = nil,
     properties: Message? = nil
-  ) -> Event_View {
-    var autoView = Event_View()
+  ) -> Event_AutoView {
+    var autoView = Event_AutoView()
     monitor.execute {
       autoView.timing = timingMessage()
-      if let id = autoViewID { autoView.viewID = id }
-      if let id = sessionID { autoView.sessionID = id }
-      if let n = name { autoView.name = n }
-      if let use = useCase?.protoValue { autoView.useCase = use }
-      if let p = propertiesMessage(properties) { autoView.properties = p }
+      setValue(autoViewID, in: &autoView.autoViewID)
+      setValue(sessionID, in: &autoView.sessionID)
+      setValue(name, in: &autoView.name)
+      setValue(useCase?.protoValue, in: &autoView.useCase)
+      setValue(propertiesMessage(properties), in: &autoView.properties)
       autoView.locale = cachedLocaleMessage
       let appScreenView = Event_AppScreenView()
       // TODO(yu-hong): Fill out AppScreenView.
@@ -580,12 +583,15 @@ public extension MetricsLogger {
   private func logRequestMessage(events: [Message]) -> Event_LogRequest {
     var logRequest = Event_LogRequest()
     logRequest.userInfo = userInfoMessage()
+    logRequest.device = cachedDeviceMessage
     for event in events {
       switch event {
       case let user as Event_User:
         logRequest.user.append(user)
       case let view as Event_View:
         logRequest.view.append(view)
+      case let autoView as Event_AutoView:
+        logRequest.autoView.append(autoView)
       case let request as Delivery_Request:
         logRequest.request.append(request)
       case let insertion as Delivery_Insertion:
@@ -595,8 +601,13 @@ public extension MetricsLogger {
       case let action as Event_Action:
         logRequest.action.append(action)
       default:
-        osLog?.warning("flush/logRequestMessage: Unknown event: %{private}@", String(describing: event))
-        monitor.executionDidError(MetricsLoggerError.unexpectedEvent(event))
+        osLog?.warning(
+          "flush/logRequestMessage: Unknown event: %{private}@",
+          String(describing: event)
+        )
+        monitor.executionDidError(
+          MetricsLoggerError.unexpectedEvent(event)
+        )
       }
     }
     if config.anyDiagnosticsEnabled {

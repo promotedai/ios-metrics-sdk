@@ -6,5 +6,5 @@ enum DeviceType: Int {
   case mobile = 2
   case tablet = 3
   
-  var protoValue: Event_DeviceType? { Event_DeviceType(rawValue: self.rawValue) }
+  var protoValue: Common_DeviceType? { Common_DeviceType(rawValue: self.rawValue) }
 }
