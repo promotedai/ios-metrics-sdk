@@ -23,3 +23,12 @@ public struct AutoViewState {
     hasSuperimposedViews: nil
   )
 }
+
+extension AutoViewState: CustomDebugStringConvertible {
+  public var debugDescription: String {
+    return "(" +
+      "autoViewID: \(autoViewID ?? "nil") " +
+      "hasSuperimposedViews: \(hasSuperimposedViews ?? false)" +
+    ")"
+  }
+}
