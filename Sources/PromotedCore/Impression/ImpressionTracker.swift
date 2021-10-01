@@ -88,7 +88,6 @@ public protocol ImpressionTrackerDelegate: AnyObject {
  }
  ```
  */
-@objc(PROImpressionTracker)
 public final class ImpressionTracker: NSObject, ImpressionConfig {
 
   // MARK: -
@@ -141,12 +140,14 @@ public final class ImpressionTracker: NSObject, ImpressionConfig {
 public extension ImpressionTracker {
 
   /// Call this method when new items are displayed.
-  @objc(collectionViewWillDisplayContent:autoViewID:)
-  func collectionViewWillDisplay(content: Content, autoViewID: String?) {
+  func collectionViewWillDisplay(
+    content: Content,
+    autoViewState: AutoViewState
+  ) {
     monitor.execute {
       broadcastStartAndAddImpressions(
         contents: [content],
-        autoViewID: autoViewID,
+        autoViewState: autoViewState,
         now: clock.now
       )
     }
@@ -155,25 +156,26 @@ public extension ImpressionTracker {
   /// Call this method when previously displayed items are hidden.
   /// If an item is reported as hidden that had not previously
   /// been displayed, the impression for that item will be ignored.
-  @objc(collectionViewDidHideContent:autoViewID:)
-  func collectionViewDidHide(content: Content, autoViewID: String?) {
+  func collectionViewDidHide(
+    content: Content,
+    autoViewState: AutoViewState
+  ) {
     monitor.execute {
       broadcastEndAndRemoveImpressions(
         contents: [content],
-        autoViewID: autoViewID,
+        autoViewState: autoViewState,
         now: clock.now
       )
     }
   }
 
-  @objc(collectionViewDidChangeVisibleContent:autoViewID:)
   func collectionViewDidChangeVisibleContent(
     array contentArray: [Content],
-    autoViewID: String?
+    autoViewState: AutoViewState
   ) {
     collectionViewDidChangeVisibleContent(
       contentArray,
-      autoViewID: autoViewID
+      autoViewState: autoViewState
     )
   }
 
@@ -182,7 +184,7 @@ public extension ImpressionTracker {
   /// when a collection reloads.
   func collectionViewDidChangeVisibleContent<T: Collection>(
     _ contents: T,
-    autoViewID: String?
+    autoViewState: AutoViewState
   ) where T.Element == Content {
     monitor.execute {
       let now = clock.now
@@ -196,23 +198,23 @@ public extension ImpressionTracker {
       }
       broadcastStartAndAddImpressions(
         contents: newlyShownContent,
-        autoViewID: autoViewID,
+        autoViewState: autoViewState,
         now: now
       )
       broadcastEndAndRemoveImpressions(
         contents: newlyHiddenContent,
-        autoViewID: autoViewID,
+        autoViewState: autoViewState,
         now: now
       )
     }
   }
 
   /// Call this method when the collection view hides.
-  @objc func collectionViewDidHideAllContent(autoViewID: String?) {
+  func collectionViewDidHideAllContent(autoViewState: AutoViewState) {
     monitor.execute {
       broadcastEndAndRemoveImpressions(
         contents: contentToImpressionStart.keys,
-        autoViewID: autoViewID,
+        autoViewState: autoViewState,
         now: clock.now
       )
     }
@@ -220,7 +222,7 @@ public extension ImpressionTracker {
 
   private func broadcastStartAndAddImpressions<T: Collection>(
     contents: T,
-    autoViewID: String?,
+    autoViewState: AutoViewState,
     now: TimeInterval
   ) where T.Element == Content {
     guard !contents.isEmpty else { return }
@@ -238,11 +240,11 @@ public extension ImpressionTracker {
     monitor.execute {
       for impression in impressions {
         let content = impression.content
-        print("***** imp \(content) autoViewID:\(autoViewID ?? "nil")")
+        print("***** imp \(content) autoViewState:\(autoViewState)")
         let impressionProto = metricsLogger.logImpression(
           content: content,
           sourceType: impression.sourceType,
-          autoViewID: autoViewID
+          autoViewState: autoViewState
         )
         contentToImpressionID[content] = impressionProto.impressionID
       }
@@ -252,7 +254,7 @@ public extension ImpressionTracker {
 
   private func broadcastEndAndRemoveImpressions<T: Collection>(
     contents: T,
-    autoViewID: String?,
+    autoViewState: AutoViewState,
     now: TimeInterval
   ) where T.Element == Content {
     guard !contents.isEmpty else { return }

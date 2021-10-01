@@ -363,13 +363,12 @@ public extension MetricsLogger {
   ///   Logged event message.
   @discardableResult
   func logImpression(
+    sourceType: ImpressionSourceType? = nil,
+    autoViewState: AutoViewState = .empty,
     contentID: String? = nil,
     insertionID: String? = nil,
     requestID: String? = nil,
     viewID: String? = nil,
-    autoViewID: String? = nil,
-    sourceType: ImpressionSourceType? = nil,
-    hasSuperimposedViews: Bool = false,
     properties: Message? = nil
   ) -> Event_Impression {
     var impression = Event_Impression()
@@ -380,10 +379,13 @@ public extension MetricsLogger {
       setValue(requestID, in: &impression.requestID)
       setValue(sessionID, in: &impression.sessionID)
       setValue(viewID ?? self.viewID, in: &impression.viewID)
-      setValue(autoViewID, in: &impression.autoViewID)
+      setValue(autoViewState.autoViewID, in: &impression.autoViewID)
       setValue(contentID, in: &impression.contentID)
       setValue(sourceType?.protoValue, in: &impression.sourceType)
-      setValue(hasSuperimposedViews, in: &impression.hasSuperimposedViews_p)
+      setValue(
+        autoViewState.hasSuperimposedViews,
+        in: &impression.hasSuperimposedViews_p
+      )
       setValue(propertiesMessage(properties), in: &impression.properties)
       log(message: impression)
     }
@@ -414,17 +416,16 @@ public extension MetricsLogger {
   ///   Logged event message.
   @discardableResult
   func logAction(
-    name: String,
     type: ActionType,
-    impressionID: String? = nil,
+    name: String,
+    targetURL: String? = nil,
+    elementID: String? = nil,
+    autoViewState: AutoViewState = .empty,
     contentID: String? = nil,
+    impressionID: String? = nil,
     insertionID: String? = nil,
     requestID: String? = nil,
     viewID: String? = nil,
-    autoViewID: String? = nil,
-    targetURL: String? = nil,
-    elementID: String? = nil,
-    hasSuperimposedViews: Bool = false,
     properties: Message? = nil
   ) -> Event_Action {
     var action = Event_Action()
@@ -437,7 +438,7 @@ public extension MetricsLogger {
       setValue(requestID, in: &action.requestID)
       setValue(sessionID, in: &action.sessionID)
       setValue(viewID ?? self.viewID, in: &action.viewID)
-      setValue(autoViewID, in: &action.autoViewID)
+      setValue(autoViewState.autoViewID, in: &action.autoViewID)
       action.name = name
       setValue(type.protoValue, in: &action.actionType)
       action.elementID = elementID ?? name
@@ -449,7 +450,10 @@ public extension MetricsLogger {
       default:
         break
       }
-      setValue(hasSuperimposedViews, in: &action.hasSuperimposedViews_p)
+      setValue(
+        autoViewState.hasSuperimposedViews,
+        in: &action.hasSuperimposedViews_p
+      )
       setValue(propertiesMessage(properties), in: &action.properties)
       log(message: action)
     }

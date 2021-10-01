@@ -32,17 +32,15 @@ public extension MetricsLogger {
   func logImpression(
     content: Content,
     sourceType: ImpressionSourceType = .unknown,
-    autoViewID: String? = nil,
-    hasSuperimposedViews: Bool = false,
+    autoViewState: AutoViewState = .empty,
     viewID: String? = nil
   ) -> Event_Impression {
     return logImpression(
+      sourceType: sourceType,
+      autoViewState: autoViewState,
       contentID: content.contentID,
       insertionID: content.insertionID,
-      viewID: viewID,
-      autoViewID: autoViewID,
-      sourceType: sourceType,
-      hasSuperimposedViews: hasSuperimposedViews
+      viewID: viewID
     )
   }
 }
@@ -65,18 +63,18 @@ public extension MetricsLogger {
     content: Content,
     screenName: String? = nil,
     viewController: UIViewController? = nil,
-    hasSuperimposedViews: Bool = false
+    autoViewState: AutoViewState = .empty
   ) -> Event_Action {
     return logAction(
+      type: .navigate,
       name: (
         screenName
           ?? viewController?.promotedViewLoggingName
           ?? ActionType.navigate.description
       ),
-      type: .navigate,
+      autoViewState: autoViewState,
       contentID: content.contentID,
-      insertionID: content.insertionID,
-      hasSuperimposedViews: hasSuperimposedViews
+      insertionID: content.insertionID
     )
   }
 }
@@ -87,8 +85,8 @@ public extension MetricsLogger {
   @objc(logActionWithType:content:)
   func _objcLogAction(type: ActionType, content: Content?) {
     logAction(
-      name: type.description,
       type: type,
+      name: type.description,
       contentID: content?.contentID,
       insertionID: content?.insertionID
     )
@@ -98,8 +96,8 @@ public extension MetricsLogger {
   @objc(logActionWithType:content:name:)
   func _objcLogAction(type: ActionType, content: Content?, name: String?) {
     logAction(
-      name: name ?? type.description,
       type: type,
+      name: name ?? type.description,
       contentID: content?.contentID,
       insertionID: content?.insertionID
     )
@@ -114,20 +112,18 @@ public extension MetricsLogger {
     type: ActionType,
     content: Content?,
     name: String? = nil,
-    autoViewID: String? = nil,
-    hasSuperimposedViews: Bool = false,
+    autoViewState: AutoViewState = .empty,
     impressionID: String? = nil,
     viewID: String? = nil
   ) -> Event_Action {
     return logAction(
-      name: name ?? type.description,
       type: type,
-      impressionID: impressionID,
+      name: name ?? type.description,
+      autoViewState: autoViewState,
       contentID: content?.contentID,
+      impressionID: impressionID,
       insertionID: content?.insertionID,
-      viewID: viewID,
-      autoViewID: autoViewID,
-      hasSuperimposedViews: hasSuperimposedViews
+      viewID: viewID
     )
   }
 }
