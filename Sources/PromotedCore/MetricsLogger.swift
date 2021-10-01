@@ -383,7 +383,7 @@ public extension MetricsLogger {
       setValue(autoViewID, in: &impression.autoViewID)
       setValue(contentID, in: &impression.contentID)
       setValue(sourceType?.protoValue, in: &impression.sourceType)
-      setValue(hasSuperimposedViews, in: &impression.hasSuperimposedViews)
+      setValue(hasSuperimposedViews, in: &impression.hasSuperimposedViews_p)
       setValue(propertiesMessage(properties), in: &impression.properties)
       log(message: impression)
     }
@@ -449,7 +449,7 @@ public extension MetricsLogger {
       default:
         break
       }
-      setValue(hasSuperimposedViews, in: &action.hasSuperimposedViews)
+      setValue(hasSuperimposedViews, in: &action.hasSuperimposedViews_p)
       setValue(propertiesMessage(properties), in: &action.properties)
       log(message: action)
     }

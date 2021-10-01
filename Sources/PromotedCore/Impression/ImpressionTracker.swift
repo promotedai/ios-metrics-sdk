@@ -241,8 +241,8 @@ public extension ImpressionTracker {
         print("***** imp \(content) autoViewID:\(autoViewID ?? "nil")")
         let impressionProto = metricsLogger.logImpression(
           content: content,
-          autoViewID: autoViewID,
-          sourceType: impression.sourceType
+          sourceType: impression.sourceType,
+          autoViewID: autoViewID
         )
         contentToImpressionID[content] = impressionProto.impressionID
       }
