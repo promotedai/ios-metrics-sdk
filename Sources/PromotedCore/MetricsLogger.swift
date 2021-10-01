@@ -369,6 +369,7 @@ public extension MetricsLogger {
     viewID: String? = nil,
     autoViewID: String? = nil,
     sourceType: ImpressionSourceType? = nil,
+    hasSuperimposedViews: Bool = false,
     properties: Message? = nil
   ) -> Event_Impression {
     var impression = Event_Impression()
@@ -382,6 +383,7 @@ public extension MetricsLogger {
       setValue(autoViewID, in: &impression.autoViewID)
       setValue(contentID, in: &impression.contentID)
       setValue(sourceType?.protoValue, in: &impression.sourceType)
+      setValue(hasSuperimposedViews, in: &impression.hasSuperimposedViews)
       setValue(propertiesMessage(properties), in: &impression.properties)
       log(message: impression)
     }
@@ -422,6 +424,7 @@ public extension MetricsLogger {
     autoViewID: String? = nil,
     targetURL: String? = nil,
     elementID: String? = nil,
+    hasSuperimposedViews: Bool = false,
     properties: Message? = nil
   ) -> Event_Action {
     var action = Event_Action()
@@ -446,6 +449,7 @@ public extension MetricsLogger {
       default:
         break
       }
+      setValue(hasSuperimposedViews, in: &action.hasSuperimposedViews)
       setValue(propertiesMessage(properties), in: &action.properties)
       log(message: action)
     }
@@ -540,7 +544,7 @@ public extension MetricsLogger {
       // TODO(yu-hong): Fill out AppScreenView.
       autoView.appScreenView = appScreenView
       log(message: autoView)
-      //history?.viewIDDidChange(value: viewID, event: view)
+      history?.autoViewIDDidChange(value: viewID, event: autoView)
     }
     return autoView
   }

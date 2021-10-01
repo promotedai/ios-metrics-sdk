@@ -141,33 +141,48 @@ public final class ImpressionTracker: NSObject, ImpressionConfig {
 public extension ImpressionTracker {
 
   /// Call this method when new items are displayed.
-  @objc(collectionViewWillDisplayContent:)
-  func collectionViewWillDisplay(content: Content) {
+  @objc(collectionViewWillDisplayContent:autoViewID:)
+  func collectionViewWillDisplay(content: Content, autoViewID: String?) {
     monitor.execute {
-      broadcastStartAndAddImpressions(contents: [content], now: clock.now)
+      broadcastStartAndAddImpressions(
+        contents: [content],
+        autoViewID: autoViewID,
+        now: clock.now
+      )
     }
   }
 
   /// Call this method when previously displayed items are hidden.
   /// If an item is reported as hidden that had not previously
   /// been displayed, the impression for that item will be ignored.
-  @objc(collectionViewDidHideContent:)
-  func collectionViewDidHide(content: Content) {
+  @objc(collectionViewDidHideContent:autoViewID:)
+  func collectionViewDidHide(content: Content, autoViewID: String?) {
     monitor.execute {
-      broadcastEndAndRemoveImpressions(contents: [content], now: clock.now)
+      broadcastEndAndRemoveImpressions(
+        contents: [content],
+        autoViewID: autoViewID,
+        now: clock.now
+      )
     }
   }
 
-  @objc(collectionViewDidChangeVisibleContent:)
-  func collectionViewDidChangeVisibleContent(array contentArray: [Content]) {
-    collectionViewDidChangeVisibleContent(contentArray)
+  @objc(collectionViewDidChangeVisibleContent:autoViewID:)
+  func collectionViewDidChangeVisibleContent(
+    array contentArray: [Content],
+    autoViewID: String?
+  ) {
+    collectionViewDidChangeVisibleContent(
+      contentArray,
+      autoViewID: autoViewID
+    )
   }
 
   /// Call this method when the collection view changes content, but
   /// does not provide per-item updates for the change. For example,
   /// when a collection reloads.
   func collectionViewDidChangeVisibleContent<T: Collection>(
-    _ contents: T
+    _ contents: T,
+    autoViewID: String?
   ) where T.Element == Content {
     monitor.execute {
       let now = clock.now
@@ -179,16 +194,25 @@ public extension ImpressionTracker {
       let newlyHiddenContent = contentToImpressionStart.keys.filter {
         !contents.contains($0)
       }
-      broadcastStartAndAddImpressions(contents: newlyShownContent, now: now)
-      broadcastEndAndRemoveImpressions(contents: newlyHiddenContent, now: now)
+      broadcastStartAndAddImpressions(
+        contents: newlyShownContent,
+        autoViewID: autoViewID,
+        now: now
+      )
+      broadcastEndAndRemoveImpressions(
+        contents: newlyHiddenContent,
+        autoViewID: autoViewID,
+        now: now
+      )
     }
   }
 
   /// Call this method when the collection view hides.
-  @objc func collectionViewDidHideAllContent() {
+  @objc func collectionViewDidHideAllContent(autoViewID: String?) {
     monitor.execute {
       broadcastEndAndRemoveImpressions(
         contents: contentToImpressionStart.keys,
+        autoViewID: autoViewID,
         now: clock.now
       )
     }
@@ -196,6 +220,7 @@ public extension ImpressionTracker {
 
   private func broadcastStartAndAddImpressions<T: Collection>(
     contents: T,
+    autoViewID: String?,
     now: TimeInterval
   ) where T.Element == Content {
     guard !contents.isEmpty else { return }
@@ -213,8 +238,10 @@ public extension ImpressionTracker {
     monitor.execute {
       for impression in impressions {
         let content = impression.content
+        print("***** imp \(content) autoViewID:\(autoViewID ?? "nil")")
         let impressionProto = metricsLogger.logImpression(
           content: content,
+          autoViewID: autoViewID,
           sourceType: impression.sourceType
         )
         contentToImpressionID[content] = impressionProto.impressionID
@@ -225,19 +252,18 @@ public extension ImpressionTracker {
 
   private func broadcastEndAndRemoveImpressions<T: Collection>(
     contents: T,
+    autoViewID: String?,
     now: TimeInterval
   ) where T.Element == Content {
     guard !contents.isEmpty else { return }
-    let impressions =
-      zip(
-        contents,
-        contents.map { contentToImpressionStart.removeValue(forKey: $0) }
-      )
-      .filter { $0.1 != nil }
-      .map {
-        Impression(
-          content: $0.0,
-          startTime: $0.1!,
+    let impressions: [Impression] =
+      contents.compactMap { content in
+        guard
+          let startTime = contentToImpressionStart.removeValue(forKey: content)
+        else { return nil }
+        return Impression(
+          content: content,
+          startTime: startTime,
           endTime: now,
           sourceType: sourceType
         )

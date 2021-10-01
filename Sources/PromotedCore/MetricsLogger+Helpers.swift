@@ -31,14 +31,18 @@ public extension MetricsLogger {
   @discardableResult
   func logImpression(
     content: Content,
-    viewID: String? = nil,
-    sourceType: ImpressionSourceType = .unknown
+    sourceType: ImpressionSourceType = .unknown,
+    autoViewID: String? = nil,
+    hasSuperimposedViews: Bool = false,
+    viewID: String? = nil
   ) -> Event_Impression {
     return logImpression(
       contentID: content.contentID,
       insertionID: content.insertionID,
       viewID: viewID,
-      sourceType: sourceType
+      autoViewID: autoViewID,
+      sourceType: sourceType,
+      hasSuperimposedViews: hasSuperimposedViews
     )
   }
 }
@@ -60,7 +64,8 @@ public extension MetricsLogger {
   func logNavigateAction(
     content: Content,
     screenName: String? = nil,
-    viewController: UIViewController? = nil
+    viewController: UIViewController? = nil,
+    hasSuperimposedViews: Bool = false
   ) -> Event_Action {
     return logAction(
       name: (
@@ -70,7 +75,8 @@ public extension MetricsLogger {
       ),
       type: .navigate,
       contentID: content.contentID,
-      insertionID: content.insertionID
+      insertionID: content.insertionID,
+      hasSuperimposedViews: hasSuperimposedViews
     )
   }
 }
@@ -107,9 +113,11 @@ public extension MetricsLogger {
   func logAction(
     type: ActionType,
     content: Content?,
+    name: String? = nil,
+    autoViewID: String? = nil,
+    hasSuperimposedViews: Bool = false,
     impressionID: String? = nil,
-    viewID: String? = nil,
-    name: String? = nil
+    viewID: String? = nil
   ) -> Event_Action {
     return logAction(
       name: name ?? type.description,
@@ -117,7 +125,9 @@ public extension MetricsLogger {
       impressionID: impressionID,
       contentID: content?.contentID,
       insertionID: content?.insertionID,
-      viewID: viewID
+      viewID: viewID,
+      autoViewID: autoViewID,
+      hasSuperimposedViews: hasSuperimposedViews
     )
   }
 }
@@ -143,18 +153,17 @@ public extension MetricsLogger {
   /// Logs a view with the given route name and key (React Native).
   func logView(
     routeName: String?,
-    routeKey: String?,
-    viewID: String?
+    routeKey: String?
   ) {
-    logView(name: routeName, viewID: viewID)
+    logView(name: routeName)
   }
   
   /// Logs a view with the given route name and key (React Native).
   func logAutoView(
     routeName: String?,
     routeKey: String?,
-    viewID: String?
+    autoViewID: String?
   ) {
-    logView(name: routeName, viewID: viewID)
+    logAutoView(name: routeName, autoViewID: autoViewID)
   }
 }
