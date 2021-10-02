@@ -3,6 +3,8 @@
 
 Our client library is available for iOS 11+, and works with both Swift and Objective-C apps.
 
+Special thanks to [Wendy Lu](https://www.linkedin.com/in/wendyluwho/) for expert review.
+
 ## App Privacy
 
 Pursuant to [Apple's app privacy questions](https://developer.apple.com/app-store/app-privacy-details/), Promoted's logging library collects the following kinds of data:
