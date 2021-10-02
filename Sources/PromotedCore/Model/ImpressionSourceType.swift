@@ -2,7 +2,11 @@ import Foundation
 
 /** Type for origin of impressed content. */
 @objc(PROImpressionSourceType)
-public enum ImpressionSourceType: Int, RawRepresentable {
+public enum ImpressionSourceType:
+  Int,
+  CustomStringConvertible,
+  RawRepresentable
+{
   case unknown = 0
 
   /// Promoted Delivery API.
@@ -22,5 +26,14 @@ public enum ImpressionSourceType: Int, RawRepresentable {
 
   var protoValue: Event_ImpressionSourceType? {
     Event_ImpressionSourceType(rawValue: self.rawValue)
+  }
+
+  public var description: String {
+    switch self {
+    case .unknown: return "unknown"
+    case .delivery: return "delivery"
+    case .clientBackend: return "clientBackend"
+    default: return "unknown"
+    }
   }
 }
