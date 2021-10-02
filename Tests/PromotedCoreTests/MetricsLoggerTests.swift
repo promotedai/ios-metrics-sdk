@@ -339,6 +339,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       "user_info": {
         "log_user_id": "batman"
       },
+      \(FakeDeviceInfo.json),
       "impression": [
         {
           "timing": {
@@ -369,6 +370,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       "user_info": {
         "log_user_id": "batman"
       },
+      \(FakeDeviceInfo.json),
       "impression": [
         {
           "timing": {
@@ -751,20 +753,6 @@ final class MetricsLoggerTests: ModuleTestCase {
       "session_id": "fake-session-id",
       "name": "FakeScreen",
       "use_case": "SEARCH",
-      "device": {
-        "device_type": "MOBILE",
-        "brand": "Apple",
-        "manufacturer": "Apple",
-        "identifier": "iPhone",
-        "os_version": "14.4.1",
-        "screen": {
-          "size": {
-            "width": 1024,
-            "height": 768
-          },
-          "scale": 2.0
-        }
-      },
       "locale": {
         "language_code": "en",
         "region_code": "US"
