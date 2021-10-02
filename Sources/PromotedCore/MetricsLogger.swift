@@ -310,10 +310,6 @@ extension MetricsLogger {
     }
     return nil
   }
-
-  private func setValue<T>(_ value: T?, in field: inout T) {
-    if let value = value { field = value }
-  }
 }
 
 // MARK: - Event logging base methods
@@ -332,7 +328,7 @@ public extension MetricsLogger {
     var user = Event_User()
     monitor.execute {
       user.timing = timingMessage()
-      setValue(propertiesMessage(properties), in: &user.properties)
+      if let p = propertiesMessage(properties) { user.properties = p }
       log(message: user)
       history?.logUserIDDidChange(value: logUserID, event: user)
       history?.sessionIDDidChange(value: sessionID)
@@ -375,18 +371,17 @@ public extension MetricsLogger {
     monitor.execute {
       impression.timing = timingMessage()
       impression.impressionID = idMap.impressionID()
-      setValue(insertionID, in: &impression.insertionID)
-      setValue(requestID, in: &impression.requestID)
-      setValue(sessionID, in: &impression.sessionID)
-      setValue(viewID ?? self.viewID, in: &impression.viewID)
-      setValue(autoViewState.autoViewID, in: &impression.autoViewID)
-      setValue(contentID, in: &impression.contentID)
-      setValue(sourceType?.protoValue, in: &impression.sourceType)
-      setValue(
-        autoViewState.hasSuperimposedViews,
-        in: &impression.hasSuperimposedViews_p
-      )
-      setValue(propertiesMessage(properties), in: &impression.properties)
+      if let i = insertionID { impression.insertionID = i }
+      if let r = requestID { impression.requestID = r }
+      if let s = sessionID { impression.sessionID = s }
+      if let v = viewID ?? self.viewID { impression.viewID = v }
+      if let a = autoViewState.autoViewID { impression.autoViewID = a }
+      if let c = contentID { impression.contentID = c }
+      if let s = sourceType?.protoValue { impression.sourceType = s }
+      if let h = autoViewState.hasSuperimposedViews {
+        impression.hasSuperimposedViews_p = h
+      }
+      if let p = propertiesMessage(properties) { impression.properties = p }
       log(message: impression)
     }
     return impression
@@ -432,29 +427,28 @@ public extension MetricsLogger {
     monitor.execute {
       action.timing = timingMessage()
       action.actionID = idMap.actionID()
-      setValue(impressionID, in: &action.impressionID)
-      setValue(contentID, in: &action.contentID)
-      setValue(insertionID, in: &action.insertionID)
-      setValue(requestID, in: &action.requestID)
-      setValue(sessionID, in: &action.sessionID)
-      setValue(viewID ?? self.viewID, in: &action.viewID)
-      setValue(autoViewState.autoViewID, in: &action.autoViewID)
+      if let i = impressionID { action.impressionID = i }
+      if let c = contentID { action.contentID = c }
+      if let i = insertionID { action.insertionID = i }
+      if let r = requestID { action.requestID = r }
+      if let s = sessionID { action.sessionID = s }
+      if let v = viewID ?? self.viewID { action.viewID = v }
+      if let a = autoViewState.autoViewID { action.autoViewID = a }
       action.name = name
-      setValue(type.protoValue, in: &action.actionType)
+      if let t = type.protoValue { action.actionType = t }
       action.elementID = elementID ?? name
       switch type {
       case .navigate:
         var navigateAction = Event_NavigateAction()
-        setValue(targetURL, in: &navigateAction.targetURL)
+        if let t = targetURL { navigateAction.targetURL = t }
         action.navigateAction = navigateAction
       default:
         break
       }
-      setValue(
-        autoViewState.hasSuperimposedViews,
-        in: &action.hasSuperimposedViews_p
-      )
-      setValue(propertiesMessage(properties), in: &action.properties)
+      if let h = autoViewState.hasSuperimposedViews {
+        action.hasSuperimposedViews_p = h
+      }
+      if let p = propertiesMessage(properties) { action.properties = p }
       log(message: action)
     }
     return action
@@ -512,11 +506,11 @@ public extension MetricsLogger {
     monitor.execute {
       view.timing = timingMessage()
       needsViewStateCheck = false  // No need for check when logging view.
-      setValue(viewID ?? self.viewID, in: &view.viewID)
-      setValue(sessionID, in: &view.sessionID)
-      setValue(name, in: &view.name)
-      setValue(useCase?.protoValue, in: &view.useCase)
-      setValue(propertiesMessage(properties), in: &view.properties)
+      if let v = viewID ?? self.viewID { view.viewID = v }
+      if let s = sessionID { view.sessionID = s }
+      if let n = name { view.name = n }
+      if let u = useCase?.protoValue { view.useCase = u }
+      if let p = propertiesMessage(properties) { view.properties = p }
       view.locale = cachedLocaleMessage
       view.viewType = .appScreen
       let appScreenView = Event_AppScreenView()
@@ -538,11 +532,11 @@ public extension MetricsLogger {
     var autoView = Event_AutoView()
     monitor.execute {
       autoView.timing = timingMessage()
-      setValue(autoViewID, in: &autoView.autoViewID)
-      setValue(sessionID, in: &autoView.sessionID)
-      setValue(name, in: &autoView.name)
-      setValue(useCase?.protoValue, in: &autoView.useCase)
-      setValue(propertiesMessage(properties), in: &autoView.properties)
+      if let a = autoViewID { autoView.autoViewID = a }
+      if let s = sessionID { autoView.sessionID = s }
+      if let n = name { autoView.name = n }
+      if let u = useCase?.protoValue { autoView.useCase = u }
+      if let p = propertiesMessage(properties) { autoView.properties = p }
       autoView.locale = cachedLocaleMessage
       let appScreenView = Event_AppScreenView()
       // TODO(yu-hong): Fill out AppScreenView.
