@@ -1,4 +1,5 @@
 import Foundation
+import os.log
 
 // MARK: -
 /** Delegate to be notified when impressions start or end. */
@@ -7,13 +8,15 @@ public protocol ImpressionTrackerDelegate: AnyObject {
   /// Notifies delegate of impression starts.
   func impressionTracker(
     _ impressionTracker: ImpressionTracker,
-    didStartImpressions impressions: [ImpressionTracker.Impression]
+    didStartImpressions impressions: [ImpressionTracker.Impression],
+    autoViewState: AutoViewState
   )
   
   /// Notifies delegate of impression ends.
   func impressionTracker(
     _ impressionTracker: ImpressionTracker,
-    didEndImpressions impressions: [ImpressionTracker.Impression]
+    didEndImpressions impressions: [ImpressionTracker.Impression],
+    autoViewState: AutoViewState
   )
 }
 
@@ -240,7 +243,6 @@ public extension ImpressionTracker {
     monitor.execute {
       for impression in impressions {
         let content = impression.content
-        print("***** imp \(content) autoViewState:\(autoViewState)")
         let impressionProto = metricsLogger.logImpression(
           content: content,
           sourceType: impression.sourceType,
@@ -249,7 +251,11 @@ public extension ImpressionTracker {
         contentToImpressionID[content] = impressionProto.impressionID
       }
     }
-    delegate?.impressionTracker(self, didStartImpressions: impressions)
+    delegate?.impressionTracker(
+      self,
+      didStartImpressions: impressions,
+      autoViewState: autoViewState
+    )
   }
 
   private func broadcastEndAndRemoveImpressions<T: Collection>(
@@ -274,7 +280,11 @@ public extension ImpressionTracker {
       contentToImpressionID.removeValue(forKey: content)
     }
     // Not calling `metricsLogger`. No logging end impressions for now.
-    delegate?.impressionTracker(self, didEndImpressions: impressions)
+    delegate?.impressionTracker(
+      self,
+      didEndImpressions: impressions,
+      autoViewState: autoViewState
+    )
   }
 }
 
@@ -291,6 +301,39 @@ public extension ImpressionTracker {
   func with(sourceType: ImpressionSourceType) -> Self {
     self.sourceType = sourceType
     return self
+  }
+}
+
+// MARK: - Debug
+/** Use this class in conjunction with OSLog to show impressions. */
+public class ImpressionTrackerDebugLogger: ImpressionTrackerDelegate {
+
+  private let osLog: OSLog
+
+  public init(osLog: OSLog) {
+    self.osLog = osLog
+  }
+
+  public func impressionTracker(
+    _ impressionTracker: ImpressionTracker,
+    didStartImpressions impressions: [ImpressionTracker.Impression],
+    autoViewState: AutoViewState
+  ) {
+    for impression in impressions {
+      osLog.debug(
+        "Impression: %{private}s autoViewState: %{private}s",
+        impression.content.debugDescription,
+        autoViewState.debugDescription
+      )
+    }
+  }
+
+  public func impressionTracker(
+    _ impressionTracker: ImpressionTracker,
+    didEndImpressions impressions: [ImpressionTracker.Impression],
+    autoViewState: AutoViewState
+  ) {
+    // no-op
   }
 }
 
