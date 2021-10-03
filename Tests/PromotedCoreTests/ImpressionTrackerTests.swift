@@ -25,14 +25,16 @@ final class ImpressionTrackerTests: ModuleTestCase {
 
     func impressionTracker(
       _ impressionTracker: ImpressionTracker,
-      didStartImpressions impressions: [Impression]
+      didStartImpressions impressions: [Impression],
+      autoViewState: AutoViewState
     ) {
       startImpressions.append(contentsOf: impressions)
     }
     
     func impressionTracker(
       _ impressionTracker: ImpressionTracker,
-      didEndImpressions impressions: [Impression]
+      didEndImpressions impressions: [Impression],
+      autoViewState: AutoViewState
     ) {
       endImpressions.append(contentsOf: impressions)
     }
