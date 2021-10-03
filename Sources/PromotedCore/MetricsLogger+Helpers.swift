@@ -147,19 +147,21 @@ public extension MetricsLogger {
   }
 
   /// Logs a view with the given route name and key (React Native).
+  @discardableResult
   func logView(
     routeName: String?,
     routeKey: String?
-  ) {
-    logView(name: routeName)
+  ) -> Event_View {
+    return logView(name: routeName)
   }
   
   /// Logs a view with the given route name and key (React Native).
+  @discardableResult
   func logAutoView(
     routeName: String?,
     routeKey: String?,
     autoViewID: String?
-  ) {
-    logAutoView(name: routeName, autoViewID: autoViewID)
+  ) -> Event_AutoView {
+    return logAutoView(name: routeName, autoViewID: autoViewID)
   }
 }
