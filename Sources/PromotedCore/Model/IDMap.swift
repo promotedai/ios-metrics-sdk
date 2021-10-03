@@ -14,9 +14,6 @@ protocol IDMap: AnyObject {
   /// Generates a new impression ID.
   func impressionID() -> String
 
-  /// Given a client's content ID, generates a content ID to log.
-  func contentID(clientID: String) -> String
-
   /// Generates a new click ID.
   func actionID() -> String
   
@@ -37,8 +34,6 @@ final class DefaultIDMap: IDMap {
   func sessionID() -> String { UUID().uuidString }
 
   func impressionID() -> String { UUID().uuidString }
-  
-  func contentID(clientID: String) -> String { clientID }
   
   func actionID() -> String { UUID().uuidString }
   

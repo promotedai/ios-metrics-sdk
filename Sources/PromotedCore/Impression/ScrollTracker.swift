@@ -148,7 +148,7 @@ public final class ScrollTracker: NSObject, ImpressionConfig {
   }
 
   @objc public func scrollViewDidHideAllContent() {
-    impressionTracker.collectionViewDidHideAllContent()
+    impressionTracker.collectionViewDidHideAllContent(autoViewState: .empty)
   }
 
   private func maybeScheduleUpdateVisibilityTimer() {
@@ -171,7 +171,10 @@ public final class ScrollTracker: NSObject, ImpressionConfig {
           visibleContent.append(content)
         }
       }
-      impressionTracker.collectionViewDidChangeVisibleContent(visibleContent)
+      impressionTracker.collectionViewDidChangeVisibleContent(
+        visibleContent,
+        autoViewState: .empty
+      )
     }
   }
 }

@@ -413,6 +413,8 @@ fileprivate extension Xray {
         switch message {
         case let view as Event_View:
           return "View(\(view.name), \(view.viewID.prefix(4)))"
+        case let autoView as Event_AutoView:
+          return "AutoView(\(autoView.autoViewID.prefix(4)))"
         case let impression as Event_Impression:
           return "Imp(\(impression.impressionID.prefix(4)))"
         case let action as Event_Action:
@@ -441,6 +443,7 @@ fileprivate extension Xray {
     formatter.addField(name: "Name", width: 25)
     formatter.addField(name: "LogUserID", width: 36)
     formatter.addField(name: "ViewID", width: 36)
+    formatter.addField(name: "AutoViewID", width: 36)
     formatter.addField(name: "ImpressionID", width: 36)
     formatter.addField(name: "ActionID", width: 36)
     let logRequest = batch.message as? Event_LogRequest
@@ -455,6 +458,17 @@ fileprivate extension Xray {
           logUserID,
           view.viewID,
           "-",
+          "-",
+          "-"
+        )
+      case let autoView as Event_AutoView:
+        formatter.addRow(
+          type,
+          "-",
+          logUserID,
+          "-",
+          autoView.autoViewID,
+          "-",
           "-"
         )
       case let impression as Event_Impression:
@@ -462,6 +476,7 @@ fileprivate extension Xray {
           type, "-",
           logUserID,
           impression.viewID,
+          impression.autoViewID,
           impression.impressionID,
           "-"
         )
@@ -471,11 +486,12 @@ fileprivate extension Xray {
           action.name,
           logUserID,
           action.viewID,
+          action.autoViewID,
           action.impressionID,
           action.actionID
         )
       default:
-        formatter.addRow(type, "-", "-", "-", "-", "-")
+        formatter.addRow(type, "-", "-", "-", "-", "-", "-")
       }
     }
     osLog.debug(formatter)

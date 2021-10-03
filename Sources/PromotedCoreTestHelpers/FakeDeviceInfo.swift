@@ -4,6 +4,23 @@ import Foundation
 
 final class FakeDeviceInfo: DeviceInfo {
 
+  static let json = """
+    "device": {
+      "device_type": "MOBILE",
+      "brand": "Apple",
+      "manufacturer": "Apple",
+      "identifier": "iPhone",
+      "os_version": "14.4.1",
+      "screen": {
+        "size": {
+          "width": 1024,
+          "height": 768
+        },
+        "scale": 2.0
+      }
+    }
+    """
+
   var deviceType: DeviceType {
     return .mobile
   }

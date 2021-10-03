@@ -1,4 +1,5 @@
 import Foundation
+import os.log
 
 // MARK: -
 /** Delegate to be notified when impressions start or end. */
@@ -7,13 +8,15 @@ public protocol ImpressionTrackerDelegate: AnyObject {
   /// Notifies delegate of impression starts.
   func impressionTracker(
     _ impressionTracker: ImpressionTracker,
-    didStartImpressions impressions: [ImpressionTracker.Impression]
+    didStartImpressions impressions: [ImpressionTracker.Impression],
+    autoViewState: AutoViewState
   )
   
   /// Notifies delegate of impression ends.
   func impressionTracker(
     _ impressionTracker: ImpressionTracker,
-    didEndImpressions impressions: [ImpressionTracker.Impression]
+    didEndImpressions impressions: [ImpressionTracker.Impression],
+    autoViewState: AutoViewState
   )
 }
 
@@ -88,7 +91,6 @@ public protocol ImpressionTrackerDelegate: AnyObject {
  }
  ```
  */
-@objc(PROImpressionTracker)
 public final class ImpressionTracker: NSObject, ImpressionConfig {
 
   // MARK: -
@@ -141,33 +143,51 @@ public final class ImpressionTracker: NSObject, ImpressionConfig {
 public extension ImpressionTracker {
 
   /// Call this method when new items are displayed.
-  @objc(collectionViewWillDisplayContent:)
-  func collectionViewWillDisplay(content: Content) {
+  func collectionViewWillDisplay(
+    content: Content,
+    autoViewState: AutoViewState
+  ) {
     monitor.execute {
-      broadcastStartAndAddImpressions(contents: [content], now: clock.now)
+      broadcastStartAndAddImpressions(
+        contents: [content],
+        autoViewState: autoViewState,
+        now: clock.now
+      )
     }
   }
 
   /// Call this method when previously displayed items are hidden.
   /// If an item is reported as hidden that had not previously
   /// been displayed, the impression for that item will be ignored.
-  @objc(collectionViewDidHideContent:)
-  func collectionViewDidHide(content: Content) {
+  func collectionViewDidHide(
+    content: Content,
+    autoViewState: AutoViewState
+  ) {
     monitor.execute {
-      broadcastEndAndRemoveImpressions(contents: [content], now: clock.now)
+      broadcastEndAndRemoveImpressions(
+        contents: [content],
+        autoViewState: autoViewState,
+        now: clock.now
+      )
     }
   }
 
-  @objc(collectionViewDidChangeVisibleContent:)
-  func collectionViewDidChangeVisibleContent(array contentArray: [Content]) {
-    collectionViewDidChangeVisibleContent(contentArray)
+  func collectionViewDidChangeVisibleContent(
+    array contentArray: [Content],
+    autoViewState: AutoViewState
+  ) {
+    collectionViewDidChangeVisibleContent(
+      contentArray,
+      autoViewState: autoViewState
+    )
   }
 
   /// Call this method when the collection view changes content, but
   /// does not provide per-item updates for the change. For example,
   /// when a collection reloads.
   func collectionViewDidChangeVisibleContent<T: Collection>(
-    _ contents: T
+    _ contents: T,
+    autoViewState: AutoViewState
   ) where T.Element == Content {
     monitor.execute {
       let now = clock.now
@@ -179,16 +199,25 @@ public extension ImpressionTracker {
       let newlyHiddenContent = contentToImpressionStart.keys.filter {
         !contents.contains($0)
       }
-      broadcastStartAndAddImpressions(contents: newlyShownContent, now: now)
-      broadcastEndAndRemoveImpressions(contents: newlyHiddenContent, now: now)
+      broadcastStartAndAddImpressions(
+        contents: newlyShownContent,
+        autoViewState: autoViewState,
+        now: now
+      )
+      broadcastEndAndRemoveImpressions(
+        contents: newlyHiddenContent,
+        autoViewState: autoViewState,
+        now: now
+      )
     }
   }
 
   /// Call this method when the collection view hides.
-  @objc func collectionViewDidHideAllContent() {
+  func collectionViewDidHideAllContent(autoViewState: AutoViewState) {
     monitor.execute {
       broadcastEndAndRemoveImpressions(
         contents: contentToImpressionStart.keys,
+        autoViewState: autoViewState,
         now: clock.now
       )
     }
@@ -196,6 +225,7 @@ public extension ImpressionTracker {
 
   private func broadcastStartAndAddImpressions<T: Collection>(
     contents: T,
+    autoViewState: AutoViewState,
     now: TimeInterval
   ) where T.Element == Content {
     guard !contents.isEmpty else { return }
@@ -215,29 +245,33 @@ public extension ImpressionTracker {
         let content = impression.content
         let impressionProto = metricsLogger.logImpression(
           content: content,
-          sourceType: impression.sourceType
+          sourceType: impression.sourceType,
+          autoViewState: autoViewState
         )
         contentToImpressionID[content] = impressionProto.impressionID
       }
     }
-    delegate?.impressionTracker(self, didStartImpressions: impressions)
+    delegate?.impressionTracker(
+      self,
+      didStartImpressions: impressions,
+      autoViewState: autoViewState
+    )
   }
 
   private func broadcastEndAndRemoveImpressions<T: Collection>(
     contents: T,
+    autoViewState: AutoViewState,
     now: TimeInterval
   ) where T.Element == Content {
     guard !contents.isEmpty else { return }
-    let impressions =
-      zip(
-        contents,
-        contents.map { contentToImpressionStart.removeValue(forKey: $0) }
-      )
-      .filter { $0.1 != nil }
-      .map {
-        Impression(
-          content: $0.0,
-          startTime: $0.1!,
+    let impressions: [Impression] =
+      contents.compactMap { content in
+        guard
+          let startTime = contentToImpressionStart.removeValue(forKey: content)
+        else { return nil }
+        return Impression(
+          content: content,
+          startTime: startTime,
           endTime: now,
           sourceType: sourceType
         )
@@ -246,7 +280,11 @@ public extension ImpressionTracker {
       contentToImpressionID.removeValue(forKey: content)
     }
     // Not calling `metricsLogger`. No logging end impressions for now.
-    delegate?.impressionTracker(self, didEndImpressions: impressions)
+    delegate?.impressionTracker(
+      self,
+      didEndImpressions: impressions,
+      autoViewState: autoViewState
+    )
   }
 }
 
@@ -263,6 +301,39 @@ public extension ImpressionTracker {
   func with(sourceType: ImpressionSourceType) -> Self {
     self.sourceType = sourceType
     return self
+  }
+}
+
+// MARK: - Debug
+/** Use this class in conjunction with OSLog to show impressions. */
+public class ImpressionTrackerDebugLogger: ImpressionTrackerDelegate {
+
+  private let osLog: OSLog
+
+  public init(osLog: OSLog) {
+    self.osLog = osLog
+  }
+
+  public func impressionTracker(
+    _ impressionTracker: ImpressionTracker,
+    didStartImpressions impressions: [ImpressionTracker.Impression],
+    autoViewState: AutoViewState
+  ) {
+    for impression in impressions {
+      osLog.debug(
+        "Impression: %{private}s autoViewState: %{private}s",
+        impression.content.debugDescription,
+        autoViewState.debugDescription
+      )
+    }
+  }
+
+  public func impressionTracker(
+    _ impressionTracker: ImpressionTracker,
+    didEndImpressions impressions: [ImpressionTracker.Impression],
+    autoViewState: AutoViewState
+  ) {
+    // no-op
   }
 }
 

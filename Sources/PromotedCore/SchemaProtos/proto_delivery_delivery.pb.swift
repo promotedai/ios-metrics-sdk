@@ -109,7 +109,7 @@ extension Delivery_UseCase: CaseIterable {
 /// Can be used to log existing ranking (not Promoted) or Promoted's Delivery
 /// API requests.
 ///
-/// Next ID = 18.
+/// Next ID = 19.
 public struct Delivery_Request {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -153,6 +153,16 @@ public struct Delivery_Request {
   /// Clears the value of `clientInfo`. Subsequent reads from it will return its default value.
   public mutating func clearClientInfo() {_uniqueStorage()._clientInfo = nil}
 
+  /// Optional. Information about the user's device.
+  public var device: Common_Device {
+    get {return _storage._device ?? Common_Device()}
+    set {_uniqueStorage()._device = newValue}
+  }
+  /// Returns true if `device` has been explicitly set.
+  public var hasDevice: Bool {return _storage._device != nil}
+  /// Clears the value of `device`. Subsequent reads from it will return its default value.
+  public mutating func clearDevice() {_uniqueStorage()._device = nil}
+
   /// Optional.  Primary key.
   /// SDKs usually handles this automatically. For details, see
   /// https://github.com/promotedai/schema#setting-primary-keys
@@ -195,13 +205,6 @@ public struct Delivery_Request {
   public var searchQuery: String {
     get {return _storage._searchQuery}
     set {_uniqueStorage()._searchQuery = newValue}
-  }
-
-  /// Optional. Number of Insertions to return.
-  /// DEPRECATED: use paging intead.
-  public var limit: Int32 {
-    get {return _storage._limit}
-    set {_uniqueStorage()._limit = newValue}
   }
 
   /// Optional. Set to request a specific "page" of results.
@@ -381,7 +384,7 @@ public struct Delivery_PagingInfo {
 
 /// This Event represents a Content being served at a certain position regardless
 /// of it was views by a user. Insertions are immutable.
-/// Next ID = 18.
+/// Next ID = 21.
 public struct Delivery_Insertion {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -437,8 +440,17 @@ public struct Delivery_Insertion {
   /// Optional.  We'll look this up using the external_content_id.
   public var contentID: String = String()
 
-  /// Optional.  0-based. As set by the customer, not by Promoted allocation.
-  public var position: UInt64 = 0
+  /// Optional. 0-based. Position "in what" depends on insertion context:
+  /// if request_insertion, then position provided by client or retrieval
+  /// if response_insertion, then the position returned by Delivery to the client
+  public var position: UInt64 {
+    get {return _position ?? 0}
+    set {_position = newValue}
+  }
+  /// Returns true if `position` has been explicitly set.
+  public var hasPosition: Bool {return self._position != nil}
+  /// Clears the value of `position`. Subsequent reads from it will return its default value.
+  public mutating func clearPosition() {self._position = nil}
 
   /// Optional. Custom item attributes and features set by customers.
   public var properties: Common_Properties {
@@ -450,6 +462,26 @@ public struct Delivery_Insertion {
   /// Clears the value of `properties`. Subsequent reads from it will return its default value.
   public mutating func clearProperties() {self._properties = nil}
 
+  /// Optional. Ranking (if known) of this insertion from the retrieval system.
+  public var retrievalRank: UInt64 {
+    get {return _retrievalRank ?? 0}
+    set {_retrievalRank = newValue}
+  }
+  /// Returns true if `retrievalRank` has been explicitly set.
+  public var hasRetrievalRank: Bool {return self._retrievalRank != nil}
+  /// Clears the value of `retrievalRank`. Subsequent reads from it will return its default value.
+  public mutating func clearRetrievalRank() {self._retrievalRank = nil}
+
+  /// Optional. Score (if any) of this insertion from the retrieval system.
+  public var retrievalScore: Float {
+    get {return _retrievalScore ?? 0}
+    set {_retrievalScore = newValue}
+  }
+  /// Returns true if `retrievalScore` has been explicitly set.
+  public var hasRetrievalScore: Bool {return self._retrievalScore != nil}
+  /// Clears the value of `retrievalScore`. Subsequent reads from it will return its default value.
+  public mutating func clearRetrievalScore() {self._retrievalScore = nil}
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
@@ -457,7 +489,10 @@ public struct Delivery_Insertion {
   fileprivate var _userInfo: Common_UserInfo? = nil
   fileprivate var _timing: Common_Timing? = nil
   fileprivate var _clientInfo: Common_ClientInfo? = nil
+  fileprivate var _position: UInt64? = nil
   fileprivate var _properties: Common_Properties? = nil
+  fileprivate var _retrievalRank: UInt64? = nil
+  fileprivate var _retrievalScore: Float? = nil
 }
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -488,13 +523,13 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     2: .standard(proto: "user_info"),
     3: .same(proto: "timing"),
     4: .standard(proto: "client_info"),
+    18: .same(proto: "device"),
     6: .standard(proto: "request_id"),
     7: .standard(proto: "view_id"),
     8: .standard(proto: "session_id"),
     14: .standard(proto: "client_request_id"),
     9: .standard(proto: "use_case"),
     10: .standard(proto: "search_query"),
-    15: .same(proto: "limit"),
     17: .same(proto: "paging"),
     11: .same(proto: "insertion"),
     12: .standard(proto: "blender_config"),
@@ -506,13 +541,13 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     var _userInfo: Common_UserInfo? = nil
     var _timing: Common_Timing? = nil
     var _clientInfo: Common_ClientInfo? = nil
+    var _device: Common_Device? = nil
     var _requestID: String = String()
     var _viewID: String = String()
     var _sessionID: String = String()
     var _clientRequestID: String = String()
     var _useCase: Delivery_UseCase = .unknownUseCase
     var _searchQuery: String = String()
-    var _limit: Int32 = 0
     var _paging: Delivery_Paging? = nil
     var _insertion: [Delivery_Insertion] = []
     var _blenderConfig: Delivery_BlenderConfig? = nil
@@ -527,13 +562,13 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       _userInfo = source._userInfo
       _timing = source._timing
       _clientInfo = source._clientInfo
+      _device = source._device
       _requestID = source._requestID
       _viewID = source._viewID
       _sessionID = source._sessionID
       _clientRequestID = source._clientRequestID
       _useCase = source._useCase
       _searchQuery = source._searchQuery
-      _limit = source._limit
       _paging = source._paging
       _insertion = source._insertion
       _blenderConfig = source._blenderConfig
@@ -569,8 +604,8 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
         case 12: try { try decoder.decodeSingularMessageField(value: &_storage._blenderConfig) }()
         case 13: try { try decoder.decodeSingularMessageField(value: &_storage._properties) }()
         case 14: try { try decoder.decodeSingularStringField(value: &_storage._clientRequestID) }()
-        case 15: try { try decoder.decodeSingularInt32Field(value: &_storage._limit) }()
         case 17: try { try decoder.decodeSingularMessageField(value: &_storage._paging) }()
+        case 18: try { try decoder.decodeSingularMessageField(value: &_storage._device) }()
         default: break
         }
       }
@@ -618,11 +653,11 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       if !_storage._clientRequestID.isEmpty {
         try visitor.visitSingularStringField(value: _storage._clientRequestID, fieldNumber: 14)
       }
-      if _storage._limit != 0 {
-        try visitor.visitSingularInt32Field(value: _storage._limit, fieldNumber: 15)
-      }
       if let v = _storage._paging {
         try visitor.visitSingularMessageField(value: v, fieldNumber: 17)
+      }
+      if let v = _storage._device {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 18)
       }
     }
     try unknownFields.traverse(visitor: &visitor)
@@ -637,13 +672,13 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
         if _storage._userInfo != rhs_storage._userInfo {return false}
         if _storage._timing != rhs_storage._timing {return false}
         if _storage._clientInfo != rhs_storage._clientInfo {return false}
+        if _storage._device != rhs_storage._device {return false}
         if _storage._requestID != rhs_storage._requestID {return false}
         if _storage._viewID != rhs_storage._viewID {return false}
         if _storage._sessionID != rhs_storage._sessionID {return false}
         if _storage._clientRequestID != rhs_storage._clientRequestID {return false}
         if _storage._useCase != rhs_storage._useCase {return false}
         if _storage._searchQuery != rhs_storage._searchQuery {return false}
-        if _storage._limit != rhs_storage._limit {return false}
         if _storage._paging != rhs_storage._paging {return false}
         if _storage._insertion != rhs_storage._insertion {return false}
         if _storage._blenderConfig != rhs_storage._blenderConfig {return false}
@@ -818,6 +853,8 @@ extension Delivery_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
     10: .standard(proto: "content_id"),
     12: .same(proto: "position"),
     13: .same(proto: "properties"),
+    19: .standard(proto: "retrieval_rank"),
+    20: .standard(proto: "retrieval_score"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -835,8 +872,10 @@ extension Delivery_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
       case 8: try { try decoder.decodeSingularStringField(value: &self.sessionID) }()
       case 9: try { try decoder.decodeSingularStringField(value: &self.viewID) }()
       case 10: try { try decoder.decodeSingularStringField(value: &self.contentID) }()
-      case 12: try { try decoder.decodeSingularUInt64Field(value: &self.position) }()
+      case 12: try { try decoder.decodeSingularUInt64Field(value: &self._position) }()
       case 13: try { try decoder.decodeSingularMessageField(value: &self._properties) }()
+      case 19: try { try decoder.decodeSingularUInt64Field(value: &self._retrievalRank) }()
+      case 20: try { try decoder.decodeSingularFloatField(value: &self._retrievalScore) }()
       default: break
       }
     }
@@ -870,11 +909,17 @@ extension Delivery_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
     if !self.contentID.isEmpty {
       try visitor.visitSingularStringField(value: self.contentID, fieldNumber: 10)
     }
-    if self.position != 0 {
-      try visitor.visitSingularUInt64Field(value: self.position, fieldNumber: 12)
+    if let v = self._position {
+      try visitor.visitSingularUInt64Field(value: v, fieldNumber: 12)
     }
     if let v = self._properties {
       try visitor.visitSingularMessageField(value: v, fieldNumber: 13)
+    }
+    if let v = self._retrievalRank {
+      try visitor.visitSingularUInt64Field(value: v, fieldNumber: 19)
+    }
+    if let v = self._retrievalScore {
+      try visitor.visitSingularFloatField(value: v, fieldNumber: 20)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -889,8 +934,10 @@ extension Delivery_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
     if lhs.viewID != rhs.viewID {return false}
     if lhs.sessionID != rhs.sessionID {return false}
     if lhs.contentID != rhs.contentID {return false}
-    if lhs.position != rhs.position {return false}
+    if lhs._position != rhs._position {return false}
     if lhs._properties != rhs._properties {return false}
+    if lhs._retrievalRank != rhs._retrievalRank {return false}
+    if lhs._retrievalScore != rhs._retrievalScore {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

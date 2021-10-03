@@ -9,6 +9,7 @@ extension MetricsLogger {
     fileprivate var logUserIDs: Deque<Event_AncestorIdHistoryItem>
     fileprivate var sessionIDs: Deque<Event_AncestorIdHistoryItem>
     fileprivate var viewIDs: Deque<Event_AncestorIdHistoryItem>
+    fileprivate var autoViewIDs: Deque<Event_AncestorIdHistoryItem>
 
     fileprivate unowned let osLog: OSLog?
     fileprivate unowned let xray: Xray?
@@ -26,7 +27,10 @@ extension MetricsLogger {
     return diagnostics
   }
 
-  func fillDiagnostics(in diagnostics: inout Event_MobileDiagnostics, xray: Xray) {
+  func fillDiagnostics(
+    in diagnostics: inout Event_MobileDiagnostics,
+    xray: Xray
+  ) {
     diagnostics.batchesAttempted = Int32(xray.batchesAttempted)
     diagnostics.batchesSentSuccessfully = Int32(xray.batchesSentSuccessfully)
     diagnostics.batchesWithErrors = Int32(xray.batchesWithErrors)
@@ -52,6 +56,7 @@ extension MetricsLogger {
     historyMessage.logUserIDHistory = history.logUserIDs.values
     historyMessage.sessionIDHistory = history.sessionIDs.values
     historyMessage.viewIDHistory = history.viewIDs.values
+    historyMessage.autoViewIDHistory = history.autoViewIDs.values
     diagnostics.ancestorIDHistory = historyMessage
   }
 }
@@ -65,23 +70,53 @@ extension MetricsLogger.AncestorIDHistory {
     logUserIDs = Deque<Event_AncestorIdHistoryItem>(maximumSize: size)
     sessionIDs = Deque<Event_AncestorIdHistoryItem>(maximumSize: size)
     viewIDs = Deque<Event_AncestorIdHistoryItem>(maximumSize: size)
+    autoViewIDs = Deque<Event_AncestorIdHistoryItem>(maximumSize: size)
   }
 
   mutating func logUserIDDidChange(value: String?, event: Message? = nil) {
-    logUserIDs.ancestorIDDidChange(value: value, event: event, osLog: osLog, xray: xray)
+    logUserIDs.ancestorIDDidChange(
+      value: value,
+      event: event,
+      osLog: osLog,
+      xray: xray
+    )
   }
 
   mutating func sessionIDDidChange(value: String?) {
-    sessionIDs.ancestorIDDidChange(value: value, event: nil, osLog: osLog, xray: xray)
+    sessionIDs.ancestorIDDidChange(
+      value: value,
+      event: nil,
+      osLog: osLog,
+      xray: xray
+    )
   }
 
   mutating func viewIDDidChange(value: String?, event: Message? = nil) {
-    viewIDs.ancestorIDDidChange(value: value, event: event, osLog: osLog, xray: xray)
+    viewIDs.ancestorIDDidChange(
+      value: value,
+      event: event,
+      osLog: osLog,
+      xray: xray
+    )
+  }
+
+  mutating func autoViewIDDidChange(value: String?, event: Message? = nil) {
+    autoViewIDs.ancestorIDDidChange(
+      value: value,
+      event: event,
+      osLog: osLog,
+      xray: xray
+    )
   }
 }
 
 fileprivate extension Deque where Element == Event_AncestorIdHistoryItem {
-  mutating func ancestorIDDidChange(value: String?, event: Message?, osLog: OSLog?, xray: Xray?) {
+  mutating func ancestorIDDidChange(
+    value: String?,
+    event: Message?,
+    osLog: OSLog?,
+    xray: Xray?
+  ) {
     var historyItem = Event_AncestorIdHistoryItem()
     if let value = value {
       historyItem.ancestorID = value

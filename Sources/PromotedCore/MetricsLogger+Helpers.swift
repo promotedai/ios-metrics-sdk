@@ -31,12 +31,16 @@ public extension MetricsLogger {
   @discardableResult
   func logImpression(
     content: Content,
-    sourceType: ImpressionSourceType = .unknown
+    sourceType: ImpressionSourceType = .unknown,
+    autoViewState: AutoViewState = .empty,
+    viewID: String? = nil
   ) -> Event_Impression {
     return logImpression(
+      sourceType: sourceType,
+      autoViewState: autoViewState,
       contentID: content.contentID,
       insertionID: content.insertionID,
-      sourceType: sourceType
+      viewID: viewID
     )
   }
 }
@@ -58,15 +62,17 @@ public extension MetricsLogger {
   func logNavigateAction(
     content: Content,
     screenName: String? = nil,
-    viewController: UIViewController? = nil
+    viewController: UIViewController? = nil,
+    autoViewState: AutoViewState = .empty
   ) -> Event_Action {
     return logAction(
+      type: .navigate,
       name: (
         screenName
           ?? viewController?.promotedViewLoggingName
           ?? ActionType.navigate.description
       ),
-      type: .navigate,
+      autoViewState: autoViewState,
       contentID: content.contentID,
       insertionID: content.insertionID
     )
@@ -79,8 +85,8 @@ public extension MetricsLogger {
   @objc(logActionWithType:content:)
   func _objcLogAction(type: ActionType, content: Content?) {
     logAction(
-      name: type.description,
       type: type,
+      name: type.description,
       contentID: content?.contentID,
       insertionID: content?.insertionID
     )
@@ -90,8 +96,8 @@ public extension MetricsLogger {
   @objc(logActionWithType:content:name:)
   func _objcLogAction(type: ActionType, content: Content?, name: String?) {
     logAction(
-      name: name ?? type.description,
       type: type,
+      name: name ?? type.description,
       contentID: content?.contentID,
       insertionID: content?.insertionID
     )
@@ -105,15 +111,19 @@ public extension MetricsLogger {
   func logAction(
     type: ActionType,
     content: Content?,
+    name: String? = nil,
+    autoViewState: AutoViewState = .empty,
     impressionID: String? = nil,
-    name: String? = nil
+    viewID: String? = nil
   ) -> Event_Action {
     return logAction(
-      name: name ?? type.description,
       type: type,
-      impressionID: impressionID,
+      name: name ?? type.description,
+      autoViewState: autoViewState,
       contentID: content?.contentID,
-      insertionID: content?.insertionID
+      impressionID: impressionID,
+      insertionID: content?.insertionID,
+      viewID: viewID
     )
   }
 }
@@ -126,8 +136,10 @@ public extension MetricsLogger {
   }
   
   /// Logs a view of the given `UIViewController` and use case.
-  @objc func logView(viewController: UIViewController,
-                     useCase: UseCase) {
+  @objc func logView(
+    viewController: UIViewController,
+    useCase: UseCase
+  ) {
     logView(
       trackerKey: .uiKit(viewController: viewController),
       useCase: useCase
@@ -135,27 +147,21 @@ public extension MetricsLogger {
   }
 
   /// Logs a view with the given route name and key (React Native).
-  func logViewReady(
-    routeName: String,
-    routeKey: String,
-    useCase: UseCase? = nil
-  ) {
-    viewTracker.reset()
-    logView(
-      trackerKey: .reactNative(routeName: routeName, routeKey: routeKey),
-      useCase: useCase
-    )
+  @discardableResult
+  func logView(
+    routeName: String?,
+    routeKey: String?
+  ) -> Event_View {
+    return logView(name: routeName)
   }
   
   /// Logs a view with the given route name and key (React Native).
-  func logViewChange(
-    routeName: String,
-    routeKey: String,
-    useCase: UseCase? = nil
-  ) {
-    logView(
-      trackerKey: .reactNative(routeName: routeName, routeKey: routeKey),
-      useCase: useCase
-    )
+  @discardableResult
+  func logAutoView(
+    routeName: String?,
+    routeKey: String?,
+    autoViewID: String?
+  ) -> Event_AutoView {
+    return logAutoView(name: routeName, autoViewID: autoViewID)
   }
 }

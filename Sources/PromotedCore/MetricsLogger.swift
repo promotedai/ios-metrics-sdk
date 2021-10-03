@@ -70,13 +70,13 @@ public final class MetricsLogger: NSObject {
   
   private let logUserIDProducer: IDProducer
   private let sessionIDProducer: IDProducer
-  unowned let viewTracker: ViewTracker
+  private unowned let viewTracker: ViewTracker
   private var needsViewStateCheck: Bool
 
   var history: AncestorIDHistory?
 
-  private lazy var cachedDeviceMessage: Event_Device = deviceMessage()
-  private lazy var cachedLocaleMessage: Event_Locale = localeMessage()
+  private lazy var cachedDeviceMessage: Common_Device = deviceMessage()
+  private lazy var cachedLocaleMessage: Common_Locale = localeMessage()
 
   typealias Deps = (
     ClientConfigSource &
@@ -257,8 +257,8 @@ public extension MetricsLogger {
 
 // MARK: - Internal methods
 extension MetricsLogger {
-  private func deviceMessage() -> Event_Device {
-    var device = Event_Device()
+  private func deviceMessage() -> Common_Device {
+    var device = Common_Device()
     if let type = deviceInfo.deviceType.protoValue { device.deviceType = type }
     device.brand = deviceInfo.brand
     device.manufacturer = deviceInfo.manufacturer
@@ -271,8 +271,8 @@ extension MetricsLogger {
     return device
   }
 
-  private func localeMessage() -> Event_Locale {
-    var locale = Event_Locale()
+  private func localeMessage() -> Common_Locale {
+    var locale = Common_Locale()
     locale.languageCode = deviceInfo.languageCode
     locale.regionCode = deviceInfo.regionCode
     return locale
@@ -285,7 +285,7 @@ extension MetricsLogger {
     return userInfo
   }
   
-  func timingMessage() -> Common_Timing {
+  private func timingMessage() -> Common_Timing {
     var timing = Common_Timing()
     timing.clientLogTimestamp = UInt64(clock.nowMillis)
     return timing
@@ -351,28 +351,36 @@ public extension MetricsLogger {
   ///   - contentID: Content ID from which to derive `impressionID`
   ///   - insertionID: Insertion ID as provided by Promoted
   ///   - requestID: Request ID as provided by Promoted
+  ///   - viewID: View ID to set in impression. If not provided, defaults to
+  ///     the view ID last logged via `logView`.
   ///   - sourceType: Origin of the impressed content
   ///   - properties: Client-specific message
   /// - Returns:
   ///   Logged event message.
   @discardableResult
   func logImpression(
+    sourceType: ImpressionSourceType? = nil,
+    autoViewState: AutoViewState = .empty,
     contentID: String? = nil,
     insertionID: String? = nil,
     requestID: String? = nil,
-    sourceType: ImpressionSourceType? = nil,
+    viewID: String? = nil,
     properties: Message? = nil
   ) -> Event_Impression {
     var impression = Event_Impression()
     monitor.execute {
       impression.timing = timingMessage()
       impression.impressionID = idMap.impressionID()
-      if let id = insertionID { impression.insertionID = id }
-      if let id = requestID { impression.requestID = id }
-      if let id = sessionID { impression.sessionID = id }
-      if let id = viewID { impression.viewID = id }
-      if let id = contentID { impression.contentID = idMap.contentID(clientID: id) }
-      if let t = sourceType?.protoValue { impression.sourceType = t }
+      if let i = insertionID { impression.insertionID = i }
+      if let r = requestID { impression.requestID = r }
+      if let s = sessionID { impression.sessionID = s }
+      if let v = viewID ?? self.viewID { impression.viewID = v }
+      if let a = autoViewState.autoViewID { impression.autoViewID = a }
+      if let c = contentID { impression.contentID = c }
+      if let s = sourceType?.protoValue { impression.sourceType = s }
+      if let h = autoViewState.hasSuperimposedViews {
+        impression.hasSuperimposedViews_p = h
+      }
       if let p = propertiesMessage(properties) { impression.properties = p }
       log(message: impression)
     }
@@ -396,41 +404,49 @@ public extension MetricsLogger {
   ///   - contentID: Content ID from which to derive `impressionID`
   ///   - insertionID: Insertion ID as provided by Promoted
   ///   - requestID: Request ID as provided by Promoted
+  ///   - viewID: View ID to set in impression. If not provided, defaults to
+  ///     the view ID last logged via `logView`.
   ///   - properties: Client-specific message
   /// - Returns:
   ///   Logged event message.
   @discardableResult
   func logAction(
-    name: String,
     type: ActionType,
-    impressionID: String? = nil,
-    contentID: String? = nil,
-    insertionID: String? = nil,
-    requestID: String? = nil,
+    name: String,
     targetURL: String? = nil,
     elementID: String? = nil,
+    autoViewState: AutoViewState = .empty,
+    contentID: String? = nil,
+    impressionID: String? = nil,
+    insertionID: String? = nil,
+    requestID: String? = nil,
+    viewID: String? = nil,
     properties: Message? = nil
   ) -> Event_Action {
     var action = Event_Action()
     monitor.execute {
       action.timing = timingMessage()
       action.actionID = idMap.actionID()
-      if let id = impressionID { action.impressionID = id }
-      if let id = contentID { action.contentID = id }
-      if let id = insertionID { action.insertionID = id }
-      if let id = requestID { action.requestID = id }
-      if let id = sessionID { action.sessionID = id }
-      if let id = viewID { action.viewID = id }
+      if let i = impressionID { action.impressionID = i }
+      if let c = contentID { action.contentID = c }
+      if let i = insertionID { action.insertionID = i }
+      if let r = requestID { action.requestID = r }
+      if let s = sessionID { action.sessionID = s }
+      if let v = viewID ?? self.viewID { action.viewID = v }
+      if let a = autoViewState.autoViewID { action.autoViewID = a }
       action.name = name
-      if let type = type.protoValue { action.actionType = type }
+      if let t = type.protoValue { action.actionType = t }
       action.elementID = elementID ?? name
       switch type {
       case .navigate:
         var navigateAction = Event_NavigateAction()
-        if let url = targetURL { navigateAction.targetURL = url }
+        if let t = targetURL { navigateAction.targetURL = t }
         action.navigateAction = navigateAction
       default:
         break
+      }
+      if let h = autoViewState.hasSuperimposedViews {
+        action.hasSuperimposedViews_p = h
       }
       if let p = propertiesMessage(properties) { action.properties = p }
       log(message: action)
@@ -468,18 +484,33 @@ public extension MetricsLogger {
   @discardableResult
   private func logView(
     trackerState: ViewTracker.State,
+    viewID: String? = nil,
+    properties: Message? = nil
+  ) -> Event_View {
+    return logView(
+      name: trackerState.name,
+      useCase: trackerState.useCase,
+      viewID: viewID,
+      properties: properties
+    )
+  }
+
+  @discardableResult
+  internal func logView(
+    name: String? = nil,
+    useCase: UseCase? = nil,
+    viewID: String? = nil,
     properties: Message? = nil
   ) -> Event_View {
     var view = Event_View()
     monitor.execute {
       view.timing = timingMessage()
       needsViewStateCheck = false  // No need for check when logging view.
-      if let id = viewID { view.viewID = id }
-      if let id = sessionID { view.sessionID = id }
-      view.name = trackerState.name
-      if let use = trackerState.useCase?.protoValue { view.useCase = use }
+      if let v = viewID ?? self.viewID { view.viewID = v }
+      if let s = sessionID { view.sessionID = s }
+      if let n = name { view.name = n }
+      if let u = useCase?.protoValue { view.useCase = u }
       if let p = propertiesMessage(properties) { view.properties = p }
-      view.device = cachedDeviceMessage
       view.locale = cachedLocaleMessage
       view.viewType = .appScreen
       let appScreenView = Event_AppScreenView()
@@ -489,6 +520,31 @@ public extension MetricsLogger {
       history?.viewIDDidChange(value: viewID, event: view)
     }
     return view
+  }
+
+  @discardableResult
+  func logAutoView(
+    name: String? = nil,
+    useCase: UseCase? = nil,
+    autoViewID: String? = nil,
+    properties: Message? = nil
+  ) -> Event_AutoView {
+    var autoView = Event_AutoView()
+    monitor.execute {
+      autoView.timing = timingMessage()
+      if let a = autoViewID { autoView.autoViewID = a }
+      if let s = sessionID { autoView.sessionID = s }
+      if let n = name { autoView.name = n }
+      if let u = useCase?.protoValue { autoView.useCase = u }
+      if let p = propertiesMessage(properties) { autoView.properties = p }
+      autoView.locale = cachedLocaleMessage
+      let appScreenView = Event_AppScreenView()
+      // TODO(yu-hong): Fill out AppScreenView.
+      autoView.appScreenView = appScreenView
+      log(message: autoView)
+      history?.autoViewIDDidChange(value: viewID, event: autoView)
+    }
+    return autoView
   }
 }
 
@@ -529,12 +585,15 @@ public extension MetricsLogger {
   private func logRequestMessage(events: [Message]) -> Event_LogRequest {
     var logRequest = Event_LogRequest()
     logRequest.userInfo = userInfoMessage()
+    logRequest.device = cachedDeviceMessage
     for event in events {
       switch event {
       case let user as Event_User:
         logRequest.user.append(user)
       case let view as Event_View:
         logRequest.view.append(view)
+      case let autoView as Event_AutoView:
+        logRequest.autoView.append(autoView)
       case let request as Delivery_Request:
         logRequest.request.append(request)
       case let insertion as Delivery_Insertion:
@@ -544,8 +603,13 @@ public extension MetricsLogger {
       case let action as Event_Action:
         logRequest.action.append(action)
       default:
-        osLog?.warning("flush/logRequestMessage: Unknown event: %{private}@", String(describing: event))
-        monitor.executionDidError(MetricsLoggerError.unexpectedEvent(event))
+        osLog?.warning(
+          "flush/logRequestMessage: Unknown event: %{private}@",
+          String(describing: event)
+        )
+        monitor.executionDidError(
+          MetricsLoggerError.unexpectedEvent(event)
+        )
       }
     }
     if config.anyDiagnosticsEnabled {

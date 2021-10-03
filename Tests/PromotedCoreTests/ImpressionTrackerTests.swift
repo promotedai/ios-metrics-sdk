@@ -25,14 +25,16 @@ final class ImpressionTrackerTests: ModuleTestCase {
 
     func impressionTracker(
       _ impressionTracker: ImpressionTracker,
-      didStartImpressions impressions: [Impression]
+      didStartImpressions impressions: [Impression],
+      autoViewState: AutoViewState
     ) {
       startImpressions.append(contentsOf: impressions)
     }
     
     func impressionTracker(
       _ impressionTracker: ImpressionTracker,
-      didEndImpressions impressions: [Impression]
+      didEndImpressions impressions: [Impression],
+      autoViewState: AutoViewState
     ) {
       endImpressions.append(contentsOf: impressions)
     }
@@ -89,6 +91,7 @@ final class ImpressionTrackerTests: ModuleTestCase {
         "user_id": "foo",
         "log_user_id": "fake-log-user-id"
       },
+      \(FakeDeviceInfo.json),
       "impression": [
         \(eventJSONJoined)
       ]
@@ -103,16 +106,31 @@ final class ImpressionTrackerTests: ModuleTestCase {
   func testStartImpressions() {
     clock.advance(to: 123)
     
-    impressionTracker.collectionViewWillDisplay(content: content("jeff"))
-    assertContentsEqual(delegate.startImpressions, [impression("jeff", 123)])
+    impressionTracker.collectionViewWillDisplay(
+      content: content("jeff"),
+      autoViewState: .empty
+    )
+    assertContentsEqual(
+      delegate.startImpressions,
+      [impression("jeff", 123)]
+    )
     
     delegate.clear()
     clock.now = 500
-    impressionTracker.collectionViewWillDisplay(content: content("britta"))
+    impressionTracker.collectionViewWillDisplay(
+      content: content("britta"),
+      autoViewState: .empty
+    )
     clock.now = 501
-    impressionTracker.collectionViewWillDisplay(content: content("troy"))
+    impressionTracker.collectionViewWillDisplay(
+      content: content("troy"),
+      autoViewState: .empty
+    )
     clock.now = 502
-    impressionTracker.collectionViewWillDisplay(content: content("abed"))
+    impressionTracker.collectionViewWillDisplay(
+      content: content("abed"),
+      autoViewState: .empty
+    )
     assertContentsEqual(
       delegate.startImpressions,
       [
@@ -129,13 +147,25 @@ final class ImpressionTrackerTests: ModuleTestCase {
       deps: module
     ).with(sourceType: .delivery)
     clock.advance(to: 123)
-    impressionTracker.collectionViewWillDisplay(content: content("jeff"))
+    impressionTracker.collectionViewWillDisplay(
+      content: content("jeff"),
+      autoViewState: .empty
+    )
     clock.now = 500
-    impressionTracker.collectionViewWillDisplay(content: content("britta"))
+    impressionTracker.collectionViewWillDisplay(
+      content: content("britta"),
+      autoViewState: .empty
+    )
     clock.now = 501
-    impressionTracker.collectionViewWillDisplay(content: content("troy"))
+    impressionTracker.collectionViewWillDisplay(
+      content: content("troy"),
+      autoViewState: .empty
+    )
     clock.now = 502
-    impressionTracker.collectionViewWillDisplay(content: content("abed"))
+    impressionTracker.collectionViewWillDisplay(
+      content: content("abed"),
+      autoViewState: .empty
+    )
     let expectedEventsJSON: [String] = [
       """
       {
@@ -188,9 +218,15 @@ final class ImpressionTrackerTests: ModuleTestCase {
   func testEndImpressions() {
     clock.advance(to: 123)
     
-    impressionTracker.collectionViewWillDisplay(content: content("annie"))
+    impressionTracker.collectionViewWillDisplay(
+      content: content("annie"),
+      autoViewState: .empty
+    )
     clock.now = 200
-    impressionTracker.collectionViewDidHide(content: content("annie"))
+    impressionTracker.collectionViewDidHide(
+      content: content("annie"),
+      autoViewState: .empty
+    )
     assertContentsEqual(
       delegate.endImpressions,
       [impression("annie", 123, 200)]
@@ -200,10 +236,22 @@ final class ImpressionTrackerTests: ModuleTestCase {
   func testDidChangeImpressions() {
     clock.advance(to: 123)
     
-    impressionTracker.collectionViewWillDisplay(content: content("shirley"))
-    impressionTracker.collectionViewWillDisplay(content: content("pierce"))
-    impressionTracker.collectionViewWillDisplay(content: content("ben"))
-    impressionTracker.collectionViewWillDisplay(content: content("craig"))
+    impressionTracker.collectionViewWillDisplay(
+      content: content("shirley"),
+      autoViewState: .empty
+    )
+    impressionTracker.collectionViewWillDisplay(
+      content: content("pierce"),
+      autoViewState: .empty
+    )
+    impressionTracker.collectionViewWillDisplay(
+      content: content("ben"),
+      autoViewState: .empty
+    )
+    impressionTracker.collectionViewWillDisplay(
+      content: content("craig"),
+      autoViewState: .empty
+    )
     assertContentsEqual(
       delegate.startImpressions,
       [
@@ -223,7 +271,10 @@ final class ImpressionTrackerTests: ModuleTestCase {
     ]
     clock.now = 200
     
-    impressionTracker.collectionViewDidChangeVisibleContent(visibleContent)
+    impressionTracker.collectionViewDidChangeVisibleContent(
+      visibleContent,
+      autoViewState: .empty
+    )
     assertContentsEqual(
       delegate.startImpressions,
       [impression("troy", 200), impression("abed", 200)]
@@ -237,10 +288,22 @@ final class ImpressionTrackerTests: ModuleTestCase {
   func testDidHideAllImpressions() {
     clock.advance(to: 123)
     
-    impressionTracker.collectionViewWillDisplay(content: content("jeff"))
-    impressionTracker.collectionViewWillDisplay(content: content("britta"))
-    impressionTracker.collectionViewWillDisplay(content: content("annie"))
-    impressionTracker.collectionViewWillDisplay(content: content("troy"))
+    impressionTracker.collectionViewWillDisplay(
+      content: content("jeff"),
+      autoViewState: .empty
+    )
+    impressionTracker.collectionViewWillDisplay(
+      content: content("britta"),
+      autoViewState: .empty
+    )
+    impressionTracker.collectionViewWillDisplay(
+      content: content("annie"),
+      autoViewState: .empty
+    )
+    impressionTracker.collectionViewWillDisplay(
+      content: content("troy"),
+      autoViewState: .empty
+    )
     assertContentsEqual(
       delegate.startImpressions,
       [
@@ -254,7 +317,7 @@ final class ImpressionTrackerTests: ModuleTestCase {
     delegate.clear()
     clock.now = 200
     
-    impressionTracker.collectionViewDidHideAllContent()
+    impressionTracker.collectionViewDidHideAllContent(autoViewState: .empty)
     assertContentsEqual(delegate.startImpressions, [])
     assertContentsEqual(
       delegate.endImpressions,
@@ -269,8 +332,14 @@ final class ImpressionTrackerTests: ModuleTestCase {
 
   func testImpressionID() {
     idMap.incrementCounts = true
-    impressionTracker.collectionViewWillDisplay(content: content("jeff"))
-    impressionTracker.collectionViewWillDisplay(content: content("britta"))
+    impressionTracker.collectionViewWillDisplay(
+      content: content("jeff"),
+      autoViewState: .empty
+    )
+    impressionTracker.collectionViewWillDisplay(
+      content: content("britta"),
+      autoViewState: .empty
+    )
     XCTAssertEqual(
       "fake-impression-id-1",
       impressionTracker.impressionID(for: content("jeff"))
@@ -279,13 +348,19 @@ final class ImpressionTrackerTests: ModuleTestCase {
       "fake-impression-id-2",
       impressionTracker.impressionID(for: content("britta"))
     )
-    impressionTracker.collectionViewDidHide(content: content("jeff"))
+    impressionTracker.collectionViewDidHide(
+      content: content("jeff"),
+      autoViewState: .empty
+    )
     XCTAssertNil(impressionTracker.impressionID(for: content("jeff")))
     XCTAssertEqual(
       "fake-impression-id-2",
       impressionTracker.impressionID(for: content("britta"))
     )
-    impressionTracker.collectionViewWillDisplay(content: content("jeff"))
+    impressionTracker.collectionViewWillDisplay(
+      content: content("jeff"),
+      autoViewState: .empty
+    )
     XCTAssertEqual(
       "fake-impression-id-3",
       impressionTracker.impressionID(for: content("jeff"))

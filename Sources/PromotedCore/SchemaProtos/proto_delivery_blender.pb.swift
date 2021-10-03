@@ -21,13 +21,13 @@ fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAP
 }
 
 /// See: https://github.com/promotedai/blender for README
-/// Next ID = 10.
+/// Next ID = 11.
 public struct Delivery_BlenderRule {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  /// The name of item attribute that this rule applies to.
+  /// The name of item attribute that this rule applies to. It may be a JSON key path.
   public var attributeName: String = String()
 
   public var rule: Delivery_BlenderRule.OneOf_Rule? = nil
