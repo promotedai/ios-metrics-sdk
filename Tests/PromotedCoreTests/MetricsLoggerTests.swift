@@ -197,7 +197,11 @@ final class MetricsLoggerTests: ModuleTestCase {
     XCTAssertEqual(0, clock.scheduledTimers.count)
     XCTAssertEqual(0, metricsLogger.logMessagesForTesting.count)
     XCTAssertEqual(1, connection.messages.count)
-    guard let logRequest = connection.messages.first?.message as? Event_LogRequest else {
+    guard
+      let logRequest = (
+        connection.messages.first?.message as? Event_LogRequest
+      )
+    else {
       XCTFail("Message sent to connection was not a LogRequest")
       return
     }
@@ -222,7 +226,11 @@ final class MetricsLoggerTests: ModuleTestCase {
 
     clock.advance(to: flushInterval + 10)
     XCTAssertEqual(1, connection.messages.count)
-    guard let logRequest = connection.messages.first?.message as? Event_LogRequest else {
+    guard
+      let logRequest = (
+        connection.messages.first?.message as? Event_LogRequest
+      )
+    else {
       XCTFail("Message sent to connection was not a LogRequest")
       return
     }
@@ -239,7 +247,9 @@ final class MetricsLoggerTests: ModuleTestCase {
     XCTAssertTrue(message is Event_User)
     let propertiesData = (message as! Event_User).properties.structBytes
     do {
-      let deserializedProps = try Event_Impression(serializedData: propertiesData)
+      let deserializedProps = try Event_Impression(
+        serializedData: propertiesData
+      )
       XCTAssertEqual("foobar", deserializedProps.impressionID)
     } catch {
       XCTFail("Exception when deserializing payload")
@@ -259,8 +269,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       }
     }
     """
-    XCTAssertEqual(try Event_User(jsonString: expectedJSON),
-                   message as! Event_User)
+    XCTAssertEqual(
+      try Event_User(jsonString: expectedJSON),
+      message as! Event_User
+    )
   }
 
   func testLogImpressionInsertionID() {
@@ -281,8 +293,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       "auto_view_id": "fake-auto-view-id"
     }
     """
-    XCTAssertEqual(try Event_Impression(jsonString: expectedJSON),
-                   message as! Event_Impression)
+    XCTAssertEqual(
+      try Event_Impression(jsonString: expectedJSON),
+      message as! Event_Impression
+    )
   }
 
   func testLogImpressionNoInsertionID() {
@@ -302,8 +316,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       "auto_view_id": "fake-auto-view-id"
     }
     """
-    XCTAssertEqual(try Event_Impression(jsonString: expectedJSON),
-                   message as! Event_Impression)
+    XCTAssertEqual(
+      try Event_Impression(jsonString: expectedJSON),
+      message as! Event_Impression
+    )
   }
 
   func testLogImpressionNoLogUserSessionViewIDs() {
@@ -321,8 +337,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       "content_id": "foobar"
     }
     """
-    XCTAssertEqual(try Event_Impression(jsonString: expectedJSON),
-                   message as! Event_Impression)
+    XCTAssertEqual(
+      try Event_Impression(jsonString: expectedJSON),
+      message as! Event_Impression
+    )
   }
 
   func testLogImpressionExternalLogUserID() {
@@ -350,8 +368,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       ]
     }
     """
-    XCTAssertEqual(try Event_LogRequest(jsonString: expectedJSON),
-                   message as! Event_LogRequest)
+    XCTAssertEqual(
+      try Event_LogRequest(jsonString: expectedJSON),
+      message as! Event_LogRequest
+    )
   }
 
   func testLogImpressionMultipleExternalIDs() {
@@ -384,8 +404,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       ]
     }
     """
-    XCTAssertEqual(try Event_LogRequest(jsonString: expectedJSON),
-                   message as! Event_LogRequest)
+    XCTAssertEqual(
+      try Event_LogRequest(jsonString: expectedJSON),
+      message as! Event_LogRequest
+    )
   }
 
   func testLogNavigateAction() {
@@ -415,8 +437,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       }
     }
     """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      message as! Event_Action
+    )
   }
   
   func testLogAddToCartAction() {
@@ -473,8 +497,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       "element_id": "remove-from-cart"
     }
     """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      message as! Event_Action
+    )
   }
   
   func testLogCheckoutAction() {
@@ -499,8 +525,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       "element_id": "checkout"
     }
     """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      message as! Event_Action
+    )
   }
   
   func testLogPurchaseAction() {
@@ -527,8 +555,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       "element_id": "purchase"
     }
     """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      message as! Event_Action
+    )
   }
   
   func testLogShareAction() {
@@ -555,8 +585,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       "element_id": "share"
     }
     """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      message as! Event_Action
+    )
   }
 
   func testLogLikeAction() {
@@ -583,8 +615,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       "element_id": "like"
     }
     """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      message as! Event_Action
+    )
   }
 
   func testLogUnlikeAction() {
@@ -611,8 +645,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       "element_id": "unlike"
     }
     """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      message as! Event_Action
+    )
   }
   
   func testLogCommentAction() {
@@ -639,8 +675,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       "element_id": "comment"
     }
     """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      message as! Event_Action
+    )
   }
   
   func testLogMakeOfferAction() {
@@ -667,8 +705,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       "element_id": "make-offer"
     }
     """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      message as! Event_Action
+    )
   }
   
   func testLogAskQuestionAction() {
@@ -695,8 +735,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       "element_id": "ask-question"
     }
     """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      message as! Event_Action
+    )
   }
   
   func testLogAnswerQuestionAction() {
@@ -723,8 +765,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       "element_id": "answer-question"
     }
     """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      message as! Event_Action
+    )
   }
   
   func testLogCompleteSignInAction() {
@@ -749,8 +793,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       "element_id": "sign-in"
     }
     """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      message as! Event_Action
+    )
   }
   
   func testLogCompleteSignUpAction() {
@@ -775,8 +821,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       "element_id": "sign-up"
     }
     """
-    XCTAssertEqual(try Event_Action(jsonString: expectedJSON),
-                   message as! Event_Action)
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      message as! Event_Action
+    )
   }
   
   func testLogViewController() {
@@ -806,8 +854,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       }
     }
     """
-    XCTAssertEqual(try Event_View(jsonString: expectedJSON),
-                   message as! Event_View)
+    XCTAssertEqual(
+      try Event_View(jsonString: expectedJSON),
+      message as! Event_View
+    )
   }
   
   func testReadViewIDBeforeLogView() {
@@ -885,5 +935,44 @@ final class MetricsLoggerTests: ModuleTestCase {
       let action2 = message3 as? Event_Action
     else { XCTFail(); return }
     XCTAssertEqual("fake-view-id-3", action2.viewID)
+  }
+
+  func testLogAutoView() {
+    metricsLogger.logUserID = "batman"
+    metricsLogger.logAutoView(
+      routeName: "fake-route-name",
+      routeKey: "fake-route-key",
+      autoViewID: "fake-auto-view-id"
+    )
+    metricsLogger.flush()
+    let message = connection.messages.last?.message
+    XCTAssertTrue(message is Event_LogRequest)
+    let expectedJSON = """
+    {
+      "user_info": {
+        "log_user_id": "batman"
+      },
+      \(FakeDeviceInfo.json),
+      "auto_view": [
+        {
+          "timing": {
+            "client_log_timestamp": 123000
+          },
+          "name": "fake-route-name",
+          "auto_view_id": "fake-auto-view-id",
+          "locale": {
+            "language_code": "en",
+            "region_code": "US"
+          },
+          "app_screen_view": {
+          }
+        }
+      ]
+    }
+    """
+    XCTAssertEqual(
+      try Event_LogRequest(jsonString: expectedJSON),
+      message as! Event_LogRequest
+    )
   }
 }
