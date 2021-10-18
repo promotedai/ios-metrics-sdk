@@ -1,4 +1,6 @@
+#if canImport(CryptoKit)
 import CryptoKit
+#endif
 import Firebase
 import Foundation
 
@@ -155,6 +157,7 @@ extension ClientConfig {
          "metricsLoggingAPIKey",
          "devMetricsLoggingURL",
          "devMetricsLoggingAPIKey":
+      #if canImport(CryptoKit)
       if #available(iOS 13, *),
          let value = convertedValue as? String {
         let hash = SHA256.hash(data: Data(value.utf8))
@@ -163,6 +166,7 @@ extension ClientConfig {
         let prefix = hash.prefix(8).map { String(format: "%02x", $0) }.joined()
         return "<<sha256: \(prefix)…>>"
       }
+      #endif
       return "<<private>>"
     default:
       return String(describing: convertedValue)
