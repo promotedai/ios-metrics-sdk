@@ -34,7 +34,10 @@ protocol Clock: AnyObject {
   /// Schedules a callback to be invoked in the future. Callback is
   /// invoked on the main thread.
   /// Callers can capture the return value to cancel the callback.
-  func schedule(timeInterval: TimeInterval, callback: @escaping Callback) -> ScheduledTimer?
+  func schedule(
+    timeInterval: TimeInterval,
+    callback: @escaping Callback
+  ) -> ScheduledTimer?
   
   /// Cancels the given callback.
   func cancel(scheduledTimer: ScheduledTimer)
