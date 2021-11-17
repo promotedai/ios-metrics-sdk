@@ -9,7 +9,7 @@ import PromotedCore
 
   private class FirebaseConnectionWrapper: RemoteConfigConnection {
     private let firebaseApp: FirebaseApp
-    private lazy var connection =
+    private lazy var connection: RemoteConfigConnection =
       FirebaseRemoteConfigConnection(app: firebaseApp)
 
     init(app: FirebaseApp) {

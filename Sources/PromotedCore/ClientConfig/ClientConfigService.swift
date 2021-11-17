@@ -112,10 +112,6 @@ extension ClientConfigService {
 
     _ = clock.schedule(timeInterval: 5.0) { [weak self] _ in
       guard let self = self else { return }
-      fetchMessages.info(
-        "Remote config fetch starting.",
-        visibility: .public
-      )
       // Use initialConfig as the basis of the fetch so that
       // incremental changes are applied to this baseline.
       connection.fetchClientConfig(
@@ -192,6 +188,11 @@ extension ClientConfigService {
       )
       callback(result)
     }
+
+    fetchMessages.info(
+      "Remote config fetch starting.",
+      visibility: .public
+    )
 
     guard remoteResult.error == nil else {
       resultError = .remoteConfigFetchError(remoteResult.error!)
