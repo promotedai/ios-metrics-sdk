@@ -110,8 +110,8 @@ extension ClientConfigService {
       visibility: .public
     )
 
-    _ = clock.schedule(timeInterval: 5.0) { [weak self] _ in
-      guard let self = self else { return }
+//    clock.schedule(timeInterval: 5.0) { [weak self] _ in
+//      guard let self = self else { return }
       // Use initialConfig as the basis of the fetch so that
       // incremental changes are applied to this baseline.
       connection.fetchClientConfig(
@@ -123,7 +123,7 @@ extension ClientConfigService {
           fetchMessages: &fetchMessages
         )
       }
-    }
+//    }
   }
 
   private func loadLocalCachedConfig(

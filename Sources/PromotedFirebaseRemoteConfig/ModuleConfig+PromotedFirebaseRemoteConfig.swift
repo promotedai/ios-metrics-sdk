@@ -7,25 +7,25 @@ import PromotedCore
 
 @objc public extension ModuleConfig {
 
-  private class FirebaseConnectionWrapper: RemoteConfigConnection {
-    private let firebaseApp: FirebaseApp
-    private lazy var connection: RemoteConfigConnection =
-      FirebaseRemoteConfigConnection(app: firebaseApp)
-
-    init(app: FirebaseApp) {
-      self.firebaseApp = app
-    }
-
-    func fetchClientConfig(
-      initialConfig: ClientConfig,
-      callback: @escaping Callback
-    ) {
-      connection.fetchClientConfig(
-        initialConfig: initialConfig,
-        callback: callback
-      )
-    }
-  }
+//  private class FirebaseConnectionWrapper: RemoteConfigConnection {
+//    private let firebaseApp: FirebaseApp
+//    private lazy var connection =
+//      FirebaseRemoteConfigConnection(app: firebaseApp)
+//
+//    init(app: FirebaseApp) {
+//      self.firebaseApp = app
+//    }
+//
+//    func fetchClientConfig(
+//      initialConfig: ClientConfig,
+//      callback: @escaping Callback
+//    ) {
+//      connection.fetchClientConfig(
+//        initialConfig: initialConfig,
+//        callback: callback
+//      )
+//    }
+//  }
 
   /// Uses Firebase Remote Config to load remote `ClientConfig`.
   @objc func useFirebaseRemoteConfigWithDefaultApp() {
@@ -35,6 +35,6 @@ import PromotedCore
   }
 
   @objc func useFirebaseRemoteConfig(app: FirebaseApp) {
-    remoteConfigConnection = FirebaseConnectionWrapper(app: app)
+    remoteConfigConnection = FirebaseRemoteConfigConnection(app: app)
   }
 }
