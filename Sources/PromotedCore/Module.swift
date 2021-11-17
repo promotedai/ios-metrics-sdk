@@ -175,6 +175,9 @@ final class Module: AllDeps {
   let clock: Clock = SystemClock()
   
   let deviceInfo: DeviceInfo = IOSDeviceInfo()
+
+  private(set) lazy var errorHandler: ErrorHandler? =
+    clientConfig.osLogLevel > .none ? ErrorHandler(deps: self) : nil
   
   let idMap: IDMap = DefaultIDMap()
   
@@ -264,10 +267,11 @@ final class Module: AllDeps {
   }
 
   private func startClientConfigDependentServices() throws {
-    // Initialize Analytics and Xray so they add themselves
-    // as OperationMonitorListeners.
+    // Initialize Analytics, ErrorHandler, and Xray so they add
+    // themselves as OperationMonitorListeners.
     _ = analytics
     try analyticsConnection?.startServices()
+    _ = errorHandler
     _ = xray
   }
 }
