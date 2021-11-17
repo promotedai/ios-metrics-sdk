@@ -8,16 +8,63 @@ import PromotedCore
 
 final class FirebaseRemoteConfigConnection: RemoteConfigConnection {
 
-  private let firebaseApp: FirebaseApp
+  private let plistFilename: String?
+  private var cachedFirebaseApp: FirebaseApp?
 
   init(app: FirebaseApp) {
-    self.firebaseApp = app
+    self.plistFilename = nil
+    self.cachedFirebaseApp = app
+  }
+
+  init(plistFilename: String) {
+    self.plistFilename = plistFilename
+    self.cachedFirebaseApp = nil
+  }
+
+  private func firebaseApp() throws -> FirebaseApp {
+    // Use existing cached app, if available.
+    if let existingApp = cachedFirebaseApp { return existingApp }
+
+    // If the app has already been configured in Firebase, re-use it.
+    // React Native under debug tries to run initialization code multiple
+    // times, and trying to configure the same Firebase app more than
+    // once causes an error.
+    guard let plistFilename = plistFilename else {
+      throw RemoteConfigConnectionError.serviceConfigError(
+        "Expected either app or plistFilename specified"
+      )
+    }
+    if let existingApp = FirebaseApp.app(name: plistFilename) {
+      cachedFirebaseApp = existingApp
+      return existingApp
+    }
+
+    // Load options from bundled plist, configure, and cache result.
+    guard let appConfigPath = Bundle.main.path(
+      forResource: plistFilename,
+      ofType: "plist"
+    ) else {
+      throw RemoteConfigConnectionError.serviceConfigError(
+        "PList named \(plistFilename) not found"
+      )
+    }
+    guard let firebaseOptions = FirebaseOptions(
+      contentsOfFile: appConfigPath
+    ) else {
+      throw RemoteConfigConnectionError.serviceConfigError(
+        "Could not create FirebaseOptions from plist file at \(appConfigPath)"
+      )
+    }
+    FirebaseApp.configure(name: plistFilename, options: firebaseOptions)
+    cachedFirebaseApp = FirebaseApp.app(name: plistFilename)
+    return cachedFirebaseApp!
   }
 
   func fetchClientConfig(
     initialConfig: ClientConfig,
     callback: @escaping Callback
-  ) {
+  ) throws {
+    let firebaseApp = try firebaseApp()
     let remoteConfig = RemoteConfig.remoteConfig(app: firebaseApp)
     #if DEBUG
       let settings = RemoteConfigSettings()

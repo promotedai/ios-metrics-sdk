@@ -42,9 +42,9 @@ final class ClientConfigService {
       wasConfigFetched,
       "Attempt to access config before fetchClientConfig"
     )
-    return _config
+    return cachedConfig
   }
-  private var _config: ClientConfig
+  private var cachedConfig: ClientConfig
   private var wasConfigFetched: Bool
 
   private unowned let clock: Clock
@@ -65,7 +65,7 @@ final class ClientConfigService {
   )
 
   init(deps: Deps) {
-    self._config = deps.initialConfig
+    self.cachedConfig = deps.initialConfig
     self.wasConfigFetched = false
     self.clock = deps.clock
     self.initialConfig = deps.initialConfig
@@ -110,20 +110,28 @@ extension ClientConfigService {
       visibility: .public
     )
 
-//    clock.schedule(timeInterval: 5.0) { [weak self] _ in
-//      guard let self = self else { return }
-      // Use initialConfig as the basis of the fetch so that
-      // incremental changes are applied to this baseline.
-      connection.fetchClientConfig(
-        initialConfig: self.initialConfig
-      ) { remoteResult in
-        self.handleRemoteConfigFetchComplete(
-          remoteResult: remoteResult,
+    clock.schedule(timeInterval: 5.0) { [weak self] _ in
+      guard let self = self else { return }
+      do {
+        // Use initialConfig as the basis of the fetch so that
+        // incremental changes are applied to this baseline.
+        try connection.fetchClientConfig(
+          initialConfig: self.initialConfig
+        ) { remoteResult in
+          self.handleRemoteConfigFetchComplete(
+            remoteResult: remoteResult,
+            callback: callback,
+            fetchMessages: fetchMessages
+          )
+        }
+      } catch {
+        self.handleRemoteConfigFetchError(
+          error,
           callback: callback,
-          fetchMessages: &fetchMessages
+          fetchMessages: fetchMessages
         )
       }
-//    }
+    }
   }
 
   private func loadLocalCachedConfig(
@@ -132,7 +140,7 @@ extension ClientConfigService {
     if let clientConfigData = store.clientConfig {
       do {
         let decoder = JSONDecoder()
-        _config = try decoder.decode(
+        cachedConfig = try decoder.decode(
           ClientConfig.self, from: clientConfigData
         )
         fetchMessages.info(
@@ -165,7 +173,7 @@ extension ClientConfigService {
       visibility: .public
     )
     let result = Result(
-      config: _config,
+      config: cachedConfig,
       error: nil,
       messages: fetchMessages
     )
@@ -175,7 +183,7 @@ extension ClientConfigService {
   private func handleRemoteConfigFetchComplete(
     remoteResult: RemoteConfigConnection.Result,
     callback: Callback,
-    fetchMessages: inout PendingLogMessages
+    fetchMessages: PendingLogMessages
   ) {
     var resultConfig: ClientConfig? = nil
     var resultError: ClientConfigError? = nil
@@ -189,7 +197,7 @@ extension ClientConfigService {
       callback(result)
     }
 
-    fetchMessages.info(
+    resultMessages.info(
       "Remote config fetch starting.",
       visibility: .public
     )
@@ -217,5 +225,21 @@ extension ClientConfigService {
     } catch {
       resultError = .localCacheEncodeError(error)
     }
+  }
+
+  private func handleRemoteConfigFetchError(
+    _ error: Error,
+    callback: Callback,
+    fetchMessages: PendingLogMessages
+  ) {
+    fetchMessages.warning(
+      "Remote config fetch failed. Using local cached config."
+    )
+    let result = Result(
+      config: cachedConfig,
+      error: .remoteConfigFetchError(error),
+      messages: fetchMessages
+    )
+    callback(result)
   }
 }
