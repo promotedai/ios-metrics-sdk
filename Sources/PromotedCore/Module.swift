@@ -175,7 +175,7 @@ final class Module: AllDeps {
   let clock: Clock = SystemClock()
   
   let deviceInfo: DeviceInfo = IOSDeviceInfo()
-  
+
   let idMap: IDMap = DefaultIDMap()
   
   let initialConfig: ClientConfig
@@ -258,6 +258,10 @@ final class Module: AllDeps {
       }
       osLog.log(pendingMessages: result.messages)
       if let error = result.error {
+        osLog.error(
+          "fetchClientConfig: %{private}@",
+          error.localizedDescription
+        )
         operationMonitor.executionDidError(error)
       }
     }

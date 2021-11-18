@@ -29,7 +29,7 @@ public protocol RemoteConfigConnection: AnyObject {
   func fetchClientConfig(
     initialConfig: ClientConfig,
     callback: @escaping Callback
-  )
+  ) throws
 }
 
 protocol RemoteConfigConnectionSource {

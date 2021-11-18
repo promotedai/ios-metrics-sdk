@@ -17,4 +17,10 @@ import PromotedCore
   @objc func useFirebaseRemoteConfig(app: FirebaseApp) {
     remoteConfigConnection = FirebaseRemoteConfigConnection(app: app)
   }
+
+  @objc func useFirebaseRemoteConfig(plistFilename: String) {
+    remoteConfigConnection = FirebaseRemoteConfigConnection(
+      plistFilename: plistFilename
+    )
+  }
 }

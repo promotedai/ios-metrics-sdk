@@ -34,7 +34,11 @@ protocol Clock: AnyObject {
   /// Schedules a callback to be invoked in the future. Callback is
   /// invoked on the main thread.
   /// Callers can capture the return value to cancel the callback.
-  func schedule(timeInterval: TimeInterval, callback: @escaping Callback) -> ScheduledTimer?
+  @discardableResult
+  func schedule(
+    timeInterval: TimeInterval,
+    callback: @escaping Callback
+  ) -> ScheduledTimer?
   
   /// Cancels the given callback.
   func cancel(scheduledTimer: ScheduledTimer)
@@ -51,10 +55,16 @@ extension Clock {
   /// This loses sub-millisecond resolution, which makes it unsuitable
   /// for interval measurement.
   var nowMillis: TimeIntervalMillis { TimeIntervalMillis(seconds: now) }
-  
-  func schedule(timeIntervalMillis: TimeIntervalMillis,
-                callback: @escaping Callback) -> ScheduledTimer? {
-    schedule(timeInterval: TimeInterval(millis: timeIntervalMillis), callback: callback)
+
+  @discardableResult
+  func schedule(
+      timeIntervalMillis: TimeIntervalMillis,
+      callback: @escaping Callback
+  ) -> ScheduledTimer? {
+    schedule(
+      timeInterval: TimeInterval(millis: timeIntervalMillis),
+      callback: callback
+    )
   }
 }
 
@@ -68,10 +78,15 @@ final class SystemClock: Clock {
 
   var now: TimeInterval { Date().timeIntervalSince1970 }
 
-  func schedule(timeInterval: TimeInterval,
-                callback: @escaping Callback) -> ScheduledTimer? {
+  func schedule(
+    timeInterval: TimeInterval,
+    callback: @escaping Callback
+  ) -> ScheduledTimer? {
     guard #available(iOS 10.0, macOS 10.12, *) else { return nil }
-    let timer = Timer.scheduledTimer(withTimeInterval: timeInterval, repeats: false) {_ in
+    let timer = Timer.scheduledTimer(
+      withTimeInterval: timeInterval,
+      repeats: false
+    ) { _ in
       callback(self)
     }
     return SystemTimer(timer: timer)
