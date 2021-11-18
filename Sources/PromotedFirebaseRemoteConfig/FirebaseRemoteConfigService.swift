@@ -64,8 +64,7 @@ final class FirebaseRemoteConfigConnection: RemoteConfigConnection {
     initialConfig: ClientConfig,
     callback: @escaping Callback
   ) throws {
-    let firebaseApp = try firebaseApp()
-    let remoteConfig = RemoteConfig.remoteConfig(app: firebaseApp)
+    let remoteConfig = RemoteConfig.remoteConfig(app: try firebaseApp())
     #if DEBUG
       let settings = RemoteConfigSettings()
       settings.minimumFetchInterval = 0
