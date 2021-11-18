@@ -67,7 +67,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'FirebaseAnalyticsWithoutAdIdSupport' do |a|
     a.source_files = ['Sources/PromotedFirebaseAnalytics/**/*.{h,m,swift}']
-    a.dependency 'Firebase/AnalyticsWithoutAdIdSupport', '~> 7.9.0'
+    a.dependency 'Firebase/AnalyticsWithoutAdIdSupport', '~> 7.11.0'
     a.dependency 'PromotedAIMetricsSDK/Core'
 
     # Linker flags are needed when the host app has no other
