@@ -113,6 +113,10 @@ extension ClientConfigService {
     clock.schedule(timeInterval: 5.0) { [weak self] _ in
       guard let self = self else { return }
       do {
+        fetchMessages.info(
+          "Remote config fetch starting.",
+          visibility: .public
+        )
         // Use initialConfig as the basis of the fetch so that
         // incremental changes are applied to this baseline.
         try connection.fetchClientConfig(
@@ -197,11 +201,6 @@ extension ClientConfigService {
       callback(result)
     }
 
-    resultMessages.info(
-      "Remote config fetch starting.",
-      visibility: .public
-    )
-
     guard remoteResult.error == nil else {
       resultError = .remoteConfigFetchError(remoteResult.error!)
       return
@@ -232,13 +231,14 @@ extension ClientConfigService {
     callback: Callback,
     fetchMessages: PendingLogMessages
   ) {
-    fetchMessages.warning(
+    var resultMessages = fetchMessages
+    resultMessages.warning(
       "Remote config fetch failed. Using local cached config."
     )
     let result = Result(
       config: cachedConfig,
       error: .remoteConfigFetchError(error),
-      messages: fetchMessages
+      messages: resultMessages
     )
     callback(result)
   }
