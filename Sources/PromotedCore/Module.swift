@@ -176,9 +176,6 @@ final class Module: AllDeps {
   
   let deviceInfo: DeviceInfo = IOSDeviceInfo()
 
-  private(set) lazy var errorHandler: ErrorHandler? =
-    clientConfig.osLogLevel > .none ? ErrorHandler(deps: self) : nil
-  
   let idMap: IDMap = DefaultIDMap()
   
   let initialConfig: ClientConfig
@@ -261,17 +258,20 @@ final class Module: AllDeps {
       }
       osLog.log(pendingMessages: result.messages)
       if let error = result.error {
+        osLog.error(
+          "fetchClientConfig: %{private}@",
+          error.localizedDescription
+        )
         operationMonitor.executionDidError(error)
       }
     }
   }
 
   private func startClientConfigDependentServices() throws {
-    // Initialize Analytics, ErrorHandler, and Xray so they add
-    // themselves as OperationMonitorListeners.
+    // Initialize Analytics and Xray so they add themselves
+    // as OperationMonitorListeners.
     _ = analytics
     try analyticsConnection?.startServices()
-    _ = errorHandler
     _ = xray
   }
 }
