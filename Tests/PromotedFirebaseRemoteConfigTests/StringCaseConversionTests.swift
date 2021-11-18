@@ -16,10 +16,10 @@ final class StringCaseConversionTests: XCTestCase {
 
   func testCamelCase() {
     XCTAssertEqual("json", "json".toCamelCase())
-        XCTAssertEqual("batchSummaries", "batch_summaries".toCamelCase())
-        XCTAssertEqual(
-          "callDetailsAndStackTraces",
-          "call_details_and_stack_traces".toCamelCase()
-        )
+    XCTAssertEqual("batchSummaries", "batch_summaries".toCamelCase())
+    XCTAssertEqual(
+      "callDetailsAndStackTraces",
+      "call_details_and_stack_traces".toCamelCase()
+    )
   }
 }
