@@ -14,6 +14,10 @@ public enum UseCase: Int {
   case myContent = 8
   case savedContent = 9
   case sellerContent = 10
-  
-  var protoValue: Delivery_UseCase? { Delivery_UseCase(rawValue: self.rawValue) }
+}
+
+extension UseCase {
+  var protoValue: Delivery_UseCase? {
+    Delivery_UseCase(rawValue: self.rawValue)
+  }
 }

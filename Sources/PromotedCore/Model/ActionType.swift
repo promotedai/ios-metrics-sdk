@@ -51,7 +51,9 @@ public enum ActionType: Int, CustomStringConvertible, RawRepresentable {
   /// Complete sign-up.
   /// No content_id needed.  If set, set it to the Content's ID (not User).
   case completeSignUp // = 15
+}
 
+extension ActionType {
   public init?(rawValue: Int) {
     switch rawValue {
     case 0: self = .unknown
