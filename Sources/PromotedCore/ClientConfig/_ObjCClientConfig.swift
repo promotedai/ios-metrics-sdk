@@ -212,6 +212,11 @@ public final class _ObjCClientConfig: NSObject {
     didSet { validateEnum(&osLogLevel, defaultValue: .none) }
   }
 
+  var anyDiagnosticsEnabled: Bool {
+    diagnosticsIncludeBatchSummaries ||
+      diagnosticsIncludeAncestorIDHistory
+  }
+
   /// Whether mobile diagnostic messages include batch summaries
   /// from Xray. Setting this to `true` also forces `xrayLevel` to
   /// be at least `.batchSummaries`.
@@ -223,16 +228,15 @@ public final class _ObjCClientConfig: NSObject {
     }
   }
 
-  var anyDiagnosticsEnabled: Bool {
-    diagnosticsIncludeBatchSummaries ||
-      diagnosticsIncludeAncestorIDHistory
-  }
-
-  @objc private var assertInValidation: Bool = true
-
   /// Whether mobile diagnostic messages include a history of
   /// ancestor IDs being set for the session.
   @objc public var diagnosticsIncludeAncestorIDHistory: Bool = false
+
+  /// Whether event messages include the `IdentifierProvenance`
+  /// message.
+  @objc public var eventsIncludeIDProvenance: Bool = false
+
+  @objc private var assertInValidation: Bool = true
 
   @objc public override init() {}
 
