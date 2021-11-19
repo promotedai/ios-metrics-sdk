@@ -841,7 +841,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       "timing": {
         "client_log_timestamp": 123000
       },
-      "view_id": "\(idMap.viewID().stringValue ?? "")",
+      "view_id": "\(idMap.viewID().stringValue!)",
       "session_id": "fake-session-id",
       "name": "FakeScreen",
       "use_case": "SEARCH",
