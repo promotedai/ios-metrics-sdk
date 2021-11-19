@@ -39,11 +39,16 @@ final class IDProducer: IDSequence {
   /// or you call `advance()` on this producer.
   /// You can also set this value to `nil` to clear this ID
   /// on subsequent logged events.
-  var currentValue: String? {
-    get { internalCurrentValue.stringValue }
+  var currentValue: ID {
+    get { internalCurrentValue }
     set {
-      internalCurrentValue = .platformSpecified(value: newValue)
-      currentOrPendingValue = .platformSpecified(value: newValue)
+      switch newValue {
+      case .null, .empty, .platformSpecified(_):
+        internalCurrentValue = newValue
+        currentOrPendingValue = newValue
+      default:
+        assertionFailure("Expected platformSpecified but got: \(newValue)")
+      }
     }
   }
   private var internalCurrentValue: ID
@@ -87,7 +92,7 @@ final class IDProducer: IDSequence {
   }
 
   @discardableResult func advance() -> ID {
-    if internalCurrentValue == nil {
+    if internalCurrentValue == .null {
       internalCurrentValue = currentOrPendingValue
       return currentValue
     }

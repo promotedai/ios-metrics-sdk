@@ -13,7 +13,7 @@ final class ViewTrackerTests: ModuleTestCase {
   }
 
   func testTrackViewUIKit() {
-    XCTAssertNil(viewTracker.id.currentValue)
+    XCTAssertEqual(.null, viewTracker.id.currentValue)
     let viewIDBefore = viewTracker.id.currentOrPendingValue
     let vc = UIViewController()
     let state = viewTracker.trackView(key: .uiKit(viewController: vc), useCase: .feed)!
@@ -24,7 +24,7 @@ final class ViewTrackerTests: ModuleTestCase {
   }
   
   func testTrackSameViewUIKit() {
-    XCTAssertNil(viewTracker.id.currentValue)
+    XCTAssertEqual(.null, viewTracker.id.currentValue)
     let viewIDBefore = viewTracker.id.currentOrPendingValue
 
     let vc1 = UIViewController()
@@ -39,7 +39,7 @@ final class ViewTrackerTests: ModuleTestCase {
   }
   
   func testTrackViewUIKitMultiple() {
-    XCTAssertNil(viewTracker.id.currentValue)
+    XCTAssertEqual(.null, viewTracker.id.currentValue)
     let viewIDBefore = viewTracker.id.currentOrPendingValue
 
     let vc1 = UIViewController()
