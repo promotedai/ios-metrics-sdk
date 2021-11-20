@@ -352,6 +352,7 @@ public extension MetricsLogger {
     var user = Event_User()
     monitor.execute {
       user.timing = timingMessage()
+      if let i = identifierProvenanceMessage() { user.idProvenances = i }
       if let p = propertiesMessage(properties) { user.properties = p }
       log(message: user)
       history?.logUserIDDidChange(value: logUserID, event: user)

@@ -21,9 +21,9 @@ extension MetricsLogger {
     if let p = viewID?.protoValue {
       provenances.viewIDProvenance = p
     }
-//    if let p = autoViewID?.protoValue {
-//      provenances.autoViewIDProvenance = p
-//    }
+    if let p = autoViewID?.protoValue {
+      provenances.autoViewIDProvenance = p
+    }
     if let p = impressionID?.protoValue {
       provenances.impressionIDProvenance = p
     }
