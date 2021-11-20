@@ -20,6 +20,7 @@ fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAP
   typealias Version = _2
 }
 
+/// Next ID = 21.
 public enum Common_CurrencyCode: SwiftProtobuf.Enum {
   public typealias RawValue = Int
   case unknownCurrencyCode // = 0
@@ -185,6 +186,7 @@ extension Common_DeviceType: CaseIterable {
 
 #endif  // swift(>=4.2)
 
+/// Next ID = 7.
 public struct Common_EntityPath {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -518,6 +520,7 @@ public struct Common_Device {
 
 /// https://raw.githubusercontent.com/snowplow/iglu-central/master/schemas/org.ietf/http_client_hints/jsonschema/1-0-0
 /// A newer alternative to user agent strings.
+/// Next ID = 8.
 public struct Common_ClientHints {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -544,6 +547,7 @@ public struct Common_ClientHints {
 
 /// https://raw.githubusercontent.com/snowplow/iglu-central/master/schemas/org.ietf/http_client_hints/jsonschema/1-0-0
 /// a part of ClientHints.
+/// Next ID = 3.
 public struct Common_ClientHintBrand {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for

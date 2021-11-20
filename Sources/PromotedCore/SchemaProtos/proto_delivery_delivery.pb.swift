@@ -109,7 +109,7 @@ extension Delivery_UseCase: CaseIterable {
 /// Can be used to log existing ranking (not Promoted) or Promoted's Delivery
 /// API requests.
 ///
-/// Next ID = 19.
+/// Next ID = 20.
 public struct Delivery_Request {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -164,7 +164,7 @@ public struct Delivery_Request {
   public mutating func clearDevice() {_uniqueStorage()._device = nil}
 
   /// Optional.  Primary key.
-  /// SDKs usually handles this automatically. For details, see
+  /// Delivery sets this automatically. For details, see
   /// https://github.com/promotedai/schema#setting-primary-keys
   public var requestID: String {
     get {return _storage._requestID}
@@ -175,6 +175,12 @@ public struct Delivery_Request {
   public var viewID: String {
     get {return _storage._viewID}
     set {_uniqueStorage()._viewID = newValue}
+  }
+
+  /// Required.
+  public var autoViewID: String {
+    get {return _storage._autoViewID}
+    set {_uniqueStorage()._autoViewID = newValue}
   }
 
   /// Optional.
@@ -384,115 +390,133 @@ public struct Delivery_PagingInfo {
 
 /// This Event represents a Content being served at a certain position regardless
 /// of it was views by a user. Insertions are immutable.
-/// Next ID = 21.
+/// Next ID = 23.
 public struct Delivery_Insertion {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   /// Optional.  If not set, set by API servers.
-  public var platformID: UInt64 = 0
+  public var platformID: UInt64 {
+    get {return _storage._platformID}
+    set {_uniqueStorage()._platformID = newValue}
+  }
 
   /// Required.
   public var userInfo: Common_UserInfo {
-    get {return _userInfo ?? Common_UserInfo()}
-    set {_userInfo = newValue}
+    get {return _storage._userInfo ?? Common_UserInfo()}
+    set {_uniqueStorage()._userInfo = newValue}
   }
   /// Returns true if `userInfo` has been explicitly set.
-  public var hasUserInfo: Bool {return self._userInfo != nil}
+  public var hasUserInfo: Bool {return _storage._userInfo != nil}
   /// Clears the value of `userInfo`. Subsequent reads from it will return its default value.
-  public mutating func clearUserInfo() {self._userInfo = nil}
+  public mutating func clearUserInfo() {_uniqueStorage()._userInfo = nil}
 
   /// Optional.  If not set, set by API servers.
   public var timing: Common_Timing {
-    get {return _timing ?? Common_Timing()}
-    set {_timing = newValue}
+    get {return _storage._timing ?? Common_Timing()}
+    set {_uniqueStorage()._timing = newValue}
   }
   /// Returns true if `timing` has been explicitly set.
-  public var hasTiming: Bool {return self._timing != nil}
+  public var hasTiming: Bool {return _storage._timing != nil}
   /// Clears the value of `timing`. Subsequent reads from it will return its default value.
-  public mutating func clearTiming() {self._timing = nil}
+  public mutating func clearTiming() {_uniqueStorage()._timing = nil}
 
   /// Optional.  If not set, API server uses LogRequest.client_info.
   public var clientInfo: Common_ClientInfo {
-    get {return _clientInfo ?? Common_ClientInfo()}
-    set {_clientInfo = newValue}
+    get {return _storage._clientInfo ?? Common_ClientInfo()}
+    set {_uniqueStorage()._clientInfo = newValue}
   }
   /// Returns true if `clientInfo` has been explicitly set.
-  public var hasClientInfo: Bool {return self._clientInfo != nil}
+  public var hasClientInfo: Bool {return _storage._clientInfo != nil}
   /// Clears the value of `clientInfo`. Subsequent reads from it will return its default value.
-  public mutating func clearClientInfo() {self._clientInfo = nil}
+  public mutating func clearClientInfo() {_uniqueStorage()._clientInfo = nil}
 
   /// Optional.  Primary key.
   /// SDKs usually handles this automatically. For details, see
   /// https://github.com/promotedai/schema#setting-primary-keys
-  public var insertionID: String = String()
+  public var insertionID: String {
+    get {return _storage._insertionID}
+    set {_uniqueStorage()._insertionID = newValue}
+  }
 
   /// Optional.
-  public var requestID: String = String()
+  public var requestID: String {
+    get {return _storage._requestID}
+    set {_uniqueStorage()._requestID = newValue}
+  }
 
   /// Optional.
-  public var viewID: String = String()
+  public var viewID: String {
+    get {return _storage._viewID}
+    set {_uniqueStorage()._viewID = newValue}
+  }
 
   /// Optional.
-  public var sessionID: String = String()
+  public var autoViewID: String {
+    get {return _storage._autoViewID}
+    set {_uniqueStorage()._autoViewID = newValue}
+  }
+
+  /// Optional.
+  public var sessionID: String {
+    get {return _storage._sessionID}
+    set {_uniqueStorage()._sessionID = newValue}
+  }
 
   /// Optional.  We'll look this up using the external_content_id.
-  public var contentID: String = String()
+  public var contentID: String {
+    get {return _storage._contentID}
+    set {_uniqueStorage()._contentID = newValue}
+  }
 
   /// Optional. 0-based. Position "in what" depends on insertion context:
   /// if request_insertion, then position provided by client or retrieval
   /// if response_insertion, then the position returned by Delivery to the client
   public var position: UInt64 {
-    get {return _position ?? 0}
-    set {_position = newValue}
+    get {return _storage._position ?? 0}
+    set {_uniqueStorage()._position = newValue}
   }
   /// Returns true if `position` has been explicitly set.
-  public var hasPosition: Bool {return self._position != nil}
+  public var hasPosition: Bool {return _storage._position != nil}
   /// Clears the value of `position`. Subsequent reads from it will return its default value.
-  public mutating func clearPosition() {self._position = nil}
+  public mutating func clearPosition() {_uniqueStorage()._position = nil}
 
   /// Optional. Custom item attributes and features set by customers.
   public var properties: Common_Properties {
-    get {return _properties ?? Common_Properties()}
-    set {_properties = newValue}
+    get {return _storage._properties ?? Common_Properties()}
+    set {_uniqueStorage()._properties = newValue}
   }
   /// Returns true if `properties` has been explicitly set.
-  public var hasProperties: Bool {return self._properties != nil}
+  public var hasProperties: Bool {return _storage._properties != nil}
   /// Clears the value of `properties`. Subsequent reads from it will return its default value.
-  public mutating func clearProperties() {self._properties = nil}
+  public mutating func clearProperties() {_uniqueStorage()._properties = nil}
 
   /// Optional. Ranking (if known) of this insertion from the retrieval system.
   public var retrievalRank: UInt64 {
-    get {return _retrievalRank ?? 0}
-    set {_retrievalRank = newValue}
+    get {return _storage._retrievalRank ?? 0}
+    set {_uniqueStorage()._retrievalRank = newValue}
   }
   /// Returns true if `retrievalRank` has been explicitly set.
-  public var hasRetrievalRank: Bool {return self._retrievalRank != nil}
+  public var hasRetrievalRank: Bool {return _storage._retrievalRank != nil}
   /// Clears the value of `retrievalRank`. Subsequent reads from it will return its default value.
-  public mutating func clearRetrievalRank() {self._retrievalRank = nil}
+  public mutating func clearRetrievalRank() {_uniqueStorage()._retrievalRank = nil}
 
   /// Optional. Score (if any) of this insertion from the retrieval system.
   public var retrievalScore: Float {
-    get {return _retrievalScore ?? 0}
-    set {_retrievalScore = newValue}
+    get {return _storage._retrievalScore ?? 0}
+    set {_uniqueStorage()._retrievalScore = newValue}
   }
   /// Returns true if `retrievalScore` has been explicitly set.
-  public var hasRetrievalScore: Bool {return self._retrievalScore != nil}
+  public var hasRetrievalScore: Bool {return _storage._retrievalScore != nil}
   /// Clears the value of `retrievalScore`. Subsequent reads from it will return its default value.
-  public mutating func clearRetrievalScore() {self._retrievalScore = nil}
+  public mutating func clearRetrievalScore() {_uniqueStorage()._retrievalScore = nil}
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
 
-  fileprivate var _userInfo: Common_UserInfo? = nil
-  fileprivate var _timing: Common_Timing? = nil
-  fileprivate var _clientInfo: Common_ClientInfo? = nil
-  fileprivate var _position: UInt64? = nil
-  fileprivate var _properties: Common_Properties? = nil
-  fileprivate var _retrievalRank: UInt64? = nil
-  fileprivate var _retrievalScore: Float? = nil
+  fileprivate var _storage = _StorageClass.defaultInstance
 }
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -526,6 +550,7 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     18: .same(proto: "device"),
     6: .standard(proto: "request_id"),
     7: .standard(proto: "view_id"),
+    19: .standard(proto: "auto_view_id"),
     8: .standard(proto: "session_id"),
     14: .standard(proto: "client_request_id"),
     9: .standard(proto: "use_case"),
@@ -544,6 +569,7 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     var _device: Common_Device? = nil
     var _requestID: String = String()
     var _viewID: String = String()
+    var _autoViewID: String = String()
     var _sessionID: String = String()
     var _clientRequestID: String = String()
     var _useCase: Delivery_UseCase = .unknownUseCase
@@ -565,6 +591,7 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       _device = source._device
       _requestID = source._requestID
       _viewID = source._viewID
+      _autoViewID = source._autoViewID
       _sessionID = source._sessionID
       _clientRequestID = source._clientRequestID
       _useCase = source._useCase
@@ -606,6 +633,7 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
         case 14: try { try decoder.decodeSingularStringField(value: &_storage._clientRequestID) }()
         case 17: try { try decoder.decodeSingularMessageField(value: &_storage._paging) }()
         case 18: try { try decoder.decodeSingularMessageField(value: &_storage._device) }()
+        case 19: try { try decoder.decodeSingularStringField(value: &_storage._autoViewID) }()
         default: break
         }
       }
@@ -659,6 +687,9 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       if let v = _storage._device {
         try visitor.visitSingularMessageField(value: v, fieldNumber: 18)
       }
+      if !_storage._autoViewID.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._autoViewID, fieldNumber: 19)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -675,6 +706,7 @@ extension Delivery_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
         if _storage._device != rhs_storage._device {return false}
         if _storage._requestID != rhs_storage._requestID {return false}
         if _storage._viewID != rhs_storage._viewID {return false}
+        if _storage._autoViewID != rhs_storage._autoViewID {return false}
         if _storage._sessionID != rhs_storage._sessionID {return false}
         if _storage._clientRequestID != rhs_storage._clientRequestID {return false}
         if _storage._useCase != rhs_storage._useCase {return false}
@@ -849,6 +881,7 @@ extension Delivery_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
     6: .standard(proto: "insertion_id"),
     7: .standard(proto: "request_id"),
     9: .standard(proto: "view_id"),
+    21: .standard(proto: "auto_view_id"),
     8: .standard(proto: "session_id"),
     10: .standard(proto: "content_id"),
     12: .same(proto: "position"),
@@ -857,87 +890,150 @@ extension Delivery_Insertion: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
     20: .standard(proto: "retrieval_score"),
   ]
 
+  fileprivate class _StorageClass {
+    var _platformID: UInt64 = 0
+    var _userInfo: Common_UserInfo? = nil
+    var _timing: Common_Timing? = nil
+    var _clientInfo: Common_ClientInfo? = nil
+    var _insertionID: String = String()
+    var _requestID: String = String()
+    var _viewID: String = String()
+    var _autoViewID: String = String()
+    var _sessionID: String = String()
+    var _contentID: String = String()
+    var _position: UInt64? = nil
+    var _properties: Common_Properties? = nil
+    var _retrievalRank: UInt64? = nil
+    var _retrievalScore: Float? = nil
+
+    static let defaultInstance = _StorageClass()
+
+    private init() {}
+
+    init(copying source: _StorageClass) {
+      _platformID = source._platformID
+      _userInfo = source._userInfo
+      _timing = source._timing
+      _clientInfo = source._clientInfo
+      _insertionID = source._insertionID
+      _requestID = source._requestID
+      _viewID = source._viewID
+      _autoViewID = source._autoViewID
+      _sessionID = source._sessionID
+      _contentID = source._contentID
+      _position = source._position
+      _properties = source._properties
+      _retrievalRank = source._retrievalRank
+      _retrievalScore = source._retrievalScore
+    }
+  }
+
+  fileprivate mutating func _uniqueStorage() -> _StorageClass {
+    if !isKnownUniquelyReferenced(&_storage) {
+      _storage = _StorageClass(copying: _storage)
+    }
+    return _storage
+  }
+
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeSingularUInt64Field(value: &self.platformID) }()
-      case 2: try { try decoder.decodeSingularMessageField(value: &self._userInfo) }()
-      case 3: try { try decoder.decodeSingularMessageField(value: &self._timing) }()
-      case 4: try { try decoder.decodeSingularMessageField(value: &self._clientInfo) }()
-      case 6: try { try decoder.decodeSingularStringField(value: &self.insertionID) }()
-      case 7: try { try decoder.decodeSingularStringField(value: &self.requestID) }()
-      case 8: try { try decoder.decodeSingularStringField(value: &self.sessionID) }()
-      case 9: try { try decoder.decodeSingularStringField(value: &self.viewID) }()
-      case 10: try { try decoder.decodeSingularStringField(value: &self.contentID) }()
-      case 12: try { try decoder.decodeSingularUInt64Field(value: &self._position) }()
-      case 13: try { try decoder.decodeSingularMessageField(value: &self._properties) }()
-      case 19: try { try decoder.decodeSingularUInt64Field(value: &self._retrievalRank) }()
-      case 20: try { try decoder.decodeSingularFloatField(value: &self._retrievalScore) }()
-      default: break
+    _ = _uniqueStorage()
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      while let fieldNumber = try decoder.nextFieldNumber() {
+        // The use of inline closures is to circumvent an issue where the compiler
+        // allocates stack space for every case branch when no optimizations are
+        // enabled. https://github.com/apple/swift-protobuf/issues/1034
+        switch fieldNumber {
+        case 1: try { try decoder.decodeSingularUInt64Field(value: &_storage._platformID) }()
+        case 2: try { try decoder.decodeSingularMessageField(value: &_storage._userInfo) }()
+        case 3: try { try decoder.decodeSingularMessageField(value: &_storage._timing) }()
+        case 4: try { try decoder.decodeSingularMessageField(value: &_storage._clientInfo) }()
+        case 6: try { try decoder.decodeSingularStringField(value: &_storage._insertionID) }()
+        case 7: try { try decoder.decodeSingularStringField(value: &_storage._requestID) }()
+        case 8: try { try decoder.decodeSingularStringField(value: &_storage._sessionID) }()
+        case 9: try { try decoder.decodeSingularStringField(value: &_storage._viewID) }()
+        case 10: try { try decoder.decodeSingularStringField(value: &_storage._contentID) }()
+        case 12: try { try decoder.decodeSingularUInt64Field(value: &_storage._position) }()
+        case 13: try { try decoder.decodeSingularMessageField(value: &_storage._properties) }()
+        case 19: try { try decoder.decodeSingularUInt64Field(value: &_storage._retrievalRank) }()
+        case 20: try { try decoder.decodeSingularFloatField(value: &_storage._retrievalScore) }()
+        case 21: try { try decoder.decodeSingularStringField(value: &_storage._autoViewID) }()
+        default: break
+        }
       }
     }
   }
 
   public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.platformID != 0 {
-      try visitor.visitSingularUInt64Field(value: self.platformID, fieldNumber: 1)
-    }
-    if let v = self._userInfo {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
-    }
-    if let v = self._timing {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
-    }
-    if let v = self._clientInfo {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 4)
-    }
-    if !self.insertionID.isEmpty {
-      try visitor.visitSingularStringField(value: self.insertionID, fieldNumber: 6)
-    }
-    if !self.requestID.isEmpty {
-      try visitor.visitSingularStringField(value: self.requestID, fieldNumber: 7)
-    }
-    if !self.sessionID.isEmpty {
-      try visitor.visitSingularStringField(value: self.sessionID, fieldNumber: 8)
-    }
-    if !self.viewID.isEmpty {
-      try visitor.visitSingularStringField(value: self.viewID, fieldNumber: 9)
-    }
-    if !self.contentID.isEmpty {
-      try visitor.visitSingularStringField(value: self.contentID, fieldNumber: 10)
-    }
-    if let v = self._position {
-      try visitor.visitSingularUInt64Field(value: v, fieldNumber: 12)
-    }
-    if let v = self._properties {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 13)
-    }
-    if let v = self._retrievalRank {
-      try visitor.visitSingularUInt64Field(value: v, fieldNumber: 19)
-    }
-    if let v = self._retrievalScore {
-      try visitor.visitSingularFloatField(value: v, fieldNumber: 20)
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      if _storage._platformID != 0 {
+        try visitor.visitSingularUInt64Field(value: _storage._platformID, fieldNumber: 1)
+      }
+      if let v = _storage._userInfo {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
+      }
+      if let v = _storage._timing {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
+      }
+      if let v = _storage._clientInfo {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 4)
+      }
+      if !_storage._insertionID.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._insertionID, fieldNumber: 6)
+      }
+      if !_storage._requestID.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._requestID, fieldNumber: 7)
+      }
+      if !_storage._sessionID.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._sessionID, fieldNumber: 8)
+      }
+      if !_storage._viewID.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._viewID, fieldNumber: 9)
+      }
+      if !_storage._contentID.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._contentID, fieldNumber: 10)
+      }
+      if let v = _storage._position {
+        try visitor.visitSingularUInt64Field(value: v, fieldNumber: 12)
+      }
+      if let v = _storage._properties {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 13)
+      }
+      if let v = _storage._retrievalRank {
+        try visitor.visitSingularUInt64Field(value: v, fieldNumber: 19)
+      }
+      if let v = _storage._retrievalScore {
+        try visitor.visitSingularFloatField(value: v, fieldNumber: 20)
+      }
+      if !_storage._autoViewID.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._autoViewID, fieldNumber: 21)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   public static func ==(lhs: Delivery_Insertion, rhs: Delivery_Insertion) -> Bool {
-    if lhs.platformID != rhs.platformID {return false}
-    if lhs._userInfo != rhs._userInfo {return false}
-    if lhs._timing != rhs._timing {return false}
-    if lhs._clientInfo != rhs._clientInfo {return false}
-    if lhs.insertionID != rhs.insertionID {return false}
-    if lhs.requestID != rhs.requestID {return false}
-    if lhs.viewID != rhs.viewID {return false}
-    if lhs.sessionID != rhs.sessionID {return false}
-    if lhs.contentID != rhs.contentID {return false}
-    if lhs._position != rhs._position {return false}
-    if lhs._properties != rhs._properties {return false}
-    if lhs._retrievalRank != rhs._retrievalRank {return false}
-    if lhs._retrievalScore != rhs._retrievalScore {return false}
+    if lhs._storage !== rhs._storage {
+      let storagesAreEqual: Bool = withExtendedLifetime((lhs._storage, rhs._storage)) { (_args: (_StorageClass, _StorageClass)) in
+        let _storage = _args.0
+        let rhs_storage = _args.1
+        if _storage._platformID != rhs_storage._platformID {return false}
+        if _storage._userInfo != rhs_storage._userInfo {return false}
+        if _storage._timing != rhs_storage._timing {return false}
+        if _storage._clientInfo != rhs_storage._clientInfo {return false}
+        if _storage._insertionID != rhs_storage._insertionID {return false}
+        if _storage._requestID != rhs_storage._requestID {return false}
+        if _storage._viewID != rhs_storage._viewID {return false}
+        if _storage._autoViewID != rhs_storage._autoViewID {return false}
+        if _storage._sessionID != rhs_storage._sessionID {return false}
+        if _storage._contentID != rhs_storage._contentID {return false}
+        if _storage._position != rhs_storage._position {return false}
+        if _storage._properties != rhs_storage._properties {return false}
+        if _storage._retrievalRank != rhs_storage._retrievalRank {return false}
+        if _storage._retrievalScore != rhs_storage._retrievalScore {return false}
+        return true
+      }
+      if !storagesAreEqual {return false}
+    }
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
