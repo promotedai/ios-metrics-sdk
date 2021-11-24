@@ -12,30 +12,14 @@ extension MetricsLogger {
     requestID: ID? = nil
   ) -> Event_IdentifierProvenances {
     var provenances = Event_IdentifierProvenances()
-    if let p = logUserID?.protoValue {
-      provenances.userIDProvenance = p
-    }
-    if let p = sessionID?.protoValue {
-      provenances.sessionIDProvenance = p
-    }
-    if let p = viewID?.protoValue {
-      provenances.viewIDProvenance = p
-    }
-    if let p = autoViewID?.protoValue {
-      provenances.autoViewIDProvenance = p
-    }
-    if let p = impressionID?.protoValue {
-      provenances.impressionIDProvenance = p
-    }
-    if let p = actionID?.protoValue {
-      provenances.actionIDProvenance = p
-    }
-    if let p = contentID?.protoValue {
-      provenances.contentIDProvenance = p
-    }
-    if let p = requestID?.protoValue {
-      provenances.requestIDProvenance = p
-    }
+    provenances.userIDProvenance = logUserID?.protoValue ?? .null
+    provenances.sessionIDProvenance = sessionID?.protoValue ?? .null
+    provenances.viewIDProvenance = viewID?.protoValue ?? .null
+    provenances.autoViewIDProvenance = autoViewID?.protoValue ?? .null
+    provenances.impressionIDProvenance = impressionID?.protoValue ?? .null
+    provenances.actionIDProvenance = actionID?.protoValue ?? .null
+    provenances.contentIDProvenance = contentID?.protoValue ?? .null
+    provenances.requestIDProvenance = requestID?.protoValue ?? .null
     return provenances
   }
 }
