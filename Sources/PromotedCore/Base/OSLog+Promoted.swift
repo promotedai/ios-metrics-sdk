@@ -143,9 +143,9 @@ extension PendingLogMessages.Visibility {
   var formatString: StaticString {
     switch self {
     case .public:
-      return "%{public}s"
+      return "%{public}@"
     case .private:
-      return "%{private}s"
+      return "%{private}@"
     }
   }
 }
@@ -173,7 +173,7 @@ extension OSLog {
   func error(_ formatter: TabularLogFormatter) {
     guard shouldLog(.error) else { return }
     os_log(
-      "%{private}s",
+      "%{private}@",
       log: self,
       type: .error,
       formatter.asNewlineJoinedString()
@@ -184,7 +184,7 @@ extension OSLog {
     guard shouldLog(.warning) else { return }
     // OSLog doesn't have a .warning type, so use .error below.
     os_log(
-      "%{private}s",
+      "%{private}@",
       log: self,
       type: .error,
       formatter.asNewlineJoinedString()
@@ -194,7 +194,7 @@ extension OSLog {
   func info(_ formatter: TabularLogFormatter) {
     guard shouldLog(.info) else { return }
     os_log(
-      "%{private}s",
+      "%{private}@",
       log: self,
       type: .info,
       formatter.asNewlineJoinedString()
@@ -204,7 +204,7 @@ extension OSLog {
   func debug(_ formatter: TabularLogFormatter) {
     guard shouldLog(.debug) else { return }
     os_log(
-      "%{private}s",
+      "%{private}@",
       log: self,
       type: .debug,
       formatter.asNewlineJoinedString()
