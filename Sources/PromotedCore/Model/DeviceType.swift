@@ -8,7 +8,7 @@ enum DeviceType: Int {
 }
 
 extension DeviceType {
-  var protoValue: Common_DeviceType? {
-    Common_DeviceType(rawValue: self.rawValue)
+  var protoValue: Common_DeviceType {
+    Common_DeviceType(rawValue: self.rawValue) ?? .unknownDeviceType
   }
 }

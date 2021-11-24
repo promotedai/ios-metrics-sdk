@@ -2,7 +2,7 @@ import Foundation
 
 /** Type for user actions. */
 @objc(PROActionType)
-public enum ActionType: Int, CustomStringConvertible, RawRepresentable {
+public enum ActionType: Int {
   case unknown // = 0
 
   /// Action that doesn't correspond to any of the below.
@@ -53,7 +53,7 @@ public enum ActionType: Int, CustomStringConvertible, RawRepresentable {
   case completeSignUp // = 15
 }
 
-extension ActionType {
+extension ActionType: RawRepresentable {
   public init?(rawValue: Int) {
     switch rawValue {
     case 0: self = .unknown
@@ -97,7 +97,9 @@ extension ActionType {
     default: return 0
     }
   }
+}
 
+extension ActionType: CustomStringConvertible {
   public var description: String {
     switch self {
     case .unknown: return "unknown"
@@ -119,8 +121,10 @@ extension ActionType {
     default: return "unknown"
     }
   }
+}
 
-  var protoValue: Event_ActionType? {
-    Event_ActionType(rawValue: self.rawValue)
+extension ActionType {
+  var protoValue: Event_ActionType {
+    Event_ActionType(rawValue: self.rawValue) ?? .unknownActionType
   }
 }

@@ -40,7 +40,7 @@ extension ID {
     return .null
   }
 
-  var protoValue: Event_IdentifierProvenance? {
+  var protoValue: Event_IdentifierProvenance {
     switch self {
     case .unknown: return .unknown
     case .null: return .null
