@@ -1,7 +1,7 @@
 import Foundation
 
 /** Sequence of ancestor IDs. */
-protocol IDSequence: AnyObject {
+protocol IDSequence {
 
   /// State of ID in producer, which will be used as the
   /// ancestor ID in logged events.
@@ -22,7 +22,7 @@ protocol IDSequence: AnyObject {
 
  Clients can also assign custom values to the ID.
  */
-final class IDProducer: IDSequence {
+struct IDProducer: IDSequence {
 
   typealias Producer = () -> ID
 
@@ -61,11 +61,10 @@ final class IDProducer: IDSequence {
   ///   ID before the corresponding ancestor event has been
   ///   logged.
   /// - Otherwise, returns `currentValue`.
-  private(set) lazy var currentOrPendingValue: ID =
-    initialValueProducer()
+  private(set) var currentOrPendingValue: ID
 
   /// Uses given producer in all cases.
-  convenience init(producer: @escaping Producer) {
+  init(producer: @escaping Producer) {
     self.init(
       initialValueProducer: producer,
       nextValueProducer: producer
@@ -89,9 +88,10 @@ final class IDProducer: IDSequence {
     self.initialValueProducer = initialValueProducer
     self.nextValueProducer = nextValueProducer
     self.internalCurrentValue = .null
+    self.currentOrPendingValue = initialValueProducer()
   }
 
-  @discardableResult func advance() -> ID {
+  @discardableResult mutating func advance() -> ID {
     if internalCurrentValue == .null {
       internalCurrentValue = currentOrPendingValue
       return currentValue
@@ -101,7 +101,7 @@ final class IDProducer: IDSequence {
     return internalCurrentValue
   }
 
-  func reset() {
+  mutating func reset() {
     internalCurrentValue = .null
     currentOrPendingValue = initialValueProducer()
   }

@@ -53,7 +53,7 @@ final class TestModule: AllDeps {
 
   lazy var uiState: UIState = fakeUIState
 
-  lazy var viewTracker: ViewTracker = ViewTracker(deps: self)
+  func viewTracker() -> ViewTracker { ViewTracker(deps: self) }
 
   var xray: Xray? = nil
 }

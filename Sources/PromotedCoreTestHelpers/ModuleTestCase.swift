@@ -18,8 +18,7 @@ open class ModuleTestCase: XCTestCase {
   var remoteConfigConnection: FakeRemoteConfigConnection { module.fakeRemoteConfigConnection }
   var store: FakePersistentStore { module.fakePersistentStore }
   var uiState: FakeUIState { module.fakeUIState }
-  var viewTracker: ViewTracker { module.viewTracker }
-  
+
   open override func setUp() {
     super.setUp()
     module = TestModule()

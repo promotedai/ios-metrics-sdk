@@ -19,7 +19,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     store.logUserID = "fake-log-user-id"
     metricsLogger = MetricsLogger(deps: module)
   }
-  
+
   private func assertLoggerAndStoreInSync() {
     XCTAssertEqual(store.userID, metricsLogger.userIDForTesting)
     XCTAssertEqual(store.logUserID, metricsLogger.logUserID)
@@ -972,7 +972,11 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
   
   func testReadViewIDBeforeLogView() {
+    // Because the creation of MetricsLogger changes the state
+    // of the IDMap, we need to re-create MetricsLogger after
+    // changing this flag on FakeIDMap.
     idMap.incrementCounts = true
+    metricsLogger = MetricsLogger(deps: module)
     let initialViewID = metricsLogger.currentOrPendingViewID
     XCTAssertEqual("fake-view-id-1", initialViewID)
     metricsLogger.startSessionForTesting(userID: "foo")
@@ -996,7 +1000,11 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
   
   func testViewLoggingChangeScreens() {
+    // Because the creation of MetricsLogger changes the state
+    // of the IDMap, we need to re-create MetricsLogger after
+    // changing this flag on FakeIDMap.
     idMap.incrementCounts = true
+    metricsLogger = MetricsLogger(deps: module)
     let initialViewID = metricsLogger.viewID
     metricsLogger.startSessionForTesting(userID: "foo")
 
@@ -1049,6 +1057,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testLogViewIDProvenances() {
+    idMap.incrementCounts = true
     module.clientConfig.eventsIncludeIDProvenance = true
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
@@ -1064,8 +1073,8 @@ final class MetricsLoggerTests: ModuleTestCase {
       "timing": {
         "client_log_timestamp": 123000
       },
-      "view_id": "\(idMap.viewID().stringValue!)",
-      "session_id": "fake-session-id",
+      "view_id": "fake-view-id-1",
+      "session_id": "fake-session-id-1",
       "name": "FakeScreen",
       "use_case": "SEARCH",
       "locale": {

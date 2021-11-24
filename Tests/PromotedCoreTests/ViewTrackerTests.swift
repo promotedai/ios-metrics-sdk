@@ -7,9 +7,12 @@ import XCTest
 
 final class ViewTrackerTests: ModuleTestCase {
 
+  private var viewTracker: ViewTracker!
+
   override func setUp() {
     super.setUp()
     idMap.incrementCounts = true
+    viewTracker = module.viewTracker()
   }
 
   func testTrackViewUIKit() {
