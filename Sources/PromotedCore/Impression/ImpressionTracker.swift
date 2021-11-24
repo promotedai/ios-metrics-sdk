@@ -266,9 +266,8 @@ public extension ImpressionTracker {
     guard !contents.isEmpty else { return }
     let impressions: [Impression] =
       contents.compactMap { content in
-        guard
-          let startTime = contentToImpressionStart.removeValue(forKey: content)
-        else { return nil }
+        let startTime = contentToImpressionStart.removeValue(forKey: content)
+        guard let startTime = startTime else { return nil }
         return Impression(
           content: content,
           startTime: startTime,
@@ -321,7 +320,7 @@ public class ImpressionTrackerDebugLogger: ImpressionTrackerDelegate {
   ) {
     for impression in impressions {
       osLog.debug(
-        "Impression: %{private}s autoViewState: %{private}s",
+        "Impression: %{private}@ autoViewState: %{private}@",
         impression.content.debugDescription,
         autoViewState.debugDescription
       )
