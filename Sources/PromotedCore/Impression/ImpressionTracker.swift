@@ -194,7 +194,7 @@ public extension ImpressionTracker {
       let newlyShownContent = contents.filter {
         contentToImpressionStart[$0] == nil
       }
-      // TODO(yu-hong): Below is potentially O(n^2), but in practice,
+      // TODO(yuhong): Below is potentially O(n^2), but in practice,
       // the arrays are pretty small.
       let newlyHiddenContent = contentToImpressionStart.keys.filter {
         !contents.contains($0)
