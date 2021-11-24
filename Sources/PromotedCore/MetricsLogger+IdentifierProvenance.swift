@@ -2,24 +2,24 @@ import Foundation
 
 extension MetricsLogger {
   func identifierProvenancesMessage(
-    logUserID: ID? = nil,
-    sessionID: ID? = nil,
-    viewID: ID? = nil,
-    autoViewID: ID? = nil,
-    impressionID: ID? = nil,
-    actionID: ID? = nil,
-    contentID: ID? = nil,
-    requestID: ID? = nil
+    logUserID: ID = .null,
+    sessionID: ID = .null,
+    viewID: ID = .null,
+    autoViewID: ID = .null,
+    impressionID: ID = .null,
+    actionID: ID = .null,
+    contentID: ID = .null,
+    requestID: ID = .null
   ) -> Event_IdentifierProvenances {
     var provenances = Event_IdentifierProvenances()
-    provenances.userIDProvenance = logUserID?.protoValue ?? .null
-    provenances.sessionIDProvenance = sessionID?.protoValue ?? .null
-    provenances.viewIDProvenance = viewID?.protoValue ?? .null
-    provenances.autoViewIDProvenance = autoViewID?.protoValue ?? .null
-    provenances.impressionIDProvenance = impressionID?.protoValue ?? .null
-    provenances.actionIDProvenance = actionID?.protoValue ?? .null
-    provenances.contentIDProvenance = contentID?.protoValue ?? .null
-    provenances.requestIDProvenance = requestID?.protoValue ?? .null
+    provenances.userIDProvenance = logUserID.protoValue
+    provenances.sessionIDProvenance = sessionID.protoValue
+    provenances.viewIDProvenance = viewID.protoValue
+    provenances.autoViewIDProvenance = autoViewID.protoValue
+    provenances.impressionIDProvenance = impressionID.protoValue
+    provenances.actionIDProvenance = actionID.protoValue
+    provenances.contentIDProvenance = contentID.protoValue
+    provenances.requestIDProvenance = requestID.protoValue
     return provenances
   }
 }
