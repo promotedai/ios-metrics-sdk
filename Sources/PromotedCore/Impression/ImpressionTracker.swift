@@ -264,17 +264,16 @@ public extension ImpressionTracker {
     now: TimeInterval
   ) where T.Element == Content {
     guard !contents.isEmpty else { return }
-    let impressions: [Impression] =
-      contents.compactMap { content in
-        let startTime = contentToImpressionStart.removeValue(forKey: content)
-        guard let startTime = startTime else { return nil }
-        return Impression(
-          content: content,
-          startTime: startTime,
-          endTime: now,
-          sourceType: sourceType
-        )
-      }
+    let impressions: [Impression] = contents.compactMap { content in
+      let startTime = contentToImpressionStart.removeValue(forKey: content)
+      guard let startTime = startTime else { return nil }
+      return Impression(
+        content: content,
+        startTime: startTime,
+        endTime: now,
+        sourceType: sourceType
+      )
+    }
     for content in contents {
       contentToImpressionID.removeValue(forKey: content)
     }
