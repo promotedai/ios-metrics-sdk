@@ -232,9 +232,9 @@ public final class _ObjCClientConfig: NSObject {
   /// ancestor IDs being set for the session.
   @objc public var diagnosticsIncludeAncestorIDHistory: Bool = false
 
-  /// Whether event messages include the `IdentifierProvenance`
+  /// Whether event messages include the `IdentifierProvenances`
   /// message.
-  @objc public var eventsIncludeIDProvenance: Bool = false
+  @objc public var eventsIncludeIDProvenances: Bool = false
 
   @objc private var assertInValidation: Bool = true
 

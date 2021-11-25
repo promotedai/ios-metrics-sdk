@@ -276,7 +276,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testLogUserIDProvenances() {
-    module.clientConfig.eventsIncludeIDProvenance = true
+    module.clientConfig.eventsIncludeIDProvenances = true
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
     metricsLogger.logUser()
@@ -441,7 +441,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testLogImpressionIDProvenances() {
-    module.clientConfig.eventsIncludeIDProvenance = true
+    module.clientConfig.eventsIncludeIDProvenances = true
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
     let item = Item(contentID: "foobar", insertionID: "insertion!")
@@ -894,7 +894,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testLogActionIDProvenances() {
-    module.clientConfig.eventsIncludeIDProvenance = true
+    module.clientConfig.eventsIncludeIDProvenances = true
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
     let item = Item(contentID: "")
@@ -1058,7 +1058,7 @@ final class MetricsLoggerTests: ModuleTestCase {
 
   func testLogViewIDProvenances() {
     idMap.incrementCounts = true
-    module.clientConfig.eventsIncludeIDProvenance = true
+    module.clientConfig.eventsIncludeIDProvenances = true
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
     let viewController = FakeScreenViewController()
@@ -1142,7 +1142,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testLogAutoViewIDProvenances() {
-    module.clientConfig.eventsIncludeIDProvenance = true
+    module.clientConfig.eventsIncludeIDProvenances = true
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.logUserID = "fake-log-user-id"
     metricsLogger.logAutoView(

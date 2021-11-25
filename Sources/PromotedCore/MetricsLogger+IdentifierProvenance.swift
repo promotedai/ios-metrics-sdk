@@ -38,7 +38,7 @@ extension MetricsLogger {
     platformSpecifiedViewID: String? = nil,
     internalViewID: ID = .null
   ) -> Event_IdentifierProvenances? {
-    guard config.eventsIncludeIDProvenance else { return nil }
+    guard config.eventsIncludeIDProvenances else { return nil }
     return identifierProvenancesMessage(
       logUserID: logUserIDProducer.currentValue,
       sessionID: sessionIDProducer.currentValue,
