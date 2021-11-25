@@ -17,10 +17,7 @@ extension MetricsLogger {
     fileprivate unowned let xray: Xray?
   }
 
-  func diagnosticsMessage(
-    xray: Xray?,
-    timingMessage: @autoclosure () -> Common_Timing
-  ) -> Event_Diagnostics? {
+  func diagnosticsMessage(xray: Xray?) -> Event_Diagnostics? {
     guard config.anyDiagnosticsEnabled else { return nil }
     var mobileDiagnostics = mobileDiagnosticsMessage()
     if config.diagnosticsIncludeBatchSummaries, let xray = xray {

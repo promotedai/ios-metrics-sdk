@@ -21,7 +21,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   private func assertLoggerAndStoreInSync() {
-    XCTAssertEqual(store.userID, metricsLogger.userIDForTesting)
+    XCTAssertEqual(store.userID, metricsLogger.userID.stringValue)
     XCTAssertEqual(store.logUserID, metricsLogger.logUserID)
   }
 
@@ -241,7 +241,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.startSessionForTesting(userID: "foobar")
     var properties = Event_Impression()
     properties.impressionID = "foobar"
-    metricsLogger.logUser(properties: properties)
+    metricsLogger.logUserForTesting(properties: properties)
     XCTAssertEqual(1, metricsLogger.logMessagesForTesting.count)
     let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_User)
@@ -258,7 +258,7 @@ final class MetricsLoggerTests: ModuleTestCase {
 
   func testLogUser() {
     metricsLogger.startSessionForTesting(userID: "foo")
-    metricsLogger.logUser()
+    metricsLogger.logUserForTesting()
     XCTAssertEqual(1, metricsLogger.logMessagesForTesting.count)
     let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_User)
@@ -279,7 +279,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     module.clientConfig.eventsIncludeIDProvenances = true
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
-    metricsLogger.logUser()
+    metricsLogger.logUserForTesting()
     let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_User)
     let expectedJSON = """

@@ -29,14 +29,11 @@ public extension MetricsLogger {
       if let n = name { autoView.name = n }
       if let u = useCase?.protoValue { autoView.useCase = u }
       if let p = propertiesMessage(properties) { autoView.properties = p }
-      autoView.locale = cachedLocaleMessage
+      autoView.locale = localeMessage()
       let appScreenView = Event_AppScreenView()
       // TODO(yuhong): Fill out AppScreenView.
       autoView.appScreenView = appScreenView
-      if let i = identifierProvenancesMessage(
-        config: config,
-        autoViewID: autoViewID
-      ) {
+      if let i = identifierProvenancesMessage(autoViewID: autoViewID) {
         autoView.idProvenances = i
       }
       log(message: autoView)

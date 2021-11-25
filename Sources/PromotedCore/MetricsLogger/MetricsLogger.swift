@@ -48,7 +48,9 @@ import os.log
 @objc(PROMetricsLogger)
 public final class MetricsLogger: NSObject {
 
+  // Dependencies
   // Properties exposed outside of this file should be idempotent.
+
   let clock: Clock
   let config: ClientConfig
   let deviceInfo: DeviceInfo
@@ -60,6 +62,8 @@ public final class MetricsLogger: NSObject {
   private let store: PersistentStore
   private let xray: Xray?
 
+  // Internal state
+
   private var logMessages: [Message]
   
   /// Timer for pending batched log request.
@@ -67,6 +71,10 @@ public final class MetricsLogger: NSObject {
 
   /// Used for view state tracking.
   private var needsViewStateCheck: Bool
+
+  private(set) var viewTracker: ViewTracker
+
+  // Ancestor IDs
 
   /// User ID for this session. Will be updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
@@ -88,12 +96,10 @@ public final class MetricsLogger: NSObject {
     producer: { [weak self] in self?.idMap.sessionID() ?? .null }
   )
 
-  private(set) var viewTracker: ViewTracker
-
   var history: AncestorIDHistory?
 
-  private(set) lazy var cachedDeviceMessage: Common_Device = deviceMessage()
-  private(set) lazy var cachedLocaleMessage: Common_Locale = localeMessage()
+  var cachedDeviceMessage: Common_Device?
+  var cachedLocaleMessage: Common_Locale?
 
   typealias Deps = (
     ClientConfigSource &
@@ -120,14 +126,17 @@ public final class MetricsLogger: NSObject {
     xray = deps.xray
 
     logMessages = []
-    userID = .null
 
     viewTracker = deps.viewTracker()
     needsViewStateCheck = false
 
+    userID = .null
     history = config.diagnosticsIncludeAncestorIDHistory ?
       AncestorIDHistory(osLog: osLog, xray: xray) : nil
 
+    cachedDeviceMessage = nil
+    cachedLocaleMessage = nil
+    
     super.init()
     monitor.addOperationMonitorListener(self)
   }
@@ -136,8 +145,24 @@ public final class MetricsLogger: NSObject {
     needsViewStateCheck: Bool = true,
     _ operation: OperationMonitor.Operation
   ) {
-    if !needsViewStateCheck { self.needsViewStateCheck = false }
-    monitor.execute { operation() }
+    monitor.execute {
+      if !needsViewStateCheck {
+        self.needsViewStateCheck = false
+      }
+      operation()
+    }
+  }
+
+  func handleExecutionError(
+    _ error: Error,
+    function: String = #function
+  ) {
+    osLog?.error(
+      "%{public}@: %{public}@",
+      function,
+      error.localizedDescription
+    )
+    monitor.executionDidError(error)
   }
 }
 
@@ -272,63 +297,6 @@ public extension MetricsLogger {
   }
 }
 
-// MARK: - Internal methods
-extension MetricsLogger {
-  private func deviceMessage() -> Common_Device {
-    var device = Common_Device()
-    device.deviceType = deviceInfo.deviceType.protoValue
-    device.brand = deviceInfo.brand
-    device.manufacturer = deviceInfo.manufacturer
-    device.identifier = deviceInfo.identifier
-    device.osVersion = deviceInfo.osVersion
-    let (width, height) = deviceInfo.screenSizePx
-    device.screen.size.width = width
-    device.screen.size.height = height
-    device.screen.scale = deviceInfo.screenScale
-    return device
-  }
-
-  private func localeMessage() -> Common_Locale {
-    var locale = Common_Locale()
-    locale.languageCode = deviceInfo.languageCode
-    locale.regionCode = deviceInfo.regionCode
-    return locale
-  }
-
-  func userInfoMessage() -> Common_UserInfo {
-    var userInfo = Common_UserInfo()
-    if let id = userID.stringValue { userInfo.userID = id }
-    if let id = logUserID { userInfo.logUserID = id }
-    return userInfo
-  }
-  
-  func timingMessage() -> Common_Timing {
-    var timing = Common_Timing()
-    timing.clientLogTimestamp = UInt64(clock.nowMillis)
-    return timing
-  }
-
-  func propertiesMessage(_ message: Message?) -> Common_Properties? {
-    do {
-      if let message = message {
-        var dataMessage = Common_Properties()
-        dataMessage.structBytes = try message.serializedData()
-        return dataMessage
-      }
-    } catch {
-      osLog?.error(
-        "propertiesMessage: %{private}@",
-        error.localizedDescription
-      )
-      let wrapped = MetricsLoggerError.propertiesSerializationError(
-        underlying: error
-      )
-      monitor.executionDidError(wrapped)
-    }
-    return nil
-  }
-}
-
 // MARK: - Event logging base methods
 extension MetricsLogger {
   /// Logs a user event.
@@ -345,7 +313,7 @@ extension MetricsLogger {
     var user = Event_User()
     monitor.execute {
       user.timing = timingMessage()
-      if let i = identifierProvenancesMessage(config: config) {
+      if let i = identifierProvenancesMessage() {
         user.idProvenances = i
       }
       if let p = propertiesMessage(properties) { user.properties = p }
@@ -409,8 +377,7 @@ public extension MetricsLogger {
   /// delivered to the server on a timer.
   func log(message: Message) {
     guard Thread.isMainThread else {
-      osLog?.error("Logging must be done on main thread")
-      monitor.executionDidError(MetricsLoggerError.calledFromWrongThread)
+      handleExecutionError(MetricsLoggerError.calledFromWrongThread)
       return
     }
     logMessages.append(message)
@@ -439,7 +406,7 @@ public extension MetricsLogger {
   private func logRequestMessage(events: [Message]) -> Event_LogRequest {
     var logRequest = Event_LogRequest()
     logRequest.userInfo = userInfoMessage()
-    logRequest.device = cachedDeviceMessage
+    logRequest.device = deviceMessage()
     for event in events {
       switch event {
       case let user as Event_User:
@@ -457,20 +424,12 @@ public extension MetricsLogger {
       case let action as Event_Action:
         logRequest.action.append(action)
       default:
-        osLog?.warning(
-          "flush/logRequestMessage: Unknown event: %{private}@",
-          String(describing: event)
-        )
-        monitor.executionDidError(
+        handleExecutionError(
           MetricsLoggerError.unexpectedEvent(event)
         )
       }
     }
-    if let diagnostics = diagnosticsMessage(
-      config: config,
-      xray: xray,
-      timingMessage: timingMessage()
-    ) {
+    if let diagnostics = diagnosticsMessage(xray: xray) {
       osLog?.debug(
         "diagnostics: %{private}@",
         String(describing: diagnostics)
@@ -505,8 +464,7 @@ public extension MetricsLogger {
         monitor.executionWillLog(message: request)
         monitor.executionWillLog(data: data)
       } catch {
-        osLog?.error("flush: %{public}@", error.localizedDescription)
-        monitor.executionDidError(error)
+        handleExecutionError(error)
       }
     }
   }
@@ -518,8 +476,7 @@ public extension MetricsLogger {
         monitor.executionDidLog()
       }
       if let e = error {
-        osLog?.error("flush/response: %{public}@", e.localizedDescription)
-        monitor.executionDidError(e)
+        handleExecutionError(e)
       }
     }
   }
@@ -546,7 +503,6 @@ extension MetricsLogger: OperationMonitorListener {
 // MARK: - Testing
 extension MetricsLogger {
   var logMessagesForTesting: [Message] { logMessages }
-  var userIDForTesting: String? { userID.stringValue }
 
   func startSessionForTesting(userID: String) {
     startSession(userID: userID)
@@ -554,5 +510,9 @@ extension MetricsLogger {
 
   func startSessionSignedOutForTesting() {
     startSessionSignedOut()
+  }
+
+  func logUserForTesting(properties: Message? = nil) {
+    logUser(properties: properties)
   }
 }

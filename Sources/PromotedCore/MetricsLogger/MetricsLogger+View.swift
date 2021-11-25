@@ -51,13 +51,12 @@ public extension MetricsLogger {
       if let n = name { view.name = n }
       if let u = useCase?.protoValue { view.useCase = u }
       if let p = propertiesMessage(properties) { view.properties = p }
-      view.locale = cachedLocaleMessage
+      view.locale = localeMessage()
       view.viewType = .appScreen
       let appScreenView = Event_AppScreenView()
       // TODO(yuhong): Fill out AppScreenView.
       view.appScreenView = appScreenView
       if let i = identifierProvenancesMessage(
-        config: config,
         platformSpecifiedViewID: viewID,
         internalViewID: viewTracker.id.currentValue
       ) {

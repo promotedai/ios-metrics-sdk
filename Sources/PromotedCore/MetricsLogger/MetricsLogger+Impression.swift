@@ -95,7 +95,6 @@ public extension MetricsLogger {
         impression.hasSuperimposedViews_p = h
       }
       if let i = identifierProvenancesMessage(
-        config: config,
         autoViewID: autoViewState.autoViewID,
         impressionID: impressionID,
         contentID: contentID,
