@@ -23,7 +23,7 @@ extension MetricsLogger {
     guard config.anyDiagnosticsEnabled else { return nil }
     var mobileDiagnostics = mobileDiagnosticsMessage()
     if config.diagnosticsIncludeBatchSummaries, let xray = xray {
-      fillDiagnostics(in: &mobileDiagnostics, xray: xray)
+      fillBatchSummaries(in: &mobileDiagnostics, xray: xray)
     }
     if config.diagnosticsIncludeAncestorIDHistory {
       fillAncestorIDHistory(in: &mobileDiagnostics)
@@ -46,7 +46,7 @@ extension MetricsLogger {
     return diagnostics
   }
 
-  private func fillDiagnostics(
+  private func fillBatchSummaries(
     in diagnostics: inout Event_MobileDiagnostics,
     xray: Xray
   ) {
