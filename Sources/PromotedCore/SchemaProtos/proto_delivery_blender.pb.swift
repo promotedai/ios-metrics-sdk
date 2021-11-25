@@ -103,12 +103,59 @@ public struct Delivery_BlenderRule {
   public init() {}
 }
 
+/// A positive rule selects insertions by their score if they are associated with the same attribute
+/// that the rule is associated with.
+///
+/// If one seeks to fill a position `p` with an insertion, then one positive rule is selected by
+/// random out of all positive rules. The selection process works in the following way:
+///
+/// 1. positive rules are filtered by whether for a given rule there exist any insertions that could
+///    potentially be selected (meaning there are insertions that are not yet associated with a
+///    different position, that are associated with the same attribute as a given rule, and that
+///    have not been filtered out by negative rules [see the comment on negative rules for that]);
+/// 2. the rules remaining after 1. are filtered for the condition
+///    `rule.min_pos <= p <= rule.max_pos`;
+/// 3. from the rules remaining after 2. one is selected by random based on their weight in
+///    `rule.select_pct`.
+///
+/// After a positive rule has been selected, the insertion of the highest score is associated with
+/// position `p` (if, remembering point 1., that insertion is available to be allocated, has the
+/// same associated attribute as the selected rule, and is not ruled out by application of negative
+/// rules).
+///
+/// Note that there is a chance of no rule (and hence no insertion) being selected if the sum of all
+/// rules selected in step 3. is less than 100.0. The probability of that happening is `100 - sum`.
+///
+/// Positive rules are similar to insert rules, but used in a different context. While items can be
+/// selected just based on insert rules, positive rules are used in tandem with negative rules.
+/// First, negative rules are tested to filter out items. Afterwards, a positive rule is used to
+/// select items just like an insert rule (just without the filtered out items).
+///
 /// Next ID = 4.
 public struct Delivery_PositiveRule {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
+  /// Value between 0 and 100. The weight of this rule to be selected.
+  ///
+  /// If the sum `W` of all weights is less than 100, then the chance N of no weight being chosen is
+  /// assigned the weight `N = 100 - W`.
+  ///
+  /// Examples (given weights `{a, b, ..., z}`, each entry corresponds to a rule with weight `a`,
+  /// `b`, `c`, etc):
+  /// + `{100, 100}`: 2 rules with equal weight: 50% chance of each being selected
+  /// + `{50, 50}`: as above
+  /// + `{25, 25}`: each rule has a 25% chance of being selected; there is a 50% chance of no rule
+  ///    being selected
+  /// + `{10, 10, 10, 10, 10`}: each of the 5 rules has a 5% chance of being selected; there is a
+  ///   is a 50% chance of no rule being selected.
+  /// + `{50, 100}`: 2/3 chance of selecting the rule with weight 100, 1/3 chance to select that of
+  ///   weight 50.
+  ///
+  /// NOTE: a value of 0 means this rule will never be selected.
+  ///
+  /// Default: `100.0`
   public var selectPct: Double {
     get {return _selectPct ?? 0}
     set {_selectPct = newValue}
@@ -118,6 +165,10 @@ public struct Delivery_PositiveRule {
   /// Clears the value of `selectPct`. Subsequent reads from it will return its default value.
   public mutating func clearSelectPct() {self._selectPct = nil}
 
+  /// The minimum position that this rule applies to. If one seeks to fill a position `p < min_pos`,
+  /// then this rule will not be considered for selection. `min_pos <= max_pos` must hold.
+  ///
+  /// Default: `0`
   public var minPos: UInt64 {
     get {return _minPos ?? 0}
     set {_minPos = newValue}
@@ -127,6 +178,10 @@ public struct Delivery_PositiveRule {
   /// Clears the value of `minPos`. Subsequent reads from it will return its default value.
   public mutating func clearMinPos() {self._minPos = nil}
 
+  /// The maximum position that this rule applies to. If one seeks to fill a position `p > max_pos`,
+  /// then this rule will not be considered for selection. `max_pos >= min_pos` must hold.
+  ///
+  /// Default `uint64::MAX`
   public var maxPos: UInt64 {
     get {return _maxPos ?? 0}
     set {_maxPos = newValue}
@@ -145,12 +200,52 @@ public struct Delivery_PositiveRule {
   fileprivate var _maxPos: UInt64? = nil
 }
 
+/// An insert rule selects insertions by their score if they are associated with the same attribute
+/// that the rule is associated with.
+///
+/// If one seeks to fill a position `p` with an insertion, then one insert rule is selected by
+/// random out of all insert rules. The selection process works in the following way:
+///
+/// 1. insert rules are filtered by whether for a given rule there exist any insertions that could
+///    potentially be selected (meaning there are insertions that are not yet associated with a
+///    different position, and that are associated with the same attribute as a given rule);
+/// 2. the rules remaining after 1. are filtered for the condition
+///    `rule.min_pos <= p <= rule.max_pos`;
+/// 3. from the rules remaining after 2. one is selected by random based on their weight in
+///    `rule.select_pct`.
+///
+/// After an insert rule has been selected, the insertion of the highest score is associated with
+/// position `p` (if, remembering point 1., that insertion is available to be allocated, and has the
+/// same associated attribute as the selected rule).
+///
+/// Note that there is a chance of no rule (and hence no insertion) being selected if the sum of all
+/// rules selected in step 3. is less than 100.0. The probability of that happening is `100 - sum`.
+/// 
 /// Next ID = 4.
 public struct Delivery_InsertRule {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
+  /// Value between 0 and 100. The weight of this rule to be selected.
+  ///
+  /// If the sum `W` of all weights is less than 100, then the chance N of no weight being chosen is
+  /// assigned the weight `N = 100 - W`.
+  ///
+  /// Examples (given weights `{a, b, ..., z}`, each entry corresponds to a rule with weight `a`,
+  /// `b`, `c`, etc):
+  /// + `{100, 100}`: 2 rules with equal weight: 50% chance of each being selected
+  /// + `{50, 50}`: as above
+  /// + `{25, 25}`: each rule has a 25% chance of being selected; there is a 50% chance of no rule
+  ///    being selected
+  /// + `{10, 10, 10, 10, 10`}: each of the 5 rules has a 5% chance of being selected; there is a
+  ///   is a 50% chance of no rule being selected.
+  /// + `{50, 100}`: 2/3 chance of selecting the rule with weight 100, 1/3 chance to select that of
+  ///   weight 50.
+  ///
+  /// NOTE: a value of 0 means this rule will never be selected.
+  ///
+  /// Default: `100.0`
   public var selectPct: Double {
     get {return _selectPct ?? 0}
     set {_selectPct = newValue}
@@ -160,6 +255,10 @@ public struct Delivery_InsertRule {
   /// Clears the value of `selectPct`. Subsequent reads from it will return its default value.
   public mutating func clearSelectPct() {self._selectPct = nil}
 
+  /// The minimum position that this rule applies to. If one seeks to fill a position `p < min_pos`,
+  /// then this rule will not be considered for selection. `min_pos <= max_pos` must hold.
+  ///
+  /// Default: `0`
   public var minPos: UInt64 {
     get {return _minPos ?? 0}
     set {_minPos = newValue}
@@ -169,6 +268,10 @@ public struct Delivery_InsertRule {
   /// Clears the value of `minPos`. Subsequent reads from it will return its default value.
   public mutating func clearMinPos() {self._minPos = nil}
 
+  /// The maximum position that this rule applies to. If one seeks to fill a position `p > max_pos`,
+  /// then this rule will not be considered for selection. `max_pos >= min_pos` must hold.
+  ///
+  /// Default `uint64::MAX`
   public var maxPos: UInt64 {
     get {return _maxPos ?? 0}
     set {_maxPos = newValue}
@@ -187,12 +290,28 @@ public struct Delivery_InsertRule {
   fileprivate var _maxPos: UInt64? = nil
 }
 
+/// A negative rule tests if a given insertion may not be selected under application of positive
+/// rules (see the description of positive rules to undertand that process).
+/// 
+/// A negative rule is associated with an attribute and applies to all those insertions that are
+/// associated with the same attribute. The applicable insertions are tested against the conditions
+/// laid out by the negative rule. If they fail one of the conditions, then the item is precluded
+/// from being selected under the subsequent application of positive rules.
+///
 /// Next ID = 6.
 public struct Delivery_NegativeRule {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
+  /// Value between 0 and 100. The probability that an item will be failed ("plucked) even if it
+  /// passes all other conditions.
+  ///
+  /// NOTE: a value of 0 means that the item has to fail one of the other conditions to be discarded.
+  /// A value of 100 means that an item will always be discarded, no matter the other conditions, as
+  /// as long as it has an attribute matching this rule's.
+  ///
+  /// Default: `100.0`
   public var pluckPct: Double {
     get {return _pluckPct ?? 0}
     set {_pluckPct = newValue}
@@ -202,6 +321,11 @@ public struct Delivery_NegativeRule {
   /// Clears the value of `pluckPct`. Subsequent reads from it will return its default value.
   public mutating func clearPluckPct() {self._pluckPct = nil}
 
+  /// The minimum position that items with matching associated attribute can be placed in. Items
+  /// with the same associated attribute as the negative rule will not be considered for selection
+  /// if one seeks to fill a position `p < forbid_less_pos`.
+  ///
+  /// Default: `0`
   public var forbidLessPos: UInt64 {
     get {return _forbidLessPos ?? 0}
     set {_forbidLessPos = newValue}
@@ -211,6 +335,13 @@ public struct Delivery_NegativeRule {
   /// Clears the value of `forbidLessPos`. Subsequent reads from it will return its default value.
   public mutating func clearForbidLessPos() {self._forbidLessPos = nil}
 
+  /// The minimum number of positions between the current position and its precursor. For example,
+  /// if `min_spacing = 1` and one seeks to fill a position `p`, then an item is discarded if the
+  /// item at position `p-1` and the item under consideration have the same associated attribute as
+  /// the current rule (note that attribute values do not have to match; only the fact that they
+  /// have the same associated attribute matters).
+  ///
+  /// Default: `uint64::MAX`
   public var minSpacing: UInt64 {
     get {return _minSpacing ?? 0}
     set {_minSpacing = newValue}
@@ -220,6 +351,11 @@ public struct Delivery_NegativeRule {
   /// Clears the value of `minSpacing`. Subsequent reads from it will return its default value.
   public mutating func clearMinSpacing() {self._minSpacing = nil}
 
+  /// The maximum position that items with matching associated attribute can be placed in. Items
+  /// with the same associated attribute as the negative rule will not be considered for selection
+  /// if one seeks to fill a position `p > forbid_greater_pos`.
+  ///
+  /// Default: `uint64::MAX`
   public var forbidGreaterPos: UInt64 {
     get {return _forbidGreaterPos ?? 0}
     set {_forbidGreaterPos = newValue}
@@ -229,6 +365,11 @@ public struct Delivery_NegativeRule {
   /// Clears the value of `forbidGreaterPos`. Subsequent reads from it will return its default value.
   public mutating func clearForbidGreaterPos() {self._forbidGreaterPos = nil}
 
+  /// The maximum number of items that are allowed to be allocated with the same attribute name as
+  /// this rule. If `max_count` items have already been allocated in previous positions, then no
+  /// more items with the attribute name can be allocated.
+  ///
+  /// Default: `uint64::MAX`
   public var maxCount: UInt64 {
     get {return _maxCount ?? 0}
     set {_maxCount = newValue}
@@ -249,12 +390,31 @@ public struct Delivery_NegativeRule {
   fileprivate var _maxCount: UInt64? = nil
 }
 
+/// Diversity rules modify the scores of insertions if equivalent insertions have been previously
+/// allocated.
+///
+/// The purpose of diversity rules is to penalize equivalent insertions. Two insertions `i` and `j`
+/// are considered equivalent if they are associated with the same attribute as the rule, and if
+/// the value of said attribute is the same, i.e. the condition `i[attr] == j[attr]` and
+/// `i[attr] != nil`.
 /// Next ID = 2.
 public struct Delivery_DiversityRule {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
+  /// A factor modifying items' scores. If an item has been allocated at position `p`, then all the
+  /// allocated item's value of the attribute with matching name is taken. All other items that a)
+  /// have an attribute that the rule applies to, and b) share the same value as the just allocated
+  /// item will have their score multiplied by `multi`.
+  ///
+  /// Example: if insertion `i` has been allocated at position `p`, then an insertion `j` will have
+  /// its score modified by `p.score *= multi` if and only if
+  /// `a[rule.attribute_name] == b[rule.attribute_name]` and if `a[rule.attribute_name] != nil`.
+  ///
+  /// NOTE: a multiplier `m <= 0.0` means that modified items will never be allocated again (because
+  /// non-positive scores disqualify items outright). Multipliers of `m > 1.0` act as as a boost.
+  /// To act as a penalty, it should be set `0.0 > m < 1.0`, but this is currently not enforced.
   public var multi: Double {
     get {return _multi ?? 0}
     set {_multi = newValue}
