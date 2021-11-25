@@ -15,7 +15,26 @@ extension MetricsLogger {
     fileprivate unowned let xray: Xray?
   }
 
-  func mobileDiagnosticsMessage() -> Event_MobileDiagnostics {
+  func diagnosticsMessage(
+    config: ClientConfig,
+    xray: Xray?,
+    timingMessage: @autoclosure () -> Common_Timing
+  ) -> Event_Diagnostics? {
+    guard config.anyDiagnosticsEnabled else { return nil }
+    var mobileDiagnostics = mobileDiagnosticsMessage()
+    if config.diagnosticsIncludeBatchSummaries, let xray = xray {
+      fillBatchSummaries(in: &mobileDiagnostics, xray: xray)
+    }
+    if config.diagnosticsIncludeAncestorIDHistory {
+      fillAncestorIDHistory(in: &mobileDiagnostics)
+    }
+    var diagnostics = Event_Diagnostics()
+    diagnostics.timing = timingMessage()
+    diagnostics.mobileDiagnostics = mobileDiagnostics
+    return diagnostics
+  }
+
+  private func mobileDiagnosticsMessage() -> Event_MobileDiagnostics {
     var diagnostics = Event_MobileDiagnostics()
     if let id = UIDevice.current.identifierForVendor?.uuidString {
       diagnostics.deviceIdentifier = id
@@ -27,7 +46,7 @@ extension MetricsLogger {
     return diagnostics
   }
 
-  func fillDiagnostics(
+  private func fillBatchSummaries(
     in diagnostics: inout Event_MobileDiagnostics,
     xray: Xray
   ) {
@@ -50,7 +69,9 @@ extension MetricsLogger {
     diagnostics.errorHistory = errorHistory
   }
 
-  func fillAncestorIDHistory(in diagnostics: inout Event_MobileDiagnostics) {
+  private func fillAncestorIDHistory(
+    in diagnostics: inout Event_MobileDiagnostics
+  ) {
     guard let history = history else { return }
     var historyMessage = Event_AncestorIdHistory()
     historyMessage.logUserIDHistory = history.logUserIDs.values

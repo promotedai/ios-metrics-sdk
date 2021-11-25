@@ -194,7 +194,7 @@ public extension ImpressionTracker {
       let newlyShownContent = contents.filter {
         contentToImpressionStart[$0] == nil
       }
-      // TODO(yu-hong): Below is potentially O(n^2), but in practice,
+      // TODO(yuhong): Below is potentially O(n^2), but in practice,
       // the arrays are pretty small.
       let newlyHiddenContent = contentToImpressionStart.keys.filter {
         !contents.contains($0)
@@ -264,18 +264,16 @@ public extension ImpressionTracker {
     now: TimeInterval
   ) where T.Element == Content {
     guard !contents.isEmpty else { return }
-    let impressions: [Impression] =
-      contents.compactMap { content in
-        guard
-          let startTime = contentToImpressionStart.removeValue(forKey: content)
-        else { return nil }
-        return Impression(
-          content: content,
-          startTime: startTime,
-          endTime: now,
-          sourceType: sourceType
-        )
-      }
+    let impressions: [Impression] = contents.compactMap { content in
+      let s = contentToImpressionStart.removeValue(forKey: content)
+      guard let startTime = s else { return nil }
+      return Impression(
+        content: content,
+        startTime: startTime,
+        endTime: now,
+        sourceType: sourceType
+      )
+    }
     for content in contents {
       contentToImpressionID.removeValue(forKey: content)
     }
@@ -321,7 +319,7 @@ public class ImpressionTrackerDebugLogger: ImpressionTrackerDelegate {
   ) {
     for impression in impressions {
       osLog.debug(
-        "Impression: %{private}s autoViewState: %{private}s",
+        "Impression: %{private}@ autoViewState: %{private}@",
         impression.content.debugDescription,
         autoViewState.debugDescription
       )

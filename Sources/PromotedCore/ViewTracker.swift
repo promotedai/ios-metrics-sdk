@@ -2,10 +2,10 @@ import Foundation
 import UIKit
 
 // MARK: - ViewTracker
-final class ViewTracker {
+struct ViewTracker {
 
   /// Representation of an entry in the view stack.
-  // TODO(yu-hong): Remove this enum and simplify this class
+  // TODO(yuhong): Remove this enum and simplify this class
   // as part of auto view tracking for UIKit.
   enum Key: Equatable {
     case uiKit(viewController: UIViewController)
@@ -26,12 +26,23 @@ final class ViewTracker {
 
   fileprivate typealias Stack = [State]
 
-  private let viewIDProducer: IDProducer
+  private var viewIDProducer: IDProducer
   private var viewStack: Stack
   private let uiState: UIState
   private let isReactNativeHint: Bool
 
-  var id: IDSequence { viewIDProducer }
+  var id: IDSequence {
+    get { viewIDProducer }
+    set {
+      guard let producer = newValue as? IDProducer else {
+        assertionFailure(
+          "Expected instance of IDProducer but received \(newValue)"
+        )
+        return
+      }
+      viewIDProducer = producer
+    }
+  }
 
   typealias Deps = IDMapSource & UIStateSource
 
@@ -46,7 +57,7 @@ final class ViewTracker {
   /// Manually tracks a view, then returns a `State` if this call
   /// caused the state of the view stack to change since the last
   /// call to `trackView(key:)` or `updateState()`.
-  func trackView(key: Key, useCase: UseCase? = nil) -> State? {
+  mutating func trackView(key: Key, useCase: UseCase? = nil) -> State? {
     if key == viewStack.top?.viewKey {
       return nil
     }
@@ -61,7 +72,7 @@ final class ViewTracker {
 
   /// Returns `State` if it has changed since the last call to
   /// `trackView(key:)` or `updateState()`.
-  func updateState() -> State? {
+  mutating func updateState() -> State? {
     let previousStack = viewStack
     viewStack = updateViewStack(previousStack: previousStack)
     let newTop = viewStack.top
@@ -71,7 +82,7 @@ final class ViewTracker {
   }
 
   /// Removes all tracked views and resets to original state.
-  func reset() {
+  mutating func reset() {
     viewStack.removeAll()
     viewIDProducer.reset()
   }
@@ -99,7 +110,7 @@ final class ViewTracker {
 }
 
 protocol ViewTrackerSource {
-  var viewTracker: ViewTracker { get }
+  func viewTracker() -> ViewTracker
 }
 
 extension ViewTracker {

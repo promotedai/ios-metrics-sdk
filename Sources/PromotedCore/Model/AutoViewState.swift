@@ -3,7 +3,7 @@ import Foundation
 /** AutoView-related state information. */
 public struct AutoViewState {
 
-  /// ID for associted AutoView.
+  /// ID for associated AutoView.
   public var autoViewID: String?
 
   /// Whether this view may not be topmost.

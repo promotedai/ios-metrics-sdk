@@ -202,7 +202,7 @@ final class Module: AllDeps {
 
   let uiState: UIState = UIKitState()
 
-  private(set) lazy var viewTracker: ViewTracker = ViewTracker(deps: self)
+  func viewTracker() -> ViewTracker { ViewTracker(deps: self) }
 
   private(set) lazy var xray: Xray? =
     (clientConfig.xrayLevel > .none || clientConfig.diagnosticsIncludeBatchSummaries) ?
