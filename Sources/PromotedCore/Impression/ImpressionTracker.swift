@@ -265,8 +265,8 @@ public extension ImpressionTracker {
   ) where T.Element == Content {
     guard !contents.isEmpty else { return }
     let impressions: [Impression] = contents.compactMap { content in
-      let startTime = contentToImpressionStart.removeValue(forKey: content)
-      guard let startTime = startTime else { return nil }
+      let s = contentToImpressionStart.removeValue(forKey: content)
+      guard let startTime = s else { return nil }
       return Impression(
         content: content,
         startTime: startTime,
