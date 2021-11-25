@@ -5,7 +5,7 @@ import UIKit
 struct ViewTracker {
 
   /// Representation of an entry in the view stack.
-  // TODO(yu-hong): Remove this enum and simplify this class
+  // TODO(yuhong): Remove this enum and simplify this class
   // as part of auto view tracking for UIKit.
   enum Key: Equatable {
     case uiKit(viewController: UIViewController)

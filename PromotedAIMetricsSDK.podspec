@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
 
   s.homepage         = 'https://github.com/promotedai/ios-metrics-sdk'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'Yu-Hong Wang' => 'yu-hong@promoted.ai' }
+  s.author           = { 'Yu-Hong Wang' => 'yuhong@promoted.ai' }
   s.source           = {
     :git => 'https://github.com/promotedai/ios-metrics-sdk.git',
     :tag => s.version.to_s
