@@ -6,17 +6,18 @@ import os.log
 extension MetricsLogger {
 
   struct AncestorIDHistory {
-    fileprivate var logUserIDs: Deque<Event_AncestorIdHistoryItem>
-    fileprivate var sessionIDs: Deque<Event_AncestorIdHistoryItem>
-    fileprivate var viewIDs: Deque<Event_AncestorIdHistoryItem>
-    fileprivate var autoViewIDs: Deque<Event_AncestorIdHistoryItem>
+    fileprivate typealias IDHistoryDeque = Deque<Event_AncestorIdHistoryItem>
+
+    fileprivate var logUserIDs: IDHistoryDeque
+    fileprivate var sessionIDs: IDHistoryDeque
+    fileprivate var viewIDs: IDHistoryDeque
+    fileprivate var autoViewIDs: IDHistoryDeque
 
     fileprivate unowned let osLog: OSLog?
     fileprivate unowned let xray: Xray?
   }
 
   func diagnosticsMessage(
-    config: ClientConfig,
     xray: Xray?,
     timingMessage: @autoclosure () -> Common_Timing
   ) -> Event_Diagnostics? {
@@ -39,8 +40,12 @@ extension MetricsLogger {
     if let id = UIDevice.current.identifierForVendor?.uuidString {
       diagnostics.deviceIdentifier = id
     }
-    let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "Unknown"
-    let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") ?? "Unknown"
+    let appVersion = Bundle.main.object(
+      forInfoDictionaryKey: "CFBundleShortVersionString"
+    ) ?? "Unknown"
+    let buildNumber = Bundle.main.object(
+      forInfoDictionaryKey: "CFBundleVersion"
+    ) ?? "Unknown"
     diagnostics.clientVersion = "\(appVersion) build \(buildNumber)"
     diagnostics.promotedLibraryVersion = Build.libVersion
     return diagnostics
@@ -88,10 +93,10 @@ extension MetricsLogger.AncestorIDHistory {
     self.osLog = osLog
     self.xray = xray
     let size = 10
-    logUserIDs = Deque<Event_AncestorIdHistoryItem>(maximumSize: size)
-    sessionIDs = Deque<Event_AncestorIdHistoryItem>(maximumSize: size)
-    viewIDs = Deque<Event_AncestorIdHistoryItem>(maximumSize: size)
-    autoViewIDs = Deque<Event_AncestorIdHistoryItem>(maximumSize: size)
+    logUserIDs = IDHistoryDeque(maximumSize: size)
+    sessionIDs = IDHistoryDeque(maximumSize: size)
+    viewIDs = IDHistoryDeque(maximumSize: size)
+    autoViewIDs = IDHistoryDeque(maximumSize: size)
   }
 
   mutating func logUserIDDidChange(value: String?, event: Message? = nil) {
@@ -149,7 +154,10 @@ fileprivate extension Deque where Element == Event_AncestorIdHistoryItem {
       case let view as Event_View:
         historyItem.viewEvent = view
       default:
-        osLog?.warning("ancestorIDDidChange: Unknown event: %{private}@", String(describing: event))
+        osLog?.warning(
+          "ancestorIDDidChange: Unknown event: %{private}@",
+          String(describing: event)
+        )
       }
     }
     if let xray = xray {
