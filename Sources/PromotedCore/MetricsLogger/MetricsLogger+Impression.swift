@@ -60,12 +60,13 @@ public extension MetricsLogger {
   /// - `viewID` from state in this logger
   ///
   /// - Parameters:
-  ///   - contentID: Content ID from which to derive `impressionID`
+  ///   - sourceType: Origin of the impressed content
+  ///   - autoViewState: Auto view to associate with impression
+  ///   - contentID: Content ID for marketplace content
   ///   - insertionID: Insertion ID as provided by Promoted
   ///   - requestID: Request ID as provided by Promoted
   ///   - viewID: View ID to set in impression. If not provided, defaults to
   ///     the view ID last logged via `logView`.
-  ///   - sourceType: Origin of the impressed content
   ///   - properties: Client-specific message
   /// - Returns:
   ///   Logged event message.

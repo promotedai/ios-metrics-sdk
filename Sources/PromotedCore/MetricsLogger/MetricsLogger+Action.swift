@@ -105,8 +105,14 @@ public extension MetricsLogger {
   /// - If no `elementID` is provided, `elementID` is derived from `name`
   ///
   /// - Parameters:
+  ///   - type: Semantic meaning of action
   ///   - name: Name for action to log, human readable
-  ///   - contentID: Content ID from which to derive `impressionID`
+  ///   - targetURL: URL of navigation, designed for web SDK
+  ///   - elementID: Element that triggered action, designed for web SDK
+  ///   - autoViewState: Auto view to associate with action
+  ///   - contentID: Content ID for marketplace content
+  ///   - impressionID: Impression ID to associate with action as provided
+  ///     by mobile SDK
   ///   - insertionID: Insertion ID as provided by Promoted
   ///   - requestID: Request ID as provided by Promoted
   ///   - viewID: View ID to set in impression. If not provided, defaults to
