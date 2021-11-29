@@ -30,7 +30,6 @@ extension MetricsLogger {
   ///     `IdentifierProvenances` proto if the associated event
   ///     doesn't support `viewID`.
   func identifierProvenancesMessage(
-    config: ClientConfig,
     autoViewID: String? = nil,
     impressionID: ID = .null,
     actionID: ID = .null,

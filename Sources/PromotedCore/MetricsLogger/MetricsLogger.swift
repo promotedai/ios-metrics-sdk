@@ -48,15 +48,21 @@ import os.log
 @objc(PROMetricsLogger)
 public final class MetricsLogger: NSObject {
 
-  private unowned let clock: Clock
-  private let config: ClientConfig
-  private unowned let connection: NetworkConnection
-  private unowned let deviceInfo: DeviceInfo
-  private unowned let idMap: IDMap
-  private unowned let monitor: OperationMonitor
+  // Dependencies
+  // Properties exposed outside of this file should be idempotent.
+
+  let clock: Clock
+  let config: ClientConfig
+  let deviceInfo: DeviceInfo
+  let idMap: IDMap
+
+  private let connection: NetworkConnection
+  private let monitor: OperationMonitor
   private let osLog: OSLog?
-  private unowned let store: PersistentStore
-  private unowned let xray: Xray?
+  private let store: PersistentStore
+  private let xray: Xray?
+
+  // Internal state
 
   private var logMessages: [Message]
   
@@ -66,10 +72,14 @@ public final class MetricsLogger: NSObject {
   /// Used for view state tracking.
   private var needsViewStateCheck: Bool
 
+  private(set) var viewTracker: ViewTracker
+
+  // Ancestor IDs
+
   /// User ID for this session. Will be updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
   /// called.
-  var userID: ID
+  private(set) var userID: ID
   
   private(set) lazy var logUserIDProducer: IDProducer = IDProducer(
     initialValueProducer: { [weak self] in
@@ -86,12 +96,10 @@ public final class MetricsLogger: NSObject {
     producer: { [weak self] in self?.idMap.sessionID() ?? .null }
   )
 
-  private(set) var viewTracker: ViewTracker
-
   var history: AncestorIDHistory?
 
-  private lazy var cachedDeviceMessage: Common_Device = deviceMessage()
-  private lazy var cachedLocaleMessage: Common_Locale = localeMessage()
+  var cachedDeviceMessage: Common_Device?
+  var cachedLocaleMessage: Common_Locale?
 
   typealias Deps = (
     ClientConfigSource &
@@ -118,16 +126,43 @@ public final class MetricsLogger: NSObject {
     xray = deps.xray
 
     logMessages = []
-    userID = .null
 
     viewTracker = deps.viewTracker()
     needsViewStateCheck = false
 
+    userID = .null
     history = config.diagnosticsIncludeAncestorIDHistory ?
       AncestorIDHistory(osLog: osLog, xray: xray) : nil
 
+    cachedDeviceMessage = nil
+    cachedLocaleMessage = nil
+    
     super.init()
     monitor.addOperationMonitorListener(self)
+  }
+
+  func withMonitoredExecution(
+    needsViewStateCheck: Bool = true,
+    _ operation: OperationMonitor.Operation
+  ) {
+    monitor.execute {
+      if !needsViewStateCheck {
+        self.needsViewStateCheck = false
+      }
+      operation()
+    }
+  }
+
+  func handleExecutionError(
+    _ error: Error,
+    function: String = #function
+  ) {
+    osLog?.error(
+      "%{public}@: %{public}@",
+      function,
+      error.localizedDescription
+    )
+    monitor.executionDidError(error)
   }
 }
 
@@ -262,65 +297,8 @@ public extension MetricsLogger {
   }
 }
 
-// MARK: - Internal methods
-extension MetricsLogger {
-  private func deviceMessage() -> Common_Device {
-    var device = Common_Device()
-    device.deviceType = deviceInfo.deviceType.protoValue
-    device.brand = deviceInfo.brand
-    device.manufacturer = deviceInfo.manufacturer
-    device.identifier = deviceInfo.identifier
-    device.osVersion = deviceInfo.osVersion
-    let (width, height) = deviceInfo.screenSizePx
-    device.screen.size.width = width
-    device.screen.size.height = height
-    device.screen.scale = deviceInfo.screenScale
-    return device
-  }
-
-  private func localeMessage() -> Common_Locale {
-    var locale = Common_Locale()
-    locale.languageCode = deviceInfo.languageCode
-    locale.regionCode = deviceInfo.regionCode
-    return locale
-  }
-
-  private func userInfoMessage() -> Common_UserInfo {
-    var userInfo = Common_UserInfo()
-    if let id = userID.stringValue { userInfo.userID = id }
-    if let id = logUserID { userInfo.logUserID = id }
-    return userInfo
-  }
-  
-  private func timingMessage() -> Common_Timing {
-    var timing = Common_Timing()
-    timing.clientLogTimestamp = UInt64(clock.nowMillis)
-    return timing
-  }
-
-  private func propertiesMessage(_ message: Message?) -> Common_Properties? {
-    do {
-      if let message = message {
-        var dataMessage = Common_Properties()
-        dataMessage.structBytes = try message.serializedData()
-        return dataMessage
-      }
-    } catch {
-      osLog?.error(
-        "propertiesMessage: %{private}@",
-        error.localizedDescription
-      )
-      let wrapped = MetricsLoggerError.propertiesSerializationError(
-        underlying: error
-      )
-      monitor.executionDidError(wrapped)
-    }
-    return nil
-  }
-}
-
 // MARK: - Event logging base methods
-public extension MetricsLogger {
+extension MetricsLogger {
   /// Logs a user event.
   ///
   /// Autogenerates the following fields:
@@ -331,11 +309,11 @@ public extension MetricsLogger {
   /// - Returns:
   ///   Logged event message.
   @discardableResult
-  internal func logUser(properties: Message? = nil) -> Event_User {
+  private func logUser(properties: Message? = nil) -> Event_User {
     var user = Event_User()
     monitor.execute {
       user.timing = timingMessage()
-      if let i = identifierProvenancesMessage(config: config) {
+      if let i = identifierProvenancesMessage() {
         user.idProvenances = i
       }
       if let p = propertiesMessage(properties) { user.properties = p }
@@ -346,149 +324,22 @@ public extension MetricsLogger {
     return user
   }
 
-  /// Logs an impression event.
-  /// See also `ImpressionTracker` and `ScrollTracker` for more
-  /// advanced impression tracking methods.
-  ///
-  /// Autogenerates the following fields:
-  /// - `timing` from `clock.nowMillis`
-  /// - `impressionID` from a combination of `insertionID`,
-  ///    `contentID`, and `logUserID`
-  /// - `sessionID` from state in this logger
-  /// - `viewID` from state in this logger
-  ///
-  /// - Parameters:
-  ///   - contentID: Content ID from which to derive `impressionID`
-  ///   - insertionID: Insertion ID as provided by Promoted
-  ///   - requestID: Request ID as provided by Promoted
-  ///   - viewID: View ID to set in impression. If not provided, defaults to
-  ///     the view ID last logged via `logView`.
-  ///   - sourceType: Origin of the impressed content
-  ///   - properties: Client-specific message
-  /// - Returns:
-  ///   Logged event message.
+  // TODO(yuhong): These logView methods remain in this file because
+  // they modify the internal state of view IDs. These will be obsolete
+  // when we implement AutoView/CollectionTracker for iOS and UIKit.
+
   @discardableResult
-  func logImpression(
-    sourceType: ImpressionSourceType? = nil,
-    autoViewState: AutoViewState = .empty,
-    contentID: String? = nil,
-    insertionID: String? = nil,
-    requestID: String? = nil,
+  private func logView(
+    trackerState: ViewTracker.State,
     viewID: String? = nil,
     properties: Message? = nil
-  ) -> Event_Impression {
-    var impression = Event_Impression()
-    monitor.execute {
-      impression.timing = timingMessage()
-      let impressionID = idMap.impressionID()
-      if let id = impressionID.stringValue { impression.impressionID = id }
-      if let i = insertionID { impression.insertionID = i }
-      if let r = requestID { impression.requestID = r }
-      if let s = sessionID { impression.sessionID = s }
-      if let v = viewID ?? self.viewID { impression.viewID = v }
-      if let a = autoViewState.autoViewID { impression.autoViewID = a }
-      if let c = contentID { impression.contentID = c }
-      if let s = sourceType?.protoValue { impression.sourceType = s }
-      if let h = autoViewState.hasSuperimposedViews {
-        impression.hasSuperimposedViews_p = h
-      }
-      if let i = identifierProvenancesMessage(
-        config: config,
-        autoViewID: autoViewState.autoViewID,
-        impressionID: impressionID,
-        contentID: contentID,
-        insertionID: insertionID,
-        requestID: requestID,
-        platformSpecifiedViewID: viewID,
-        internalViewID: viewTracker.id.currentValue
-      ) {
-        impression.idProvenances = i
-      }
-      if let p = propertiesMessage(properties) { impression.properties = p }
-      log(message: impression)
-    }
-    return impression
-  }
-  
-  /// Logs a user action event.
-  ///
-  /// Autogenerates the following fields:
-  /// - `timing` from `clock.nowMillis`
-  /// - `actionID` as a UUID
-  /// - `impressionID` from a combination of `insertionID`,
-  ///    `contentID`, and `logUserID`
-  /// - `sessionID` from state in this logger
-  /// - `viewID` from state in this logger
-  /// - `name` from `actionName`
-  /// - If no `elementID` is provided, `elementID` is derived from `name`
-  ///
-  /// - Parameters:
-  ///   - name: Name for action to log, human readable
-  ///   - contentID: Content ID from which to derive `impressionID`
-  ///   - insertionID: Insertion ID as provided by Promoted
-  ///   - requestID: Request ID as provided by Promoted
-  ///   - viewID: View ID to set in impression. If not provided, defaults to
-  ///     the view ID last logged via `logView`.
-  ///   - properties: Client-specific message
-  /// - Returns:
-  ///   Logged event message.
-  @discardableResult
-  func logAction(
-    type: ActionType,
-    name: String,
-    targetURL: String? = nil,
-    elementID: String? = nil,
-    autoViewState: AutoViewState = .empty,
-    contentID: String? = nil,
-    impressionID: String? = nil,
-    insertionID: String? = nil,
-    requestID: String? = nil,
-    viewID: String? = nil,
-    properties: Message? = nil
-  ) -> Event_Action {
-    var action = Event_Action()
-    monitor.execute {
-      action.timing = timingMessage()
-      let actionID = idMap.actionID()
-      if let id = actionID.stringValue { action.actionID = id }
-      if let i = impressionID { action.impressionID = i }
-      if let c = contentID { action.contentID = c }
-      if let i = insertionID { action.insertionID = i }
-      if let r = requestID { action.requestID = r }
-      if let s = sessionID { action.sessionID = s }
-      if let v = viewID ?? self.viewID { action.viewID = v }
-      if let a = autoViewState.autoViewID { action.autoViewID = a }
-      action.name = name
-      action.actionType = type.protoValue
-      action.elementID = elementID ?? name
-      switch type {
-      case .navigate:
-        var navigateAction = Event_NavigateAction()
-        if let t = targetURL { navigateAction.targetURL = t }
-        action.navigateAction = navigateAction
-      default:
-        break
-      }
-      if let h = autoViewState.hasSuperimposedViews {
-        action.hasSuperimposedViews_p = h
-      }
-      if let i = identifierProvenancesMessage(
-        config: config,
-        autoViewID: autoViewState.autoViewID,
-        impressionID: .idForAutogeneratedString(impressionID),
-        actionID: actionID,
-        contentID: contentID,
-        insertionID: insertionID,
-        requestID: requestID,
-        platformSpecifiedViewID: viewID,
-        internalViewID: viewTracker.id.currentValue
-      ) {
-        action.idProvenances = i
-      }
-      if let p = propertiesMessage(properties) { action.properties = p }
-      log(message: action)
-    }
-    return action
+  ) -> Event_View {
+    return logView(
+      name: trackerState.name,
+      useCase: trackerState.useCase,
+      viewID: viewID,
+      properties: properties
+    )
   }
 
   /// Logs a view event if the given key causes a state change in
@@ -507,7 +358,7 @@ public extension MetricsLogger {
   /// - Returns:
   ///   Logged event message.
   @discardableResult
-  internal func logView(
+  func logView(
     trackerKey: ViewTracker.Key,
     useCase: UseCase? = nil,
     properties: Message? = nil
@@ -516,85 +367,6 @@ public extension MetricsLogger {
       return logView(trackerState: state, properties: properties)
     }
     return nil
-  }
-
-  @discardableResult
-  private func logView(
-    trackerState: ViewTracker.State,
-    viewID: String? = nil,
-    properties: Message? = nil
-  ) -> Event_View {
-    return logView(
-      name: trackerState.name,
-      useCase: trackerState.useCase,
-      viewID: viewID,
-      properties: properties
-    )
-  }
-
-  @discardableResult
-  internal func logView(
-    name: String? = nil,
-    useCase: UseCase? = nil,
-    viewID: String? = nil,
-    properties: Message? = nil
-  ) -> Event_View {
-    var view = Event_View()
-    monitor.execute {
-      view.timing = timingMessage()
-      needsViewStateCheck = false  // No need for check when logging view.
-      if let v = viewID ?? self.viewID { view.viewID = v }
-      if let s = sessionID { view.sessionID = s }
-      if let n = name { view.name = n }
-      if let u = useCase?.protoValue { view.useCase = u }
-      if let p = propertiesMessage(properties) { view.properties = p }
-      view.locale = cachedLocaleMessage
-      view.viewType = .appScreen
-      let appScreenView = Event_AppScreenView()
-      // TODO(yuhong): Fill out AppScreenView.
-      view.appScreenView = appScreenView
-      if let i = identifierProvenancesMessage(
-        config: config,
-        platformSpecifiedViewID: viewID,
-        internalViewID: viewTracker.id.currentValue
-      ) {
-        view.idProvenances = i
-      }
-      log(message: view)
-      history?.viewIDDidChange(value: viewID, event: view)
-    }
-    return view
-  }
-
-  @discardableResult
-  func logAutoView(
-    name: String? = nil,
-    useCase: UseCase? = nil,
-    autoViewID: String? = nil,
-    properties: Message? = nil
-  ) -> Event_AutoView {
-    var autoView = Event_AutoView()
-    monitor.execute {
-      autoView.timing = timingMessage()
-      if let a = autoViewID { autoView.autoViewID = a }
-      if let s = sessionID { autoView.sessionID = s }
-      if let n = name { autoView.name = n }
-      if let u = useCase?.protoValue { autoView.useCase = u }
-      if let p = propertiesMessage(properties) { autoView.properties = p }
-      autoView.locale = cachedLocaleMessage
-      let appScreenView = Event_AppScreenView()
-      // TODO(yuhong): Fill out AppScreenView.
-      autoView.appScreenView = appScreenView
-      if let i = identifierProvenancesMessage(
-        config: config,
-        autoViewID: autoViewID
-      ) {
-        autoView.idProvenances = i
-      }
-      log(message: autoView)
-      history?.autoViewIDDidChange(value: viewID, event: autoView)
-    }
-    return autoView
   }
 }
 
@@ -605,8 +377,7 @@ public extension MetricsLogger {
   /// delivered to the server on a timer.
   func log(message: Message) {
     guard Thread.isMainThread else {
-      osLog?.error("Logging must be done on main thread")
-      monitor.executionDidError(MetricsLoggerError.calledFromWrongThread)
+      handleExecutionError(MetricsLoggerError.calledFromWrongThread)
       return
     }
     logMessages.append(message)
@@ -635,7 +406,7 @@ public extension MetricsLogger {
   private func logRequestMessage(events: [Message]) -> Event_LogRequest {
     var logRequest = Event_LogRequest()
     logRequest.userInfo = userInfoMessage()
-    logRequest.device = cachedDeviceMessage
+    logRequest.device = deviceMessage()
     for event in events {
       switch event {
       case let user as Event_User:
@@ -653,20 +424,12 @@ public extension MetricsLogger {
       case let action as Event_Action:
         logRequest.action.append(action)
       default:
-        osLog?.warning(
-          "flush/logRequestMessage: Unknown event: %{private}@",
-          String(describing: event)
-        )
-        monitor.executionDidError(
+        handleExecutionError(
           MetricsLoggerError.unexpectedEvent(event)
         )
       }
     }
-    if let diagnostics = diagnosticsMessage(
-      config: config,
-      xray: xray,
-      timingMessage: timingMessage()
-    ) {
+    if let diagnostics = diagnosticsMessage(xray: xray) {
       osLog?.debug(
         "diagnostics: %{private}@",
         String(describing: diagnostics)
@@ -701,8 +464,7 @@ public extension MetricsLogger {
         monitor.executionWillLog(message: request)
         monitor.executionWillLog(data: data)
       } catch {
-        osLog?.error("flush: %{public}@", error.localizedDescription)
-        monitor.executionDidError(error)
+        handleExecutionError(error)
       }
     }
   }
@@ -714,8 +476,7 @@ public extension MetricsLogger {
         monitor.executionDidLog()
       }
       if let e = error {
-        osLog?.error("flush/response: %{public}@", e.localizedDescription)
-        monitor.executionDidError(e)
+        handleExecutionError(e)
       }
     }
   }
@@ -742,7 +503,6 @@ extension MetricsLogger: OperationMonitorListener {
 // MARK: - Testing
 extension MetricsLogger {
   var logMessagesForTesting: [Message] { logMessages }
-  var userIDForTesting: String? { userID.stringValue }
 
   func startSessionForTesting(userID: String) {
     startSession(userID: userID)
@@ -750,5 +510,9 @@ extension MetricsLogger {
 
   func startSessionSignedOutForTesting() {
     startSessionSignedOut()
+  }
+
+  func logUserForTesting(properties: Message? = nil) {
+    logUser(properties: properties)
   }
 }
