@@ -37,11 +37,13 @@ public extension MetricsLogger {
     content: Content,
     sourceType: ImpressionSourceType = .unknown,
     autoViewState: AutoViewState = .empty,
+    userInteraction: UserInteraction? = nil,
     viewID: String? = nil
   ) -> Event_Impression {
     return logImpression(
       sourceType: sourceType,
       autoViewState: autoViewState,
+      userInteraction: userInteraction,
       contentID: content.contentID,
       insertionID: content.insertionID,
       viewID: viewID
@@ -74,6 +76,7 @@ public extension MetricsLogger {
   func logImpression(
     sourceType: ImpressionSourceType? = nil,
     autoViewState: AutoViewState = .empty,
+    userInteraction: UserInteraction? = nil,
     contentID: String? = nil,
     insertionID: String? = nil,
     requestID: String? = nil,
@@ -94,6 +97,9 @@ public extension MetricsLogger {
       if let s = sourceType?.protoValue { impression.sourceType = s }
       if let h = autoViewState.hasSuperimposedViews {
         impression.hasSuperimposedViews_p = h
+      }
+      if let u = userInteraction {
+        impression.clientPosition.index = u.indexPath
       }
       if let i = identifierProvenancesMessage(
         autoViewID: autoViewState.autoViewID,
