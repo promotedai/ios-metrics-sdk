@@ -55,7 +55,8 @@ final class ImpressionTrackerTests: ModuleTestCase {
       content: content,
       startTime: startTime,
       endTime: endTime,
-      sourceType: sourceType
+      sourceType: sourceType,
+      userInteraction: nil
     )
   }
 
@@ -366,4 +367,77 @@ final class ImpressionTrackerTests: ModuleTestCase {
       impressionTracker.impressionID(for: content("jeff"))
     )
   }
+
+  func testUserInteractions() {
+    impressionTracker = ImpressionTracker(
+      metricsLogger: metricsLogger,
+      deps: module
+    ).with(sourceType: .delivery)
+    clock.advance(to: 123)
+    impressionTracker.collectionViewWillDisplay(
+      content: content("jeff"),
+      autoViewState: .empty,
+      userInteraction: UserInteraction(indexPath: [0])
+    )
+    clock.now = 500
+    impressionTracker.collectionViewWillDisplay(
+      content: content("britta"),
+      autoViewState: .empty,
+      userInteraction: UserInteraction(indexPath: [1])
+    )
+    clock.now = 501
+    impressionTracker.collectionViewDidChangeVisibleContent(
+      [
+        (content("britta"), UserInteraction(indexPath: [1])),
+        (content("troy"), UserInteraction(indexPath: [2])),
+      ],
+      autoViewState: .empty
+    )
+    let expectedEventsJSON: [String] = [
+      """
+      {
+        "timing": {
+          "client_log_timestamp": 123000
+        },
+        "impression_id": "fake-impression-id",
+        "session_id": "fake-session-id",
+        "content_id": "jeff",
+        "source_type": "DELIVERY",
+        "client_position": {
+          "index": [0]
+        }
+      }
+      """,
+      """
+      {
+        "timing": {
+          "client_log_timestamp": 500000
+        },
+        "impression_id": "fake-impression-id",
+        "session_id": "fake-session-id",
+        "content_id": "britta",
+        "source_type": "DELIVERY",
+        "client_position": {
+          "index": [1]
+        }
+      }
+      """,
+      """
+      {
+        "timing": {
+          "client_log_timestamp": 501000
+        },
+        "impression_id": "fake-impression-id",
+        "session_id": "fake-session-id",
+        "content_id": "troy",
+        "source_type": "DELIVERY",
+        "client_position": {
+          "index": [2]
+        }
+      }
+      """
+    ]
+    assertEventsLogged(eventJSONArray: expectedEventsJSON)
+  }
+
 }
