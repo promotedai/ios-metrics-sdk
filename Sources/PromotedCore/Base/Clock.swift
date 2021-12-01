@@ -23,7 +23,7 @@ extension TimeInterval {
 }
 
 extension TimeInterval {
-  func asFormattedDateSince1970() -> String {
+  func asFormattedDateStringSince1970() -> String {
     let date = Date(timeIntervalSince1970: self)
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
