@@ -154,6 +154,8 @@ public extension MetricsLogger {
         var navigateAction = Event_NavigateAction()
         if let t = targetURL { navigateAction.targetURL = t }
         action.navigateAction = navigateAction
+      case .custom:
+        action.customActionType = name
       default:
         break
       }
