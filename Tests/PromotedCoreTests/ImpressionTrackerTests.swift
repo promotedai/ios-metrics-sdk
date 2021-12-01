@@ -48,14 +48,15 @@ final class ImpressionTrackerTests: ModuleTestCase {
     _ contentID: String,
     _ startTime: TimeInterval,
     _ endTime: TimeInterval? = nil,
-    _ sourceType: ImpressionSourceType = .unknown
+    _ sourceType: ImpressionSourceType = .clientBackend
   ) -> Impression {
     let content = Content(contentID: contentID)
     return ImpressionTracker.Impression(
       content: content,
       startTime: startTime,
       endTime: endTime,
-      sourceType: sourceType
+      sourceType: sourceType,
+      collectionInteraction: nil
     )
   }
 
@@ -74,6 +75,7 @@ final class ImpressionTrackerTests: ModuleTestCase {
     metricsLogger.startSessionAndLogUser(userID: "foo")
     impressionTracker = ImpressionTracker(
       metricsLogger: metricsLogger,
+      sourceType: .clientBackend,
       deps: module
     )
     delegate = Delegate()
@@ -144,8 +146,9 @@ final class ImpressionTrackerTests: ModuleTestCase {
   func testStartImpressionsLoggedEvents() {
     impressionTracker = ImpressionTracker(
       metricsLogger: metricsLogger,
+      sourceType: .delivery,
       deps: module
-    ).with(sourceType: .delivery)
+    )
     clock.advance(to: 123)
     impressionTracker.collectionViewWillDisplay(
       content: content("jeff"),
@@ -366,4 +369,81 @@ final class ImpressionTrackerTests: ModuleTestCase {
       impressionTracker.impressionID(for: content("jeff"))
     )
   }
+
+  func testClientPositions() {
+    module.clientConfig.eventsIncludeClientPositions = true
+    metricsLogger = MetricsLogger(deps: module)
+    metricsLogger.startSessionAndLogUser(userID: "foo")
+    impressionTracker = ImpressionTracker(
+      metricsLogger: metricsLogger,
+      sourceType: .delivery,
+      deps: module
+    )
+    clock.advance(to: 123)
+    impressionTracker.collectionViewWillDisplay(
+      content: content("jeff"),
+      autoViewState: .empty,
+      collectionInteraction: CollectionInteraction(indexPath: [0])
+    )
+    clock.now = 500
+    impressionTracker.collectionViewWillDisplay(
+      content: content("britta"),
+      autoViewState: .empty,
+      collectionInteraction: CollectionInteraction(indexPath: [1])
+    )
+    clock.now = 501
+    impressionTracker.collectionViewDidChangeVisibleContent(
+      [
+        content("britta"): CollectionInteraction(indexPath: [1]),
+        content("troy"): CollectionInteraction(indexPath: [2]),
+      ],
+      autoViewState: .empty
+    )
+    let expectedEventsJSON: [String] = [
+      """
+      {
+        "timing": {
+          "client_log_timestamp": 123000
+        },
+        "impression_id": "fake-impression-id",
+        "session_id": "fake-session-id",
+        "content_id": "jeff",
+        "source_type": "DELIVERY",
+        "client_position": {
+          "index": [0]
+        }
+      }
+      """,
+      """
+      {
+        "timing": {
+          "client_log_timestamp": 500000
+        },
+        "impression_id": "fake-impression-id",
+        "session_id": "fake-session-id",
+        "content_id": "britta",
+        "source_type": "DELIVERY",
+        "client_position": {
+          "index": [1]
+        }
+      }
+      """,
+      """
+      {
+        "timing": {
+          "client_log_timestamp": 501000
+        },
+        "impression_id": "fake-impression-id",
+        "session_id": "fake-session-id",
+        "content_id": "troy",
+        "source_type": "DELIVERY",
+        "client_position": {
+          "index": [2]
+        }
+      }
+      """
+    ]
+    assertEventsLogged(eventJSONArray: expectedEventsJSON)
+  }
+
 }

@@ -2,6 +2,18 @@ import Foundation
 import SwiftProtobuf
 
 extension MetricsLogger {
+  func clientPositionMessage(
+    _ collectionInteraction: CollectionInteraction?
+  ) -> Event_IndexPath? {
+    guard
+      config.eventsIncludeClientPositions,
+      let collectionInteraction = collectionInteraction
+    else { return nil }
+    var clientPosition = Event_IndexPath()
+    clientPosition.index = collectionInteraction.indexPath
+    return clientPosition
+  }
+
   func deviceMessage() -> Common_Device {
     if cachedDeviceMessage == nil {
       var device = Common_Device()

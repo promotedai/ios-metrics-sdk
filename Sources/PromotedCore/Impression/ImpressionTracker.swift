@@ -65,17 +65,21 @@ public protocol ImpressionTrackerDelegate: AnyObject {
      impressionTracker.collectionViewDidHideAllContent()
    }
 
-   func collectionView(_ collectionView: UICollectionView,
-                       willDisplay cell: UICollectionViewCell,
-                       forItemAt indexPath: IndexPath) {
+   func collectionView(
+     _ collectionView: UICollectionView,
+     willDisplay cell: UICollectionViewCell,
+     forItemAt indexPath: IndexPath
+   ) {
      if let content = content(atIndexPath: indexPath) {
        impressionTracker.collectionViewWillDisplay(content: content)
      }
    }
     
-   func collectionView(_ collectionView: UICollectionView,
-                       didEndDisplaying cell: UICollectionViewCell,
-                       forItemAt indexPath: IndexPath) {
+   func collectionView(
+     _ collectionView: UICollectionView,
+     didEndDisplaying cell: UICollectionViewCell,
+     forItemAt indexPath: IndexPath
+   ) {
      if let content = content(atIndexPath: indexPath) {
        impressionTracker.collectionViewDidHide(content: content)
      }
@@ -91,7 +95,7 @@ public protocol ImpressionTrackerDelegate: AnyObject {
  }
  ```
  */
-public final class ImpressionTracker: NSObject, ImpressionConfig {
+public final class ImpressionTracker: NSObject {
 
   // MARK: -
   /** Represents an impression of a cell in the collection view. */
@@ -113,6 +117,16 @@ public final class ImpressionTracker: NSObject, ImpressionConfig {
 
     /// Source type of impression.
     public let sourceType: ImpressionSourceType
+
+    /// Interaction that caused the impression.
+    public let collectionInteraction: CollectionInteraction?
+  }
+
+  // MARK: -
+  private struct InProgressImpression {
+    let startTime: TimeInterval
+    let impressionID: String
+    let collectionInteraction: CollectionInteraction?
   }
 
   // MARK: - Properties
@@ -121,21 +135,29 @@ public final class ImpressionTracker: NSObject, ImpressionConfig {
   private let clock: Clock
   private unowned let monitor: OperationMonitor
   
-  private var contentToImpressionStart: [Content: TimeInterval]
-  private var contentToImpressionID: [Content: String]
-  private var sourceType: ImpressionSourceType
+  private let sourceType: ImpressionSourceType
+
+  /// Impressions that have appeared but not disappeared.
+  /// In-progress impressions get removed when content is
+  /// hidden, in any of `collectionViewDidHide`,
+  /// `collectionViewDidChangeVisibleContent`, or
+  /// `collectionViewDidHideAllContent`.
+  private var contentToInProgressImpression: [Content: InProgressImpression]
 
   public weak var delegate: ImpressionTrackerDelegate?
 
   typealias Deps = ClockSource & OperationMonitorSource
 
-  init(metricsLogger: MetricsLogger, deps: Deps) {
+  init(
+    metricsLogger: MetricsLogger,
+    sourceType: ImpressionSourceType,
+    deps: Deps
+  ) {
     self.metricsLogger = metricsLogger
+    self.sourceType = sourceType
     self.clock = deps.clock
     self.monitor = deps.operationMonitor
-    self.contentToImpressionStart = [:]
-    self.contentToImpressionID = [:]
-    self.sourceType = .unknown
+    self.contentToInProgressImpression = [:]
   }
 }
 
@@ -145,11 +167,17 @@ public extension ImpressionTracker {
   /// Call this method when new items are displayed.
   func collectionViewWillDisplay(
     content: Content,
-    autoViewState: AutoViewState
+    autoViewState: AutoViewState,
+    collectionInteraction: CollectionInteraction? = nil
   ) {
     monitor.execute {
       broadcastStartAndAddImpressions(
         contents: [content],
+        contentToCollectionInteraction: (
+          collectionInteraction != nil ?
+          [content: collectionInteraction!] :
+          nil
+        ),
         autoViewState: autoViewState,
         now: clock.now
       )
@@ -172,16 +200,6 @@ public extension ImpressionTracker {
     }
   }
 
-  func collectionViewDidChangeVisibleContent(
-    array contentArray: [Content],
-    autoViewState: AutoViewState
-  ) {
-    collectionViewDidChangeVisibleContent(
-      contentArray,
-      autoViewState: autoViewState
-    )
-  }
-
   /// Call this method when the collection view changes content, but
   /// does not provide per-item updates for the change. For example,
   /// when a collection reloads.
@@ -189,18 +207,50 @@ public extension ImpressionTracker {
     _ contents: T,
     autoViewState: AutoViewState
   ) where T.Element == Content {
+    collectionViewDidChangeVisibleContent(
+      contents: contents,
+      contentToCollectionInteraction: nil,
+      autoViewState: autoViewState
+    )
+  }
+
+  /// Call this method when the collection view changes content, but
+  /// does not provide per-item updates for the change. For example,
+  /// when a collection reloads.
+  ///
+  /// This version passes a dictionary of `Content` to
+  /// `CollectionInteraction` which is used for diagnostic logging.
+  /// Prefer to use the version of this method without
+  /// `CollectionInteraction` if you don't need diagnostics, because
+  /// that version is more efficient.
+  func collectionViewDidChangeVisibleContent(
+    _ contentsAndCollectionInteractions: [Content: CollectionInteraction],
+    autoViewState: AutoViewState
+  ) {
+    collectionViewDidChangeVisibleContent(
+      contents: contentsAndCollectionInteractions.keys,
+      contentToCollectionInteraction: contentsAndCollectionInteractions,
+      autoViewState: autoViewState
+    )
+  }
+
+  private func collectionViewDidChangeVisibleContent<T: Collection>(
+    contents: T,
+    contentToCollectionInteraction: [Content: CollectionInteraction]?,
+    autoViewState: AutoViewState
+  ) where T.Element == Content {
     monitor.execute {
       let now = clock.now
-      let newlyShownContent = contents.filter {
-        contentToImpressionStart[$0] == nil
-      }
+      let newlyShownContent = contents
+        .filter { contentToInProgressImpression[$0] == nil }
       // TODO(yuhong): Below is potentially O(n^2), but in practice,
-      // the arrays are pretty small.
-      let newlyHiddenContent = contentToImpressionStart.keys.filter {
-        !contents.contains($0)
-      }
+      // the arrays are pretty small.
+      let newlyHiddenContent = contentToInProgressImpression
+        .filter { !contents.contains($0.key) }
+        .map { $0.key }
       broadcastStartAndAddImpressions(
         contents: newlyShownContent,
+        contentToCollectionInteraction: contentToCollectionInteraction,
         autoViewState: autoViewState,
         now: now
       )
@@ -216,7 +266,7 @@ public extension ImpressionTracker {
   func collectionViewDidHideAllContent(autoViewState: AutoViewState) {
     monitor.execute {
       broadcastEndAndRemoveImpressions(
-        contents: contentToImpressionStart.keys,
+        contents: contentToInProgressImpression.keys,
         autoViewState: autoViewState,
         now: clock.now
       )
@@ -225,30 +275,35 @@ public extension ImpressionTracker {
 
   private func broadcastStartAndAddImpressions<T: Collection>(
     contents: T,
+    contentToCollectionInteraction: [Content: CollectionInteraction]?,
     autoViewState: AutoViewState,
     now: TimeInterval
   ) where T.Element == Content {
     guard !contents.isEmpty else { return }
-    let impressions = contents.map { content in
-      Impression(
-        content: content,
-        startTime: now,
-        endTime: nil,
-        sourceType: sourceType
-      )
-    }
-    for content in contents {
-      contentToImpressionStart[content] = now
-    }
+    let impressions = contents
+      .map { content in
+        Impression(
+          content: content,
+          startTime: now,
+          endTime: nil,
+          sourceType: sourceType,
+          collectionInteraction: contentToCollectionInteraction?[content]
+        )
+      }
     monitor.execute {
       for impression in impressions {
         let content = impression.content
         let impressionProto = metricsLogger.logImpression(
           content: content,
           sourceType: impression.sourceType,
-          autoViewState: autoViewState
+          autoViewState: autoViewState,
+          collectionInteraction: impression.collectionInteraction
         )
-        contentToImpressionID[content] = impressionProto.impressionID
+        contentToInProgressImpression[content] = InProgressImpression(
+          startTime: now,
+          impressionID: impressionProto.impressionID,
+          collectionInteraction: impression.collectionInteraction
+        )
       }
     }
     delegate?.impressionTracker(
@@ -265,17 +320,18 @@ public extension ImpressionTracker {
   ) where T.Element == Content {
     guard !contents.isEmpty else { return }
     let impressions: [Impression] = contents.compactMap { content in
-      let s = contentToImpressionStart.removeValue(forKey: content)
-      guard let startTime = s else { return nil }
+      let p = contentToInProgressImpression.removeValue(forKey: content)
+      guard let partial = p else { return nil }
       return Impression(
         content: content,
-        startTime: startTime,
+        startTime: partial.startTime,
         endTime: now,
-        sourceType: sourceType
+        sourceType: sourceType,
+        collectionInteraction: partial.collectionInteraction
       )
     }
     for content in contents {
-      contentToImpressionID.removeValue(forKey: content)
+      contentToInProgressImpression.removeValue(forKey: content)
     }
     // Not calling `metricsLogger`. No logging end impressions for now.
     delegate?.impressionTracker(
@@ -289,16 +345,7 @@ public extension ImpressionTracker {
 // MARK: - Impression ID
 public extension ImpressionTracker {
   func impressionID(for content: Content) -> String? {
-    contentToImpressionID[content]
-  }
-}
-
-// MARK: - ImpressionConfig
-public extension ImpressionTracker {
-  @discardableResult
-  func with(sourceType: ImpressionSourceType) -> Self {
-    self.sourceType = sourceType
-    return self
+    contentToInProgressImpression[content]?.impressionID
   }
 }
 
@@ -320,7 +367,7 @@ public class ImpressionTrackerDebugLogger: ImpressionTrackerDelegate {
     for impression in impressions {
       osLog.debug(
         "Impression: %{private}@ autoViewState: %{private}@",
-        impression.content.debugDescription,
+        impression.debugDescription,
         autoViewState.debugDescription
       )
     }
@@ -338,9 +385,18 @@ public class ImpressionTrackerDebugLogger: ImpressionTrackerDelegate {
 // MARK: - Impression CustomDebugStringConvertible
 extension ImpressionTracker.Impression: CustomDebugStringConvertible {
   public var debugDescription: String {
-    endTime != nil
-      ? "(\(content.description), \(startTime), \(endTime!), \(sourceType))"
-      : "(\(content.description), \(startTime), \(sourceType))"
+    let contents = [
+      content.debugDescription,
+      startTime.asFormattedDateStringSince1970(),
+      endTime?.asFormattedDateStringSince1970(),
+      sourceType,
+      collectionInteraction
+    ] as [Any?]
+    return "(" +
+      contents
+        .compactMap { $0 != nil ? String(describing: $0!) : nil }
+        .joined(separator: ", ") +
+    ")"
   }
 }
 
@@ -349,13 +405,17 @@ extension ImpressionTracker.Impression: Hashable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(content)
     hasher.combine(sourceType)
+    hasher.combine(collectionInteraction)
   }
   
-  public static func == (lhs: ImpressionTracker.Impression,
-                         rhs: ImpressionTracker.Impression) -> Bool {
+  public static func == (
+    lhs: ImpressionTracker.Impression,
+    rhs: ImpressionTracker.Impression
+  ) -> Bool {
     (lhs.content == rhs.content) &&
     (abs(lhs.startTime - rhs.startTime) < 0.01) &&
     (abs((lhs.endTime ?? 0) - (rhs.endTime ?? 0)) < 0.01) &&
-    (lhs.sourceType == rhs.sourceType)
+    (lhs.sourceType == rhs.sourceType) &&
+    (lhs.collectionInteraction == rhs.collectionInteraction)
   }
 }

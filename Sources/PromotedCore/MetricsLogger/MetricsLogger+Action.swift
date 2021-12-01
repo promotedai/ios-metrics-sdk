@@ -78,6 +78,7 @@ public extension MetricsLogger {
     content: Content?,
     name: String? = nil,
     autoViewState: AutoViewState = .empty,
+    collectionInteraction: CollectionInteraction? = nil,
     impressionID: String? = nil,
     viewID: String? = nil
   ) -> Event_Action {
@@ -85,6 +86,7 @@ public extension MetricsLogger {
       type: type,
       name: name ?? type.description,
       autoViewState: autoViewState,
+      collectionInteraction: collectionInteraction,
       contentID: content?.contentID,
       impressionID: impressionID,
       insertionID: content?.insertionID,
@@ -102,21 +104,21 @@ public extension MetricsLogger {
   /// - `sessionID` from state in this logger
   /// - `viewID` from state in this logger
   /// - `name` from `actionName`
-  /// - If no `elementID` is provided, `elementID` is derived from `name`
   ///
   /// - Parameters:
   ///   - type: Semantic meaning of action
   ///   - name: Name for action to log, human readable
   ///   - targetURL: URL of navigation, designed for web SDK
-  ///   - elementID: Element that triggered action, designed for web SDK
+  ///   - elementID: Element that triggered action, designed for web SDK.
+  ///     If no `elementID` is provided, is derived from `name`
   ///   - autoViewState: Auto view to associate with action
   ///   - contentID: Content ID for marketplace content
   ///   - impressionID: Impression ID to associate with action as provided
   ///     by mobile SDK
   ///   - insertionID: Insertion ID as provided by Promoted
   ///   - requestID: Request ID as provided by Promoted
-  ///   - viewID: View ID to set in impression. If not provided, defaults to
-  ///     the view ID last logged via `logView`.
+  ///   - viewID: View ID to set in impression. If not provided, defaults
+  ///     to the view ID last logged via `logView`.
   ///   - properties: Client-specific message
   /// - Returns:
   ///   Logged event message.
@@ -127,6 +129,7 @@ public extension MetricsLogger {
     targetURL: String? = nil,
     elementID: String? = nil,
     autoViewState: AutoViewState = .empty,
+    collectionInteraction: CollectionInteraction? = nil,
     contentID: String? = nil,
     impressionID: String? = nil,
     insertionID: String? = nil,
@@ -161,6 +164,9 @@ public extension MetricsLogger {
       }
       if let h = autoViewState.hasSuperimposedViews {
         action.hasSuperimposedViews_p = h
+      }
+      if let c = clientPositionMessage(collectionInteraction) {
+        action.clientPosition = c
       }
       if let i = identifierProvenancesMessage(
         autoViewID: autoViewState.autoViewID,

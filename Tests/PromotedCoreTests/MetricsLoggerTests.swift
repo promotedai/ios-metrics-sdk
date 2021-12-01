@@ -309,7 +309,7 @@ final class MetricsLoggerTests: ModuleTestCase {
 
   func testLogImpressionInsertionID() {
     metricsLogger.startSessionForTesting(userID: "foo")
-    let item = Item(contentID: "foobar", insertionID: "insertion!")
+    let item = Content(contentID: "foobar", insertionID: "insertion!")
     metricsLogger.logImpression(content: item, autoViewState: .fake)
     let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Impression)
@@ -333,7 +333,7 @@ final class MetricsLoggerTests: ModuleTestCase {
 
   func testLogImpressionNoInsertionID() {
     metricsLogger.startSessionForTesting(userID: "foo")
-    let item = Item(contentID: "foobar")
+    let item = Content(contentID: "foobar")
     metricsLogger.logImpression(content: item, autoViewState: .fake)
     let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Impression)
@@ -355,7 +355,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testLogImpressionNoLogUserSessionViewIDs() {
-    let item = Item(contentID: "foobar", insertionID: "insertion!")
+    let item = Content(contentID: "foobar", insertionID: "insertion!")
     metricsLogger.logImpression(content: item)
     let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Impression)
@@ -376,7 +376,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testLogImpressionExternalLogUserID() {
-    let item = Item(contentID: "foobar", insertionID: "insertion!")
+    let item = Content(contentID: "foobar", insertionID: "insertion!")
     metricsLogger.logUserID = "batman"
     metricsLogger.logImpression(content: item)
     metricsLogger.flush()
@@ -407,7 +407,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testLogImpressionMultipleExternalIDs() {
-    let item = Item(contentID: "foobar", insertionID: "insertion!")
+    let item = Content(contentID: "foobar", insertionID: "insertion!")
     metricsLogger.logUserID = "batman"
     metricsLogger.sessionID = "gotham"
     metricsLogger.viewID = "joker"
@@ -446,7 +446,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     module.clientConfig.eventsIncludeIDProvenances = true
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
-    let item = Item(contentID: "foobar", insertionID: "insertion!")
+    let item = Content(contentID: "foobar", insertionID: "insertion!")
     metricsLogger.logImpression(content: item, autoViewState: .fake)
     let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Impression)
@@ -480,10 +480,44 @@ final class MetricsLoggerTests: ModuleTestCase {
     )
   }
 
+  func testLogImpressionClientPosition() {
+    module.clientConfig.eventsIncludeClientPositions = true
+    metricsLogger = MetricsLogger(deps: module)
+    metricsLogger.startSessionForTesting(userID: "foo")
+    let item = Content(contentID: "foobar", insertionID: "insertion!")
+    let collectionInteraction = CollectionInteraction(indexPath: [5, 6])
+    metricsLogger.logImpression(
+      content: item,
+      autoViewState: .fake,
+      collectionInteraction: collectionInteraction
+    )
+    let message = metricsLogger.logMessagesForTesting.last!
+    XCTAssertTrue(message is Event_Impression)
+    let expectedJSON = """
+    {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
+      "impression_id": "fake-impression-id",
+      "insertion_id": "insertion!",
+      "content_id": "foobar",
+      "session_id": "fake-session-id",
+      "auto_view_id": "fake-auto-view-id",
+      "client_position": {
+        "index": [5, 6]
+      }
+    }
+    """
+    XCTAssertEqual(
+      try Event_Impression(jsonString: expectedJSON),
+      message as! Event_Impression
+    )
+  }
+
   func testLogNavigateAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
     let viewController = FakeScreenViewController()
-    let item = Item(contentID: "foobar")
+    let item = Content(contentID: "foobar")
     metricsLogger.logNavigateAction(
       content: item,
       viewController: viewController,
@@ -515,7 +549,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogAddToCartAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
-    let item = Item(contentID: "foobar")
+    let item = Content(contentID: "foobar")
     metricsLogger.logAction(
       type: .addToCart,
       content: item,
@@ -545,7 +579,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogRemoveFromCartAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
-    let item = Item(contentID: "foobar")
+    let item = Content(contentID: "foobar")
     metricsLogger.logAction(
       type: .removeFromCart,
       content: item,
@@ -603,7 +637,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogPurchaseAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
-    let item = Item(contentID: "foobar")
+    let item = Content(contentID: "foobar")
     metricsLogger.logAction(
       type: .purchase,
       content: item,
@@ -633,7 +667,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogShareAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
-    let item = Item(contentID: "foobar")
+    let item = Content(contentID: "foobar")
     metricsLogger.logAction(
       type: .share,
       content: item,
@@ -663,7 +697,7 @@ final class MetricsLoggerTests: ModuleTestCase {
 
   func testLogLikeAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
-    let item = Item(contentID: "foobar")
+    let item = Content(contentID: "foobar")
     metricsLogger.logAction(
       type: .like,
       content: item,
@@ -693,7 +727,7 @@ final class MetricsLoggerTests: ModuleTestCase {
 
   func testLogUnlikeAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
-    let item = Item(contentID: "foobar")
+    let item = Content(contentID: "foobar")
     metricsLogger.logAction(
       type: .unlike,
       content: item,
@@ -723,7 +757,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogCommentAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
-    let item = Item(contentID: "foobar")
+    let item = Content(contentID: "foobar")
     metricsLogger.logAction(
       type: .comment,
       content: item,
@@ -753,7 +787,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogMakeOfferAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
-    let item = Item(contentID: "foobar")
+    let item = Content(contentID: "foobar")
     metricsLogger.logAction(
       type: .makeOffer,
       content: item,
@@ -783,7 +817,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogAskQuestionAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
-    let item = Item(contentID: "foobar")
+    let item = Content(contentID: "foobar")
     metricsLogger.logAction(
       type: .askQuestion,
       content: item,
@@ -813,7 +847,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   
   func testLogAnswerQuestionAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
-    let item = Item(contentID: "foobar")
+    let item = Content(contentID: "foobar")
     metricsLogger.logAction(
       type: .answerQuestion,
       content: item,
@@ -933,7 +967,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     module.clientConfig.eventsIncludeIDProvenances = true
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
-    let item = Item(contentID: "", insertionID: "hello")
+    let item = Content(contentID: "", insertionID: "hello")
     metricsLogger.logAction(
       type: .navigate,
       content: item,
@@ -977,7 +1011,50 @@ final class MetricsLoggerTests: ModuleTestCase {
     )
   }
 
+  func testLogActionClientPosition() {
+    module.clientConfig.eventsIncludeClientPositions = true
+    metricsLogger = MetricsLogger(deps: module)
+    metricsLogger.startSessionForTesting(userID: "foo")
+    let item = Content(contentID: "", insertionID: "hello")
+    let collectionInteraction = CollectionInteraction(indexPath: [1, 8])
+    metricsLogger.logAction(
+      type: .navigate,
+      content: item,
+      autoViewState: .fake,
+      collectionInteraction: collectionInteraction,
+      impressionID: "fake-impression"
+    )
+    let message = metricsLogger.logMessagesForTesting.last!
+    XCTAssertTrue(message is Event_Action)
+    let expectedJSON = """
+    {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
+      "action_id": "fake-action-id",
+      "session_id": "fake-session-id",
+      "impression_id": "fake-impression",
+      "insertion_id": "hello",
+      "auto_view_id": "fake-auto-view-id",
+      "name": "navigate",
+      "action_type": "NAVIGATE",
+      "element_id": "navigate",
+      "navigate_action": {
+      },
+      "client_position": {
+        "index": [1, 8]
+      }
+    }
+    """
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      message as! Event_Action
+    )
+  }
+
   func testLogViewController() {
+    module.clientConfig.eventsIncludeClientPositions = true
+    metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
     let viewController = FakeScreenViewController()
     metricsLogger.logView(

@@ -32,9 +32,11 @@ public class Content: NSObject {
     self.init(name: nil, contentID: contentID, insertionID: insertionID)
   }
   
-  public init(name: String? = nil,
-              contentID: String? = nil,
-              insertionID: String? = nil) {
+  public init(
+    name: String? = nil,
+    contentID: String? = nil,
+    insertionID: String? = nil
+  ) {
     self.name = name
     self.contentID = contentID
     self.insertionID = insertionID
@@ -53,18 +55,22 @@ public class Content: NSObject {
   ///     order.
   ///   - insertionIDKeys: Keys used to read `insertionID`, in
   ///     preferred order.
-  @objc public init(properties: [String: Any]?,
-                    nameKeys: [String],
-                    contentIDKeys: [String],
-                    insertionIDKeys: [String]) {
+  @objc public init(
+    properties: [String: Any]?,
+    nameKeys: [String],
+    contentIDKeys: [String],
+    insertionIDKeys: [String]
+  ) {
     self.name = properties?.firstValueFromKeysInArray(nameKeys)
     self.contentID = properties?.firstValueFromKeysInArray(contentIDKeys)
     self.insertionID = properties?.firstValueFromKeysInArray(insertionIDKeys)
   }
-  
-  public override var description: String { debugDescription }
+}
 
-  public override var debugDescription: String {
+public extension Content {
+  override var description: String { debugDescription }
+
+  override var debugDescription: String {
     var result = "("
     var separator = ""
     if let name = self.name {
@@ -82,23 +88,12 @@ public class Content: NSObject {
     return result
   }
   
-  public override func isEqual(_ object: Any?) -> Bool {
+  override func isEqual(_ object: Any?) -> Bool {
     if let other = object as? Content {
       return self.contentID == other.contentID
     }
     return false
   }
   
-  public override var hash: Int { contentID?.hash ?? 0 }
+  override var hash: Int { contentID?.hash ?? 0 }
 }
-
-/** Represents a saleable unit in your marketplace. */
-@objc(PROItem)
-public class Item: Content {}
-
-/**
- Represents a partner (store, restaurant, creator, etc.)
- that sells in your marketplace.
- */
-@objc(PROPartner)
-public class Partner: Content {}

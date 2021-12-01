@@ -22,6 +22,15 @@ extension TimeInterval {
   var millis: TimeIntervalMillis { TimeIntervalMillis(seconds: self) }
 }
 
+extension TimeInterval {
+  func asFormattedDateStringSince1970() -> String {
+    let date = Date(timeIntervalSince1970: self)
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+    return formatter.string(from: date)
+  }
+}
+
 // MARK: -
 /** Represents a way to get time and perform scheduling of tasks. */
 protocol Clock: AnyObject {

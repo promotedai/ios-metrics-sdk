@@ -35,7 +35,7 @@ import os.log
  let service = try MetricsLoggerService(initialConfig: ...)
  try service.startLoggingServices()
  let logger = service.metricsLogger
- let impressionTracker = service.impressionTracker()
+ let impressionTracker = service.impressionTracker(sourceType: .delivery)
  let scrollTracker = service.scrollTracker(collectionView: ...)
  ```
  
@@ -45,7 +45,7 @@ import os.log
  try MetricsLoggerService.startServices(initialConfig: ...)
  let service = MetricsLoggerService.shared
  let logger = service.metricsLogger
- let impressionTracker = service.impressionTracker()
+ let impressionTracker = service.impressionTracker(sourceType: .delivery)
  ```
  
  # PromotedCore vs PromotedMetrics
@@ -207,36 +207,56 @@ private extension MetricsLoggerService {
 public extension MetricsLoggerService {
 
   /// Returns a new `ImpressionTracker`.
-  @objc func impressionTracker() -> ImpressionTracker? {
+  @objc func impressionTracker(
+    sourceType: ImpressionSourceType
+  ) -> ImpressionTracker? {
     guard let metricsLogger = self.metricsLogger else { return nil }
-    return ImpressionTracker(metricsLogger: metricsLogger, deps: module)
+    return ImpressionTracker(
+      metricsLogger: metricsLogger,
+      sourceType: sourceType,
+      deps: module
+    )
   }
 
   /// Returns a new `ScrollTracker`.
-  @objc func scrollTracker() -> ScrollTracker? {
+  @objc func scrollTracker(
+    sourceType: ImpressionSourceType
+  ) -> ScrollTracker? {
     guard let metricsLogger = self.metricsLogger else { return nil }
-    return ScrollTracker(metricsLogger: metricsLogger, deps: module)
+    return ScrollTracker(
+      metricsLogger: metricsLogger,
+      sourceType: sourceType,
+      deps: module
+    )
   }
 
   /// Returns a new `ScrollTracker` tied to the given `UIScrollView`.
   /// The scroll view must contain a `UICollectionView` to track, and
   /// clients must provide the `ScrollTracker` with the `UICollectionView`
   /// via `setFramesFrom(collectionView:...)` to initiate tracking.
-  @objc func scrollTracker(scrollView: UIScrollView) -> ScrollTracker? {
+  @objc func scrollTracker(
+    scrollView: UIScrollView,
+    sourceType: ImpressionSourceType
+  ) -> ScrollTracker? {
     guard let metricsLogger = self.metricsLogger else { return nil }
     return ScrollTracker(
       metricsLogger: metricsLogger,
       scrollView: scrollView,
+      sourceType: sourceType,
       deps: module
     )
   }
 
   /// Returns a new `ScrollTracker` tied to the given `UICollectionView`.
-  @objc func scrollTracker(collectionView: UICollectionView) -> ScrollTracker? {
+  @objc func scrollTracker(
+    collectionView: UICollectionView,
+    sourceType: ImpressionSourceType
+  ) -> ScrollTracker? {
     guard let metricsLogger = self.metricsLogger else { return nil }
     return ScrollTracker(
       metricsLogger: metricsLogger,
       collectionView: collectionView,
+      sourceType: sourceType,
       deps: module
     )
   }
