@@ -485,11 +485,11 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
     let item = Content(contentID: "foobar", insertionID: "insertion!")
-    let userInteraction = UserInteraction(indexPath: [5, 6])
+    let collectionInteraction = CollectionInteraction(indexPath: [5, 6])
     metricsLogger.logImpression(
       content: item,
       autoViewState: .fake,
-      userInteraction: userInteraction
+      collectionInteraction: collectionInteraction
     )
     let message = metricsLogger.logMessagesForTesting.last!
     XCTAssertTrue(message is Event_Impression)
@@ -984,12 +984,12 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
     let item = Content(contentID: "", insertionID: "hello")
-    let userInteraction = UserInteraction(indexPath: [1, 8])
+    let collectionInteraction = CollectionInteraction(indexPath: [1, 8])
     metricsLogger.logAction(
       type: .navigate,
       content: item,
       autoViewState: .fake,
-      userInteraction: userInteraction,
+      collectionInteraction: collectionInteraction,
       impressionID: "fake-impression"
     )
     let message = metricsLogger.logMessagesForTesting.last!

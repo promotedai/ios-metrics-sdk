@@ -56,7 +56,7 @@ final class ImpressionTrackerTests: ModuleTestCase {
       startTime: startTime,
       endTime: endTime,
       sourceType: sourceType,
-      userInteraction: nil
+      collectionInteraction: nil
     )
   }
 
@@ -383,19 +383,19 @@ final class ImpressionTrackerTests: ModuleTestCase {
     impressionTracker.collectionViewWillDisplay(
       content: content("jeff"),
       autoViewState: .empty,
-      userInteraction: UserInteraction(indexPath: [0])
+      collectionInteraction: CollectionInteraction(indexPath: [0])
     )
     clock.now = 500
     impressionTracker.collectionViewWillDisplay(
       content: content("britta"),
       autoViewState: .empty,
-      userInteraction: UserInteraction(indexPath: [1])
+      collectionInteraction: CollectionInteraction(indexPath: [1])
     )
     clock.now = 501
     impressionTracker.collectionViewDidChangeVisibleContent(
       [
-        content("britta"): UserInteraction(indexPath: [1]),
-        content("troy"): UserInteraction(indexPath: [2]),
+        content("britta"): CollectionInteraction(indexPath: [1]),
+        content("troy"): CollectionInteraction(indexPath: [2]),
       ],
       autoViewState: .empty
     )
