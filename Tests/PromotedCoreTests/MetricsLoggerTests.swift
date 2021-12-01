@@ -897,6 +897,38 @@ final class MetricsLoggerTests: ModuleTestCase {
     )
   }
 
+  func testLogCustomAction() {
+    metricsLogger.startSessionForTesting(userID: "foo")
+    let item = Content(contentID: "hello")
+    metricsLogger.logAction(
+      type: .custom,
+      content: item,
+      name: "foobar",
+      autoViewState: .fake
+    )
+    let message = metricsLogger.logMessagesForTesting.last!
+    XCTAssertTrue(message is Event_Action)
+    let expectedJSON = """
+    {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
+      "action_id": "fake-action-id",
+      "session_id": "fake-session-id",
+      "auto_view_id": "fake-auto-view-id",
+      "content_id": "hello",
+      "name": "foobar",
+      "action_type": "CUSTOM_ACTION_TYPE",
+      "element_id": "foobar",
+      "custom_action_type": "foobar"
+    }
+    """
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      message as! Event_Action
+    )
+  }
+
   func testLogActionIDProvenances() {
     module.clientConfig.eventsIncludeIDProvenances = true
     metricsLogger = MetricsLogger(deps: module)
