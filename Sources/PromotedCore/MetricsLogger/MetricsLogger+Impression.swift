@@ -98,8 +98,8 @@ public extension MetricsLogger {
       if let h = autoViewState.hasSuperimposedViews {
         impression.hasSuperimposedViews_p = h
       }
-      if let u = userInteraction {
-        impression.clientPosition.index = u.indexPath
+      if let c = clientPositionMessage(userInteraction) {
+        impression.clientPosition = c
       }
       if let i = identifierProvenancesMessage(
         autoViewID: autoViewState.autoViewID,
