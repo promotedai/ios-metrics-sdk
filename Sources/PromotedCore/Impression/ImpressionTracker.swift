@@ -123,7 +123,7 @@ public final class ImpressionTracker: NSObject {
   }
 
   // MARK: -
-  private struct PartialImpression {
+  private struct PendingImpression {
     let startTime: TimeInterval
     let impressionID: String
     let collectionInteraction: CollectionInteraction?
@@ -142,7 +142,7 @@ public final class ImpressionTracker: NSObject {
   /// hidden, in any of `collectionViewDidHide`,
   /// `collectionViewDidChangeVisibleContent`, or
   /// `collectionViewDidHideAllContent`.
-  private var contentToPartialImpression: [Content: PartialImpression]
+  private var contentToPendingImpression: [Content: PendingImpression]
 
   public weak var delegate: ImpressionTrackerDelegate?
 
@@ -157,7 +157,7 @@ public final class ImpressionTracker: NSObject {
     self.sourceType = sourceType
     self.clock = deps.clock
     self.monitor = deps.operationMonitor
-    self.contentToPartialImpression = [:]
+    self.contentToPendingImpression = [:]
   }
 }
 
@@ -242,10 +242,10 @@ public extension ImpressionTracker {
     monitor.execute {
       let now = clock.now
       let newlyShownContent = contents
-        .filter { contentToPartialImpression[$0] == nil }
+        .filter { contentToPendingImpression[$0] == nil }
       // TODO(yuhong): Below is potentially O(n^2), but in practice,
       // the arrays are pretty small.
-      let newlyHiddenContent = contentToPartialImpression
+      let newlyHiddenContent = contentToPendingImpression
         .filter { !contents.contains($0.key) }
         .map { $0.key }
       broadcastStartAndAddImpressions(
@@ -266,7 +266,7 @@ public extension ImpressionTracker {
   func collectionViewDidHideAllContent(autoViewState: AutoViewState) {
     monitor.execute {
       broadcastEndAndRemoveImpressions(
-        contents: contentToPartialImpression.keys,
+        contents: contentToPendingImpression.keys,
         autoViewState: autoViewState,
         now: clock.now
       )
@@ -299,7 +299,7 @@ public extension ImpressionTracker {
           autoViewState: autoViewState,
           collectionInteraction: impression.collectionInteraction
         )
-        contentToPartialImpression[content] = PartialImpression(
+        contentToPendingImpression[content] = PendingImpression(
           startTime: now,
           impressionID: impressionProto.impressionID,
           collectionInteraction: impression.collectionInteraction
@@ -320,7 +320,7 @@ public extension ImpressionTracker {
   ) where T.Element == Content {
     guard !contents.isEmpty else { return }
     let impressions: [Impression] = contents.compactMap { content in
-      let p = contentToPartialImpression.removeValue(forKey: content)
+      let p = contentToPendingImpression.removeValue(forKey: content)
       guard let partial = p else { return nil }
       return Impression(
         content: content,
@@ -331,7 +331,7 @@ public extension ImpressionTracker {
       )
     }
     for content in contents {
-      contentToPartialImpression.removeValue(forKey: content)
+      contentToPendingImpression.removeValue(forKey: content)
     }
     // Not calling `metricsLogger`. No logging end impressions for now.
     delegate?.impressionTracker(
@@ -345,7 +345,7 @@ public extension ImpressionTracker {
 // MARK: - Impression ID
 public extension ImpressionTracker {
   func impressionID(for content: Content) -> String? {
-    contentToPartialImpression[content]?.impressionID
+    contentToPendingImpression[content]?.impressionID
   }
 }
 
