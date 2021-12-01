@@ -236,6 +236,9 @@ public final class _ObjCClientConfig: NSObject {
   /// message.
   @objc public var eventsIncludeIDProvenances: Bool = false
 
+  /// Whether event messages include the `ClientPosition` message.
+  @objc public var eventsIncludeClientPositions: Bool = false
+
   @objc private var assertInValidation: Bool = true
 
   @objc public override init() {}
