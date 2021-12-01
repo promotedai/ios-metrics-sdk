@@ -368,7 +368,10 @@ final class ImpressionTrackerTests: ModuleTestCase {
     )
   }
 
-  func testUserInteractions() {
+  func testClientPositions() {
+    module.clientConfig.eventsIncludeClientPositions = true
+    metricsLogger = MetricsLogger(deps: module)
+    metricsLogger.startSessionAndLogUser(userID: "foo")
     impressionTracker = ImpressionTracker(
       metricsLogger: metricsLogger,
       deps: module
@@ -388,8 +391,8 @@ final class ImpressionTrackerTests: ModuleTestCase {
     clock.now = 501
     impressionTracker.collectionViewDidChangeVisibleContent(
       [
-        (content("britta"), UserInteraction(indexPath: [1])),
-        (content("troy"), UserInteraction(indexPath: [2])),
+        content("britta"): UserInteraction(indexPath: [1]),
+        content("troy"): UserInteraction(indexPath: [2]),
       ],
       autoViewState: .empty
     )

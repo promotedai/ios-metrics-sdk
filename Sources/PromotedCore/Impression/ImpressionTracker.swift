@@ -162,7 +162,12 @@ public extension ImpressionTracker {
   ) {
     monitor.execute {
       broadcastStartAndAddImpressions(
-        contentsAndUserInteractions: [(content, userInteraction)],
+        contents: [content],
+        contentToUserInteraction: (
+          userInteraction != nil ?
+          [content: userInteraction!] :
+          nil
+        ),
         autoViewState: autoViewState,
         now: clock.now
       )
@@ -185,12 +190,16 @@ public extension ImpressionTracker {
     }
   }
 
+  /// Call this method when the collection view changes content, but
+  /// does not provide per-item updates for the change. For example,
+  /// when a collection reloads.
   func collectionViewDidChangeVisibleContent<T: Collection>(
     _ contents: T,
     autoViewState: AutoViewState
   ) where T.Element == Content {
     collectionViewDidChangeVisibleContent(
-      contents.map { ($0, nil) },
+      contents: contents,
+      contentToUserInteraction: nil,
       autoViewState: autoViewState
     )
   }
@@ -198,23 +207,36 @@ public extension ImpressionTracker {
   /// Call this method when the collection view changes content, but
   /// does not provide per-item updates for the change. For example,
   /// when a collection reloads.
-  func collectionViewDidChangeVisibleContent<T: Collection>(
-    _ contentsAndUserInteractions: T,
+  ///
+  /// This version allows
+  func collectionViewDidChangeVisibleContent(
+    _ contentsAndUserInteractions: [Content: UserInteraction],
     autoViewState: AutoViewState
-  ) where T.Element == (Content, UserInteraction?) {
+  ) {
+    collectionViewDidChangeVisibleContent(
+      contents: contentsAndUserInteractions.keys,
+      contentToUserInteraction: contentsAndUserInteractions,
+      autoViewState: autoViewState
+    )
+  }
+
+  private func collectionViewDidChangeVisibleContent<T: Collection>(
+    contents: T,
+    contentToUserInteraction: [Content: UserInteraction]?,
+    autoViewState: AutoViewState
+  ) where T.Element == Content {
     monitor.execute {
       let now = clock.now
-      let newlyShownContent = contentsAndUserInteractions.filter {
-        contentToPartialImpression[$0.0] == nil
-      }
+      let newlyShownContent = contents
+        .filter { contentToPartialImpression[$0] == nil }
       // TODO(yuhong): Below is potentially O(n^2), but in practice,
       // the arrays are pretty small.
-      let contents = contentsAndUserInteractions.map { $0.0 }
       let newlyHiddenContent = contentToPartialImpression
         .filter { !contents.contains($0.key) }
         .map { $0.key }
       broadcastStartAndAddImpressions(
-        contentsAndUserInteractions: newlyShownContent,
+        contents: newlyShownContent,
+        contentToUserInteraction: contentToUserInteraction,
         autoViewState: autoViewState,
         now: now
       )
@@ -238,19 +260,20 @@ public extension ImpressionTracker {
   }
 
   private func broadcastStartAndAddImpressions<T: Collection>(
-    contentsAndUserInteractions: T,
+    contents: T,
+    contentToUserInteraction: [Content: UserInteraction]?,
     autoViewState: AutoViewState,
     now: TimeInterval
-  ) where T.Element == (Content, UserInteraction?) {
-    guard !contentsAndUserInteractions.isEmpty else { return }
-    let impressions = contentsAndUserInteractions
-      .map { (content, userInteraction) in
+  ) where T.Element == Content {
+    guard !contents.isEmpty else { return }
+    let impressions = contents
+      .map { content in
         Impression(
           content: content,
           startTime: now,
           endTime: nil,
           sourceType: sourceType,
-          userInteraction: userInteraction
+          userInteraction: contentToUserInteraction?[content]
         )
       }
     monitor.execute {
