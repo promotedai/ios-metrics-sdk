@@ -48,9 +48,9 @@ final class AnalyticsTests: ModuleTestCase {
     XCTAssertEqual(0, analyticsConnection.lastErrors.count)
 
     withMetricsLoggerBatch {
-      let item1 = Item(contentID: "hello", insertionID: "world")
+      let item1 = Content(contentID: "hello", insertionID: "world")
       metricsLogger.logImpression(content: item1)
-      let item2 = Item(contentID: "hippo", insertionID: "potamus")
+      let item2 = Content(contentID: "hippo", insertionID: "potamus")
       metricsLogger.logImpression(content: item2)
       metricsLogger.logAction(type: .purchase, content: item1)
     }
@@ -75,7 +75,7 @@ final class AnalyticsTests: ModuleTestCase {
   func testLogBatchError() {
     let error = NSError(domain: "ai.promoted", code: -1, userInfo: nil)
     withMetricsLoggerBatch(batchError: error) {
-      let item1 = Item(contentID: "hello", insertionID: "world")
+      let item1 = Content(contentID: "hello", insertionID: "world")
       metricsLogger.logImpression(content: item1)
     }
     XCTAssertEqual(0, analyticsConnection.lastEventCount)
@@ -86,7 +86,7 @@ final class AnalyticsTests: ModuleTestCase {
   func testLogBatchResponseError() {
     let error = NSError(domain: "ai.promoted", code: -1, userInfo: nil)
     withMetricsLoggerBatch(batchResponseError: error) {
-      let item1 = Item(contentID: "hello", insertionID: "world")
+      let item1 = Content(contentID: "hello", insertionID: "world")
       metricsLogger.logImpression(content: item1)
     }
     XCTAssertEqual(0, analyticsConnection.lastEventCount)
