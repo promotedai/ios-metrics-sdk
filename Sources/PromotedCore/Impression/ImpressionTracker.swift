@@ -95,7 +95,7 @@ public protocol ImpressionTrackerDelegate: AnyObject {
  }
  ```
  */
-public final class ImpressionTracker: NSObject, ImpressionConfig {
+public final class ImpressionTracker: NSObject {
 
   // MARK: -
   /** Represents an impression of a cell in the collection view. */
@@ -135,19 +135,23 @@ public final class ImpressionTracker: NSObject, ImpressionConfig {
   private let clock: Clock
   private unowned let monitor: OperationMonitor
   
+  private let sourceType: ImpressionSourceType
   private var contentToPartialImpression: [Content: PartialImpression]
-  private var sourceType: ImpressionSourceType
 
   public weak var delegate: ImpressionTrackerDelegate?
 
   typealias Deps = ClockSource & OperationMonitorSource
 
-  init(metricsLogger: MetricsLogger, deps: Deps) {
+  init(
+    metricsLogger: MetricsLogger,
+    sourceType: ImpressionSourceType,
+    deps: Deps
+  ) {
     self.metricsLogger = metricsLogger
+    self.sourceType = sourceType
     self.clock = deps.clock
     self.monitor = deps.operationMonitor
     self.contentToPartialImpression = [:]
-    self.sourceType = .unknown
   }
 }
 
@@ -335,15 +339,6 @@ public extension ImpressionTracker {
 public extension ImpressionTracker {
   func impressionID(for content: Content) -> String? {
     contentToPartialImpression[content]?.impressionID
-  }
-}
-
-// MARK: - ImpressionConfig
-public extension ImpressionTracker {
-  @discardableResult
-  func with(sourceType: ImpressionSourceType) -> Self {
-    self.sourceType = sourceType
-    return self
   }
 }
 

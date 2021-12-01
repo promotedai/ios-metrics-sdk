@@ -30,7 +30,7 @@ import UIKit
  ```swift
  class ScrollViewController {
    func viewDidLoad() {
-     self.scrollTracker = service.scrollTracker()
+     self.scrollTracker = service.scrollTracker(sourceType: .delivery)
      self.contentViewController = ContentViewController()
      self.contentViewController.scrollTracker = self.scrollTracker
    }
@@ -82,7 +82,7 @@ import UIKit
  view updates.
  */
 @objc(PROScrollTracker)
-public final class ScrollTracker: NSObject, ImpressionConfig {
+public final class ScrollTracker: NSObject {
 
   private let visibilityThreshold: Float
   private let durationThreshold: TimeInterval
@@ -125,7 +125,11 @@ public final class ScrollTracker: NSObject, ImpressionConfig {
 
   typealias Deps = ClientConfigSource & ClockSource & OperationMonitorSource
 
-  init(metricsLogger: MetricsLogger, deps: Deps) {
+  init(
+    metricsLogger: MetricsLogger,
+    sourceType: ImpressionSourceType,
+    deps: Deps
+  ) {
     self.clock = deps.clock
     let clientConfig = deps.clientConfig
     self.visibilityThreshold = clientConfig.scrollTrackerVisibilityThreshold
@@ -133,7 +137,11 @@ public final class ScrollTracker: NSObject, ImpressionConfig {
     self.updateFrequency = clientConfig.scrollTrackerUpdateFrequency
     self.metricsLogger = metricsLogger
     self.monitor = deps.operationMonitor
-    self.impressionTracker = ImpressionTracker(metricsLogger: metricsLogger, deps: deps)
+    self.impressionTracker = ImpressionTracker(
+      metricsLogger: metricsLogger,
+      sourceType:sourceType,
+      deps: deps
+    )
     self.content = []
     self.timer = nil
     self.viewport = CGRect.zero
@@ -182,30 +190,50 @@ public final class ScrollTracker: NSObject, ImpressionConfig {
 // MARK: - UIKit: UICollectionView/UIScrollView
 extension ScrollTracker {
 
-  convenience init(metricsLogger: MetricsLogger,
-                   collectionView: UICollectionView,
-                   deps: Deps) {
-    self.init(metricsLogger: metricsLogger, deps: deps)
+  convenience init(
+    metricsLogger: MetricsLogger,
+    collectionView: UICollectionView,
+    sourceType: ImpressionSourceType,
+    deps: Deps
+  ) {
+    self.init(
+      metricsLogger: metricsLogger,
+      sourceType: sourceType,
+      deps: deps
+    )
     set(scrollView: collectionView, collectionView: collectionView)
   }
   
-  convenience init(metricsLogger: MetricsLogger,
-                   scrollView: UIScrollView,
-                   deps: Deps) {
-    self.init(metricsLogger: metricsLogger, deps: deps)
+  convenience init(
+    metricsLogger: MetricsLogger,
+    scrollView: UIScrollView,
+    sourceType: ImpressionSourceType,
+    deps: Deps
+  ) {
+    self.init(
+      metricsLogger: metricsLogger,
+      sourceType: sourceType,
+      deps: deps
+    )
     set(scrollView: scrollView, collectionView: nil)
   }
 }
 
 // MARK: - UIKit support
 public extension ScrollTracker {
-  private func set(scrollView: UIScrollView, collectionView: UICollectionView?) {
+  private func set(
+    scrollView: UIScrollView,
+    collectionView: UICollectionView?
+  ) {
     self.scrollView = scrollView
     self.collectionView = collectionView
   }
 
   @objc(setFramesFromCollectionView:dataSource:)
-  func setFramesFrom(collectionView: UICollectionView, dataSource: IndexPathDataSource) {
+  func setFramesFrom(
+    collectionView: UICollectionView,
+    dataSource: IndexPathDataSource
+  ) {
     self.collectionView = collectionView
     setFramesFrom(dataSource: dataSource)
   }
@@ -225,11 +253,14 @@ public extension ScrollTracker {
   @objc(setFramesFromContent:)
   func setFramesFrom(content: [Content]) {
     assert(collectionView?.numberOfSections == 1)
-    setFramesOnCollectionViewLayout { $0.item < content.count ? content[$0.item] : nil }
+    setFramesOnCollectionViewLayout {
+      $0.item < content.count ? content[$0.item] : nil
+    }
   }
   
   private func setFramesOnCollectionViewLayout(
-      dataProducer: @escaping (IndexPath) -> Content?) {
+    dataProducer: @escaping (IndexPath) -> Content?
+  ) {
     collectionViewLayoutObservation = collectionView?.observe(\.contentSize) {
       [weak self] _, _ in
       guard let strongSelf = self else { return }
@@ -247,8 +278,10 @@ public extension ScrollTracker {
       for section in 0 ..< collectionView.numberOfSections {
         for item in 0 ..< collectionView.numberOfItems(inSection: section) {
           let path = IndexPath(item: item, section: section)
-          guard let attrs = layout.layoutAttributesForItem(at: path) else { continue }
-          guard let content = dataProducer(path) else { continue }
+          guard
+            let attrs = layout.layoutAttributesForItem(at: path),
+            let content = dataProducer(path)
+          else { continue }
           let frame = attrs.frame
           guard !frame.isEmpty else { continue }
           setFrame(frame, forContent: content)
@@ -264,21 +297,17 @@ public extension ScrollTracker {
   }
   
   @objc func scrollViewDidChangeVisibleContent() {
-    guard let scrollView = scrollView else { return }
-    guard let collectionView = collectionView else { return }
-    guard scrollView.window != nil && collectionView.window != nil else { return }
-    let origin = scrollView.convert(scrollView.contentOffset, to: collectionView);
+    guard
+      let scrollView = scrollView,
+      let collectionView = collectionView,
+      scrollView.window != nil && collectionView.window != nil
+    else { return }
+    let origin = scrollView.convert(
+      scrollView.contentOffset,
+      to: collectionView
+    )
     let size = scrollView.frame.size
     viewport = CGRect(origin: origin, size: size)
-  }
-}
-
-// MARK: - ImpressionConfig
-public extension ScrollTracker {
-  @discardableResult
-  func with(sourceType: ImpressionSourceType) -> Self {
-    impressionTracker.with(sourceType: sourceType)
-    return self
   }
 }
 

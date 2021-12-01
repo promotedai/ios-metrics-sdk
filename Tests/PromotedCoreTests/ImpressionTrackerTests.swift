@@ -48,7 +48,7 @@ final class ImpressionTrackerTests: ModuleTestCase {
     _ contentID: String,
     _ startTime: TimeInterval,
     _ endTime: TimeInterval? = nil,
-    _ sourceType: ImpressionSourceType = .unknown
+    _ sourceType: ImpressionSourceType = .clientBackend
   ) -> Impression {
     let content = Content(contentID: contentID)
     return ImpressionTracker.Impression(
@@ -75,6 +75,7 @@ final class ImpressionTrackerTests: ModuleTestCase {
     metricsLogger.startSessionAndLogUser(userID: "foo")
     impressionTracker = ImpressionTracker(
       metricsLogger: metricsLogger,
+      sourceType: .clientBackend,
       deps: module
     )
     delegate = Delegate()
@@ -145,8 +146,9 @@ final class ImpressionTrackerTests: ModuleTestCase {
   func testStartImpressionsLoggedEvents() {
     impressionTracker = ImpressionTracker(
       metricsLogger: metricsLogger,
+      sourceType: .delivery,
       deps: module
-    ).with(sourceType: .delivery)
+    )
     clock.advance(to: 123)
     impressionTracker.collectionViewWillDisplay(
       content: content("jeff"),
@@ -374,8 +376,9 @@ final class ImpressionTrackerTests: ModuleTestCase {
     metricsLogger.startSessionAndLogUser(userID: "foo")
     impressionTracker = ImpressionTracker(
       metricsLogger: metricsLogger,
+      sourceType: .delivery,
       deps: module
-    ).with(sourceType: .delivery)
+    )
     clock.advance(to: 123)
     impressionTracker.collectionViewWillDisplay(
       content: content("jeff"),
