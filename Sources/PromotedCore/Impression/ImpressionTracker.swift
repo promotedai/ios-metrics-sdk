@@ -136,6 +136,12 @@ public final class ImpressionTracker: NSObject {
   private unowned let monitor: OperationMonitor
   
   private let sourceType: ImpressionSourceType
+
+  /// Impressions that have appeared but not disappeared.
+  /// Partial impressions get removed when content is
+  /// hidden, in any of `collectionViewDidHide`,
+  /// `collectionViewDidChangeVisibleContent`, or
+  /// `collectionViewDidHideAllContent`.
   private var contentToPartialImpression: [Content: PartialImpression]
 
   public weak var delegate: ImpressionTrackerDelegate?
@@ -381,8 +387,8 @@ extension ImpressionTracker.Impression: CustomDebugStringConvertible {
   public var debugDescription: String {
     let contents = [
       content.debugDescription,
-      startTime.asFormattedDateSince1970(),
-      endTime?.asFormattedDateSince1970(),
+      startTime.asFormattedDateStringSince1970(),
+      endTime?.asFormattedDateStringSince1970(),
       sourceType,
       collectionInteraction
     ] as [Any?]
