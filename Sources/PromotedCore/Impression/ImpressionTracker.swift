@@ -208,7 +208,10 @@ public extension ImpressionTracker {
   /// does not provide per-item updates for the change. For example,
   /// when a collection reloads.
   ///
-  /// This version allows
+  /// This version passes a dictionary of `Content` to `UserInteraction`
+  /// which is used for diagnostic logging. Prefer to use the version
+  /// of this method without `UserInteraction` if you don't need
+  /// diagnostics, because that version is more efficient.
   func collectionViewDidChangeVisibleContent(
     _ contentsAndUserInteractions: [Content: UserInteraction],
     autoViewState: AutoViewState
@@ -362,7 +365,7 @@ public class ImpressionTrackerDebugLogger: ImpressionTrackerDelegate {
     for impression in impressions {
       osLog.debug(
         "Impression: %{private}@ autoViewState: %{private}@",
-        impression.content.debugDescription,
+        impression.debugDescription,
         autoViewState.debugDescription
       )
     }
@@ -380,9 +383,22 @@ public class ImpressionTrackerDebugLogger: ImpressionTrackerDelegate {
 // MARK: - Impression CustomDebugStringConvertible
 extension ImpressionTracker.Impression: CustomDebugStringConvertible {
   public var debugDescription: String {
-    endTime != nil
-      ? "(\(content.description), \(startTime), \(endTime!), \(sourceType))"
-      : "(\(content.description), \(startTime), \(sourceType))"
+    let formatter = DateIntervalFormatter()
+    formatter.dateStyle = .short
+    formatter.timeStyle = .short
+    let contents = [
+      content.debugDescription,
+      startTime.asFormattedDateSince1970(),
+      endTime?.asFormattedDateSince1970(),
+      sourceType,
+      userInteraction
+    ] as [Any?]
+    return "(" +
+      contents
+        .compactMap { $0 }
+        .map { String(describing: $0) }
+        .joined(separator: ", ") +
+    ")"
   }
 }
 
@@ -391,13 +407,17 @@ extension ImpressionTracker.Impression: Hashable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(content)
     hasher.combine(sourceType)
+    hasher.combine(userInteraction)
   }
   
-  public static func == (lhs: ImpressionTracker.Impression,
-                         rhs: ImpressionTracker.Impression) -> Bool {
+  public static func == (
+    lhs: ImpressionTracker.Impression,
+    rhs: ImpressionTracker.Impression
+  ) -> Bool {
     (lhs.content == rhs.content) &&
     (abs(lhs.startTime - rhs.startTime) < 0.01) &&
     (abs((lhs.endTime ?? 0) - (rhs.endTime ?? 0)) < 0.01) &&
-    (lhs.sourceType == rhs.sourceType)
+    (lhs.sourceType == rhs.sourceType) &&
+    (lhs.userInteraction == rhs.userInteraction)
   }
 }
