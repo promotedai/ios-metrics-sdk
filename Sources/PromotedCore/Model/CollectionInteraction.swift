@@ -1,9 +1,9 @@
 import Foundation
 
 /**
- Client-side data from a user interaction.
+ Client-side data from a user interaction with collection view.
  */
-public struct UserInteraction {
+public struct CollectionInteraction {
 
   /// For interactions involving collections, this is the
   /// index path of the cell involved in the interaction.
@@ -16,24 +16,24 @@ public struct UserInteraction {
   }
 }
 
-extension UserInteraction: CustomStringConvertible {
+extension CollectionInteraction: CustomStringConvertible {
   public var description: String { debugDescription }
 }
 
-extension UserInteraction: CustomDebugStringConvertible {
+extension CollectionInteraction: CustomDebugStringConvertible {
   public var debugDescription: String {
     "(indexPath: \(indexPath))"
   }
 }
 
-extension UserInteraction: Hashable {
+extension CollectionInteraction: Hashable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(indexPath)
   }
 
   public static func == (
-    lhs: UserInteraction,
-    rhs: UserInteraction
+    lhs: CollectionInteraction,
+    rhs: CollectionInteraction
   ) -> Bool {
     lhs.indexPath == rhs.indexPath
   }

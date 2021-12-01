@@ -3,14 +3,14 @@ import SwiftProtobuf
 
 extension MetricsLogger {
   func clientPositionMessage(
-    _ userInteraction: UserInteraction?
+    _ collectionInteraction: CollectionInteraction?
   ) -> Event_IndexPath? {
     guard
       config.eventsIncludeClientPositions,
-      let userInteraction = userInteraction
+      let collectionInteraction = collectionInteraction
     else { return nil }
     var clientPosition = Event_IndexPath()
-    clientPosition.index = userInteraction.indexPath
+    clientPosition.index = collectionInteraction.indexPath
     return clientPosition
   }
 

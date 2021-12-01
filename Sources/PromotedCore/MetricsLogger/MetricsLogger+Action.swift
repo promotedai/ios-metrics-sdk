@@ -78,7 +78,7 @@ public extension MetricsLogger {
     content: Content?,
     name: String? = nil,
     autoViewState: AutoViewState = .empty,
-    userInteraction: UserInteraction? = nil,
+    collectionInteraction: CollectionInteraction? = nil,
     impressionID: String? = nil,
     viewID: String? = nil
   ) -> Event_Action {
@@ -86,7 +86,7 @@ public extension MetricsLogger {
       type: type,
       name: name ?? type.description,
       autoViewState: autoViewState,
-      userInteraction: userInteraction,
+      collectionInteraction: collectionInteraction,
       contentID: content?.contentID,
       impressionID: impressionID,
       insertionID: content?.insertionID,
@@ -129,7 +129,7 @@ public extension MetricsLogger {
     targetURL: String? = nil,
     elementID: String? = nil,
     autoViewState: AutoViewState = .empty,
-    userInteraction: UserInteraction? = nil,
+    collectionInteraction: CollectionInteraction? = nil,
     contentID: String? = nil,
     impressionID: String? = nil,
     insertionID: String? = nil,
@@ -163,7 +163,7 @@ public extension MetricsLogger {
       if let h = autoViewState.hasSuperimposedViews {
         action.hasSuperimposedViews_p = h
       }
-      if let c = clientPositionMessage(userInteraction) {
+      if let c = clientPositionMessage(collectionInteraction) {
         action.clientPosition = c
       }
       if let i = identifierProvenancesMessage(

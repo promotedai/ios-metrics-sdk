@@ -119,14 +119,14 @@ public final class ImpressionTracker: NSObject {
     public let sourceType: ImpressionSourceType
 
     /// Interaction that caused the impression.
-    public let userInteraction: UserInteraction?
+    public let collectionInteraction: CollectionInteraction?
   }
 
   // MARK: -
   private struct PartialImpression {
     let startTime: TimeInterval
     let impressionID: String
-    let userInteraction: UserInteraction?
+    let collectionInteraction: CollectionInteraction?
   }
 
   // MARK: - Properties
@@ -162,14 +162,14 @@ public extension ImpressionTracker {
   func collectionViewWillDisplay(
     content: Content,
     autoViewState: AutoViewState,
-    userInteraction: UserInteraction? = nil
+    collectionInteraction: CollectionInteraction? = nil
   ) {
     monitor.execute {
       broadcastStartAndAddImpressions(
         contents: [content],
-        contentToUserInteraction: (
-          userInteraction != nil ?
-          [content: userInteraction!] :
+        contentToCollectionInteraction: (
+          collectionInteraction != nil ?
+          [content: collectionInteraction!] :
           nil
         ),
         autoViewState: autoViewState,
@@ -203,7 +203,7 @@ public extension ImpressionTracker {
   ) where T.Element == Content {
     collectionViewDidChangeVisibleContent(
       contents: contents,
-      contentToUserInteraction: nil,
+      contentToCollectionInteraction: nil,
       autoViewState: autoViewState
     )
   }
@@ -212,24 +212,25 @@ public extension ImpressionTracker {
   /// does not provide per-item updates for the change. For example,
   /// when a collection reloads.
   ///
-  /// This version passes a dictionary of `Content` to `UserInteraction`
-  /// which is used for diagnostic logging. Prefer to use the version
-  /// of this method without `UserInteraction` if you don't need
-  /// diagnostics, because that version is more efficient.
+  /// This version passes a dictionary of `Content` to
+  /// `CollectionInteraction` which is used for diagnostic logging.
+  /// Prefer to use the version of this method without
+  /// `CollectionInteraction` if you don't need diagnostics, because
+  /// that version is more efficient.
   func collectionViewDidChangeVisibleContent(
-    _ contentsAndUserInteractions: [Content: UserInteraction],
+    _ contentsAndCollectionInteractions: [Content: CollectionInteraction],
     autoViewState: AutoViewState
   ) {
     collectionViewDidChangeVisibleContent(
-      contents: contentsAndUserInteractions.keys,
-      contentToUserInteraction: contentsAndUserInteractions,
+      contents: contentsAndCollectionInteractions.keys,
+      contentToCollectionInteraction: contentsAndCollectionInteractions,
       autoViewState: autoViewState
     )
   }
 
   private func collectionViewDidChangeVisibleContent<T: Collection>(
     contents: T,
-    contentToUserInteraction: [Content: UserInteraction]?,
+    contentToCollectionInteraction: [Content: CollectionInteraction]?,
     autoViewState: AutoViewState
   ) where T.Element == Content {
     monitor.execute {
@@ -243,7 +244,7 @@ public extension ImpressionTracker {
         .map { $0.key }
       broadcastStartAndAddImpressions(
         contents: newlyShownContent,
-        contentToUserInteraction: contentToUserInteraction,
+        contentToCollectionInteraction: contentToCollectionInteraction,
         autoViewState: autoViewState,
         now: now
       )
@@ -268,7 +269,7 @@ public extension ImpressionTracker {
 
   private func broadcastStartAndAddImpressions<T: Collection>(
     contents: T,
-    contentToUserInteraction: [Content: UserInteraction]?,
+    contentToCollectionInteraction: [Content: CollectionInteraction]?,
     autoViewState: AutoViewState,
     now: TimeInterval
   ) where T.Element == Content {
@@ -280,7 +281,7 @@ public extension ImpressionTracker {
           startTime: now,
           endTime: nil,
           sourceType: sourceType,
-          userInteraction: contentToUserInteraction?[content]
+          collectionInteraction: contentToCollectionInteraction?[content]
         )
       }
     monitor.execute {
@@ -290,12 +291,12 @@ public extension ImpressionTracker {
           content: content,
           sourceType: impression.sourceType,
           autoViewState: autoViewState,
-          userInteraction: impression.userInteraction
+          collectionInteraction: impression.collectionInteraction
         )
         contentToPartialImpression[content] = PartialImpression(
           startTime: now,
           impressionID: impressionProto.impressionID,
-          userInteraction: impression.userInteraction
+          collectionInteraction: impression.collectionInteraction
         )
       }
     }
@@ -320,7 +321,7 @@ public extension ImpressionTracker {
         startTime: partial.startTime,
         endTime: now,
         sourceType: sourceType,
-        userInteraction: partial.userInteraction
+        collectionInteraction: partial.collectionInteraction
       )
     }
     for content in contents {
@@ -383,7 +384,7 @@ extension ImpressionTracker.Impression: CustomDebugStringConvertible {
       startTime.asFormattedDateSince1970(),
       endTime?.asFormattedDateSince1970(),
       sourceType,
-      userInteraction
+      collectionInteraction
     ] as [Any?]
     return "(" +
       contents
@@ -398,7 +399,7 @@ extension ImpressionTracker.Impression: Hashable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(content)
     hasher.combine(sourceType)
-    hasher.combine(userInteraction)
+    hasher.combine(collectionInteraction)
   }
   
   public static func == (
@@ -409,6 +410,6 @@ extension ImpressionTracker.Impression: Hashable {
     (abs(lhs.startTime - rhs.startTime) < 0.01) &&
     (abs((lhs.endTime ?? 0) - (rhs.endTime ?? 0)) < 0.01) &&
     (lhs.sourceType == rhs.sourceType) &&
-    (lhs.userInteraction == rhs.userInteraction)
+    (lhs.collectionInteraction == rhs.collectionInteraction)
   }
 }
