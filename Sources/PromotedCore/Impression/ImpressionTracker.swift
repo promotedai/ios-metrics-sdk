@@ -383,9 +383,6 @@ public class ImpressionTrackerDebugLogger: ImpressionTrackerDelegate {
 // MARK: - Impression CustomDebugStringConvertible
 extension ImpressionTracker.Impression: CustomDebugStringConvertible {
   public var debugDescription: String {
-    let formatter = DateIntervalFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .short
     let contents = [
       content.debugDescription,
       startTime.asFormattedDateSince1970(),
@@ -395,8 +392,7 @@ extension ImpressionTracker.Impression: CustomDebugStringConvertible {
     ] as [Any?]
     return "(" +
       contents
-        .compactMap { $0 }
-        .map { String(describing: $0) }
+        .compactMap { $0 != nil ? String(describing: $0!) : nil }
         .joined(separator: ", ") +
     ")"
   }
