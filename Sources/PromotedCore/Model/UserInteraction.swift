@@ -12,6 +12,29 @@ public struct UserInteraction {
   public init<C: Collection, E: BinaryInteger>(
     indexPath: C
   ) where C.Element == E {
-    self.indexPath = indexPath.map { Int32(truncatingIfNeeded: $0 ) }
+    self.indexPath = indexPath.map { Int32(truncatingIfNeeded: $0) }
+  }
+}
+
+extension UserInteraction: CustomStringConvertible {
+  public var description: String { debugDescription }
+}
+
+extension UserInteraction: CustomDebugStringConvertible {
+  public var debugDescription: String {
+    "(indexPath: \(indexPath))"
+  }
+}
+
+extension UserInteraction: Hashable {
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(indexPath)
+  }
+
+  public static func == (
+    lhs: UserInteraction,
+    rhs: UserInteraction
+  ) -> Bool {
+    lhs.indexPath == rhs.indexPath
   }
 }
