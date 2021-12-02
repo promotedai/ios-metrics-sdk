@@ -20,7 +20,7 @@ extension MetricsLogger {
       device.deviceType = deviceInfo.deviceType.protoValue
       device.brand = deviceInfo.brand
       device.manufacturer = deviceInfo.manufacturer
-      device.identifier = deviceInfo.identifier
+      device.identifier = deviceInfo.modelName
       device.osVersion = deviceInfo.osVersion
       let (width, height) = deviceInfo.screenSizePx
       device.screen.size.width = width

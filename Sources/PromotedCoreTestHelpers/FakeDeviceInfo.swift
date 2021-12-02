@@ -33,7 +33,7 @@ final class FakeDeviceInfo: DeviceInfo {
     return "Apple"
   }
   
-  var identifier: String {
+  var modelName: String {
     return "iPhone"
   }
 

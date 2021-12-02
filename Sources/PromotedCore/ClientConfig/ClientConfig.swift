@@ -63,6 +63,9 @@ public struct ClientConfig {
     config.setValue(value, forKey: key)
   }
 
+  /// Enforces copy-on-write of underlying ObjC config.
+  /// Make sure to call this at the start of every mutating
+  /// method.
   private mutating func ensureConfigUniquelyReferenced() {
     if !isKnownUniquelyReferenced(&config) {
       config = _ObjCClientConfig(config)
@@ -88,8 +91,10 @@ extension ClientConfig: CustomReflectable {
 
 // MARK: - Internal
 extension ClientConfig {
-
-  var anyDiagnosticsEnabled: Bool { config.anyDiagnosticsEnabled }
+  mutating func setAllDiagnosticsEnabled(_ enabled: Bool) {
+    ensureConfigUniquelyReferenced()
+    config.setAllDiagnosticsEnabled(enabled)
+  }
 
   func validateConfig() throws {
     try config.validateConfig()
@@ -99,6 +104,7 @@ extension ClientConfig {
 // MARK: - Testing
 extension ClientConfig {
   mutating func disableAssertInValidationForTesting() {
+    ensureConfigUniquelyReferenced()
     config.disableAssertInValidationForTesting()
   }
 }

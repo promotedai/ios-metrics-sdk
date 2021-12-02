@@ -4,8 +4,9 @@ import Foundation
 protocol DeviceInfo: AnyObject {
   var deviceType: DeviceType { get }
   var brand: String { get }
+  var identifierForVendor: UUID { get }
   var manufacturer: String { get }
-  var identifier: String { get }
+  var modelName: String { get }
   var osVersion: String { get }
   var screenScale: Float { get }
   var screenSizePx: (UInt32, UInt32) { get }
@@ -35,17 +36,25 @@ final class IOSDeviceInfo: DeviceInfo {
   }
 
   var brand: String { "Apple" }
+
+  var identifierForVendor: UUID { UIDevice.current.identifierForVendor }
   
   var manufacturer: String { "Apple" }
   
-  lazy var identifier: String = {
+  lazy var modelName: String = {
     var systemInfo = utsname()
     uname(&systemInfo)
     let machineMirror = Mirror(reflecting: systemInfo.machine)
-    let identifier = machineMirror.children.reduce("") { identifier, element in
-      guard let value = element.value as? Int8, value != 0 else { return identifier }
-      return identifier + String(UnicodeScalar(UInt8(value)))
-    }
+    let identifier = machineMirror.children
+      .reduce("") { identifier, element in
+        guard
+          let value = element.value as? Int8,
+          value != 0
+        else {
+          return identifier
+        }
+        return identifier + String(UnicodeScalar(UInt8(value)))
+      }
     return identifier
   } ()
   

@@ -212,11 +212,6 @@ public final class _ObjCClientConfig: NSObject {
     didSet { validateEnum(&osLogLevel, defaultValue: .none) }
   }
 
-  var anyDiagnosticsEnabled: Bool {
-    diagnosticsIncludeBatchSummaries ||
-      diagnosticsIncludeAncestorIDHistory
-  }
-
   /// Whether mobile diagnostic messages include batch summaries
   /// from Xray. Setting this to `true` also forces `xrayLevel` to
   /// be at least `.batchSummaries`.
@@ -239,6 +234,12 @@ public final class _ObjCClientConfig: NSObject {
   /// Whether event messages include the `ClientPosition` message.
   @objc public var eventsIncludeClientPositions: Bool = false
 
+  @objc public var diagnosticsSamplingPercentage: Int = 0 {
+    didSet { bound(&allDiagnosticsSamplingPercentage, min: 0, max: 100) }
+  }
+
+  @objc public var diagnosticsSamplingEndDate: Date? = nil
+
   @objc private var assertInValidation: Bool = true
 
   @objc public override init() {}
@@ -251,8 +252,21 @@ public final class _ObjCClientConfig: NSObject {
       setValue(child.value, forKey: label)
     }
   }
+}
 
-  // There are some rough edges with Obj C interop and
+// MARK: - Diagnostics
+extension _ObjCClientConfig {
+  func setAllDiagnosticsEnabled(_ enabled: Bool) {
+    diagnosticsIncludeBatchSummaries = enabled
+    diagnosticsIncludeAncestorIDHistory = enabled
+    eventsIncludeIDProvenances = enabled
+    eventsIncludeClientPositions = enabled
+  }
+}
+
+// MARK: - Value
+extension _ObjCClientConfig {
+  // There are some rough edges with ObjC interop and
   // Swift enums. These next two methods deal with that.
   public override func value(forKey key: String) -> Any? {
     let value = super.value(forKey: key)

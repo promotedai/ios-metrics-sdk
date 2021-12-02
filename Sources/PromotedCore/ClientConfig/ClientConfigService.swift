@@ -49,6 +49,7 @@ final class ClientConfigService {
 
   private unowned let clock: Clock
   private let initialConfig: ClientConfig
+  private unowned let deviceInfo: DeviceInfo
   private unowned let store: PersistentStore
   private unowned let remoteConfigConnection: RemoteConfigConnection?
 
@@ -59,6 +60,7 @@ final class ClientConfigService {
   /// something that depends on `ClientConfig`.
   typealias Deps = (
     ClockSource &
+    DeviceInfoSource &
     InitialConfigSource &
     PersistentStoreSource &
     RemoteConfigConnectionSource
@@ -69,6 +71,7 @@ final class ClientConfigService {
     self.wasConfigFetched = false
     self.clock = deps.clock
     self.initialConfig = deps.initialConfig
+    self.deviceInfo = deps.deviceInfo
     self.store = deps.persistentStore
     self.remoteConfigConnection = deps.remoteConfigConnection
   }
@@ -141,28 +144,29 @@ extension ClientConfigService {
   private func loadLocalCachedConfig(
     fetchMessages: inout PendingLogMessages
   ) {
-    if let clientConfigData = store.clientConfig {
-      do {
-        let decoder = JSONDecoder()
-        cachedConfig = try decoder.decode(
-          ClientConfig.self, from: clientConfigData
-        )
-        fetchMessages.info(
-          "Local cached config successfully applied.",
-          visibility: .public
-        )
-      } catch {
-        // Prevent error from happening again next startup.
-        store.clientConfig = nil
-        fetchMessages.error(
-          "Local cached config failed to apply: \(String(describing: error)) " +
-            "Falling back to initial config.",
-          visibility: .public
-        )
-      }
-    } else {
+    guard let clientConfigData = store.clientConfig else {
       fetchMessages.info(
         "Local cached config not found. Skipping.",
+        visibility: .public
+      )
+      return
+    }
+    do {
+      let decoder = JSONDecoder()
+      cachedConfig = try decoder.decode(
+        ClientConfig.self,
+        from: clientConfigData
+      )
+      fetchMessages.info(
+        "Local cached config successfully applied.",
+        visibility: .public
+      )
+    } catch {
+      // Prevent error from happening again next startup.
+      store.clientConfig = nil
+      fetchMessages.error(
+        "Local cached config failed to apply: \(String(describing: error)) " +
+          "Falling back to initial config.",
         visibility: .public
       )
     }
@@ -176,12 +180,65 @@ extension ClientConfigService {
       "Remote config not configured. Skipping.",
       visibility: .public
     )
+    let config = applyDiagnosticsSamplingIfNeeded(
+      cachedConfig,
+      messages: &fetchMessages
+    )
     let result = Result(
-      config: cachedConfig,
+      config: config,
       error: nil,
       messages: fetchMessages
     )
     callback(result)
+  }
+
+  private func applyDiagnosticsSamplingIfNeeded(
+    _ config: ClientConfig,
+    messages: inout PendingLogMessages
+  ) -> ClientConfig {
+    let percentage = config.diagnosticsSamplingPercentage
+    guard percentage > 0 else { return config }
+    guard let endDate = config.diagnosticsSamplingEndDate else {
+      messages.warning(
+        "Config specifies diagnosticsSamplingPercentage=%{public}d% " +
+        "but no end date. Ignoring.",
+        percentage
+      )
+      return config
+    }
+    let now = clock.now
+    let endTime = endDate.timeIntervalSince1970
+    guard clock.now < endDate.timeIntervalSince1970 else {
+      messages.info(
+        "Config specifies diagnosticsSamplingPercentage=%{public}d% " +
+        "and end date (%{public}@) earlier than or equal to current " +
+        "date (%{public}@). Skipping.",
+        percentage,
+        endTime.asFormattedDateStringSince1970(),
+        now.asFormattedDateStringSince1970()
+      )
+      return config
+    }
+    guard shouldSampleDiagnostics(percentage: percentage) else {
+      messages.info(
+        "Config specifies diagnosticsSamplingPercentage=%{public}d% " +
+        "and end date (%{public}@) but random sample skipped.",
+        percentage,
+        endTime.asFormattedDateStringSince1970()
+      )
+      return config
+    }
+    var configCopy = config
+    configCopy.setAllDiagnosticsEnabled(true)
+    return configCopy
+  }
+
+  private func shouldSampleDiagnostics(percentage: Int) -> Bool {
+    let uuid = (
+      UUID(uuidString: store.logUserID ?? "") ??
+      deviceInfo.identifierForVendor
+    )
+    return (uuid.hashValue % 100) < percentage
   }
 
   private func handleRemoteConfigFetchComplete(
@@ -213,8 +270,8 @@ extension ClientConfigService {
     }
 
     // Successfully loaded config. Save for next session.
-    let encoder = JSONEncoder()
     do {
+      let encoder = JSONEncoder()
       self.store.clientConfig = try encoder.encode(remoteConfig)
       resultConfig = remoteConfig
       resultMessages.info(
