@@ -165,7 +165,8 @@ extension ClientConfigService {
       // Prevent error from happening again next startup.
       store.clientConfig = nil
       fetchMessages.error(
-        "Local cached config failed to apply: \(String(describing: error)) " +
+        "Local cached config failed to apply: " +
+          "\(String(describing: error)). " +
           "Falling back to initial config.",
         visibility: .public
       )
@@ -228,6 +229,12 @@ extension ClientConfigService {
       )
       return config
     }
+    messages.info(
+      "Config specifies diagnosticsSamplingPercentage=%{public}d% " +
+      "and end date (%{public}@). Enabling all diagnostics.",
+      percentage,
+      endTime.asFormattedDateStringSince1970()
+    )
     var configCopy = config
     configCopy.setAllDiagnosticsEnabled(true)
     return configCopy
