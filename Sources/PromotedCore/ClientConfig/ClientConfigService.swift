@@ -245,7 +245,7 @@ extension ClientConfigService {
       UUID(uuidString: store.logUserID ?? "") ??
       deviceInfo.identifierForVendor
     )
-    return (uuid.hashValue % 100) < percentage
+    return abs(uuid.hashValue % 100) < percentage
   }
 
   private func handleRemoteConfigFetchComplete(
