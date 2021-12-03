@@ -181,12 +181,12 @@ extension ClientConfigService {
       "Remote config not configured. Skipping.",
       visibility: .public
     )
-    let config = applyDiagnosticsSamplingIfNeeded(
+    cachedConfig = applyDiagnosticsSamplingIfNeeded(
       cachedConfig,
       messages: &fetchMessages
     )
     let result = Result(
-      config: config,
+      config: cachedConfig,
       error: nil,
       messages: fetchMessages
     )

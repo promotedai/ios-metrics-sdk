@@ -86,6 +86,12 @@ final class ClientConfigServiceTests: ModuleTestCase {
       callbackCalled = true
     }
     XCTAssertTrue(callbackCalled)
+
+    let config = service.config
+    XCTAssertFalse(config.diagnosticsIncludeBatchSummaries)
+    XCTAssertFalse(config.diagnosticsIncludeAncestorIDHistory)
+    XCTAssertFalse(config.eventsIncludeIDProvenances)
+    XCTAssertFalse(config.eventsIncludeClientPositions)
   }
 
   func testDiagnosticsSamplingNotInSample() {
@@ -119,6 +125,12 @@ final class ClientConfigServiceTests: ModuleTestCase {
       callbackCalled = true
     }
     XCTAssertTrue(callbackCalled)
+
+    let config = service.config
+    XCTAssertFalse(config.diagnosticsIncludeBatchSummaries)
+    XCTAssertFalse(config.diagnosticsIncludeAncestorIDHistory)
+    XCTAssertFalse(config.eventsIncludeIDProvenances)
+    XCTAssertFalse(config.eventsIncludeClientPositions)
   }
 
   func testDiagnosticsSamplingInSample() {
@@ -152,5 +164,11 @@ final class ClientConfigServiceTests: ModuleTestCase {
       callbackCalled = true
     }
     XCTAssertTrue(callbackCalled)
+
+    let config = service.config
+    XCTAssertTrue(config.diagnosticsIncludeBatchSummaries)
+    XCTAssertTrue(config.diagnosticsIncludeAncestorIDHistory)
+    XCTAssertTrue(config.eventsIncludeIDProvenances)
+    XCTAssertTrue(config.eventsIncludeClientPositions)
   }
 }
