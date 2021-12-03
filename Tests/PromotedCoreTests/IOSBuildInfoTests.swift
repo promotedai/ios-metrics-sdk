@@ -5,7 +5,7 @@ import XCTest
 
 final class IOSBuildInfoTests: XCTestCase {
 
-  func assert(string: String, matchesRegex regex: String) {
+  func assert(regex: String, matches string: String) {
     XCTAssertFalse(string.isEmpty)
     guard let range = string.range(
       of: regex,
@@ -25,11 +25,11 @@ final class IOSBuildInfoTests: XCTestCase {
     let parts = version.split(separator: " ").map { String($0) }
     XCTAssertEqual(3, parts.count)
     XCTAssertNotEqual("Unknown", parts[0])
-    assert(string: parts[0], matchesRegex: #"\d+\.\d+"#)
+    assert(regex: #"\d+\.\d+"#, matches: parts[0])
     XCTAssertEqual("build", parts[1])
     // Github Actions sometimes return "Unknown" in tests.
     if parts[2] != "Unknown" {
-      assert(string: parts[2], matchesRegex: #"\d+"#)
+      assert(regex: #"\d+"#, matches: parts[2])
     }
   }
 
@@ -37,6 +37,6 @@ final class IOSBuildInfoTests: XCTestCase {
     let build = IOSBuildInfo()
     let version = build.promotedMobileSDKVersion
     XCTAssertNotEqual("Unknown", version)
-    assert(string: version, matchesRegex: #"\d+\.\d+\.\d+"#)
+    assert(regex: #"\d+\.\d+\.\d+"#, matches: version)
   }
 }
