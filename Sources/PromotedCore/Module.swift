@@ -44,6 +44,7 @@ public final class ModuleConfig: NSObject {
 typealias AllDeps = (
   AnalyticsConnectionSource &
   AnalyticsSource &
+  BuildInfoSource &
   ClientConfigSource &
   ClientConfigServiceSource &
   ClockSource &
@@ -171,6 +172,8 @@ final class Module: AllDeps {
 
   private(set) lazy var clientConfigService: ClientConfigService =
     ClientConfigService(deps: self)
+
+  let buildInfo: BuildInfo = IOSBuildInfo()
 
   let clock: Clock = SystemClock()
   

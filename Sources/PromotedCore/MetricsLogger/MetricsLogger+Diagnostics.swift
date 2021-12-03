@@ -37,14 +37,6 @@ extension MetricsLogger {
     if let id = UIDevice.current.identifierForVendor?.uuidString {
       diagnostics.deviceIdentifier = id
     }
-    let appVersion = Bundle.main.object(
-      forInfoDictionaryKey: "CFBundleShortVersionString"
-    ) ?? "Unknown"
-    let buildNumber = Bundle.main.object(
-      forInfoDictionaryKey: "CFBundleVersion"
-    ) ?? "Unknown"
-    diagnostics.clientVersion = "\(appVersion) build \(buildNumber)"
-    diagnostics.promotedLibraryVersion = Build.libVersion
     return diagnostics
   }
 
