@@ -202,14 +202,20 @@ public final class _ObjCClientConfig: NSObject {
     case info = 3
     /// Logging for debug messages (and above).
     case debug = 4
+
+    #if DEBUG
+    static let defaultOSLogLevel: OSLogLevel = .debug
+    #else
+    static let defaultOSLogLevel: OSLogLevel = .none
+    #endif
   }
   /// Whether to use OSLog (console logging) to output messages.
   /// OSLog typically incurs minimal overhead and can be useful for
   /// verifying that logging works from the client side.
   /// If `xrayEnabled` is also set, then setting `osLogLevel`
   /// to `info` or higher turns on signposts in Instruments.
-  @objc public var osLogLevel: OSLogLevel = .none {
-    didSet { validateEnum(&osLogLevel, defaultValue: .none) }
+  @objc public var osLogLevel: OSLogLevel = .defaultOSLogLevel {
+    didSet { validateEnum(&osLogLevel, defaultValue: .defaultOSLogLevel) }
   }
 
   /// Whether mobile diagnostic messages include batch summaries
@@ -234,11 +240,72 @@ public final class _ObjCClientConfig: NSObject {
   /// Whether event messages include the `ClientPosition` message.
   @objc public var eventsIncludeClientPositions: Bool = false
 
+  /// Percentage of randomly sampled clients that will send all
+  /// diagnostics. A value of 0 disables diagnostic sampling for
+  /// all clients. For example, setting this value to `5` will
+  /// cause a random 5% across all users to be cohorted into
+  /// sending diagnostics.
+  ///
+  /// # End date
+  /// If you enable diagnostics sampling, you must also provide
+  /// an explicit end date via `diagnosticsSamplingEndDateString`.
+  /// When this date elapses, sampling is disabled across all
+  /// users. **Always use an absolute date for this value.**
+  ///
+  /// This feature is designed for short-term diagnostics usage
+  /// only. Do not leave it running in production without an end
+  /// date in mind.
+  ///
+  /// # Remote Config interoperability
+  /// Designed for use on platforms where Remote Config is not
+  /// available. If Remote Config is enabled, this sampling is
+  /// ignored. Random sampling is designed to replicate
+  /// rudimentary experiment cohorting entirely client-side.
+  ///
+  /// # Cohorting
+  /// Attempts to create a consistent cohort for the set of users
+  /// with sampling enabled. To this end, sampling is done using
+  /// the following:
+  /// 1. A hash of the persisted `logUserID`. This should persist
+  ///    while the same account is logged in. This also applies to
+  ///    signed-out users until they log in.
+  /// 2. If 1 is not available, uses
+  ///    `UIDevice.current.identifierForVendor`. This should persist
+  ///    for (at least) the duration of app install.
+  /// 3. If 2 is not available, generates a new random UUID for
+  ///    the session. This persists only for the current session.
+  /// See `ClientConfigService` for sampling implementation.
+  ///
+  /// # Diagnostic features
+  /// If sampling is enabled, the current logging session proceeds
+  /// as though the following flags are enabled:
+  /// - `diagnosticsIncludeBatchSummaries`
+  /// - `diagnosticsIncludeAncestorIDHistory`
+  /// - `eventsIncludeIDProvenances`
+  /// - `eventsIncludeClientPositions`
+  ///
+  /// If you set any of those flags individually to `true` and then
+  /// enable diagnostics sampling, the flags you set will always be
+  /// enabled, and the other diagnostics flags will be enabled
+  /// according to random sampling. For example:
+  /// ```
+  /// config.diagnosticsIncludeBatchSummaries = true
+  /// config.diagnosticsSamplingPercentage = 5
+  /// config.diagnosticsSamplingEndDate =
+  /// ```
   @objc public var diagnosticsSamplingPercentage: Int = 0 {
-    didSet { bound(&allDiagnosticsSamplingPercentage, min: 0, max: 100) }
+    didSet { bound(&diagnosticsSamplingPercentage, min: 0, max: 100) }
   }
 
-  @objc public var diagnosticsSamplingEndDate: Date? = nil
+  /// Explicit end date for `diagnosticsSamplingPercentage`.
+  /// Format `yyyy-MM-dd`. For example: `2022-01-01`, `2022-02-28`.
+  /// When this date elapses, sampling is disabled across all
+  /// users. **Always use an absolute date for this value.**
+  ///
+  /// This property is a `String` and not a `Date` because it's
+  /// much easier to specify absolute dates using `Strings` than
+  /// `Date`s in ObjC/Swift.
+  @objc public var diagnosticsSamplingEndDateString: String = ""
 
   @objc private var assertInValidation: Bool = true
 
@@ -261,6 +328,10 @@ extension _ObjCClientConfig {
     diagnosticsIncludeAncestorIDHistory = enabled
     eventsIncludeIDProvenances = enabled
     eventsIncludeClientPositions = enabled
+  }
+
+  var diagnosticsSamplingEndDate: Date? {
+    Date(ymdString: diagnosticsSamplingEndDateString)
   }
 }
 
@@ -364,6 +435,13 @@ extension _ObjCClientConfig {
       }
       if devMetricsLoggingAPIKey.isEmpty {
         throw ClientConfigError.missingDevAPIKey
+      }
+    }
+    if diagnosticsSamplingPercentage > 0 {
+      if diagnosticsSamplingEndDate == nil {
+        throw ClientConfigError.invalidDiagnosticsSamplingEndDateString(
+          diagnosticsSamplingEndDateString
+        )
       }
     }
   }

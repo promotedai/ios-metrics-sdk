@@ -96,6 +96,10 @@ extension ClientConfig {
     config.setAllDiagnosticsEnabled(enabled)
   }
 
+  var diagnosticsSamplingEndDate: Date? {
+    return config.diagnosticsSamplingEndDate
+  }
+
   func validateConfig() throws {
     try config.validateConfig()
   }
