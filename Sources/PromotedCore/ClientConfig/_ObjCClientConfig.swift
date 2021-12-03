@@ -249,7 +249,7 @@ public final class _ObjCClientConfig: NSObject {
   /// # End date
   /// If you enable diagnostics sampling, you must also provide
   /// an explicit end date via `diagnosticsSamplingEndDateString`.
-  /// When this date elapses, sampling is disabled across all
+  /// On and after this date, sampling is disabled across all
   /// users. **Always use an absolute date for this value.**
   ///
   /// This feature is designed for short-term diagnostics usage
@@ -299,7 +299,7 @@ public final class _ObjCClientConfig: NSObject {
 
   /// Explicit end date for `diagnosticsSamplingPercentage`,
   /// format `yyyy-MM-dd`. For example: `2022-01-01`, `2022-02-28`.
-  /// When this date elapses, sampling is disabled across all
+  /// On and after this date, sampling is disabled across all
   /// users. **Always use an absolute date for this value.**
   ///
   /// This property is a `String` and not a `Date` because it's
