@@ -37,7 +37,9 @@ final class IOSDeviceInfo: DeviceInfo {
 
   var brand: String { "Apple" }
 
-  var identifierForVendor: UUID { UIDevice.current.identifierForVendor }
+  var identifierForVendor: UUID {
+    UIDevice.current.identifierForVendor ?? UUID()
+  }
   
   var manufacturer: String { "Apple" }
   
