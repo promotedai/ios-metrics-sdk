@@ -17,6 +17,7 @@ final class ModuleTests: XCTestCase {
     initialConfig = ClientConfig()
     initialConfig.metricsLoggingURL = "https://fake.promoted.ai/metrics"
     initialConfig.metricsLoggingAPIKey = "apikey!"
+    initialConfig.osLogLevel = .none
   }
 
   private func testAllFields(module: Module) {
@@ -28,8 +29,10 @@ final class ModuleTests: XCTestCase {
   }
 
   func testBaseModule() throws {
-    let module = Module(initialConfig: initialConfig,
-                        networkConnection: networkConnection)
+    let module = Module(
+      initialConfig: initialConfig,
+      networkConnection: networkConnection
+    )
     try module.validateModuleConfigDependencies()
     try module.startLoggingServices()
     XCTAssertNil(module.analytics)
@@ -40,8 +43,10 @@ final class ModuleTests: XCTestCase {
 
   func testModuleWithXray() throws {
     initialConfig.xrayLevel = .batchSummaries
-    let module = Module(initialConfig: initialConfig,
-                        networkConnection: networkConnection)
+    let module = Module(
+      initialConfig: initialConfig,
+      networkConnection: networkConnection
+    )
     try module.validateModuleConfigDependencies()
     try module.startLoggingServices()
     XCTAssertNil(module.analytics)
@@ -63,9 +68,11 @@ final class ModuleTests: XCTestCase {
   }
 
   func testModuleWithAnalytics() throws {
-    let module = Module(initialConfig: initialConfig,
-                        analyticsConnection: analyticsConnection,
-                        networkConnection: networkConnection)
+    let module = Module(
+      initialConfig: initialConfig,
+      analyticsConnection: analyticsConnection,
+      networkConnection: networkConnection
+    )
     try module.validateModuleConfigDependencies()
     try module.startLoggingServices()
     XCTAssertNotNil(module.analytics)

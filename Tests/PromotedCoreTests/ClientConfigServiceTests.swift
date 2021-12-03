@@ -8,11 +8,12 @@ final class ClientConfigServiceTests: ModuleTestCase {
 
   func testLocalCache() {
     let url = "https://fake.promoted.ai"
-    module.clientConfig.metricsLoggingURL = url
-    module.clientConfig.metricsLoggingAPIKey = "apikey!"
-    module.clientConfig.xrayLevel = .callDetails
+    var config = ClientConfig()
+    config.metricsLoggingURL = url
+    config.metricsLoggingAPIKey = "apikey!"
+    config.xrayLevel = .callDetails
 
-    let configData = try! JSONEncoder().encode(module.clientConfig)
+    let configData = try! JSONEncoder().encode(config)
     store.clientConfig = configData
     module.clientConfigService.fetchClientConfig { _ in }
 
@@ -51,5 +52,105 @@ final class ClientConfigServiceTests: ModuleTestCase {
         XCTFail(String(describing: error))
       }
     }
+  }
+
+  func testDiagnosticsSamplingEndDateExpired() {
+    let url = "https://fake.promoted.ai"
+    module.initialConfig.metricsLoggingURL = url
+    module.initialConfig.metricsLoggingAPIKey = "apikey!"
+    module.initialConfig.diagnosticsSamplingPercentage = 100
+    module.initialConfig.diagnosticsSamplingEndDateString = "1980-01-01"
+    module.remoteConfigConnection = nil
+    clock.now = Date(ymdString: "2021-12-01")!.timeIntervalSince1970
+
+    let logUserID = "979064F3-8C69-43B5-ADB0-56695D236367"
+    let uuid = UUID(uuidString: logUserID)!
+    XCTAssertEqual(99, uuid.stableHashValueMod(100))
+    store.logUserID = logUserID
+
+    var callbackCalled = false
+    let service = ClientConfigService(deps: module)
+    service.fetchClientConfig { result in
+      let config = result.config!
+      XCTAssertFalse(config.diagnosticsIncludeBatchSummaries)
+      XCTAssertFalse(config.diagnosticsIncludeAncestorIDHistory)
+      XCTAssertFalse(config.eventsIncludeIDProvenances)
+      XCTAssertFalse(config.eventsIncludeClientPositions)
+      let message = result.messages.messages.last!
+      XCTAssertEqual(
+        "Config specifies diagnosticsSamplingPercentage=100% " +
+        "and end date (1980-01-01) earlier than or equal to " +
+        "current date (2021-12-01). Skipping.",
+        message.message
+      )
+      callbackCalled = true
+    }
+    XCTAssertTrue(callbackCalled)
+  }
+
+  func testDiagnosticsSamplingNotInSample() {
+    let url = "https://fake.promoted.ai"
+    module.initialConfig.metricsLoggingURL = url
+    module.initialConfig.metricsLoggingAPIKey = "apikey!"
+    module.initialConfig.diagnosticsSamplingPercentage = 1
+    module.initialConfig.diagnosticsSamplingEndDateString = "2022-01-01"
+    module.remoteConfigConnection = nil
+    clock.now = Date(ymdString: "2021-12-01")!.timeIntervalSince1970
+
+    let logUserID = "979064F3-8C69-43B5-ADB0-56695D236367"
+    let uuid = UUID(uuidString: logUserID)!
+    XCTAssertEqual(99, uuid.stableHashValueMod(100))
+    store.logUserID = logUserID
+
+    var callbackCalled = false
+    let service = ClientConfigService(deps: module)
+    service.fetchClientConfig { result in
+      let config = result.config!
+      XCTAssertFalse(config.diagnosticsIncludeBatchSummaries)
+      XCTAssertFalse(config.diagnosticsIncludeAncestorIDHistory)
+      XCTAssertFalse(config.eventsIncludeIDProvenances)
+      XCTAssertFalse(config.eventsIncludeClientPositions)
+      let message = result.messages.messages.last!
+      XCTAssertEqual(
+        "Config specifies diagnosticsSamplingPercentage=1% " +
+        "and end date (2022-01-01) but random sample skipped.",
+        message.message
+      )
+      callbackCalled = true
+    }
+    XCTAssertTrue(callbackCalled)
+  }
+
+  func testDiagnosticsSamplingInSample() {
+    let url = "https://fake.promoted.ai"
+    module.initialConfig.metricsLoggingURL = url
+    module.initialConfig.metricsLoggingAPIKey = "apikey!"
+    module.initialConfig.diagnosticsSamplingPercentage = 1
+    module.initialConfig.diagnosticsSamplingEndDateString = "2022-01-01"
+    module.remoteConfigConnection = nil
+    clock.now = Date(ymdString: "2021-12-01")!.timeIntervalSince1970
+
+    let logUserID = "664A6373-5DBE-4ADE-B832-1ABF7925C89A"
+    let uuid = UUID(uuidString: logUserID)!
+    XCTAssertEqual(0, uuid.stableHashValueMod(100))
+    store.logUserID = logUserID
+
+    var callbackCalled = false
+    let service = ClientConfigService(deps: module)
+    service.fetchClientConfig { result in
+      let config = result.config!
+      XCTAssertTrue(config.diagnosticsIncludeBatchSummaries)
+      XCTAssertTrue(config.diagnosticsIncludeAncestorIDHistory)
+      XCTAssertTrue(config.eventsIncludeIDProvenances)
+      XCTAssertTrue(config.eventsIncludeClientPositions)
+      let message = result.messages.messages.last!
+      XCTAssertEqual(
+        "Config specifies diagnosticsSamplingPercentage=1% " +
+        "and end date (2022-01-01). Enabling all diagnostics.",
+        message.message
+      )
+      callbackCalled = true
+    }
+    XCTAssertTrue(callbackCalled)
   }
 }
