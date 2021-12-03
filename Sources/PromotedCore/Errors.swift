@@ -75,6 +75,11 @@ public enum ClientConfigError: Error {
   /// Error when persisting fetched config to local cache.
   /// This means that the config will not be applied.
   case localCacheEncodeError(_ error: Error)
+
+  /// `ClientConfig.diagnosticsSamplingPercentage` was specified,
+  /// but a valid date was not given for
+  /// `diagnosticsSamplingEndDateString`.
+  case invalidDiagnosticsSamplingEndDateString(_ s: String)
 }
 
 extension ClientConfigError: NSErrorProperties {
@@ -95,6 +100,8 @@ extension ClientConfigError: NSErrorProperties {
       return 106
     case .localCacheEncodeError(_):
       return 107
+    case .invalidDiagnosticsSamplingEndDateString(_):
+      return 108
     }
   }
 }
