@@ -242,7 +242,8 @@ extension ClientConfigService {
   private func shouldSampleDiagnostics(percentage: Int) -> Bool {
     let uuid = (
       UUID(uuidString: store.logUserID ?? "") ??
-      deviceInfo.identifierForVendor
+      deviceInfo.identifierForVendor ??
+      UUID()
     )
     return uuid.stableHashValueMod(100) < percentage
   }

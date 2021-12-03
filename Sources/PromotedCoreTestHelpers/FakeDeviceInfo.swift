@@ -29,8 +29,8 @@ final class FakeDeviceInfo: DeviceInfo {
     return "Apple"
   }
 
-  var identifierForVendor: UUID {
-    return UUID(uuidString: "abcdef89-0123-4567-89ab-0123456789ab")!
+  var identifierForVendor: UUID? {
+    return UUID(uuidString: "abcdef89-0123-4567-89ab-0123456789ab")
   }
 
   var manufacturer: String {

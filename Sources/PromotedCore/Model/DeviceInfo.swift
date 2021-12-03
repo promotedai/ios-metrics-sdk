@@ -4,7 +4,7 @@ import Foundation
 protocol DeviceInfo: AnyObject {
   var deviceType: DeviceType { get }
   var brand: String { get }
-  var identifierForVendor: UUID { get }
+  var identifierForVendor: UUID? { get }
   var manufacturer: String { get }
   var modelName: String { get }
   var osVersion: String { get }
@@ -37,8 +37,8 @@ final class IOSDeviceInfo: DeviceInfo {
 
   var brand: String { "Apple" }
 
-  var identifierForVendor: UUID {
-    UIDevice.current.identifierForVendor ?? UUID()
+  var identifierForVendor: UUID? {
+    UIDevice.current.identifierForVendor
   }
   
   var manufacturer: String { "Apple" }
