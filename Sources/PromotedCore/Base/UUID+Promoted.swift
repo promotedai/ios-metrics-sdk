@@ -3,7 +3,7 @@ import Foundation
 extension UUID {
   /// Generates a hash value that is stable across invocations
   /// of the process. (In general, hash values in Swift aren't
-  /// stable across different runs of the process.)
+  /// stable when you restart the process.)
   var stableHashValue: (UInt64, UInt64) {
     let a = self.uuid
     let hi = (
@@ -34,8 +34,7 @@ extension UUID {
     let (hi, lo) = stableHashValue
     let mod64 = UInt64(modulus)
     let max64mod = UInt64.max % mod64
-    return UInt32((
-      ((hi % mod64) * (max64mod)) + (lo % mod64)
-    ) % mod64)
+    let result = ((hi % mod64) * (max64mod)) + (lo % mod64)
+    return UInt32(result % mod64)
   }
 }
