@@ -8,6 +8,8 @@ final class TestModule: AllDeps {
   // MARK: - Fakes
   var fakeAnalyticsConnection = FakeAnalyticsConnection()
 
+  var fakeBuildInfo = FakeBuildInfo()
+
   var fakeClock = FakeClock()
 
   var fakeDeviceInfo = FakeDeviceInfo()
@@ -25,7 +27,10 @@ final class TestModule: AllDeps {
   // MARK: - AllDeps
   var analytics: Analytics? = nil
 
-  lazy var analyticsConnection: AnalyticsConnection? = fakeAnalyticsConnection
+  lazy var analyticsConnection: AnalyticsConnection? =
+    fakeAnalyticsConnection
+
+  lazy var buildInfo: BuildInfo = fakeBuildInfo
 
   lazy var clientConfigService: ClientConfigService = ClientConfigService(deps: self)
 
@@ -39,17 +44,21 @@ final class TestModule: AllDeps {
 
   lazy var idMap: IDMap = fakeIDMap
 
-  lazy var networkConnection: NetworkConnection = fakeNetworkConnection
+  lazy var networkConnection: NetworkConnection =
+    fakeNetworkConnection
 
   var operationMonitor = OperationMonitor()
 
-  func osLog(category: String) -> OSLog? { osLogSource?.osLog(category: category) }
+  func osLog(category: String) -> OSLog? {
+    osLogSource?.osLog(category: category)
+  }
 
   var osLogSource: OSLogSource? = nil
 
   lazy var persistentStore: PersistentStore = fakePersistentStore
 
-  lazy var remoteConfigConnection: RemoteConfigConnection? = fakeRemoteConfigConnection
+  lazy var remoteConfigConnection: RemoteConfigConnection? =
+    fakeRemoteConfigConnection
 
   lazy var uiState: UIState = fakeUIState
 
