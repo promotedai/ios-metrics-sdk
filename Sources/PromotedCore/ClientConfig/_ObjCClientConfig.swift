@@ -258,9 +258,14 @@ public final class _ObjCClientConfig: NSObject {
   ///
   /// # Remote Config interoperability
   /// Designed for use on platforms where Remote Config is not
-  /// available. If Remote Config is enabled, this sampling is
-  /// ignored. Random sampling is designed to replicate
-  /// rudimentary experiment cohorting entirely client-side.
+  /// available. If Remote Config is enabled, this sampling
+  /// configuration is ignored. Random sampling is designed to
+  /// replicate rudimentary experiment cohorting entirely
+  /// client-side.
+  ///
+  /// Likewise, setting diagnostic sampling flags (either this
+  /// flag or `diagnosticsSamplingEndDateString`) via Remote
+  /// Config does nothing.
   ///
   /// # Cohorting
   /// Attempts to create a consistent cohort for the set of users
