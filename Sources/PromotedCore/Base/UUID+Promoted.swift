@@ -33,8 +33,8 @@ extension UUID {
   func stableHashValueMod(_ modulus: UInt32) -> UInt32 {
     let (hi, lo) = stableHashValue
     let mod64 = UInt64(modulus)
-    let max64mod = UInt64.max % mod64
-    let result = ((hi % mod64) * (max64mod)) + (lo % mod64)
+    let maxMod64 = UInt64.max % mod64
+    let result = ((hi % mod64) * maxMod64) + (lo % mod64)
     return UInt32(result % mod64)
   }
 }
