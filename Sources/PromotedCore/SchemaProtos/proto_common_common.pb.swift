@@ -421,7 +421,7 @@ public struct Common_Screen {
 }
 
 /// A sub-message containing Device info.
-/// Next ID = 11.
+/// Next ID = 13.
 public struct Common_Device {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -510,6 +510,18 @@ public struct Common_Device {
   public var hasBrowser: Bool {return _storage._browser != nil}
   /// Clears the value of `browser`. Subsequent reads from it will return its default value.
   public mutating func clearBrowser() {_uniqueStorage()._browser = nil}
+
+  /// Optional. Version string for platform app.
+  public var platformAppVersion: String {
+    get {return _storage._platformAppVersion}
+    set {_uniqueStorage()._platformAppVersion = newValue}
+  }
+
+  /// Optional. Version string for mobile SDK.
+  public var promotedMobileSdkVersion: String {
+    get {return _storage._promotedMobileSdkVersion}
+    set {_uniqueStorage()._promotedMobileSdkVersion = newValue}
+  }
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -1022,6 +1034,8 @@ extension Common_Device: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     8: .standard(proto: "ip_address"),
     9: .same(proto: "location"),
     10: .same(proto: "browser"),
+    11: .standard(proto: "platform_app_version"),
+    12: .standard(proto: "promoted_mobile_sdk_version"),
   ]
 
   fileprivate class _StorageClass {
@@ -1035,6 +1049,8 @@ extension Common_Device: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     var _ipAddress: String = String()
     var _location: Common_Location? = nil
     var _browser: Common_Browser? = nil
+    var _platformAppVersion: String = String()
+    var _promotedMobileSdkVersion: String = String()
 
     static let defaultInstance = _StorageClass()
 
@@ -1051,6 +1067,8 @@ extension Common_Device: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
       _ipAddress = source._ipAddress
       _location = source._location
       _browser = source._browser
+      _platformAppVersion = source._platformAppVersion
+      _promotedMobileSdkVersion = source._promotedMobileSdkVersion
     }
   }
 
@@ -1079,6 +1097,8 @@ extension Common_Device: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
         case 8: try { try decoder.decodeSingularStringField(value: &_storage._ipAddress) }()
         case 9: try { try decoder.decodeSingularMessageField(value: &_storage._location) }()
         case 10: try { try decoder.decodeSingularMessageField(value: &_storage._browser) }()
+        case 11: try { try decoder.decodeSingularStringField(value: &_storage._platformAppVersion) }()
+        case 12: try { try decoder.decodeSingularStringField(value: &_storage._promotedMobileSdkVersion) }()
         default: break
         }
       }
@@ -1117,6 +1137,12 @@ extension Common_Device: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
       if let v = _storage._browser {
         try visitor.visitSingularMessageField(value: v, fieldNumber: 10)
       }
+      if !_storage._platformAppVersion.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._platformAppVersion, fieldNumber: 11)
+      }
+      if !_storage._promotedMobileSdkVersion.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._promotedMobileSdkVersion, fieldNumber: 12)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -1136,6 +1162,8 @@ extension Common_Device: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
         if _storage._ipAddress != rhs_storage._ipAddress {return false}
         if _storage._location != rhs_storage._location {return false}
         if _storage._browser != rhs_storage._browser {return false}
+        if _storage._platformAppVersion != rhs_storage._platformAppVersion {return false}
+        if _storage._promotedMobileSdkVersion != rhs_storage._promotedMobileSdkVersion {return false}
         return true
       }
       if !storagesAreEqual {return false}

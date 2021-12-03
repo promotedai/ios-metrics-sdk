@@ -4,6 +4,8 @@ import Foundation
 
 final class FakeDeviceInfo: DeviceInfo {
 
+  // `platform_app_version` and `promoted_mobile_sdk_version`
+  // come from FakeBuildInfo.
   static let json = """
     "device": {
       "device_type": "MOBILE",
@@ -11,6 +13,8 @@ final class FakeDeviceInfo: DeviceInfo {
       "manufacturer": "Apple",
       "identifier": "iPhone",
       "os_version": "14.4.1",
+      "platform_app_version": "3.1.4",
+      "promoted_mobile_sdk_version": "1.0.99",
       "screen": {
         "size": {
           "width": 1024,

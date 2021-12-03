@@ -1513,9 +1513,11 @@ public struct Event_MobileDiagnostics {
   public var deviceIdentifier: String = String()
 
   /// Version identifier for client app.
+  /// DEPRECATED: Use the field on common.Device instead.
   public var clientVersion: String = String()
 
   /// Version of Promoted library.
+  /// DEPRECATED: Use the field on common.Device instead.
   public var promotedLibraryVersion: String = String()
 
   /// Number of batch logs attempted.

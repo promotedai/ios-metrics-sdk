@@ -51,6 +51,7 @@ public final class MetricsLogger: NSObject {
   // Dependencies
   // Properties exposed outside of this file should be idempotent.
 
+  let buildInfo: BuildInfo
   let clock: Clock
   let config: ClientConfig
   let deviceInfo: DeviceInfo
@@ -102,6 +103,7 @@ public final class MetricsLogger: NSObject {
   var cachedLocaleMessage: Common_Locale?
 
   typealias Deps = (
+    BuildInfoSource &
     ClientConfigSource &
     ClockSource &
     DeviceInfoSource &
@@ -115,6 +117,7 @@ public final class MetricsLogger: NSObject {
   )
 
   init(deps: Deps) {
+    buildInfo = deps.buildInfo
     clock = deps.clock
     config = deps.clientConfig
     connection = deps.networkConnection

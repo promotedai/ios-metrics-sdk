@@ -115,7 +115,7 @@ public struct Delivery_DeliveryLog {
 }
 
 /// Contains the inner execution details for a Delivery call.
-/// Next ID = 7.
+/// Next ID = 8.
 public struct Delivery_DeliveryExecution {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -123,6 +123,10 @@ public struct Delivery_DeliveryExecution {
 
   /// Where delivery happened, i.e. via the SDK or some approach on the API side.
   public var executionServer: Delivery_ExecutionServer = .unknownExecutionServer
+
+  /// Version of the execution server, for example a commit hash
+  /// or public repo release version.
+  public var serverVersion: String = String()
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -194,6 +198,7 @@ extension Delivery_DeliveryExecution: SwiftProtobuf.Message, SwiftProtobuf._Mess
   public static let protoMessageName: String = _protobuf_package + ".DeliveryExecution"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     2: .standard(proto: "execution_server"),
+    7: .standard(proto: "server_version"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -203,6 +208,7 @@ extension Delivery_DeliveryExecution: SwiftProtobuf.Message, SwiftProtobuf._Mess
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 2: try { try decoder.decodeSingularEnumField(value: &self.executionServer) }()
+      case 7: try { try decoder.decodeSingularStringField(value: &self.serverVersion) }()
       default: break
       }
     }
@@ -212,11 +218,15 @@ extension Delivery_DeliveryExecution: SwiftProtobuf.Message, SwiftProtobuf._Mess
     if self.executionServer != .unknownExecutionServer {
       try visitor.visitSingularEnumField(value: self.executionServer, fieldNumber: 2)
     }
+    if !self.serverVersion.isEmpty {
+      try visitor.visitSingularStringField(value: self.serverVersion, fieldNumber: 7)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   public static func ==(lhs: Delivery_DeliveryExecution, rhs: Delivery_DeliveryExecution) -> Bool {
     if lhs.executionServer != rhs.executionServer {return false}
+    if lhs.serverVersion != rhs.serverVersion {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
