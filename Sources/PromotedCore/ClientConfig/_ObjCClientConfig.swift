@@ -287,12 +287,7 @@ public final class _ObjCClientConfig: NSObject {
   /// If you set any of those flags individually to `true` and then
   /// enable diagnostics sampling, the flags you set will always be
   /// enabled, and the other diagnostics flags will be enabled
-  /// according to random sampling. For example:
-  /// ```
-  /// config.diagnosticsIncludeBatchSummaries = true
-  /// config.diagnosticsSamplingPercentage = 5
-  /// config.diagnosticsSamplingEndDate =
-  /// ```
+  /// according to random sampling.
   @objc public var diagnosticsSamplingPercentage: Int = 0 {
     didSet { bound(&diagnosticsSamplingPercentage, min: 0, max: 100) }
   }
