@@ -38,6 +38,19 @@ extension TimeInterval {
   }
 }
 
+extension Date {
+  init?(ymdString: String) {
+    let f = DateFormatter()
+    f.locale = Locale(identifier: "en_US_POSIX")
+    f.dateFormat = "yyyy-MM-dd"
+    if let date = f.date(from: ymdString) {
+      self = date
+    } else {
+      return nil
+    }
+  }
+}
+
 // MARK: -
 /** Represents a way to get time and perform scheduling of tasks. */
 protocol Clock: AnyObject {
