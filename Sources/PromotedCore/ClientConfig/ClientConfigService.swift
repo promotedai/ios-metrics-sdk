@@ -209,7 +209,7 @@ extension ClientConfigService {
     }
     let now = clock.now
     let endTime = endDate.timeIntervalSince1970
-    guard clock.now < endDate.timeIntervalSince1970 else {
+    guard clock.now < endTime else {
       messages.info(
         "Config specifies diagnosticsSamplingPercentage=\(percentage)% " +
         "and end date (\(endTime.asFormattedDateStringSince1970())) " +
