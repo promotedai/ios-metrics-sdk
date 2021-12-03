@@ -201,9 +201,9 @@ extension ClientConfigService {
     guard percentage > 0 else { return config }
     guard let endDate = config.diagnosticsSamplingEndDate else {
       messages.warning(
-        "Config specifies diagnosticsSamplingPercentage=%{public}d% " +
+        "Config specifies diagnosticsSamplingPercentage=\(percentage)% " +
         "but no end date. Ignoring.",
-        percentage
+        visibility: .public
       )
       return config
     }
@@ -211,29 +211,28 @@ extension ClientConfigService {
     let endTime = endDate.timeIntervalSince1970
     guard clock.now < endDate.timeIntervalSince1970 else {
       messages.info(
-        "Config specifies diagnosticsSamplingPercentage=%{public}d% " +
-        "and end date (%{public}@) earlier than or equal to current " +
-        "date (%{public}@). Skipping.",
-        percentage,
-        endTime.asFormattedDateStringSince1970(),
-        now.asFormattedDateStringSince1970()
+        "Config specifies diagnosticsSamplingPercentage=\(percentage)% " +
+        "and end date (\(endTime.asFormattedDateStringSince1970())) " +
+        "earlier than or equal to current date " +
+        "(\(now.asFormattedDateStringSince1970())). Skipping.",
+        visibility: .public
       )
       return config
     }
     guard shouldSampleDiagnostics(percentage: percentage) else {
       messages.info(
-        "Config specifies diagnosticsSamplingPercentage=%{public}d% " +
-        "and end date (%{public}@) but random sample skipped.",
-        percentage,
-        endTime.asFormattedDateStringSince1970()
+        "Config specifies diagnosticsSamplingPercentage=\(percentage)% " +
+        "and end date (\(endTime.asFormattedDateStringSince1970())) " +
+        "but random sample skipped.",
+        visibility: .public
       )
       return config
     }
     messages.info(
-      "Config specifies diagnosticsSamplingPercentage=%{public}d% " +
-      "and end date (%{public}@). Enabling all diagnostics.",
-      percentage,
-      endTime.asFormattedDateStringSince1970()
+      "Config specifies diagnosticsSamplingPercentage=\(percentage)% " +
+      "and end date (\(endTime.asFormattedDateStringSince1970())). " +
+      "Enabling all diagnostics.",
+      visibility: .public
     )
     var configCopy = config
     configCopy.setAllDiagnosticsEnabled(true)
@@ -245,7 +244,7 @@ extension ClientConfigService {
       UUID(uuidString: store.logUserID ?? "") ??
       deviceInfo.identifierForVendor
     )
-    return abs(uuid.hashValue % 100) < percentage
+    return uuid.stableHashValueMod(100) < percentage
   }
 
   private func handleRemoteConfigFetchComplete(
@@ -297,7 +296,8 @@ extension ClientConfigService {
   ) {
     var resultMessages = fetchMessages
     resultMessages.warning(
-      "Remote config fetch failed. Using local cached config."
+      "Remote config fetch failed. Using local cached config.",
+      visibility: .public
     )
     let result = Result(
       config: cachedConfig,
