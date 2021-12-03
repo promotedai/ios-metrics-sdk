@@ -6,7 +6,7 @@ protocol BuildInfo {
   var platformAppVersion: String { get }
 
   /// Version of Promoted library.
-  var promotedMobileSdkVersion: String { get }
+  var promotedMobileSDKVersion: String { get }
 }
 
 protocol BuildInfoSource {
@@ -25,7 +25,7 @@ final class IOSBuildInfo: BuildInfo {
     return "\(appVersion) build \(buildNumber)"
   } ()
 
-  private(set) lazy var promotedMobileSdkVersion: String = {
+  private(set) lazy var promotedMobileSDKVersion: String = {
     guard let path = bundle?.path(
       forResource: "Version",
       ofType: "txt"

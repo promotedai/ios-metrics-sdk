@@ -23,7 +23,7 @@ extension MetricsLogger {
       device.identifier = deviceInfo.identifier
       device.osVersion = deviceInfo.osVersion
       device.platformAppVersion = buildInfo.platformAppVersion
-      device.promotedMobileSdkVersion = buildInfo.promotedMobileSdkVersion
+      device.promotedMobileSdkVersion = buildInfo.promotedMobileSDKVersion
       let (width, height) = deviceInfo.screenSizePx
       device.screen.size.width = width
       device.screen.size.height = height

@@ -30,9 +30,9 @@ final class IOSBuildInfoTests: XCTestCase {
     assert(string: String(parts[2]), matchesRegex: #"\d+"#)
   }
 
-  func testPromotedMobileSdkVersionSwiftPM() {
+  func testPromotedMobileSDKVersionSwiftPM() {
     let build = IOSBuildInfo()
-    let version = build.promotedMobileSdkVersion
+    let version = build.promotedMobileSDKVersion
     assert(string: version, matchesRegex: #"\d+\.\d+\.\d+"#)
   }
 }
