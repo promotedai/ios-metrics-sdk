@@ -387,8 +387,8 @@ extension ImpressionTracker.Impression: CustomDebugStringConvertible {
   public var debugDescription: String {
     let contents = [
       content.debugDescription,
-      startTime.asFormattedDateStringSince1970(),
-      endTime?.asFormattedDateStringSince1970(),
+      startTime.asFormattedDateTimeStringSince1970(),
+      endTime?.asFormattedDateTimeStringSince1970(),
       sourceType,
       collectionInteraction
     ] as [Any?]
