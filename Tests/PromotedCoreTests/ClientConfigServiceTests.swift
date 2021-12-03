@@ -63,7 +63,7 @@ final class ClientConfigServiceTests: ModuleTestCase {
     module.remoteConfigConnection = nil
     clock.now = Date(ymdString: "2021-12-01")!.timeIntervalSince1970
 
-    let logUserID = "FFF19C59-E1D0-40D1-A162-5BA9918302A4"
+    let logUserID = "700FE3D4-5D8B-43F7-882B-CA98961A4743"
     let uuid = UUID(uuidString: logUserID)!
     XCTAssertEqual(99, uuid.stableHashValueMod(100))
     store.logUserID = logUserID
@@ -97,7 +97,7 @@ final class ClientConfigServiceTests: ModuleTestCase {
     module.remoteConfigConnection = nil
     clock.now = Date(ymdString: "2021-12-01")!.timeIntervalSince1970
 
-    let logUserID = "FFF19C59-E1D0-40D1-A162-5BA9918302A4"
+    let logUserID = "700FE3D4-5D8B-43F7-882B-CA98961A4743"
     let uuid = UUID(uuidString: logUserID)!
     XCTAssertEqual(99, uuid.stableHashValueMod(100))
     store.logUserID = logUserID
@@ -130,7 +130,7 @@ final class ClientConfigServiceTests: ModuleTestCase {
     module.remoteConfigConnection = nil
     clock.now = Date(ymdString: "2021-12-01")!.timeIntervalSince1970
 
-    let logUserID = "78490C6B-CB52-4384-87FE-52313D1D45DC"
+    let logUserID = "6400692E-839D-4F43-829D-D9C074D50294"
     let uuid = UUID(uuidString: logUserID)!
     XCTAssertEqual(0, uuid.stableHashValueMod(100))
     store.logUserID = logUserID
