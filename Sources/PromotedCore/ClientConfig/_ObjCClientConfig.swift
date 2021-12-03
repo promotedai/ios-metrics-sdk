@@ -292,13 +292,13 @@ public final class _ObjCClientConfig: NSObject {
     didSet { bound(&diagnosticsSamplingPercentage, min: 0, max: 100) }
   }
 
-  /// Explicit end date for `diagnosticsSamplingPercentage`.
-  /// Format `yyyy-MM-dd`. For example: `2022-01-01`, `2022-02-28`.
+  /// Explicit end date for `diagnosticsSamplingPercentage`,
+  /// format `yyyy-MM-dd`. For example: `2022-01-01`, `2022-02-28`.
   /// When this date elapses, sampling is disabled across all
   /// users. **Always use an absolute date for this value.**
   ///
   /// This property is a `String` and not a `Date` because it's
-  /// much easier to specify absolute dates using `Strings` than
+  /// much easier to specify absolute dates using `String`s than
   /// `Date`s in ObjC/Swift.
   @objc public var diagnosticsSamplingEndDateString: String = ""
 
