@@ -168,12 +168,12 @@ final class Module: AllDeps {
 
   private(set) var analyticsConnection: AnalyticsConnection?
 
+  let buildInfo: BuildInfo = IOSBuildInfo()
+
   var clientConfig: ClientConfig { clientConfigService.config }
 
   private(set) lazy var clientConfigService: ClientConfigService =
     ClientConfigService(deps: self)
-
-  let buildInfo: BuildInfo = IOSBuildInfo()
 
   let clock: Clock = SystemClock()
   
