@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
   name: "PromotedAIMetricsSDK",
   platforms: [
-    .iOS(.v10)
+    .iOS(.v11)
   ],
   products: [
     .library(
@@ -35,9 +35,21 @@ let package = Package(
       ]),
   ],
   dependencies: [
-    .package(name: "Firebase", url: "https://github.com/firebase/firebase-ios-sdk", from: "7.9.0"),
-    .package(name: "GTMSessionFetcher", url: "https://github.com/google/gtm-session-fetcher", from: "1.5.0"),
-    .package(name: "SwiftProtobuf", url: "https://github.com/apple/swift-protobuf", from: "1.15.0"),
+    .package(
+      name: "Firebase",
+      url: "https://github.com/firebase/firebase-ios-sdk",
+      from: "8.0.0"
+    ),
+    .package(
+      name: "GTMSessionFetcher",
+      url: "https://github.com/google/gtm-session-fetcher",
+      from: "1.5.0"
+    ),
+    .package(
+      name: "SwiftProtobuf",
+      url: "https://github.com/apple/swift-protobuf",
+      from: "1.15.0"
+    ),
   ],
   targets: [
     .target(
@@ -51,19 +63,28 @@ let package = Package(
     .target(
       name: "PromotedFetcher",
       dependencies: [
-        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
+        .product(
+          name: "GTMSessionFetcherCore",
+          package: "GTMSessionFetcher"
+        ),
         .target(name: "PromotedCore"),
       ]),
     .target(
       name: "PromotedFirebaseAnalytics",
       dependencies: [
-        .product(name: "FirebaseAnalytics", package: "Firebase"),
+        .product(
+          name: "FirebaseAnalytics",
+          package: "Firebase"
+        ),
         .target(name: "PromotedCore"),
       ]),
     .target(
       name: "PromotedFirebaseRemoteConfig",
       dependencies: [
-        .product(name: "FirebaseRemoteConfig", package: "Firebase"),
+        .product(
+          name: "FirebaseRemoteConfig",
+          package: "Firebase"
+        ),
         .target(name: "PromotedCore"),
       ]),
     .target(
