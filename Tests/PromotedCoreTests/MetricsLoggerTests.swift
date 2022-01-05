@@ -25,6 +25,23 @@ final class MetricsLoggerTests: ModuleTestCase {
     XCTAssertEqual(store.logUserID, metricsLogger.logUserID)
   }
 
+  private func assertEmptyList<T>(_ list: [T]) {
+    XCTAssertEqual(0, list.count, "Not empty: \(list)")
+  }
+
+  @discardableResult
+  private func assertSingletonList<T>(_ list: [T]) -> T {
+    XCTAssertEqual(1, list.count, "Not singleton: \(list)")
+    return list.last!
+  }
+
+  private func assertSingletonList<T, U>(
+    _ list: [T],
+    as: U.Type
+  ) -> U {
+    return assertSingletonList(list) as! U
+  }
+
   func testStartSession() {
     store.userID = nil
     store.logUserID = nil
@@ -182,26 +199,23 @@ final class MetricsLoggerTests: ModuleTestCase {
 
     clock.advance(to: 0.0)
     metricsLogger.log(message: e)
-    XCTAssertEqual(1, clock.scheduledTimers.count)
+    assertSingletonList(clock.scheduledTimers)
     XCTAssertEqual(flushInterval, clock.scheduledTimers[0].timeInterval)
-    XCTAssertEqual(1, metricsLogger.logMessagesForTesting.count)
-    XCTAssertEqual(0, connection.messages.count)
+    assertSingletonList(metricsLogger.logMessagesForTesting)
+    assertEmptyList(connection.messages)
 
     clock.advance(to: 5.0)
     metricsLogger.log(message: e)
-    XCTAssertEqual(1, clock.scheduledTimers.count)
+    assertSingletonList(clock.scheduledTimers)
     XCTAssertEqual(2, metricsLogger.logMessagesForTesting.count)
-    XCTAssertEqual(0, connection.messages.count)
+    assertEmptyList(connection.messages)
 
     clock.advance(to: flushInterval + 10)
-    XCTAssertEqual(0, clock.scheduledTimers.count)
-    XCTAssertEqual(0, metricsLogger.logMessagesForTesting.count)
-    XCTAssertEqual(1, connection.messages.count)
-    guard
-      let logRequest = (
-        connection.messages.first?.message as? Event_LogRequest
-      )
-    else {
+    assertEmptyList(clock.scheduledTimers)
+    assertEmptyList(metricsLogger.logMessagesForTesting)
+
+    let args = assertSingletonList(connection.messages)
+    guard let logRequest = args.message as? Event_LogRequest else {
       XCTFail("Message sent to connection was not a LogRequest")
       return
     }
@@ -209,10 +223,10 @@ final class MetricsLoggerTests: ModuleTestCase {
 
     connection.messages.removeAll()
     metricsLogger.log(message: e)
-    XCTAssertEqual(1, clock.scheduledTimers.count)
-    XCTAssertEqual(flushInterval, clock.scheduledTimers[0].timeInterval)
-    XCTAssertEqual(1, metricsLogger.logMessagesForTesting.count)
-    XCTAssertEqual(0, connection.messages.count)
+    let timer = assertSingletonList(clock.scheduledTimers)
+    XCTAssertEqual(flushInterval, timer.timeInterval)
+    assertSingletonList(metricsLogger.logMessagesForTesting)
+    assertEmptyList(connection.messages)
   }
 
   func testFlushNoLogUserIDs() {
@@ -225,12 +239,8 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.log(message: e)
 
     clock.advance(to: flushInterval + 10)
-    XCTAssertEqual(1, connection.messages.count)
-    guard
-      let logRequest = (
-        connection.messages.first?.message as? Event_LogRequest
-      )
-    else {
+    let args = assertSingletonList(connection.messages)
+    guard let logRequest = args.message as? Event_LogRequest else {
       XCTFail("Message sent to connection was not a LogRequest")
       return
     }
@@ -242,10 +252,11 @@ final class MetricsLoggerTests: ModuleTestCase {
     var properties = Event_Impression()
     properties.impressionID = "foobar"
     metricsLogger.logUserForTesting(properties: properties)
-    XCTAssertEqual(1, metricsLogger.logMessagesForTesting.count)
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_User)
-    let propertiesData = (message as! Event_User).properties.structBytes
+    let user = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_User.self
+    )
+    let propertiesData = user.properties.structBytes
     do {
       let deserializedProps = try Event_Impression(
         serializedData: propertiesData
@@ -259,9 +270,10 @@ final class MetricsLoggerTests: ModuleTestCase {
   func testLogUser() {
     metricsLogger.startSessionForTesting(userID: "foo")
     metricsLogger.logUserForTesting()
-    XCTAssertEqual(1, metricsLogger.logMessagesForTesting.count)
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_User)
+    let user = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_User.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -271,7 +283,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_User(jsonString: expectedJSON),
-      message as! Event_User
+      user
     )
   }
 
@@ -280,8 +292,10 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
     metricsLogger.logUserForTesting()
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_User)
+    let user = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_User.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -303,7 +317,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_User(jsonString: expectedJSON),
-      message as! Event_User
+      user
     )
   }
 
@@ -311,8 +325,10 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.startSessionForTesting(userID: "foo")
     let item = Content(contentID: "foobar", insertionID: "insertion!")
     metricsLogger.logImpression(content: item, autoViewState: .fake)
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Impression)
+    let impression = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Impression.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -327,7 +343,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Impression(jsonString: expectedJSON),
-      message as! Event_Impression
+      impression
     )
   }
 
@@ -335,8 +351,10 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.startSessionForTesting(userID: "foo")
     let item = Content(contentID: "foobar")
     metricsLogger.logImpression(content: item, autoViewState: .fake)
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Impression)
+    let impression = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Impression.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -350,15 +368,17 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Impression(jsonString: expectedJSON),
-      message as! Event_Impression
+      impression
     )
   }
 
   func testLogImpressionNoLogUserSessionViewIDs() {
     let item = Content(contentID: "foobar", insertionID: "insertion!")
     metricsLogger.logImpression(content: item)
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Impression)
+    let impression = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Impression.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -371,7 +391,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Impression(jsonString: expectedJSON),
-      message as! Event_Impression
+      impression
     )
   }
 
@@ -380,7 +400,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.logUserID = "batman"
     metricsLogger.logImpression(content: item)
     metricsLogger.flush()
-    let message = connection.messages.last?.message
+    let message = assertSingletonList(connection.messages).message
     XCTAssertTrue(message is Event_LogRequest)
     let expectedJSON = """
     {
@@ -448,8 +468,10 @@ final class MetricsLoggerTests: ModuleTestCase {
     metricsLogger.startSessionForTesting(userID: "foo")
     let item = Content(contentID: "foobar", insertionID: "insertion!")
     metricsLogger.logImpression(content: item, autoViewState: .fake)
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Impression)
+    let impression = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Impression.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -476,7 +498,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Impression(jsonString: expectedJSON),
-      message as! Event_Impression
+      impression
     )
   }
 
@@ -491,8 +513,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       autoViewState: .fake,
       collectionInteraction: collectionInteraction
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Impression)
+    let impression = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Impression.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -510,7 +534,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Impression(jsonString: expectedJSON),
-      message as! Event_Impression
+      impression
     )
   }
 
@@ -523,8 +547,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       viewController: viewController,
       autoViewState: .fake
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -543,7 +569,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
   
@@ -555,8 +581,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       content: item,
       autoViewState: .fake
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -573,7 +601,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
   
@@ -585,8 +613,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       content: item,
       autoViewState: .fake
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -603,7 +633,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
   
@@ -614,8 +644,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       content: nil,
       autoViewState: .fake
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -631,7 +663,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
   
@@ -643,8 +675,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       content: item,
       autoViewState: .fake
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -661,7 +695,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
   
@@ -673,8 +707,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       content: item,
       autoViewState: .fake
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -691,7 +727,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
 
@@ -703,8 +739,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       content: item,
       autoViewState: .fake
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -721,7 +759,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
 
@@ -733,8 +771,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       content: item,
       autoViewState: .fake
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -751,7 +791,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
   
@@ -763,8 +803,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       content: item,
       autoViewState: .fake
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -781,7 +823,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
   
@@ -793,8 +835,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       content: item,
       autoViewState: .fake
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -811,7 +855,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
   
@@ -823,8 +867,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       content: item,
       autoViewState: .fake
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -841,7 +887,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
   
@@ -853,8 +899,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       content: item,
       autoViewState: .fake
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -871,7 +919,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
   
@@ -882,8 +930,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       content: nil,
       autoViewState: .fake
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -899,7 +949,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
 
@@ -910,8 +960,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       content: nil,
       autoViewState: .fake
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -927,7 +979,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
 
@@ -940,8 +992,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       name: "foobar",
       autoViewState: .fake
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -959,7 +1013,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
 
@@ -974,8 +1028,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       autoViewState: .fake,
       impressionID: "fake-impression"
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -1007,7 +1063,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
 
@@ -1024,8 +1080,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       collectionInteraction: collectionInteraction,
       impressionID: "fake-impression"
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_Action)
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -1048,7 +1106,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_Action(jsonString: expectedJSON),
-      message as! Event_Action
+      action
     )
   }
 
@@ -1061,8 +1119,10 @@ final class MetricsLoggerTests: ModuleTestCase {
       viewController: viewController,
       useCase: .search
     )
-    let message = metricsLogger.logMessagesForTesting.last!
-    XCTAssertTrue(message is Event_View)
+    let view = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_View.self
+    )
     let expectedJSON = """
     {
       "timing": {
@@ -1083,7 +1143,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     """
     XCTAssertEqual(
       try Event_View(jsonString: expectedJSON),
-      message as! Event_View
+      view
     )
   }
   
@@ -1301,5 +1361,44 @@ final class MetricsLoggerTests: ModuleTestCase {
       try Event_AutoView(jsonString: expectedJSON),
       message as! Event_AutoView
     )
+  }
+
+  func testLogAncestorIDHistory() {
+    let flushInterval = config.loggingFlushInterval
+    module.clientConfig.diagnosticsIncludeAncestorIDHistory = true
+    clock.advance(to: 0.0)
+    metricsLogger = MetricsLogger(deps: module)
+    metricsLogger.startSessionAndLogUser(userID: "batman")
+    metricsLogger.logAutoView(
+      routeName: "fake-route-name",
+      routeKey: "fake-route-key",
+      autoViewID: "fake-auto-view-id"
+    )
+    metricsLogger.logView(
+      name: "fake-route",
+      viewID: "fake-view-id"
+    )
+
+    clock.advance(to: flushInterval + 10)
+    let args = assertSingletonList(connection.messages)
+    guard let logRequest = args.message as? Event_LogRequest else {
+      XCTFail("Message sent to connection was not a LogRequest")
+      return
+    }
+
+    let diagnostics = assertSingletonList(logRequest.diagnostics)
+    let history = diagnostics.mobileDiagnostics.ancestorIDHistory
+
+    let userHistory = assertSingletonList(history.logUserIDHistory)
+    XCTAssertEqual("fake-log-user-id", userHistory.ancestorID)
+
+    let sessionHistory = assertSingletonList(history.sessionIDHistory)
+    XCTAssertEqual("fake-session-id", sessionHistory.ancestorID)
+
+    let viewHistory = assertSingletonList(history.viewIDHistory)
+    XCTAssertEqual("fake-view-id", viewHistory.ancestorID)
+
+    let autoViewHistory = assertSingletonList(history.autoViewIDHistory)
+    XCTAssertEqual("fake-auto-view-id", autoViewHistory.ancestorID)
   }
 }

@@ -37,7 +37,7 @@ public extension MetricsLogger {
         autoView.idProvenances = i
       }
       log(message: autoView)
-      history?.autoViewIDDidChange(value: viewID, event: autoView)
+      history?.autoViewIDDidChange(value: autoViewID, event: autoView)
     }
     return autoView
   }

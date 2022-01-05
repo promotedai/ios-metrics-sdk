@@ -63,7 +63,7 @@ public extension MetricsLogger {
         view.idProvenances = i
       }
       log(message: view)
-      history?.viewIDDidChange(value: viewID, event: view)
+      history?.viewIDDidChange(value: view.viewID, event: view)
     }
     return view
   }
