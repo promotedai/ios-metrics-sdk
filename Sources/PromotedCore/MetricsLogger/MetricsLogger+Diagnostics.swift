@@ -37,7 +37,7 @@ extension MetricsLogger {
 
   private func mobileDiagnosticsMessage() -> Event_MobileDiagnostics {
     var diagnostics = Event_MobileDiagnostics()
-    if let id = UIDevice.current.identifierForVendor?.uuidString {
+    if let id = deviceInfo.identifierForVendor?.uuidString {
       diagnostics.deviceIdentifier = id
     }
     return diagnostics
@@ -141,6 +141,8 @@ fileprivate extension Deque where Element == Event_AncestorIdHistoryItem {
     }
     if let event = event {
       switch event {
+      case let autoView as Event_AutoView:
+        historyItem.autoViewEvent = autoView
       case let user as Event_User:
         historyItem.userEvent = user
       case let view as Event_View:
