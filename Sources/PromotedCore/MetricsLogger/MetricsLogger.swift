@@ -408,6 +408,7 @@ public extension MetricsLogger {
   
   private func logRequestMessage(events: [Message]) -> Event_LogRequest {
     var logRequest = Event_LogRequest()
+    logRequest.clientInfo = clientInfoMessage()
     logRequest.userInfo = userInfoMessage()
     logRequest.device = deviceMessage()
     for event in events {

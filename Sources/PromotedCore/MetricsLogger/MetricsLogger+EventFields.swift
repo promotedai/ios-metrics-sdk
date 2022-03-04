@@ -72,4 +72,11 @@ extension MetricsLogger {
     if let id = logUserID { userInfo.logUserID = id }
     return userInfo
   }
+  
+  func clientInfoMessage() -> Common_ClientInfo {
+    var clientInfo = Common_ClientInfo()
+    clientInfo.clientType = Common_ClientInfo.ClientType.platformClient
+    clientInfo.trafficType = Common_ClientInfo.TrafficType.production
+    return clientInfo
+  }
 }
