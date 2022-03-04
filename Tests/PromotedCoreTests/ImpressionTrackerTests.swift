@@ -89,6 +89,10 @@ final class ImpressionTrackerTests: ModuleTestCase {
     let eventJSONJoined = eventJSONArray.joined(separator: ",")
     let expectedLogRequestJSON = """
     {
+      "client_info": {
+          "client_type": 2,
+          "traffic_type": 1
+      },
       "user_info": {
         "user_id": "foo",
         "log_user_id": "fake-log-user-id"

@@ -404,6 +404,10 @@ final class MetricsLoggerTests: ModuleTestCase {
     XCTAssertTrue(message is Event_LogRequest)
     let expectedJSON = """
     {
+      "client_info": {
+        "client_type": 2,
+        "traffic_type": 1
+      },
       "user_info": {
         "log_user_id": "batman"
       },
@@ -437,6 +441,10 @@ final class MetricsLoggerTests: ModuleTestCase {
     XCTAssertTrue(message is Event_LogRequest)
     let expectedJSON = """
     {
+      "client_info": {
+        "client_type": 2,
+        "traffic_type": 1
+      },
       "user_info": {
         "log_user_id": "batman"
       },
@@ -1292,6 +1300,10 @@ final class MetricsLoggerTests: ModuleTestCase {
     XCTAssertTrue(message is Event_LogRequest)
     let expectedJSON = """
     {
+      "client_info": {
+        "client_type": 2,
+        "traffic_type": 1
+      },
       "user_info": {
         "log_user_id": "batman"
       },
