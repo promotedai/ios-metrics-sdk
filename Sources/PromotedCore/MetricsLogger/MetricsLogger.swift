@@ -101,6 +101,7 @@ public final class MetricsLogger: NSObject {
 
   var cachedDeviceMessage: Common_Device?
   var cachedLocaleMessage: Common_Locale?
+  var cachedClientInfoMessage: Common_ClientInfo?
 
   typealias Deps = (
     BuildInfoSource &
@@ -408,6 +409,7 @@ public extension MetricsLogger {
   
   private func logRequestMessage(events: [Message]) -> Event_LogRequest {
     var logRequest = Event_LogRequest()
+    logRequest.clientInfo = clientInfoMessage()
     logRequest.userInfo = userInfoMessage()
     logRequest.device = deviceMessage()
     for event in events {
