@@ -74,9 +74,12 @@ extension MetricsLogger {
   }
   
   func clientInfoMessage() -> Common_ClientInfo {
-    var clientInfo = Common_ClientInfo()
-    clientInfo.clientType = Common_ClientInfo.ClientType.platformClient
-    clientInfo.trafficType = Common_ClientInfo.TrafficType.production
-    return clientInfo
+    if cachedClientInfoMessage == nil {
+      var clientInfo = Common_ClientInfo()
+      clientInfo.clientType = Common_ClientInfo.ClientType.platformClient
+      clientInfo.trafficType = Common_ClientInfo.TrafficType.production
+      cachedClientInfoMessage = clientInfo
+    }
+    return cachedClientInfoMessage!
   }
 }

@@ -101,6 +101,7 @@ public final class MetricsLogger: NSObject {
 
   var cachedDeviceMessage: Common_Device?
   var cachedLocaleMessage: Common_Locale?
+  var cachedClientInfoMessage: Common_ClientInfo?
 
   typealias Deps = (
     BuildInfoSource &
