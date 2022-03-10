@@ -306,6 +306,7 @@ extension MetricsLogger {
   /// Logs a user event.
   ///
   /// Autogenerates the following fields:
+  /// - `userInfo` from `userID` and `logUserID`
   /// - `timing` from `clock.nowMillis`
   ///
   /// - Parameters:
@@ -313,9 +314,14 @@ extension MetricsLogger {
   /// - Returns:
   ///   Logged event message.
   @discardableResult
-  private func logUser(properties: Message? = nil) -> Event_User {
+  private func logUser(properties: Message? = nil) -> Event_User? {
+    if((logUserID ?? "").isEmpty && (userID.stringValue ?? "").isEmpty) {
+      return nil
+    }
+        
     var user = Event_User()
     monitor.execute {
+      user.userInfo = userInfoMessage()
       user.timing = timingMessage()
       if let i = identifierProvenancesMessage() {
         user.idProvenances = i
