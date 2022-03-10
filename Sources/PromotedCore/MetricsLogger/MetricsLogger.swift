@@ -315,7 +315,7 @@ extension MetricsLogger {
   ///   Logged event message.
   @discardableResult
   private func logUser(properties: Message? = nil) -> Event_User? {
-    if((logUserID ?? "").isEmpty && (userID.stringValue ?? "").isEmpty) {
+    guard (userID.stringValue?.count ?? 0) > 0 || logUserID?.count ?? 0 > 0 else {
       return nil
     }
         
