@@ -276,6 +276,10 @@ final class MetricsLoggerTests: ModuleTestCase {
     )
     let expectedJSON = """
     {
+      "user_info": {
+        "user_id": "foo",
+        "log_user_id": "fake-log-user-id"
+      },
       "timing": {
         "client_log_timestamp": 123000
       }
@@ -285,6 +289,15 @@ final class MetricsLoggerTests: ModuleTestCase {
       try Event_User(jsonString: expectedJSON),
       user
     )
+  }
+  
+  func testNoLogUserWhenNoIds() {
+    store.userID = ""
+    store.logUserID = ""
+    metricsLogger.startSessionForTesting(userID: "")
+    metricsLogger.logUserForTesting()
+
+    assertEmptyList(metricsLogger.logMessagesForTesting)
   }
 
   func testLogUserIDProvenances() {
@@ -298,6 +311,10 @@ final class MetricsLoggerTests: ModuleTestCase {
     )
     let expectedJSON = """
     {
+      "user_info": {
+        "user_id": "foo",
+        "log_user_id": "fake-log-user-id"
+      },
       "timing": {
         "client_log_timestamp": 123000
       },
