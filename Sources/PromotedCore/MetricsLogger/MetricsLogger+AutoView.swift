@@ -31,7 +31,7 @@ public extension MetricsLogger {
       if let p = propertiesMessage(properties) { autoView.properties = p }
       autoView.locale = localeMessage()
       let appScreenView = Event_AppScreenView()
-      // TODO(yuhong): Fill out AppScreenView.
+      // TODO(yuna): Fill out AppScreenView.
       autoView.appScreenView = appScreenView
       if let i = identifierProvenancesMessage(autoViewID: autoViewID) {
         autoView.idProvenances = i
