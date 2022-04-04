@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 # Needs to be run manually to sync Swift protobufs when changes occur.
-# TODO(yuhong): Figure out a better way to bring in protobuf libraries.
+# TODO(yuna): Figure out a better way to bring in protobuf libraries.
 
 set -e
 setopt extended_glob
