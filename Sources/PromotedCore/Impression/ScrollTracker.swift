@@ -171,7 +171,7 @@ public final class ScrollTracker: NSObject {
   private func updateVisibility() {
     monitor.execute {
       var visibleContent = [Content]()
-      // TODO(yuhong): Replace linear search with binary/interpolation search
+      // TODO(yuna): Replace linear search with binary/interpolation search
       // for larger inputs. Need a secondary data structure to sort frames.
       for (frame, content) in content {
         let overlapRatio = frame.overlapRatio(viewport)
