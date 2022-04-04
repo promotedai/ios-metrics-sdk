@@ -243,7 +243,7 @@ public extension ImpressionTracker {
       let now = clock.now
       let newlyShownContent = contents
         .filter { contentToInProgressImpression[$0] == nil }
-      // TODO(yuhong): Below is potentially O(n^2), but in practice,
+      // TODO(yuna): Below is potentially O(n^2), but in practice,
       // the arrays are pretty small.
       let newlyHiddenContent = contentToInProgressImpression
         .filter { !contents.contains($0.key) }
