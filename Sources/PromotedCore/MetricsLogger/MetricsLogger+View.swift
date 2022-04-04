@@ -54,7 +54,7 @@ public extension MetricsLogger {
       view.locale = localeMessage()
       view.viewType = .appScreen
       let appScreenView = Event_AppScreenView()
-      // TODO(yuhong): Fill out AppScreenView.
+      // TODO(yuna): Fill out AppScreenView.
       view.appScreenView = appScreenView
       if let i = identifierProvenancesMessage(
         platformSpecifiedViewID: viewID,
