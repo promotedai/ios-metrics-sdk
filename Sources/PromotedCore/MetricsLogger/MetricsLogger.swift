@@ -334,7 +334,7 @@ extension MetricsLogger {
     return user
   }
 
-  // TODO(yuhong): These logView methods remain in this file because
+  // TODO(yuna): These logView methods remain in this file because
   // they modify the internal state of view IDs. These will be obsolete
   // when we implement AutoView/CollectionTracker for iOS and UIKit.
 
