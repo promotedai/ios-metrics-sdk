@@ -204,9 +204,9 @@ public final class _ObjCClientConfig: NSObject {
     case debug = 4
 
     #if DEBUG
-    static let defaultOSLogLevel: OSLogLevel = .debug
+    static let `default`: OSLogLevel = .debug
     #else
-    static let defaultOSLogLevel: OSLogLevel = .none
+    static let `default`: OSLogLevel = .none
     #endif
   }
   /// Whether to use OSLog (console logging) to output messages.
@@ -214,8 +214,8 @@ public final class _ObjCClientConfig: NSObject {
   /// verifying that logging works from the client side.
   /// If `xrayEnabled` is also set, then setting `osLogLevel`
   /// to `info` or higher turns on signposts in Instruments.
-  @objc public var osLogLevel: OSLogLevel = .defaultOSLogLevel {
-    didSet { validateEnum(&osLogLevel, defaultValue: .defaultOSLogLevel) }
+  @objc public var osLogLevel: OSLogLevel = .default {
+    didSet { validateEnum(&osLogLevel, defaultValue: .default) }
   }
 
   /// Whether mobile diagnostic messages include batch summaries
@@ -307,6 +307,27 @@ public final class _ObjCClientConfig: NSObject {
   /// `Date`s in ObjC/Swift.
   @objc public var diagnosticsSamplingEndDateString: String = ""
 
+  @objc(PROLoggingAnomalyHandling)
+  public enum LoggingAnomalyHandling: Int, Comparable, ConfigEnum {
+    /// Ignore all logging anomalies. Default in production.
+    case none = 0
+    /// Logs anomalies to console.
+    case consoleLog = 1
+    /// Interrupts UI with a modal dialog. Default in development.
+    case modalDialog = 2
+
+    #if DEBUG
+    static let `default`: LoggingAnomalyHandling = .modalDialog
+    #else
+    static let `default`: LoggingAnomalyHandling = .none
+    #endif
+  }
+
+  /// How to handle anomalies (errors/warnings) from logging calls.
+  @objc public var loggingAnomalyHandling: LoggingAnomalyHandling = .default {
+    didSet { validateEnum(&loggingAnomalyHandling, defaultValue: .default) }
+  }
+
   @objc private var assertInValidation: Bool = true
 
   @objc public override init() {}
@@ -354,6 +375,10 @@ extension _ObjCClientConfig {
       if let intValue = value as? Int {
         return OSLogLevel(rawValue: intValue)
       }
+    case "loggingAnomalyHandling":
+      if let intValue = value as? Int {
+        return LoggingAnomalyHandling(rawValue: intValue)
+      }
     default:
       break
     }
@@ -369,6 +394,8 @@ extension _ObjCClientConfig {
       convertedValue = xray.rawValue
     case let osLog as OSLogLevel:
       convertedValue = osLog.rawValue
+    case let logging as LoggingAnomalyHandling:
+      convertedValue = logging.rawValue
     default:
       convertedValue = value
     }
@@ -510,6 +537,21 @@ extension _ObjCClientConfig.OSLogLevel {
       return "info"
     case .debug:
       return "debug"
+    default:
+      return "unknown"
+    }
+  }
+}
+
+extension _ObjCClientConfig.LoggingAnomalyHandling {
+  public var description: String {
+    switch self {
+    case .none:
+      return "none"
+    case .consoleLog:
+      return "consoleLog"
+    case .modalDialog:
+      return "modalDialog"
     default:
       return "unknown"
     }
