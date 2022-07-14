@@ -1218,14 +1218,14 @@ final class MetricsLoggerTests: ModuleTestCase {
 
     metricsLogger.flush()
 
-    uiState.viewControllers = [vc1, vc2]
+    uiState.viewControllerStack = [vc1, vc2]
     metricsLogger.logAction(
       type: .custom,
       content: nil,
       name: "hello"
     )
 
-    uiState.viewControllers = [vc1]
+    uiState.viewControllerStack = [vc1]
     metricsLogger.logAction(
       type: .custom,
       content: nil,
