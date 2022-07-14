@@ -62,7 +62,7 @@ class AnomalyModalViewController: UIViewController {
     let explanationLabel = UILabel(frame: textLayoutFrame)
     explanationLabel.numberOfLines = 0  // Use as many lines as needed.
     explanationLabel.text = """
-    Description: \(anomalyType.debugDescription)
+    \(anomalyType.debugDescription)
 
     Error code: \(anomalyType.rawValue)
     """
