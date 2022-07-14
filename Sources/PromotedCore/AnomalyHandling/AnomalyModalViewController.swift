@@ -46,18 +46,24 @@ class AnomalyModalViewController: UIViewController {
     let textWidth = backdropWidth - 40
     let textLayoutFrame = CGRect(x: 0, y: 0, width: textWidth, height: 0)
 
-    let backdrop = UIView()
-    backdrop.backgroundColor = UIColor(white: 0, alpha: 0.9)
+    let blurEffect = UIBlurEffect(style: .systemMaterialDark)
+    let backdrop = UIVisualEffectView(effect: blurEffect)
+    backdrop.clipsToBounds = true
     backdrop.layer.cornerRadius = 20
     backdrop.translatesAutoresizingMaskIntoConstraints = false
     view.addSubview(backdrop)
+
+    let vibrancyEffect = UIVibrancyEffect(blurEffect: blurEffect, style: .label)
+    let vibrancyView = UIVisualEffectView(effect: vibrancyEffect)
+    vibrancyView.translatesAutoresizingMaskIntoConstraints = false
+    backdrop.contentView.addSubview(vibrancyView)
 
     let titleLabel = UILabel(frame: textLayoutFrame)
     titleLabel.font = .boldSystemFont(ofSize: 16)
     titleLabel.text = "Promoted.ai Logging Issue"
     titleLabel.textColor = .white
     titleLabel.translatesAutoresizingMaskIntoConstraints = false
-    backdrop.addSubview(titleLabel)
+    vibrancyView.contentView.addSubview(titleLabel)
 
     let explanationLabel = UILabel(frame: textLayoutFrame)
     explanationLabel.numberOfLines = 0  // Use as many lines as needed.
@@ -68,7 +74,7 @@ class AnomalyModalViewController: UIViewController {
     """
     explanationLabel.textColor = .white
     explanationLabel.translatesAutoresizingMaskIntoConstraints = false
-    backdrop.addSubview(explanationLabel)
+    vibrancyView.contentView.addSubview(explanationLabel)
 
     let helpLabel = UILabel(frame: textLayoutFrame)
     helpLabel.font = .systemFont(ofSize: 14)
@@ -84,7 +90,7 @@ class AnomalyModalViewController: UIViewController {
     """
     helpLabel.textColor = .white
     helpLabel.translatesAutoresizingMaskIntoConstraints = false
-    backdrop.addSubview(helpLabel)
+    vibrancyView.contentView.addSubview(helpLabel)
 
     let dontShowAgainButton = UIButton()
     dontShowAgainButton.addTarget(
@@ -96,7 +102,7 @@ class AnomalyModalViewController: UIViewController {
     dontShowAgainButton.setTitleColor(.white, for: .normal)
     dontShowAgainButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
     dontShowAgainButton.translatesAutoresizingMaskIntoConstraints = false
-    backdrop.addSubview(dontShowAgainButton)
+    vibrancyView.contentView.addSubview(dontShowAgainButton)
 
     let continueButton = UIButton()
     continueButton.addTarget(self, action: #selector(dismissContinue), for: .touchUpInside)
@@ -104,7 +110,7 @@ class AnomalyModalViewController: UIViewController {
     continueButton.setTitleColor(.white, for: .normal)
     continueButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
     continueButton.translatesAutoresizingMaskIntoConstraints = false
-    backdrop.addSubview(continueButton)
+    vibrancyView.contentView.addSubview(continueButton)
 
     let container: UILayoutGuide
     if #available(iOS 11.0, *) {
@@ -117,6 +123,11 @@ class AnomalyModalViewController: UIViewController {
       backdrop.rightAnchor.constraint(equalTo: container.rightAnchor, constant: -20),
       backdrop.centerYAnchor.constraint(equalTo: container.centerYAnchor),
       backdrop.bottomAnchor.constraint(equalTo: continueButton.bottomAnchor, constant: 20),
+
+      vibrancyView.topAnchor.constraint(equalTo: backdrop.topAnchor),
+      vibrancyView.leftAnchor.constraint(equalTo: backdrop.leftAnchor),
+      vibrancyView.bottomAnchor.constraint(equalTo: backdrop.bottomAnchor),
+      vibrancyView.rightAnchor.constraint(equalTo: backdrop.rightAnchor),
 
       titleLabel.topAnchor.constraint(equalTo: backdrop.topAnchor, constant: 20),
       titleLabel.centerXAnchor.constraint(equalTo: backdrop.centerXAnchor),
