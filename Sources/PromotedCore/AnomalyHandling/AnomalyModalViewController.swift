@@ -12,7 +12,7 @@ protocol AnomalyModalViewControllerDelegate: AnyObject {
 /** Presents a modal with detailed error message. */
 class AnomalyModalViewController: UIViewController {
 
-  weak var delegate: AnomalyModalViewControllerDelegate
+  weak var delegate: AnomalyModalViewControllerDelegate?
 
   private let partner: String
   private let contactInfo: [String]
@@ -20,10 +20,16 @@ class AnomalyModalViewController: UIViewController {
 
   private var shouldShowAgain: Bool
 
-  init(partner: String, contactInfo: [String], anomalyType: AnomalyType) {
+  init(
+    partner: String,
+    contactInfo: [String],
+    anomalyType: AnomalyType,
+    delegate: AnomalyModalViewControllerDelegate?
+  ) {
     self.partner = partner
     self.contactInfo = contactInfo
     self.anomalyType = anomalyType
+    self.delegate = delegate
     self.shouldShowAgain = true
     super.init(nibName: nil, bundle: nil)
   }
@@ -48,7 +54,7 @@ class AnomalyModalViewController: UIViewController {
 
     let titleLabel = UILabel(frame: textLayoutFrame)
     titleLabel.font = .boldSystemFont(ofSize: 16)
-    titleLabel.text = "Promoted.ai Metrics Logging"
+    titleLabel.text = "Promoted.ai Logging Issue"
     titleLabel.textColor = .white
     titleLabel.translatesAutoresizingMaskIntoConstraints = false
     backdrop.addSubview(titleLabel)
@@ -56,8 +62,6 @@ class AnomalyModalViewController: UIViewController {
     let explanationLabel = UILabel(frame: textLayoutFrame)
     explanationLabel.numberOfLines = 0  // Use as many lines as needed.
     explanationLabel.text = """
-    Logging issue detected.
-
     Description: \(anomalyType.debugDescription)
 
     Error code: \(anomalyType.rawValue)
@@ -82,28 +86,32 @@ class AnomalyModalViewController: UIViewController {
     helpLabel.translatesAutoresizingMaskIntoConstraints = false
     backdrop.addSubview(helpLabel)
 
-    let dontShowAgainButton = UIButton(
-      primaryAction: UIAction(title: "Don’t Show Again") { [weak self] action in
-        shouldShowAgain = false
-        self?.presentingViewController?.dismiss(animated: true)
-      }
+    let dontShowAgainButton = UIButton()
+    dontShowAgainButton.addTarget(
+      self,
+      action: #selector(dismissDontShowAgain),
+      for: .touchUpInside
     )
+    dontShowAgainButton.setTitle("Don’t Show Again", for: .normal)
     dontShowAgainButton.setTitleColor(.white, for: .normal)
     dontShowAgainButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
     dontShowAgainButton.translatesAutoresizingMaskIntoConstraints = false
     backdrop.addSubview(dontShowAgainButton)
 
-    let continueButton = UIButton(
-      primaryAction: UIAction(title: "Continue") { [weak self] action in
-        self?.presentingViewController?.dismiss(animated: true)
-      }
-    )
+    let continueButton = UIButton()
+    continueButton.addTarget(self, action: #selector(dismissContinue), for: .touchUpInside)
+    continueButton.setTitle("Continue", for: .normal)
     continueButton.setTitleColor(.white, for: .normal)
     continueButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
     continueButton.translatesAutoresizingMaskIntoConstraints = false
     backdrop.addSubview(continueButton)
 
-    let container = view.safeAreaLayoutGuide
+    let container: UILayoutGuide
+    if #available(iOS 11.0, *) {
+      container = view.safeAreaLayoutGuide
+    } else {
+      container = view.layoutMarginsGuide
+    }
     let constraints = [
       backdrop.leftAnchor.constraint(equalTo: container.leftAnchor, constant: 20),
       backdrop.rightAnchor.constraint(equalTo: container.rightAnchor, constant: -20),
@@ -137,5 +145,14 @@ class AnomalyModalViewController: UIViewController {
     if isBeingDismissed {
       delegate?.anomalyModalVCDidDismiss(self, shouldShowAgain: shouldShowAgain)
     }
+  }
+
+  @objc private func dismissContinue() {
+    self.presentingViewController?.dismiss(animated: true)
+  }
+
+  @objc private func dismissDontShowAgain() {
+    shouldShowAgain = false
+    self.presentingViewController?.dismiss(animated: true)
   }
 }
