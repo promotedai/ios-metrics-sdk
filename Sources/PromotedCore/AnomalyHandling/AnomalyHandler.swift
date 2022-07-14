@@ -1,5 +1,6 @@
 import Foundation
 import SwiftProtobuf
+import os.log
 
 class AnomalyHandler: OperationMonitorListener {
 
@@ -21,7 +22,6 @@ class AnomalyHandler: OperationMonitorListener {
     osLog = deps.osLog(category: "AnomalyHandler")
     shouldShowModal = true
     uiState = deps.uiState
-    super.init()
     deps.operationMonitor.addOperationMonitorListener(self)
   }
 
@@ -80,8 +80,9 @@ class AnomalyHandler: OperationMonitorListener {
       break
     case .consoleLog:
       osLog?.error(
-        "Promoted.ai Metrics Logging Error. " +
-        "(Code=\(type.rawValue), Description=\(type.debugDescription)"
+        "Promoted.ai Metrics Logging Error. (Code=%{public}d, Description=%{public}@",
+        type.rawValue,
+        type.debugDescription
       )
     case .modalDialog:
       if shouldShowModal {
@@ -89,7 +90,8 @@ class AnomalyHandler: OperationMonitorListener {
           let vc = AnomalyModalViewController(
             partner: config.partnerName,
             contactInfo: config.promotedContactInfo,
-            anomalyType: type
+            anomalyType: type,
+            delegate: self
           )
           rootVC.present(vc, animated: true)
         }
