@@ -8,7 +8,7 @@ enum AnomalyType: Int {
   case missingJoinableFieldsInAction = 104
 }
 
-extension AnomalyType: CustomDebugStringConvertible
+extension AnomalyType: CustomDebugStringConvertible {
   var debugDescription: String {
     switch self {
     case .missingLogUserIDInUserMessage, .missingLogUserIDInLogRequest:
