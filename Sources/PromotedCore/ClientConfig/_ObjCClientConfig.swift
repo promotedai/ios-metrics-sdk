@@ -315,6 +315,9 @@ public final class _ObjCClientConfig: NSObject {
     case consoleLog = 1
     /// Interrupts UI with a modal dialog. Default in development.
     case modalDialog = 2
+    /// Triggers a breakpoint when running in debug. This may not be
+    /// useful for React Native apps.
+    case breakInDebugger = 3
 
     #if DEBUG
     static let `default`: LoggingAnomalyHandling = .modalDialog
@@ -327,6 +330,12 @@ public final class _ObjCClientConfig: NSObject {
   @objc public var loggingAnomalyHandling: LoggingAnomalyHandling = .default {
     didSet { validateEnum(&loggingAnomalyHandling, defaultValue: .default) }
   }
+
+  /// Partner marketplace name.
+  @objc public var partnerName: String = ""
+
+  /// Contact info at Promoted for engineering questions.
+  @objc public var promotedContactInfo: [String] = []
 
   @objc private var assertInValidation: Bool = true
 
