@@ -327,6 +327,9 @@ public final class _ObjCClientConfig: NSObject {
   }
 
   /// How to handle anomalies (errors/warnings) from logging calls.
+  /// Anomalies are defined as any logging call made by the client
+  /// that contains potentially incorrect or malformed data. In
+  /// other words, anomalies arise from data errors.
   @objc public var loggingAnomalyHandling: LoggingAnomalyHandling = .default {
     didSet { validateEnum(&loggingAnomalyHandling, defaultValue: .default) }
   }
