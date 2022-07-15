@@ -44,6 +44,7 @@ public final class ModuleConfig: NSObject {
 typealias AllDeps = (
   AnalyticsConnectionSource &
   AnalyticsSource &
+  AnomalyHandlerSource &
   BuildInfoSource &
   ClientConfigSource &
   ClientConfigServiceSource &
@@ -168,6 +169,10 @@ final class Module: AllDeps {
 
   private(set) var analyticsConnection: AnalyticsConnection?
 
+  private(set) lazy var anomalyHandler: AnomalyHandler? =
+    clientConfig.loggingAnomalyHandling > .none ?
+    AnomalyHandler(deps: self) : nil
+
   let buildInfo: BuildInfo = IOSBuildInfo()
 
   var clientConfig: ClientConfig { clientConfigService.config }
@@ -271,10 +276,11 @@ final class Module: AllDeps {
   }
 
   private func startClientConfigDependentServices() throws {
-    // Initialize Analytics and Xray so they add themselves
+    // Initialize these lazy members so they add themselves
     // as OperationMonitorListeners.
     _ = analytics
     try analyticsConnection?.startServices()
+    _ = anomalyHandler
     _ = xray
   }
 }
