@@ -63,6 +63,13 @@ public final class Xray: NSObject {
 
     /// Errors that resulted from this logging call.
     @objc public fileprivate(set) var error: Error? = nil
+
+    fileprivate var startAnomalyCount = 0
+    fileprivate var endAnomalyCount = 0
+
+    /// Number of logging anomalies encountered during this call.
+    /// Since anomalies are the result of client
+    @objc public var anomalyCount: Int { endAnomalyCount - startAnomalyCount }
   }
 
   /** Batched logging call. */
@@ -120,6 +127,11 @@ public final class Xray: NSObject {
     /// contained therein.
     @objc public var errorsAcrossCalls: [Error] {
       calls.compactMap(\.error) + errors
+    }
+
+    /// Anomaly count across calls.
+    @objc public var anomalyCount: Int  {
+      calls.map(\.anomalyCount).reduce(0, +)
     }
   }
   
@@ -186,15 +198,22 @@ public final class Xray: NSObject {
     networkBatches.flatMap(\.errorsAcrossCalls)
   }
 
+  /// Anomaly count across `networkBatches`.
+  @objc public var anomalyCount: Int {
+    networkBatches.map(\.anomalyCount).reduce(0, +)
+  }
+
   private var pendingCalls: [Call]
   private var pendingBatch: NetworkBatch?
-  
+
+  private let anomalyHandler: AnomalyHandler?
   private let clock: Clock
   private let xrayLevel: ClientConfig.XrayLevel
   private let osLogLevel: ClientConfig.OSLogLevel
   private let osLog: OSLog?
 
   typealias Deps = (
+    AnomalyHandlerSource &
     ClockSource &
     ClientConfigSource &
     OperationMonitorSource &
@@ -204,6 +223,7 @@ public final class Xray: NSObject {
   init(deps: Deps) {
     assert(deps.clientConfig.xrayLevel != .none)
 
+    self.anomalyHandler = deps.anomalyHandler
     self.clock = deps.clock
     self.xrayLevel = deps.clientConfig.xrayLevel
     self.osLogLevel = deps.clientConfig.osLogLevel
@@ -241,6 +261,7 @@ fileprivate extension Xray {
       call.callStack = Thread.callStackSymbols
     }
     call.startTime = clock.now
+    call.startAnomalyCount = anomalyHandler?.anomalyCount ?? 0
     pendingCalls.append(call)
     osLog?.signpostBegin(name: "call")
   }
@@ -275,6 +296,7 @@ fileprivate extension Xray {
     osLog?.signpostEnd(name: "call")
     guard let lastCall = pendingCalls.last else { return }
     lastCall.endTime = clock.now
+    lastCall.endAnomalyCount = anomalyHandler?.anomalyCount ?? 0
   }
 }
 
