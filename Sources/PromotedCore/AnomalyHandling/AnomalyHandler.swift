@@ -2,6 +2,10 @@ import Foundation
 import SwiftProtobuf
 import os.log
 
+/**
+ Analyzes messages for anomalies and triggers responses according to setting
+ in `ClientConfig.loggingAnomalyHandling`.
+ */
 class AnomalyHandler: OperationMonitorListener {
 
   typealias Deps = (
@@ -15,13 +19,16 @@ class AnomalyHandler: OperationMonitorListener {
   private unowned let osLog: OSLog?
   private unowned let uiState: UIState
 
+  private(set) var anomalyCount: Int
   private var shouldShowModal: Bool
 
   init(deps: Deps) {
+    assert(deps.clientConfig.loggingAnomalyHandling > .none)
     config = deps.clientConfig
     osLog = deps.osLog(category: "AnomalyHandler")
-    shouldShowModal = true
     uiState = deps.uiState
+    anomalyCount = 0
+    shouldShowModal = true
     deps.operationMonitor.addOperationMonitorListener(self)
   }
 
@@ -75,6 +82,7 @@ class AnomalyHandler: OperationMonitorListener {
   }
 
   private func triggerAnomalyHandlerResponse(type: AnomalyType) {
+    anomalyCount += 1
     switch config.loggingAnomalyHandling {
     case .none:
       break
@@ -86,14 +94,8 @@ class AnomalyHandler: OperationMonitorListener {
       )
     case .modalDialog:
       if shouldShowModal {
-        if let rootVC = uiState.keyWindow?.rootViewController {
-          let vc = AnomalyModalViewController(
-            partner: config.partnerName,
-            contactInfo: config.promotedContactInfo,
-            anomalyType: type,
-            delegate: self
-          )
-          rootVC.present(vc, animated: true)
+        DispatchQueue.main.async { [weak self] in
+          self?.showAnomalyModal(type: type)
         }
       }
     case .breakInDebugger:
@@ -101,6 +103,20 @@ class AnomalyHandler: OperationMonitorListener {
       raise(SIGINT)
       #endif
     }
+  }
+
+  private func showAnomalyModal(type: AnomalyType) {
+    guard
+      let rootVC = uiState.keyWindow?.rootViewController,
+      rootVC.presentedViewController == nil
+    else { return }
+    let vc = AnomalyModalViewController(
+      partner: config.partnerName,
+      contactInfo: config.promotedContactInfo,
+      anomalyType: type,
+      delegate: self
+    )
+    rootVC.present(vc, animated: true)
   }
 }
 
