@@ -154,3 +154,36 @@ class AnomalyModalViewController: UIViewController {
     self.presentingViewController?.dismiss(animated: true)
   }
 }
+
+extension AnomalyModalViewController {
+  static func present(
+    partner: String,
+    contactInfo: [String],
+    anomalyType: AnomalyType,
+    keyWindow: UIWindow?,
+    delegate: AnomalyModalViewControllerDelegate?
+  ) {
+    guard
+      let rootVC = keyWindow?.rootViewController,
+      rootVC.presentedViewController == nil
+    else { return }
+    let vc = AnomalyModalViewController(
+      partner: partner,
+      contactInfo: contactInfo,
+      anomalyType: anomalyType,
+      delegate: delegate
+    )
+    rootVC.present(vc, animated: true)
+  }
+}
+
+/// Allows ReactNativeMetrics to show the VC.
+public func PresentAnomalyModalVCForModuleNotInitialized() {
+  AnomalyModalViewController.present(
+    partner: "this marketplace",
+    contactInfo: ["Email: help@promoted.ai"],
+    anomalyType: .reactNativeMetricsModuleNotInitialized,
+    keyWindow: UIKitState.keyWindow(),
+    delegate: nil
+  )
+}

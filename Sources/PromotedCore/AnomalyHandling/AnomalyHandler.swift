@@ -95,7 +95,14 @@ class AnomalyHandler: OperationMonitorListener {
     case .modalDialog:
       if shouldShowModal {
         DispatchQueue.main.async { [weak self] in
-          self?.showAnomalyModal(type: type)
+          guard let self = self else { return }
+          AnomalyModalViewController.present(
+            partner: self.config.partnerName,
+            contactInfo: self.config.promotedContactInfo,
+            anomalyType: type,
+            keyWindow: self.uiState.keyWindow,
+            delegate: self
+          )
         }
       }
     case .breakInDebugger:
@@ -103,20 +110,6 @@ class AnomalyHandler: OperationMonitorListener {
       raise(SIGINT)
       #endif
     }
-  }
-
-  private func showAnomalyModal(type: AnomalyType) {
-    guard
-      let rootVC = uiState.keyWindow?.rootViewController,
-      rootVC.presentedViewController == nil
-    else { return }
-    let vc = AnomalyModalViewController(
-      partner: config.partnerName,
-      contactInfo: config.promotedContactInfo,
-      anomalyType: type,
-      delegate: self
-    )
-    rootVC.present(vc, animated: true)
   }
 }
 
