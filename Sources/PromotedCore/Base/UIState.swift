@@ -13,21 +13,11 @@ protocol UIStateSource {
 final class UIKitState: UIState {
 
   var viewControllerStack: [UIViewController] {
-    guard let root = keyWindow?.rootViewController else {
-      return []
-    }
+    guard let root = keyWindow?.rootViewController else { return [] }
     return Self.viewControllerStack(root: root)
   }
 
-  var keyWindow: UIWindow? {
-    if #available(iOS 13.0, *) {
-      return UIApplication.shared.connectedScenes
-        .flatMap { ($0 as? UIWindowScene)?.windows ?? [] }
-        .first(where: \.isKeyWindow)
-    } else {
-      return UIApplication.shared.keyWindow
-    }
-  }
+  var keyWindow: UIWindow? { Self.keyWindow() }
 
   static func viewControllerStack(root: UIViewController) -> [UIViewController] {
     var stack = [UIViewController]()
@@ -63,5 +53,15 @@ final class UIKitState: UIState {
       }
     }
     return stack
+  }
+
+  static func keyWindow() -> UIWindow? {
+    if #available(iOS 13.0, *) {
+      return UIApplication.shared.connectedScenes
+        .flatMap { ($0 as? UIWindowScene)?.windows ?? [] }
+        .first(where: \.isKeyWindow)
+    } else {
+      return UIApplication.shared.keyWindow
+    }
   }
 }
