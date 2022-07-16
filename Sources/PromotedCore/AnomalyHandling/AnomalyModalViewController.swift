@@ -179,11 +179,13 @@ extension AnomalyModalViewController {
 
 /// Allows ReactNativeMetrics to show the VC.
 public func PresentAnomalyModalVCForModuleNotInitialized() {
-  AnomalyModalViewController.present(
-    partner: "this marketplace",
-    contactInfo: ["Email: help@promoted.ai"],
-    anomalyType: .reactNativeMetricsModuleNotInitialized,
-    keyWindow: UIKitState.keyWindow(),
-    delegate: nil
-  )
+  DispatchQueue.main.async {
+    AnomalyModalViewController.present(
+      partner: "this marketplace",
+      contactInfo: ["Email: help@promoted.ai"],
+      anomalyType: .reactNativeMetricsModuleNotInitialized,
+      keyWindow: UIKitState.keyWindow(),
+      delegate: nil
+    )
+  }
 }
