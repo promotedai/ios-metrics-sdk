@@ -150,16 +150,20 @@ final class XrayTests: ModuleTestCase {
     allCalls.append(contentsOf: batchXray(["hello", "darkness"]))
     allCalls.append(contentsOf: batchXray(["my", "old", "friend"]))
 
-    XCTAssertEqual(allCalls.map(\.debugDescription),
-                   xray.calls.map(\.context))
+    XCTAssertEqual(
+      allCalls.map(\.debugDescription),
+      xray.calls.map(\.context)
+    )
   }
 
   func testErrors() {
     module.clientConfig.xrayLevel = .callDetails
     xray = Xray(deps: module)
 
-    func batchXray(batchError: Error? = nil,
-                   batchResponseError: Error? = nil) {
+    func batchXray(
+      batchError: Error? = nil,
+      batchResponseError: Error? = nil
+    ) {
       xray.executionWillStart(context: .batch)
       if let e = batchError {
         xray.execution(context: .batch, didError: e)
@@ -206,8 +210,10 @@ final class XrayTests: ModuleTestCase {
     module.clientConfig.xrayLevel = .batchSummaries
     xray = Xray(deps: module)
 
-    func batchXray(batchError: Error? = nil,
-                   batchResponseError: Error? = nil) {
+    func batchXray(
+      batchError: Error? = nil,
+      batchResponseError: Error? = nil
+    ) {
       xray.executionWillStart(context: .batch)
       if let e = batchError {
         xray.execution(context: .batch, didError: e)
@@ -234,5 +240,62 @@ final class XrayTests: ModuleTestCase {
     let expected = [error1, error2]
     XCTAssertEqual(expected, xray.errors as [NSError])
     XCTAssertEqual([], xray.calls)
+  }
+
+  func testAnomalyCount() {
+    module.clientConfig.xrayLevel = .callDetails
+    xray = Xray(deps: module)
+
+    // 0 anomalies
+    let context1 = Context.function("f1")
+    xray.executionWillStart(context: context1)
+    xray.execution(context: context1, willLogMessage: Event_User())
+    xray.executionDidEnd(context: context1)
+
+    // 1 anomaly
+    let context2 = Context.function("f2")
+    xray.executionWillStart(context: context2)
+    let user = Event_User()
+    xray.execution(context: context2, willLogMessage: user)
+    module.anomalyHandler?.execution(
+      context: context2,
+      willLogMessage: user
+    )
+    xray.executionDidEnd(context: context2)
+
+    // 2 anomalies
+    let context3 = Context.function("f3")
+    xray.executionWillStart(context: context3)
+    xray.execution(context: context3, willLogMessage: user)
+    module.anomalyHandler?.execution(
+      context: context3,
+      willLogMessage: user
+    )
+    var impression = Event_Impression()
+    impression.sourceType = .delivery
+    xray.execution(context: context3, willLogMessage: impression)
+    module.anomalyHandler?.execution(
+      context: context3,
+      willLogMessage: impression
+    )
+    xray.executionDidEnd(context: context3)
+    clock.advance(to: 1000)
+
+    xray.executionWillStart(context: .batch)
+    xray.executionDidEnd(context: .batch)
+
+    xray.executionWillStart(context: .batchResponse)
+    xray.executionDidLog(context: .batchResponse)
+    xray.executionDidEnd(context: .batchResponse)
+
+    let batches = xray.networkBatches
+    XCTAssertEqual(1, batches.count)
+    let batch = batches[0]
+    XCTAssertEqual(3, batch.anomalyCount)
+    let calls = batch.calls
+    XCTAssertEqual(3, calls.count)
+    XCTAssertEqual(0, calls[0].anomalyCount)
+    XCTAssertEqual(1, calls[1].anomalyCount)
+    XCTAssertEqual(2, calls[2].anomalyCount)
   }
 }
