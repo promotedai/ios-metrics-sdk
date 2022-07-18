@@ -9,8 +9,15 @@ protocol AnomalyModalViewControllerDelegate: AnyObject {
   )
 }
 
-/** Presents a modal with detailed error message. */
-class AnomalyModalViewController: UIViewController {
+/**
+ Presents a modal with detailed error message. Clients should not use this
+ class directly.
+
+ Although this class is intended only for internal use in the Promoted metrics
+ library, it is declared public so that ReactNativeMetrics can show the modal
+ for module initialization issues.
+ */
+public class AnomalyModalViewController: UIViewController {
 
   weak var delegate: AnomalyModalViewControllerDelegate?
 
@@ -41,7 +48,7 @@ class AnomalyModalViewController: UIViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
-  override func viewWillAppear(_ animated: Bool) {
+  public override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
 
     guard let view = self.view else { return }
@@ -138,7 +145,7 @@ class AnomalyModalViewController: UIViewController {
     NSLayoutConstraint.activate(constraints)
   }
 
-  override func viewWillDisappear(_ animated: Bool) {
+  public override func viewWillDisappear(_ animated: Bool) {
     super.viewWillDisappear(animated)
     if isBeingDismissed {
       delegate?.anomalyModalVCDidDismiss(self, shouldShowAgain: shouldShowAgain)
@@ -177,15 +184,17 @@ extension AnomalyModalViewController {
   }
 }
 
-/// Allows ReactNativeMetrics to show the VC.
-public func PresentAnomalyModalVCForModuleNotInitialized() {
-  DispatchQueue.main.async {
-    AnomalyModalViewController.present(
-      partner: "this marketplace",
-      contactInfo: ["Email: help@promoted.ai"],
-      anomalyType: .reactNativeMetricsModuleNotInitialized,
-      keyWindow: UIKitState.keyWindow(),
-      delegate: nil
-    )
+public extension AnomalyModalViewController {
+  /// Allows ReactNativeMetrics to show the VC.
+  static func presentForModuleNotInitialized() {
+    DispatchQueue.main.async {
+      AnomalyModalViewController.present(
+        partner: "this marketplace",
+        contactInfo: ["Email: help@promoted.ai"],
+        anomalyType: .reactNativeMetricsModuleNotInitialized,
+        keyWindow: UIKitState.keyWindow(),
+        delegate: nil
+      )
+    }
   }
 }
