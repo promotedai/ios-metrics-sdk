@@ -1430,4 +1430,103 @@ final class MetricsLoggerTests: ModuleTestCase {
     let autoViewHistory = assertSingletonList(history.autoViewIDHistory)
     XCTAssertEqual("fake-auto-view-id", autoViewHistory.ancestorID)
   }
+
+  fileprivate class TestAnomalyHandlerDelegate: AnomalyHandlerDelegate {
+
+    var anomalyType: AnomalyType? = nil
+    var message: Message? = nil
+
+    func anomalyHandler(
+      _ handler: AnomalyHandler,
+      didHandleAnomalyType type: AnomalyType,
+      message: Message?
+    ) {
+      self.anomalyType = type
+      self.message = message
+    }
+  }
+
+  func testAnomalyDetectionMissingLogUserIDOnUser() {
+    XCTAssertNotNil(module.anomalyHandler)
+    let delegate = TestAnomalyHandlerDelegate()
+    module.anomalyHandler?.delegate = delegate
+
+    metricsLogger.logUserID = nil
+    metricsLogger.logUserForTesting(properties: nil)
+    XCTAssertEqual(
+      .missingLogUserIDInUserMessage,
+      delegate.anomalyType
+    )
+  }
+
+  func testAnomalyDetectionValidLogUserIDOnUser() {
+    XCTAssertNotNil(module.anomalyHandler)
+    let delegate = TestAnomalyHandlerDelegate()
+    module.anomalyHandler?.delegate = delegate
+
+    metricsLogger.logUserID = "foo"
+    metricsLogger.logUserForTesting(properties: nil)
+    XCTAssertNil(delegate.anomalyType)
+  }
+
+  func testAnomalyDetectionMissingLogUserIDOnLogRequest() {
+    XCTAssertNotNil(module.anomalyHandler)
+    let delegate = TestAnomalyHandlerDelegate()
+    module.anomalyHandler?.delegate = delegate
+    metricsLogger.logUserID = nil
+
+    metricsLogger.logImpression(
+      content: Content(contentID: "foo", insertionID: "bar")
+    )
+
+    let flushInterval = config.loggingFlushInterval
+    clock.advance(to: flushInterval + 10)
+
+    XCTAssertEqual(
+      .missingLogUserIDInLogRequest,
+      delegate.anomalyType
+    )
+  }
+
+  func testAnomalyDetectionValidLogUserIDOnLogRequest() {
+    XCTAssertNotNil(module.anomalyHandler)
+    let delegate = TestAnomalyHandlerDelegate()
+    module.anomalyHandler?.delegate = delegate
+    metricsLogger.logUserID = "foo"
+
+    metricsLogger.logImpression(
+      content: Content(contentID: "foo", insertionID: "bar")
+    )
+
+    let flushInterval = config.loggingFlushInterval
+    clock.advance(to: flushInterval + 10)
+
+    XCTAssertNil(delegate.anomalyType)
+  }
+
+  func testAnomalyDetectionBadImpression() {
+    XCTAssertNotNil(module.anomalyHandler)
+    let delegate = TestAnomalyHandlerDelegate()
+    module.anomalyHandler?.delegate = delegate
+
+    metricsLogger.logImpression(
+      content: Content(contentID: "foo", insertionID: "bar"),
+      sourceType: .delivery
+    )
+    XCTAssertNil(delegate.anomalyType)
+
+    metricsLogger.logImpression(
+      content: Content(contentID: "", insertionID: "")
+    )
+    XCTAssertNil(delegate.anomalyType)
+
+    metricsLogger.logImpression(
+      content: Content(contentID: "", insertionID: ""),
+      sourceType: .delivery
+    )
+    XCTAssertEqual(
+      .missingJoinableFieldsInImpression,
+      delegate.anomalyType
+    )
+  }
 }
