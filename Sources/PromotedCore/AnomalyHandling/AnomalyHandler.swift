@@ -2,6 +2,15 @@ import Foundation
 import SwiftProtobuf
 import os.log
 
+/** Notified when `AnomalyHandler` detects a logging anomaly. */
+protocol AnomalyHandlerDelegate: AnyObject {
+  func anomalyHandler(
+    _ handler: AnomalyHandler,
+    didHandleAnomalyType type: AnomalyType,
+    message: Message?
+  )
+}
+
 /**
  Analyzes messages for anomalies and triggers responses according to setting
  in `ClientConfig.loggingAnomalyHandling`.
@@ -15,6 +24,8 @@ class AnomalyHandler: OperationMonitorListener {
     UIStateSource
   )
 
+  weak var delegate: AnomalyHandlerDelegate?
+
   private let config: ClientConfig
   private unowned let osLog: OSLog?
   private unowned let uiState: UIState
@@ -27,9 +38,26 @@ class AnomalyHandler: OperationMonitorListener {
     config = deps.clientConfig
     osLog = deps.osLog(category: "AnomalyHandler")
     uiState = deps.uiState
+    delegate = nil
     anomalyCount = 0
     shouldShowModal = true
     deps.operationMonitor.addOperationMonitorListener(self)
+  }
+
+  func execution(context: Context, didError error: Error) {
+    switch error {
+    case MetricsLoggerError.missingUserIDsInUserMessage:
+      // If an attempt to log a User event without userID AND
+      // logUserID occurs, it goes through this path. Otherwise,
+      // if it's only missing logUserID, it goes through
+      // execution(context:willLogMessage:).
+      triggerAnomalyHandlerResponse(
+        type: .missingLogUserIDInUserMessage,
+        message: nil
+      )
+    default:
+      break
+    }
   }
 
   func execution(context: Context, willLogMessage message: Message) {
@@ -41,6 +69,9 @@ class AnomalyHandler: OperationMonitorListener {
     case let action as Event_Action:
       analyze(action: action)
     case let user as Event_User:
+      // If an attempt to log a User event without a logUserID
+      // occurs (but it has a userID), it goes through this path.
+      // Otherwise, it goes through execution(context:didError:).
       analyze(user: user)
     default:
       break
@@ -49,7 +80,10 @@ class AnomalyHandler: OperationMonitorListener {
 
   func analyze(logRequest: Event_LogRequest) {
     if logRequest.userInfo.logUserID.isEmptyOrWhitespace {
-      triggerAnomalyHandlerResponse(type: .missingLogUserIDInLogRequest)
+      triggerAnomalyHandlerResponse(
+        type: .missingLogUserIDInLogRequest,
+        message: logRequest
+      )
     }
   }
 
@@ -59,7 +93,10 @@ class AnomalyHandler: OperationMonitorListener {
       impression.insertionID.isEmptyOrWhitespace &&
       impression.contentID.isEmptyOrWhitespace
     ) {
-      triggerAnomalyHandlerResponse(type: .missingJoinableFieldsInImpression)
+      triggerAnomalyHandlerResponse(
+        type: .missingJoinableFieldsInImpression,
+        message: impression
+      )
     }
   }
 
@@ -71,18 +108,32 @@ class AnomalyHandler: OperationMonitorListener {
       action.insertionID.isEmptyOrWhitespace &&
       action.contentID.isEmptyOrWhitespace
     ) {
-      triggerAnomalyHandlerResponse(type: .missingJoinableFieldsInAction)
+      triggerAnomalyHandlerResponse(
+        type: .missingJoinableFieldsInAction,
+        message: action
+      )
     }
   }
 
   func analyze(user: Event_User) {
     if user.userInfo.logUserID.isEmpty {
-      triggerAnomalyHandlerResponse(type: .missingLogUserIDInUserMessage)
+      triggerAnomalyHandlerResponse(
+        type: .missingLogUserIDInUserMessage,
+        message: user
+      )
     }
   }
 
-  private func triggerAnomalyHandlerResponse(type: AnomalyType) {
+  private func triggerAnomalyHandlerResponse(
+    type: AnomalyType,
+    message: Message?
+  ) {
     anomalyCount += 1
+    delegate?.anomalyHandler(
+      self,
+      didHandleAnomalyType: type,
+      message: message
+    )
     switch config.loggingAnomalyHandling {
     case .none:
       break
