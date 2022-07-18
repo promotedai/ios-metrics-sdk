@@ -30,7 +30,7 @@ final class TestModule: AllDeps {
   lazy var analyticsConnection: AnalyticsConnection? =
     fakeAnalyticsConnection
 
-  var anomalyHandler: AnomalyHandler? = nil
+  lazy var anomalyHandler: AnomalyHandler? = AnomalyHandler(deps: self)
 
   lazy var buildInfo: BuildInfo = fakeBuildInfo
 
