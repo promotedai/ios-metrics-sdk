@@ -99,6 +99,8 @@ public final class MetricsLogger: NSObject {
 
   var history: AncestorIDHistory?
 
+  // Cached log messages
+
   var cachedDeviceMessage: Common_Device?
   var cachedLocaleMessage: Common_Locale?
   var cachedClientInfoMessage: Common_ClientInfo?
@@ -316,9 +318,14 @@ extension MetricsLogger {
   @discardableResult
   private func logUser(properties: Message? = nil) -> Event_User? {
     guard (userID.stringValue?.count ?? 0) > 0 || logUserID?.count ?? 0 > 0 else {
+      monitor.execute {
+        handleExecutionError(
+          MetricsLoggerError.missingUserIDsInUserMessage
+        )
+      }
       return nil
     }
-        
+
     var user = Event_User()
     monitor.execute {
       user.userInfo = userInfoMessage()
