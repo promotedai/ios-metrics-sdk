@@ -2,9 +2,9 @@ import Foundation
 import UIKit
 
 /** Delegate for interactions with the AnomalyModalVC. */
-protocol AnomalyModalViewControllerDelegate: AnyObject {
-  func anomalyModalVCDidDismiss(
-    _ vc: AnomalyModalViewController,
+protocol ErrorModalViewControllerDelegate: AnyObject {
+  func errorModalVCDidDismiss(
+    _ vc: ErrorModalViewController,
     shouldShowAgain: Bool
   )
 }
@@ -17,25 +17,31 @@ protocol AnomalyModalViewControllerDelegate: AnyObject {
  library, it is declared public so that ReactNativeMetrics can show the modal
  for module initialization issues.
  */
-public class AnomalyModalViewController: UIViewController {
+public class ErrorModalViewController: UIViewController {
 
-  weak var delegate: AnomalyModalViewControllerDelegate?
+  weak var delegate: ErrorModalViewControllerDelegate?
 
   private let partner: String
   private let contactInfo: [String]
-  private let anomalyType: AnomalyType
+  private let errorDetails: String
+  private let errorCode: Int?
 
   private var shouldShowAgain: Bool
 
   init(
     partner: String,
     contactInfo: [String],
-    anomalyType: AnomalyType,
+    error: Error,
     delegate: AnomalyModalViewControllerDelegate?
   ) {
     self.partner = partner
     self.contactInfo = contactInfo
-    self.anomalyType = anomalyType
+    if let d = error as? ErrorDetails {
+      self.errorDetails = d.details
+    } else {
+      self.errorDetails = error.externalDescription
+    }
+    self.errorCode = error.asErrorProperties()?.code
     self.delegate = delegate
     self.shouldShowAgain = true
     super.init(nibName: nil, bundle: nil)
@@ -72,11 +78,11 @@ public class AnomalyModalViewController: UIViewController {
 
     let explanationLabel = UILabel(frame: textLayoutFrame)
     explanationLabel.numberOfLines = 0  // Use as many lines as needed.
-    explanationLabel.text = """
-    \(anomalyType.debugDescription)
-
-    Error code: \(anomalyType.rawValue)
-    """
+    var explanationLabelText = errorDetails
+    if let code = errorCode {
+      explanationLabelText += "\n\nError code: \(code)"
+    }
+    explanationLabel.text = explanationLabelText
     explanationLabel.textColor = .white
     explanationLabel.translatesAutoresizingMaskIntoConstraints = false
     backdrop.contentView.addSubview(explanationLabel)
@@ -162,11 +168,11 @@ public class AnomalyModalViewController: UIViewController {
   }
 }
 
-extension AnomalyModalViewController {
+extension ErrorModalViewController {
   static func present(
     partner: String,
     contactInfo: [String],
-    anomalyType: AnomalyType,
+    error: Error,
     keyWindow: UIWindow?,
     delegate: AnomalyModalViewControllerDelegate?
   ) {
@@ -184,12 +190,12 @@ extension AnomalyModalViewController {
   }
 }
 
-public extension AnomalyModalViewController {
+public extension ErrorModalViewController {
   /// Allows ReactNativeMetrics to show the VC.
   static func presentForModuleNotInitialized() {
     DispatchQueue.main.async {
       AnomalyModalViewController.present(
-        partner: "this marketplace",
+        partner: "your marketplace",
         contactInfo: ["Email: help@promoted.ai"],
         anomalyType: .reactNativeMetricsModuleNotInitialized,
         keyWindow: UIKitState.keyWindow(),

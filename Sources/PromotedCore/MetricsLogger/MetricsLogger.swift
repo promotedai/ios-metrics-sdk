@@ -159,16 +159,32 @@ public final class MetricsLogger: NSObject {
     }
   }
 
-  func handleExecutionError(
+  func handleLoggingError(
+    _ error: MetricsLoggerError,
+    function: String = #function
+  ) {
+    handleError(error, function: function)
+  }
+
+  func handleNetworkError(
     _ error: Error,
     function: String = #function
+  ) {
+    handleError(error, function: function)
+  }
+
+  private func handleError(
+    _ error: Error,
+    function: String
   ) {
     osLog?.error(
       "%{public}@: %{public}@",
       function,
       error.localizedDescription
     )
-    monitor.executionDidError(error)
+    withMonitoredExecution {
+      monitor.executionDidError(error)
+    }
   }
 }
 
@@ -317,15 +333,6 @@ extension MetricsLogger {
   ///   Logged event message.
   @discardableResult
   private func logUser(properties: Message? = nil) -> Event_User? {
-    guard (userID.stringValue?.count ?? 0) > 0 || logUserID?.count ?? 0 > 0 else {
-      monitor.execute {
-        handleExecutionError(
-          MetricsLoggerError.missingUserIDsInUserMessage
-        )
-      }
-      return nil
-    }
-
     var user = Event_User()
     monitor.execute {
       user.userInfo = userInfoMessage()
@@ -394,11 +401,12 @@ public extension MetricsLogger {
   /// delivered to the server on a timer.
   func log(message: Message) {
     guard Thread.isMainThread else {
-      handleExecutionError(MetricsLoggerError.calledFromWrongThread)
+      handleLoggingError(.calledFromWrongThread)
       return
     }
     logMessages.append(message)
     monitor.executionWillLog(message: message)
+    validate(message: message)
     maybeSchedulePendingBatchLoggingFlush()
   }
 
@@ -442,9 +450,7 @@ public extension MetricsLogger {
       case let action as Event_Action:
         logRequest.action.append(action)
       default:
-        handleExecutionError(
-          MetricsLoggerError.unexpectedEvent(event)
-        )
+        handleLoggingError(.unexpectedEvent(event))
       }
     }
     if let diagnostics = diagnosticsMessage(xray: xray) {
@@ -473,16 +479,18 @@ public extension MetricsLogger {
       let eventsCopy = logMessages
       logMessages.removeAll()
       let request = logRequestMessage(events: eventsCopy)
+      validate(message: request)
       do {
         let data = try connection.sendMessage(
-          request, clientConfig: config
+          request,
+          clientConfig: config
         ) { [weak self] (data, error) in
           self?.handleFlushResponse(data: data, error: error)
         }
         monitor.executionWillLog(message: request)
         monitor.executionWillLog(data: data)
       } catch {
-        handleExecutionError(error)
+        handleNetworkError(error)
       }
     }
   }
@@ -494,7 +502,7 @@ public extension MetricsLogger {
         monitor.executionDidLog()
       }
       if let e = error {
-        handleExecutionError(e)
+        handleNetworkError(e)
       }
     }
   }

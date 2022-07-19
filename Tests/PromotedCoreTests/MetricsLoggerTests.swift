@@ -1431,13 +1431,13 @@ final class MetricsLoggerTests: ModuleTestCase {
     XCTAssertEqual("fake-auto-view-id", autoViewHistory.ancestorID)
   }
 
-  fileprivate class TestAnomalyHandlerDelegate: AnomalyHandlerDelegate {
+  fileprivate class TestErrorHandlerDelegate: ErrorHandlerDelegate {
 
     var anomalyType: AnomalyType? = nil
     var message: Message? = nil
 
-    func anomalyHandler(
-      _ handler: AnomalyHandler,
+    func ErrorHandler(
+      _ handler: ErrorHandler,
       didHandleAnomalyType type: AnomalyType,
       message: Message?
     ) {
@@ -1447,9 +1447,9 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testAnomalyDetectionMissingLogUserIDOnUser() {
-    XCTAssertNotNil(module.anomalyHandler)
-    let delegate = TestAnomalyHandlerDelegate()
-    module.anomalyHandler?.delegate = delegate
+    XCTAssertNotNil(module.ErrorHandler)
+    let delegate = TestErrorHandlerDelegate()
+    module.ErrorHandler?.delegate = delegate
 
     metricsLogger.logUserID = nil
     metricsLogger.logUserForTesting(properties: nil)
@@ -1460,9 +1460,9 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testAnomalyDetectionValidLogUserIDOnUser() {
-    XCTAssertNotNil(module.anomalyHandler)
-    let delegate = TestAnomalyHandlerDelegate()
-    module.anomalyHandler?.delegate = delegate
+    XCTAssertNotNil(module.ErrorHandler)
+    let delegate = TestErrorHandlerDelegate()
+    module.ErrorHandler?.delegate = delegate
 
     metricsLogger.logUserID = "foo"
     metricsLogger.logUserForTesting(properties: nil)
@@ -1470,9 +1470,9 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testAnomalyDetectionMissingLogUserIDOnLogRequest() {
-    XCTAssertNotNil(module.anomalyHandler)
-    let delegate = TestAnomalyHandlerDelegate()
-    module.anomalyHandler?.delegate = delegate
+    XCTAssertNotNil(module.ErrorHandler)
+    let delegate = TestErrorHandlerDelegate()
+    module.ErrorHandler?.delegate = delegate
     metricsLogger.logUserID = nil
 
     metricsLogger.logImpression(
@@ -1489,9 +1489,9 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testAnomalyDetectionValidLogUserIDOnLogRequest() {
-    XCTAssertNotNil(module.anomalyHandler)
-    let delegate = TestAnomalyHandlerDelegate()
-    module.anomalyHandler?.delegate = delegate
+    XCTAssertNotNil(module.ErrorHandler)
+    let delegate = TestErrorHandlerDelegate()
+    module.ErrorHandler?.delegate = delegate
     metricsLogger.logUserID = "foo"
 
     metricsLogger.logImpression(
@@ -1505,9 +1505,9 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testAnomalyDetectionBadImpression() {
-    XCTAssertNotNil(module.anomalyHandler)
-    let delegate = TestAnomalyHandlerDelegate()
-    module.anomalyHandler?.delegate = delegate
+    XCTAssertNotNil(module.ErrorHandler)
+    let delegate = TestErrorHandlerDelegate()
+    module.ErrorHandler?.delegate = delegate
 
     metricsLogger.logImpression(
       content: Content(contentID: "foo", insertionID: "bar"),

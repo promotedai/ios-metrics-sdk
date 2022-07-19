@@ -24,12 +24,14 @@ public extension Error {
     return description.prefix(1).capitalized + description.dropFirst()
   }
 
-  func asErrorProperties() -> NSErrorProperties {
+  func asErrorProperties() -> NSErrorProperties? {
     switch self {
     case let e as NSErrorProperties:
       return e
     case let e as NSError:
       return NSErrorPropertiesWrapper(error: e)
+    default:
+      return nil
     }
   }
 }
@@ -150,7 +152,18 @@ public enum MetricsLoggerError: Error {
   case unexpectedEvent(_ event: Message)
 
   /// Tried to log a User message without userID and logUserID. Non-fatal.
-  case missingUserIDsInUserMessage
+  case missingLogUserIDInUserMessage
+
+  /// Tried to log a LogRequest batch without userID and logUserID. Non-fatal.
+  case missingLogUserIDInLogRequest
+
+  /// Impression without any joinable fields (content ID, insertion ID).
+  /// Non-fatal.
+  case missingJoinableFieldsInImpression
+
+  /// Action without any joinable fields (impression ID, content ID,
+  /// insertion ID). Non-fatal.
+  case missingJoinableFieldsInAction
 }
 
 extension MetricsLoggerError: NSErrorProperties {
@@ -163,8 +176,14 @@ extension MetricsLoggerError: NSErrorProperties {
       return 402
     case .unexpectedEvent(_):
       return 403
-    case .missingUserIDsInUserMessage:
+    case .missingLogUserIDInUserMessage:
       return 404
+    case .missingLogUserIDInLogRequest:
+      return 405
+    case .missingJoinableFieldsInImpression:
+      return 406
+    case .missingJoinableFieldsInAction:
+      return 407
     }
   }
 }

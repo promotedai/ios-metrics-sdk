@@ -1,21 +1,24 @@
+#if DEBUG
 import Foundation
 
-/** Types of logging anomalies that we've seen in production. */
-enum AnomalyType: Int {
-  /// Results from a logging call.
-  case missingLogUserIDInUserMessage = 101
-  /// Results from a logging call.
-  case missingLogUserIDInLogRequest = 102
-  /// Results from a logging call.
-  case missingJoinableFieldsInImpression = 103
-  /// Results from a logging call.
-  case missingJoinableFieldsInAction = 104
-  /// Detected in ReactNativeMetrics when initialization did not occur properly.
-  case reactNativeMetricsModuleNotInitialized = 105
+public protocol ErrorDetails {
+  var details: String { get }
 }
 
-extension AnomalyType: CustomDebugStringConvertible {
-  var debugDescription: String {
+public extension ClientConfigError: ErrorDetails {
+  var details: String {
+    return "foo"
+  }
+}
+
+public extension ModuleConfigError: ErrorDetails {
+  var details: String {
+    return "foo"
+  }
+}
+
+public extension MetricsLoggerError: ErrorDetails {
+  var details: String {
     switch self {
     case .missingLogUserIDInUserMessage, .missingLogUserIDInLogRequest:
       return """
@@ -33,6 +36,15 @@ extension AnomalyType: CustomDebugStringConvertible {
       return """
       PromotedMetricsModule was not initialized correctly. This may be due to a recent change to AppDelegate. Make sure that PromotedMetricsModule is included in -extraModulesForBridge:.
       """
+    default:
+      return "foo"
     }
   }
 }
+
+public extension RemoteConfigConnectionError: ErrorDetails {
+  var details: String {
+    return "foo"
+  }
+}
+#endif

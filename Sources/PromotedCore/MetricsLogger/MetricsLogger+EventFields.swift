@@ -51,8 +51,8 @@ extension MetricsLogger {
         return dataMessage
       }
     } catch {
-      handleExecutionError(
-        MetricsLoggerError.propertiesSerializationError(
+      handleLoggingError(
+        .propertiesSerializationError(
           underlying: error
         )
       )

@@ -44,7 +44,7 @@ public final class ModuleConfig: NSObject {
 typealias AllDeps = (
   AnalyticsConnectionSource &
   AnalyticsSource &
-  AnomalyHandlerSource &
+  ErrorHandlerSource &
   BuildInfoSource &
   ClientConfigSource &
   ClientConfigServiceSource &
@@ -169,9 +169,9 @@ final class Module: AllDeps {
 
   private(set) var analyticsConnection: AnalyticsConnection?
 
-  private(set) lazy var anomalyHandler: AnomalyHandler? =
+  private(set) lazy var ErrorHandler: ErrorHandler? =
     clientConfig.loggingAnomalyHandling > .none ?
-    AnomalyHandler(deps: self) : nil
+    ErrorHandler(deps: self) : nil
 
   let buildInfo: BuildInfo = IOSBuildInfo()
 
@@ -280,7 +280,7 @@ final class Module: AllDeps {
     // as OperationMonitorListeners.
     _ = analytics
     try analyticsConnection?.startServices()
-    _ = anomalyHandler
+    _ = ErrorHandler
     _ = xray
   }
 }

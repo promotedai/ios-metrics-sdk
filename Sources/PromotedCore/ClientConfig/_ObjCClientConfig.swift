@@ -311,13 +311,11 @@ public final class _ObjCClientConfig: NSObject {
   public enum LoggingAnomalyHandling: Int, Comparable, ConfigEnum {
     /// Ignore all logging anomalies. Default in production.
     case none = 0
-    /// Logs anomalies to console.
-    case consoleLog = 1
     /// Interrupts UI with a modal dialog. Default in development.
-    case modalDialog = 2
+    case modalDialog = 1
     /// Triggers a breakpoint when running in debug. This may not be
     /// useful for React Native apps.
-    case breakInDebugger = 3
+    case breakInDebugger = 2
 
     #if DEBUG
     static let `default`: LoggingAnomalyHandling = .modalDialog
@@ -560,8 +558,6 @@ extension _ObjCClientConfig.LoggingAnomalyHandling {
     switch self {
     case .none:
       return "none"
-    case .consoleLog:
-      return "consoleLog"
     case .modalDialog:
       return "modalDialog"
     default:

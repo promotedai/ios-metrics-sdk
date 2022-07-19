@@ -2,11 +2,11 @@ import Foundation
 import SwiftProtobuf
 import os.log
 
-/** Notified when `AnomalyHandler` detects a logging anomaly. */
-protocol AnomalyHandlerDelegate: AnyObject {
-  func anomalyHandler(
-    _ handler: AnomalyHandler,
-    didHandleAnomalyType type: AnomalyType,
+/** Notified when `ErrorHandler` detects a logging anomaly. */
+protocol ErrorHandlerDelegate: AnyObject {
+  func ErrorHandler(
+    _ handler: ErrorHandler,
+    didHandleError error: Error,
     message: Message?
   )
 }
@@ -15,7 +15,7 @@ protocol AnomalyHandlerDelegate: AnyObject {
  Analyzes messages for anomalies and triggers responses according to setting
  in `ClientConfig.loggingAnomalyHandling`.
  */
-class AnomalyHandler: OperationMonitorListener {
+class ErrorHandler: OperationMonitorListener {
 
   typealias Deps = (
     ClientConfigSource &
@@ -24,7 +24,7 @@ class AnomalyHandler: OperationMonitorListener {
     UIStateSource
   )
 
-  weak var delegate: AnomalyHandlerDelegate?
+  weak var delegate: ErrorHandlerDelegate?
 
   private let config: ClientConfig
   private unowned let osLog: OSLog?
@@ -36,7 +36,7 @@ class AnomalyHandler: OperationMonitorListener {
   init(deps: Deps) {
     assert(deps.clientConfig.loggingAnomalyHandling > .none)
     config = deps.clientConfig
-    osLog = deps.osLog(category: "AnomalyHandler")
+    osLog = deps.osLog(category: "ErrorHandler")
     uiState = deps.uiState
     delegate = nil
     anomalyCount = 0
@@ -45,19 +45,19 @@ class AnomalyHandler: OperationMonitorListener {
   }
 
   func execution(context: Context, didError error: Error) {
-    switch error {
-    case MetricsLoggerError.missingUserIDsInUserMessage:
-      // If an attempt to log a User event without userID AND
-      // logUserID occurs, it goes through this path. Otherwise,
-      // if it's only missing logUserID, it goes through
-      // execution(context:willLogMessage:).
-      triggerAnomalyHandlerResponse(
-        type: .missingLogUserIDInUserMessage,
-        message: nil
-      )
-    default:
-      break
-    }
+//    switch error {
+//    case MetricsLoggerError.missingUserIDsInUserMessage:
+//      // If an attempt to log a User event without userID AND
+//      // logUserID occurs, it goes through this path. Otherwise,
+//      // if it's only missing logUserID, it goes through
+//      // execution(context:willLogMessage:).
+//      triggerErrorHandlerResponse(
+//        type: .missingLogUserIDInUserMessage,
+//        message: nil
+//      )
+//    default:
+//      break
+//    }
   }
 
   func execution(context: Context, willLogMessage message: Message) {
@@ -80,7 +80,7 @@ class AnomalyHandler: OperationMonitorListener {
 
   func analyze(logRequest: Event_LogRequest) {
     if logRequest.userInfo.logUserID.isEmptyOrWhitespace {
-      triggerAnomalyHandlerResponse(
+      triggerErrorHandlerResponse(
         type: .missingLogUserIDInLogRequest,
         message: logRequest
       )
@@ -93,7 +93,7 @@ class AnomalyHandler: OperationMonitorListener {
       impression.insertionID.isEmptyOrWhitespace &&
       impression.contentID.isEmptyOrWhitespace
     ) {
-      triggerAnomalyHandlerResponse(
+      triggerErrorHandlerResponse(
         type: .missingJoinableFieldsInImpression,
         message: impression
       )
@@ -108,7 +108,7 @@ class AnomalyHandler: OperationMonitorListener {
       action.insertionID.isEmptyOrWhitespace &&
       action.contentID.isEmptyOrWhitespace
     ) {
-      triggerAnomalyHandlerResponse(
+      triggerErrorHandlerResponse(
         type: .missingJoinableFieldsInAction,
         message: action
       )
@@ -117,19 +117,19 @@ class AnomalyHandler: OperationMonitorListener {
 
   func analyze(user: Event_User) {
     if user.userInfo.logUserID.isEmpty {
-      triggerAnomalyHandlerResponse(
+      triggerErrorHandlerResponse(
         type: .missingLogUserIDInUserMessage,
         message: user
       )
     }
   }
 
-  private func triggerAnomalyHandlerResponse(
+  private func triggerErrorHandlerResponse(
     type: AnomalyType,
     message: Message?
   ) {
     anomalyCount += 1
-    delegate?.anomalyHandler(
+    delegate?.ErrorHandler(
       self,
       didHandleAnomalyType: type,
       message: message
@@ -164,11 +164,11 @@ class AnomalyHandler: OperationMonitorListener {
   }
 }
 
-protocol AnomalyHandlerSource {
-  var anomalyHandler: AnomalyHandler? { get }
+protocol ErrorHandlerSource {
+  var ErrorHandler: ErrorHandler? { get }
 }
 
-extension AnomalyHandler: AnomalyModalViewControllerDelegate {
+extension ErrorHandler: AnomalyModalViewControllerDelegate {
   func  anomalyModalVCDidDismiss(
     _ vc: AnomalyModalViewController,
     shouldShowAgain: Bool
