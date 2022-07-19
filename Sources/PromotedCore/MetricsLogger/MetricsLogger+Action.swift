@@ -112,6 +112,7 @@ public extension MetricsLogger {
   ///   - elementID: Element that triggered action, designed for web SDK.
   ///     If no `elementID` is provided, is derived from `name`
   ///   - autoViewState: Auto view to associate with action
+  ///   - collectionInteraction: Additional information about UI interaction.
   ///   - contentID: Content ID for marketplace content
   ///   - impressionID: Impression ID to associate with action as provided
   ///     by mobile SDK
