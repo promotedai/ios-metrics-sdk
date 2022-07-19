@@ -6,39 +6,39 @@ import os.log
  Exposes internals of PromotedAIMetricsSDK workings so that clients
  can inspect time profiles, network activity, and contents of log
  messages sent to the server.
- 
+
  Set `xrayEnabled` on the initial `ClientConfig` to enable this
  profiling for the session. Access the `xray` property on
  `MetricsLoggerService`.
- 
+
  Like all profiling mechanisms, `Xray` incurs performance and memory
  overhead, so use in production should be judicious. `Xray` makes
  best effort to exclude its own overhead from its reports.
- 
+
  Profile data from `Xray` is kept only in memory on the client, and
  not sent to Promoted's servers (as of 2021Q1).
  */
 @objc(PROXray)
 public final class Xray: NSObject {
-  
+
   public typealias CallStack = [String]
 
   /** Instrumented call to Promoted library. */
   @objc(PROXrayCall)
   public final class Call: NSObject {
-    
+
     /// Call stack that triggered logging.
     @objc public fileprivate(set) var callStack: CallStack = []
-    
+
     /// Start time for logging execution.
     @objc public fileprivate(set) var startTime: TimeInterval = 0
 
     /// End time for logging execution.
     @objc public fileprivate(set) var endTime: TimeInterval = 0
-    
+
     /// Context that produced the logging.
     @objc public fileprivate(set) var context: String = ""
-    
+
     /// Time spent in Promoted code for this logging call.
     @objc public var timeSpent: TimeInterval { endTime - startTime }
 
@@ -63,13 +63,6 @@ public final class Xray: NSObject {
 
     /// Errors that resulted from this logging call.
     @objc public fileprivate(set) var error: Error? = nil
-
-    fileprivate var startAnomalyCount = 0
-    fileprivate var endAnomalyCount = 0
-
-    /// Number of logging anomalies encountered during this call.
-    /// Since anomalies are the result of client
-    @objc public var anomalyCount: Int { endAnomalyCount - startAnomalyCount }
   }
 
   /** Batched logging call. */
@@ -79,14 +72,14 @@ public final class Xray: NSObject {
     /// Serial number of this batch. Assigned in increasing
     /// order starting at 1.
     @objc public fileprivate(set) var batchNumber: Int = 0
-    
+
     /// Start time for batch flush.
     @objc public fileprivate(set) var startTime: TimeInterval = 0
 
     /// End time for batch flush. Includes time for proto serialization,
     /// but not the network latency.
     @objc public fileprivate(set) var endTime: TimeInterval = 0
-    
+
     /// Time spent in Promoted code for batch flush.
     @objc public var timeSpent: TimeInterval { endTime - startTime }
 
@@ -101,7 +94,7 @@ public final class Xray: NSObject {
     /// Time at which network response received.
     /// This time is asynchronous.
     @objc public fileprivate(set) var networkEndTime: TimeInterval = 0
-    
+
     /// Message sent across the network.
     public fileprivate(set) var message: Message? = nil
 
@@ -128,15 +121,10 @@ public final class Xray: NSObject {
     @objc public var errorsAcrossCalls: [Error] {
       calls.compactMap(\.error) + errors
     }
-
-    /// Anomaly count across calls.
-    @objc public var anomalyCount: Int  {
-      calls.map(\.anomalyCount).reduce(0, +)
-    }
   }
-  
+
   public static let networkBatchWindowMaxSize: Int = 100
-  
+
   public static var timingMayBeInaccurate: Bool {
     #if DEBUG || targetEnvironment(simulator)
       return true
@@ -144,7 +132,7 @@ public final class Xray: NSObject {
       return false
     #endif
   }
-  
+
   /// Number of network batches to keep in memory.
   @objc public var networkBatchWindowSize: Int {
     get { networkBatchQueue.maximumSize! }
@@ -198,22 +186,15 @@ public final class Xray: NSObject {
     networkBatches.flatMap(\.errorsAcrossCalls)
   }
 
-  /// Anomaly count across `networkBatches`.
-  @objc public var anomalyCount: Int {
-    networkBatches.map(\.anomalyCount).reduce(0, +)
-  }
-
   private var pendingCalls: [Call]
   private var pendingBatch: NetworkBatch?
 
-  private let anomalyHandler: AnomalyHandler?
   private let clock: Clock
   private let xrayLevel: ClientConfig.XrayLevel
   private let osLogLevel: ClientConfig.OSLogLevel
   private let osLog: OSLog?
 
   typealias Deps = (
-    AnomalyHandlerSource &
     ClockSource &
     ClientConfigSource &
     OperationMonitorSource &
@@ -223,7 +204,6 @@ public final class Xray: NSObject {
   init(deps: Deps) {
     assert(deps.clientConfig.xrayLevel != .none)
 
-    self.anomalyHandler = deps.anomalyHandler
     self.clock = deps.clock
     self.xrayLevel = deps.clientConfig.xrayLevel
     self.osLogLevel = deps.clientConfig.osLogLevel
@@ -238,7 +218,7 @@ public final class Xray: NSObject {
     self.networkBatchQueue = Deque<NetworkBatch>(maximumSize: 10)
     self.pendingCalls = []
     self.pendingBatch = nil
-    
+
     super.init()
     deps.operationMonitor.addOperationMonitorListener(self)
   }
@@ -261,11 +241,10 @@ fileprivate extension Xray {
       call.callStack = Thread.callStackSymbols
     }
     call.startTime = clock.now
-    call.startAnomalyCount = anomalyHandler?.anomalyCount ?? 0
     pendingCalls.append(call)
     osLog?.signpostBegin(name: "call")
   }
-  
+
   private func callDidLog(message: Message) {
     guard xrayLevel >= .callDetails else { return }
     osLog?.signpostEvent(name: "call", format: "log")
@@ -296,7 +275,6 @@ fileprivate extension Xray {
     osLog?.signpostEnd(name: "call")
     guard let lastCall = pendingCalls.last else { return }
     lastCall.endTime = clock.now
-    lastCall.endAnomalyCount = anomalyHandler?.anomalyCount ?? 0
   }
 }
 
@@ -561,7 +539,7 @@ extension Xray: OperationMonitorListener {
       batchResponseDidError(error)
     }
   }
-  
+
   func execution(context: Context, willLogMessage message: Message) {
     switch context {
     case .function(_):
