@@ -109,7 +109,7 @@ final class ViewTrackerTests: ModuleTestCase {
 
     // No change in VC stack should provide nil state.
     let viewIDBefore = viewTracker.id.currentValue
-    uiState.viewControllers = [vc1, vc2, vc3]
+    uiState.viewControllerStack = [vc1, vc2, vc3]
     let updatedState = viewTracker.updateState()
     XCTAssertNil(updatedState)
     XCTAssertEqual(viewIDBefore, viewTracker.id.currentValue)
@@ -134,7 +134,7 @@ final class ViewTrackerTests: ModuleTestCase {
     XCTAssertNotEqual(viewID2, viewID3)
 
     // Simulate vc2 and vc3 being popped off stack.
-    uiState.viewControllers = [vc1]
+    uiState.viewControllerStack = [vc1]
     let finalState = viewTracker.updateState()
     XCTAssertEqual(state1, finalState)
     XCTAssertNotEqual(viewID1, viewTracker.id.currentValue)
@@ -152,7 +152,7 @@ final class ViewTrackerTests: ModuleTestCase {
     XCTAssertNotNil(state3)
 
     // vc2 shouldn't appear in the stack.
-    uiState.viewControllers = [vc1, vc2, vc3]
+    uiState.viewControllerStack = [vc1, vc2, vc3]
     _ = viewTracker.updateState()
     let stack = viewTracker.viewStackForTesting
     XCTAssertEqual([state1, state3], stack)

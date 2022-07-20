@@ -148,6 +148,9 @@ public enum MetricsLoggerError: Error {
 
   /// An unexpected event type was logged. Non-fatal.
   case unexpectedEvent(_ event: Message)
+
+  /// Tried to log a User message without userID and logUserID. Non-fatal.
+  case missingUserIDsInUserMessage
 }
 
 extension MetricsLoggerError: NSErrorProperties {
@@ -160,6 +163,8 @@ extension MetricsLoggerError: NSErrorProperties {
       return 402
     case .unexpectedEvent(_):
       return 403
+    case .missingUserIDsInUserMessage:
+      return 404
     }
   }
 }

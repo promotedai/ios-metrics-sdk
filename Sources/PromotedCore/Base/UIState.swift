@@ -2,7 +2,8 @@ import Foundation
 import UIKit
 
 protocol UIState: AnyObject {
-  func viewControllerStack() -> [UIViewController]
+  var viewControllerStack: [UIViewController] { get }
+  var keyWindow: UIWindow? { get }
 }
 
 protocol UIStateSource {
@@ -11,12 +12,12 @@ protocol UIStateSource {
 
 final class UIKitState: UIState {
 
-  func viewControllerStack() -> [UIViewController] {
-    guard let root = UIApplication.shared.keyWindow?.rootViewController else {
-      return []
-    }
+  var viewControllerStack: [UIViewController] {
+    guard let root = keyWindow?.rootViewController else { return [] }
     return Self.viewControllerStack(root: root)
   }
+
+  var keyWindow: UIWindow? { Self.keyWindow() }
 
   static func viewControllerStack(root: UIViewController) -> [UIViewController] {
     var stack = [UIViewController]()
@@ -52,5 +53,15 @@ final class UIKitState: UIState {
       }
     }
     return stack
+  }
+
+  static func keyWindow() -> UIWindow? {
+    if #available(iOS 13.0, *) {
+      return UIApplication.shared.connectedScenes
+        .flatMap { ($0 as? UIWindowScene)?.windows ?? [] }
+        .first(where: \.isKeyWindow)
+    } else {
+      return UIApplication.shared.keyWindow
+    }
   }
 }

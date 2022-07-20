@@ -150,16 +150,20 @@ final class XrayTests: ModuleTestCase {
     allCalls.append(contentsOf: batchXray(["hello", "darkness"]))
     allCalls.append(contentsOf: batchXray(["my", "old", "friend"]))
 
-    XCTAssertEqual(allCalls.map(\.debugDescription),
-                   xray.calls.map(\.context))
+    XCTAssertEqual(
+      allCalls.map(\.debugDescription),
+      xray.calls.map(\.context)
+    )
   }
 
   func testErrors() {
     module.clientConfig.xrayLevel = .callDetails
     xray = Xray(deps: module)
 
-    func batchXray(batchError: Error? = nil,
-                   batchResponseError: Error? = nil) {
+    func batchXray(
+      batchError: Error? = nil,
+      batchResponseError: Error? = nil
+    ) {
       xray.executionWillStart(context: .batch)
       if let e = batchError {
         xray.execution(context: .batch, didError: e)
@@ -206,8 +210,10 @@ final class XrayTests: ModuleTestCase {
     module.clientConfig.xrayLevel = .batchSummaries
     xray = Xray(deps: module)
 
-    func batchXray(batchError: Error? = nil,
-                   batchResponseError: Error? = nil) {
+    func batchXray(
+      batchError: Error? = nil,
+      batchResponseError: Error? = nil
+    ) {
       xray.executionWillStart(context: .batch)
       if let e = batchError {
         xray.execution(context: .batch, didError: e)

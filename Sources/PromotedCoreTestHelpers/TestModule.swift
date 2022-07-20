@@ -30,6 +30,8 @@ final class TestModule: AllDeps {
   lazy var analyticsConnection: AnalyticsConnection? =
     fakeAnalyticsConnection
 
+  lazy var anomalyHandler: AnomalyHandler? = AnomalyHandler(deps: self)
+
   lazy var buildInfo: BuildInfo = fakeBuildInfo
 
   lazy var clientConfigService: ClientConfigService = ClientConfigService(deps: self)

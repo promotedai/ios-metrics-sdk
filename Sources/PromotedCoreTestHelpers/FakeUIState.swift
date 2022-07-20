@@ -4,9 +4,12 @@ import UIKit
 @testable import PromotedCore
 
 final class FakeUIState: UIState {
-  var viewControllers: [UIViewController] = []
-  func viewControllerStack() -> [UIViewController] {
-    return viewControllers
+
+  var viewControllerStack: [UIViewController]
+  var keyWindow: UIWindow?
+
+  init() {
+    viewControllerStack = []
+    keyWindow = nil
   }
-  init() {}
 }

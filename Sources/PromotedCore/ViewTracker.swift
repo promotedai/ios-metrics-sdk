@@ -29,7 +29,6 @@ struct ViewTracker {
   private var viewIDProducer: IDProducer
   private var viewStack: Stack
   private let uiState: UIState
-  private let isReactNativeHint: Bool
 
   var id: IDSequence {
     get { viewIDProducer }
@@ -51,7 +50,6 @@ struct ViewTracker {
     self.viewIDProducer = IDProducer { idMap.viewID() }
     self.viewStack = []
     self.uiState = deps.uiState
-    self.isReactNativeHint = (NSClassFromString("PromotedMetricsModule") != nil)
   }
 
   /// Manually tracks a view, then returns a `State` if this call
@@ -88,8 +86,6 @@ struct ViewTracker {
   }
 
   private func updateViewStack(previousStack: Stack) -> Stack {
-    // Use `isReactNativeHint` only to break ties in the case
-    // where the stack is empty.
     if viewStack.isEmpty {
       return previousStack
     }
@@ -101,8 +97,7 @@ struct ViewTracker {
 
     // Regenerate stack, including only VCs that were explicitly
     // logged. These are the VCs in the previous stack.
-    let viewControllerStack = uiState.viewControllerStack()
-    let newStack = viewControllerStack.compactMap {
+    let newStack = uiState.viewControllerStack.compactMap {
       previousStack.first(matching: $0)
     }
     return newStack
