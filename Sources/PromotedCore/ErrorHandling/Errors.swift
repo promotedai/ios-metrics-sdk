@@ -65,23 +65,19 @@ public enum ClientConfigError: Error {
   /// provide `devMetricsLoggingAPIKey`.
   case missingDevAPIKey
 
-  /// Error when fetching remote config.
-  case remoteConfigFetchError(_ error: Error)
-
-  /// Remote fetch finished, but provided no config.
-  case emptyRemoteConfig
-
   /// Specified wire format doesn't exist.
-  case invalidWireFormat
+  case invalidMetricsLoggingWireFormat
 
-  /// Error when persisting fetched config to local cache.
-  /// This means that the config will not be applied.
-  case localCacheEncodeError(_ error: Error)
+  case invalidXrayLevel
+
+  case invalidOSLogLevel
 
   /// `ClientConfig.diagnosticsSamplingPercentage` was specified,
   /// but a valid date was not given for
   /// `diagnosticsSamplingEndDateString`.
   case invalidDiagnosticsSamplingEndDateString(_ s: String)
+
+  case invalidMetricsLoggingErrorHandling
 }
 
 extension ClientConfigError: NSErrorProperties {
@@ -94,15 +90,15 @@ extension ClientConfigError: NSErrorProperties {
       return 102
     case .missingDevAPIKey:
       return 103
-    case .remoteConfigFetchError(_):
+    case .invalidMetricsLoggingWireFormat:
       return 104
-    case .emptyRemoteConfig:
+    case .invalidXrayLevel:
       return 105
-    case .invalidWireFormat:
+    case .invalidOSLogLevel:
       return 106
-    case .localCacheEncodeError(_):
-      return 107
     case .invalidDiagnosticsSamplingEndDateString(_):
+      return 107
+    case .invalidMetricsLoggingErrorHandling:
       return 108
     }
   }
@@ -188,6 +184,35 @@ extension MetricsLoggerError: NSErrorProperties {
   }
 }
 
+// MARK: - ClientConfigFetchError
+/** Errors produced by `ClientConfigService` when fetching Remote Config. */
+public enum ClientConfigFetchError: Error {
+
+  /// Network error when fetching remote config.
+  case networkError(_ error: Error)
+
+  /// Remote fetch finished, but provided no config.
+  case emptyConfig
+
+  /// Error when persisting fetched config to local cache.
+  /// This means that the config will not be applied.
+  case localCacheEncodeError(_ error: Error)
+}
+
+extension ClientConfigFetchError: NSErrorProperties {
+
+  public var code: Int {
+    switch self {
+    case .networkError(_):
+      return 501
+    case .emptyConfig:
+      return 502
+    case .localCacheEncodeError(_):
+      return 503
+    }
+  }
+}
+
 // MARK: - RemoteConfigConnectionError
 /** Errors produced by `RemoteConfigConnection`. */
 public enum RemoteConfigConnectionError: Error {
@@ -199,9 +224,9 @@ extension RemoteConfigConnectionError: NSErrorProperties {
   public var code: Int {
     switch self {
     case .failed(_):
-      return 501
+      return 601
     case .serviceConfigError(_):
-      return 502
+      return 602
     }
   }
 }

@@ -85,7 +85,7 @@ extension ClientConfigService {
 
   struct Result {
     let config: ClientConfig?
-    let error: ClientConfigError?
+    let error: ClientConfigFetchError?
     let messages: PendingLogMessages
   }
 
@@ -254,7 +254,7 @@ extension ClientConfigService {
     fetchMessages: PendingLogMessages
   ) {
     var resultConfig: ClientConfig? = nil
-    var resultError: ClientConfigError? = nil
+    var resultError: ClientConfigFetchError? = nil
     var resultMessages = fetchMessages + remoteResult.messages
     defer {
       let result = Result(
@@ -266,13 +266,13 @@ extension ClientConfigService {
     }
 
     guard remoteResult.error == nil else {
-      resultError = .remoteConfigFetchError(remoteResult.error!)
+      resultError = .networkError(remoteResult.error!)
       return
     }
 
     guard let remoteConfig = remoteResult.config else {
       // Somehow failed to get error or config.
-      resultError = .emptyRemoteConfig
+      resultError = .emptyConfig
       return
     }
 
@@ -302,7 +302,7 @@ extension ClientConfigService {
     )
     let result = Result(
       config: cachedConfig,
-      error: .remoteConfigFetchError(error),
+      error: .networkError(error),
       messages: resultMessages
     )
     callback(result)

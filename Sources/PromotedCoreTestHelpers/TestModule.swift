@@ -30,7 +30,7 @@ final class TestModule: AllDeps {
   lazy var analyticsConnection: AnalyticsConnection? =
     fakeAnalyticsConnection
 
-  lazy var ErrorHandler: ErrorHandler? = ErrorHandler(deps: self)
+  lazy var errorHandler: ErrorHandler? = ErrorHandler(deps: self)
 
   lazy var buildInfo: BuildInfo = fakeBuildInfo
 

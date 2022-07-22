@@ -1,3 +1,5 @@
+#if DEBUG
+
 import Foundation
 import UIKit
 
@@ -28,11 +30,11 @@ public class ErrorModalViewController: UIViewController {
 
   private var shouldShowAgain: Bool
 
-  init(
+  required init(
     partner: String,
     contactInfo: [String],
     error: Error,
-    delegate: AnomalyModalViewControllerDelegate?
+    delegate: ErrorModalViewControllerDelegate?
   ) {
     self.partner = partner
     self.contactInfo = contactInfo
@@ -154,7 +156,7 @@ public class ErrorModalViewController: UIViewController {
   public override func viewWillDisappear(_ animated: Bool) {
     super.viewWillDisappear(animated)
     if isBeingDismissed {
-      delegate?.anomalyModalVCDidDismiss(self, shouldShowAgain: shouldShowAgain)
+      delegate?.errorModalVCDidDismiss(self, shouldShowAgain: shouldShowAgain)
     }
   }
 
@@ -174,16 +176,16 @@ extension ErrorModalViewController {
     contactInfo: [String],
     error: Error,
     keyWindow: UIWindow?,
-    delegate: AnomalyModalViewControllerDelegate?
+    delegate: ErrorModalViewControllerDelegate?
   ) {
     guard
       let rootVC = keyWindow?.rootViewController,
       rootVC.presentedViewController == nil
     else { return }
-    let vc = AnomalyModalViewController(
+    let vc = Self.init(
       partner: partner,
       contactInfo: contactInfo,
-      anomalyType: anomalyType,
+      error: error,
       delegate: delegate
     )
     rootVC.present(vc, animated: true)
@@ -192,15 +194,17 @@ extension ErrorModalViewController {
 
 public extension ErrorModalViewController {
   /// Allows ReactNativeMetrics to show the VC.
-  static func presentForModuleNotInitialized() {
+  static func presentForReactNativeError(error: Error) {
     DispatchQueue.main.async {
-      AnomalyModalViewController.present(
+      Self.present(
         partner: "your marketplace",
         contactInfo: ["Email: help@promoted.ai"],
-        anomalyType: .reactNativeMetricsModuleNotInitialized,
+        error: error,
         keyWindow: UIKitState.keyWindow(),
         delegate: nil
       )
     }
   }
 }
+
+#endif

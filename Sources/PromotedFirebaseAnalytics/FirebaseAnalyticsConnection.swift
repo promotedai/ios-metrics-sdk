@@ -32,12 +32,13 @@ final class FirebaseAnalyticsConnection: AnalyticsConnection {
 
   func log(errors: [Error]) {
     for error in errors {
-      let externalError = error.asErrorProperties()
-      Firebase.Analytics.logEvent("ai_promoted_error", parameters: [
-        "description": externalError.externalDescription.prefix(100),
-        "domain": externalError.domain,
-        "error-code": externalError.code
-      ])
+      if let externalError = error.asErrorProperties() {
+        Firebase.Analytics.logEvent("ai_promoted_error", parameters: [
+          "description": externalError.externalDescription.prefix(100),
+          "domain": externalError.domain,
+          "error-code": externalError.code
+        ])
+      }
     }
   }
 }

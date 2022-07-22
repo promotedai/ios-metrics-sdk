@@ -169,8 +169,8 @@ final class Module: AllDeps {
 
   private(set) var analyticsConnection: AnalyticsConnection?
 
-  private(set) lazy var ErrorHandler: ErrorHandler? =
-    clientConfig.loggingAnomalyHandling > .none ?
+  private(set) lazy var errorHandler: ErrorHandler? =
+    clientConfig.metricsLoggingErrorHandling > .none ?
     ErrorHandler(deps: self) : nil
 
   let buildInfo: BuildInfo = IOSBuildInfo()
@@ -280,7 +280,7 @@ final class Module: AllDeps {
     // as OperationMonitorListeners.
     _ = analytics
     try analyticsConnection?.startServices()
-    _ = ErrorHandler
+    _ = errorHandler
     _ = xray
   }
 }

@@ -307,9 +307,9 @@ public final class _ObjCClientConfig: NSObject {
   /// `Date`s in ObjC/Swift.
   @objc public var diagnosticsSamplingEndDateString: String = ""
 
-  @objc(PROLoggingAnomalyHandling)
-  public enum LoggingAnomalyHandling: Int, Comparable, ConfigEnum {
-    /// Ignore all logging anomalies. Default in production.
+  @objc(PROMetricsLoggingErrorHandling)
+  public enum MetricsLoggingErrorHandling: Int, Comparable, ConfigEnum {
+    /// Ignore all logging errors. Default in production.
     case none = 0
     /// Interrupts UI with a modal dialog. Default in development.
     case modalDialog = 1
@@ -318,18 +318,18 @@ public final class _ObjCClientConfig: NSObject {
     case breakInDebugger = 2
 
     #if DEBUG
-    static let `default`: LoggingAnomalyHandling = .modalDialog
+    static let `default`: MetricsLoggingErrorHandling = .modalDialog
     #else
-    static let `default`: LoggingAnomalyHandling = .none
+    static let `default`: MetricsLoggingErrorHandling = .none
     #endif
   }
-
-  /// How to handle anomalies (errors/warnings) from logging calls.
-  /// Anomalies are defined as any logging call made by the client
-  /// that contains potentially incorrect or malformed data. In
-  /// other words, anomalies arise from data errors.
-  @objc public var loggingAnomalyHandling: LoggingAnomalyHandling = .default {
-    didSet { validateEnum(&loggingAnomalyHandling, defaultValue: .default) }
+  /// How to handle errors/warnings from logging calls.
+  @objc public var metricsLoggingErrorHandling:
+    MetricsLoggingErrorHandling = .default
+  {
+    didSet {
+      validateEnum(&metricsLoggingErrorHandling, defaultValue: .default)
+    }
   }
 
   /// Partner marketplace name.
@@ -385,9 +385,9 @@ extension _ObjCClientConfig {
       if let intValue = value as? Int {
         return OSLogLevel(rawValue: intValue)
       }
-    case "loggingAnomalyHandling":
+    case "loggingErrorHandling":
       if let intValue = value as? Int {
-        return LoggingAnomalyHandling(rawValue: intValue)
+        return MetricsLoggingErrorHandling(rawValue: intValue)
       }
     default:
       break
@@ -404,7 +404,7 @@ extension _ObjCClientConfig {
       convertedValue = xray.rawValue
     case let osLog as OSLogLevel:
       convertedValue = osLog.rawValue
-    case let logging as LoggingAnomalyHandling:
+    case let logging as MetricsLoggingErrorHandling:
       convertedValue = logging.rawValue
     default:
       convertedValue = value
@@ -553,7 +553,7 @@ extension _ObjCClientConfig.OSLogLevel {
   }
 }
 
-extension _ObjCClientConfig.LoggingAnomalyHandling {
+extension _ObjCClientConfig.MetricsLoggingErrorHandling {
   public var description: String {
     switch self {
     case .none:
