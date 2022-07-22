@@ -22,7 +22,10 @@ class ErrorHandler: OperationMonitorListener {
   private var shouldShowModal: Bool
 
   init(deps: Deps) {
-    assert(deps.clientConfig.metricsLoggingErrorHandling > .none)
+    assert(
+      deps.clientConfig.metricsLoggingErrorHandling > .none ||
+      deps.clientConfig.osLogLevel > .none
+    )
     config = deps.clientConfig
     osLog = deps.osLog(category: "ErrorHandler")
     uiState = deps.uiState
