@@ -290,15 +290,6 @@ final class MetricsLoggerTests: ModuleTestCase {
       user
     )
   }
-  
-  func testNoLogUserWhenNoIds() {
-    store.userID = ""
-    store.logUserID = ""
-    metricsLogger.startSessionForTesting(userID: "")
-    metricsLogger.logUserForTesting()
-
-    assertEmptyList(metricsLogger.logMessagesForTesting)
-  }
 
   func testLogUserIDProvenances() {
     module.clientConfig.eventsIncludeIDProvenances = true
@@ -1431,48 +1422,40 @@ final class MetricsLoggerTests: ModuleTestCase {
     XCTAssertEqual("fake-auto-view-id", autoViewHistory.ancestorID)
   }
 
-  fileprivate class TestErrorHandlerDelegate: ErrorHandlerDelegate {
-
-    var anomalyType: AnomalyType? = nil
-    var message: Message? = nil
-
-    func ErrorHandler(
-      _ handler: ErrorHandler,
-      didHandleAnomalyType type: AnomalyType,
-      message: Message?
-    ) {
-      self.anomalyType = type
-      self.message = message
-    }
-  }
-
-  func testAnomalyDetectionMissingLogUserIDOnUser() {
-    XCTAssertNotNil(module.ErrorHandler)
-    let delegate = TestErrorHandlerDelegate()
-    module.ErrorHandler?.delegate = delegate
-
-    metricsLogger.logUserID = nil
-    metricsLogger.logUserForTesting(properties: nil)
+  private func assert(
+    list: [(String, Error)],
+    containsSingletonError error: MetricsLoggerError
+  ) {
     XCTAssertEqual(
-      .missingLogUserIDInUserMessage,
-      delegate.anomalyType
+      [error.code],
+      list.compactMap { $0.1.asErrorProperties()?.code }
     )
   }
 
-  func testAnomalyDetectionValidLogUserIDOnUser() {
-    XCTAssertNotNil(module.ErrorHandler)
-    let delegate = TestErrorHandlerDelegate()
-    module.ErrorHandler?.delegate = delegate
+  func testErrorMissingLogUserIDOnUser() {
+    let listener = TestOperationMonitorListener()
+    module.operationMonitor.addOperationMonitorListener(listener)
+
+    metricsLogger.logUserID = nil
+    metricsLogger.logUserForTesting(properties: nil)
+    assert(
+      list: listener.errors,
+      containsSingletonError: .missingLogUserIDInUserMessage
+    )
+  }
+
+  func testValidLogUserIDOnUser() {
+    let listener = TestOperationMonitorListener()
+    module.operationMonitor.addOperationMonitorListener(listener)
 
     metricsLogger.logUserID = "foo"
     metricsLogger.logUserForTesting(properties: nil)
-    XCTAssertNil(delegate.anomalyType)
+    assertEmptyList(listener.errors)
   }
 
-  func testAnomalyDetectionMissingLogUserIDOnLogRequest() {
-    XCTAssertNotNil(module.ErrorHandler)
-    let delegate = TestErrorHandlerDelegate()
-    module.ErrorHandler?.delegate = delegate
+  func testErrorMissingLogUserIDOnLogRequest() {
+    let listener = TestOperationMonitorListener()
+    module.operationMonitor.addOperationMonitorListener(listener)
     metricsLogger.logUserID = nil
 
     metricsLogger.logImpression(
@@ -1482,16 +1465,15 @@ final class MetricsLoggerTests: ModuleTestCase {
     let flushInterval = config.loggingFlushInterval
     clock.advance(to: flushInterval + 10)
 
-    XCTAssertEqual(
-      .missingLogUserIDInLogRequest,
-      delegate.anomalyType
+    assert(
+      list: listener.errors,
+      containsSingletonError: .missingLogUserIDInLogRequest
     )
   }
 
-  func testAnomalyDetectionValidLogUserIDOnLogRequest() {
-    XCTAssertNotNil(module.ErrorHandler)
-    let delegate = TestErrorHandlerDelegate()
-    module.ErrorHandler?.delegate = delegate
+  func testValidLogUserIDOnLogRequest() {
+    let listener = TestOperationMonitorListener()
+    module.operationMonitor.addOperationMonitorListener(listener)
     metricsLogger.logUserID = "foo"
 
     metricsLogger.logImpression(
@@ -1501,32 +1483,46 @@ final class MetricsLoggerTests: ModuleTestCase {
     let flushInterval = config.loggingFlushInterval
     clock.advance(to: flushInterval + 10)
 
-    XCTAssertNil(delegate.anomalyType)
+    assertEmptyList(listener.errors)
   }
 
-  func testAnomalyDetectionBadImpression() {
-    XCTAssertNotNil(module.ErrorHandler)
-    let delegate = TestErrorHandlerDelegate()
-    module.ErrorHandler?.delegate = delegate
+  func testErrorBadImpression() {
+    let listener = TestOperationMonitorListener()
+    module.operationMonitor.addOperationMonitorListener(listener)
 
     metricsLogger.logImpression(
       content: Content(contentID: "foo", insertionID: "bar"),
       sourceType: .delivery
     )
-    XCTAssertNil(delegate.anomalyType)
+    assertEmptyList(listener.errors)
 
     metricsLogger.logImpression(
       content: Content(contentID: "", insertionID: "")
     )
-    XCTAssertNil(delegate.anomalyType)
+    assertEmptyList(listener.errors)
 
     metricsLogger.logImpression(
       content: Content(contentID: "", insertionID: ""),
       sourceType: .delivery
     )
-    XCTAssertEqual(
-      .missingJoinableFieldsInImpression,
-      delegate.anomalyType
+    assert(
+      list: listener.errors,
+      containsSingletonError: .missingJoinableFieldsInImpression
+    )
+  }
+
+  func testErrorBadAction() {
+    let listener = TestOperationMonitorListener()
+    module.operationMonitor.addOperationMonitorListener(listener)
+
+    metricsLogger.logAction(
+      type: .navigate,
+      content: Content(contentID: "", insertionID: "")
+    )
+
+    assert(
+      list: listener.errors,
+      containsSingletonError: .missingJoinableFieldsInAction
     )
   }
 }

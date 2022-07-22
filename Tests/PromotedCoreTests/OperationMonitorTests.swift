@@ -3,38 +3,16 @@ import SwiftProtobuf
 import XCTest
 
 @testable import PromotedCore
+@testable import PromotedCoreTestHelpers
 
 final class OperationMonitorTests: XCTestCase {
   
-  class Listener: OperationMonitorListener {
-    var starts: [String] = []
-    var ends: [String] = []
-    var errors: [(String, Error)] = []
-    var data: [(String, Data)] = []
-
-    func executionWillStart(context: Context) {
-      starts.append(context.debugDescription)
-    }
-
-    func executionDidEnd(context: Context) {
-      ends.append(context.debugDescription)
-    }
-
-    func execution(context: Context, didError error: Error) {
-      errors.append((context.debugDescription, error))
-    }
-
-    func execution(context: Context, willLogData data: Data) {
-      self.data.append((context.debugDescription, data))
-    }
-  }
-  
-  private var listener: Listener!
+  private var listener: TestOperationMonitorListener!
   private var monitor: OperationMonitor!
   
   override func setUp() {
     super.setUp()
-    listener = Listener()
+    listener = TestOperationMonitorListener()
     monitor = OperationMonitor()
     monitor.addOperationMonitorListener(listener)
   }

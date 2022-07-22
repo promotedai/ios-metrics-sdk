@@ -170,8 +170,10 @@ extension OperationMonitor.Context: CustomDebugStringConvertible {
     switch self {
     case .function(let function):
       return function
-    default:
-      return String(describing: self)
+    case .batch:
+      return "batch"
+    case .batchResponse:
+      return "batchResponse"
     }
   }
 }
