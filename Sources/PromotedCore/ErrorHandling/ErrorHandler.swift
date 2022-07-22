@@ -11,23 +11,32 @@ class ErrorHandler: OperationMonitorListener {
   typealias Deps = (
     ClientConfigSource &
     OperationMonitorSource &
+    OSLogSource &
     UIStateSource
   )
 
   private let config: ClientConfig
-  private unowned let uiState: UIState
+  private let osLog: OSLog?
+  private let uiState: UIState
 
   private var shouldShowModal: Bool
 
   init(deps: Deps) {
     assert(deps.clientConfig.metricsLoggingErrorHandling > .none)
     config = deps.clientConfig
+    osLog = deps.osLog(category: "ErrorHandler")
     uiState = deps.uiState
     shouldShowModal = true
     deps.operationMonitor.addOperationMonitorListener(self)
   }
 
-  func execution(context: Context, didError error: Error) {
+  func execution(
+    context: Context,
+    didError error: Error,
+    function: String,
+    file: String
+  ) {
+    log(error: error, function: function, file: file)
     switch config.metricsLoggingErrorHandling {
     case .none:
       break
@@ -51,6 +60,19 @@ class ErrorHandler: OperationMonitorListener {
       raise(SIGINT)
       #endif
     }
+  }
+
+  private func log(error: Error, function: String, file: String) {
+    guard let osLog = osLog else { return }
+    let basename = URL(fileURLWithPath: file)
+      .lastPathComponent
+      .replacingOccurrences(of: ".swift", with: "")
+    osLog.error(
+      "[%{public}@ %{public}@]: %{public}@",
+      basename,
+      function,
+      error.localizedDescription
+    )
   }
 }
 

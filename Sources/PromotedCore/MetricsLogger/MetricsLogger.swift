@@ -177,13 +177,8 @@ public final class MetricsLogger: NSObject {
     _ error: Error,
     function: String
   ) {
-    osLog?.error(
-      "%{public}@: %{public}@",
-      function,
-      error.localizedDescription
-    )
     withMonitoredExecution {
-      monitor.executionDidError(error)
+      monitor.executionDidError(error, function: function)
     }
   }
 }

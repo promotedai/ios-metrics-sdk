@@ -13,7 +13,12 @@ protocol OperationMonitorListener: AnyObject {
   func executionDidEnd(context: Context)
 
   /// Called when an error is reported.
-  func execution(context: Context, didError error: Error)
+  func execution(
+    context: Context,
+    didError error: Error,
+    function: String,
+    file: String
+  )
 
   /// Called when a log message will be sent.
   /// In the function context, the message should be an event.
@@ -33,7 +38,12 @@ extension OperationMonitorListener {
 
   func executionDidEnd(context: Context) {}
 
-  func execution(context: Context, didError error: Error) {}
+  func execution(
+    context: Context,
+    didError error: Error,
+    function: String,
+    file: String
+  ) {}
 
   func execution(context: Context, willLogMessage message: Message) {}
 
@@ -94,9 +104,11 @@ final class OperationMonitor {
   ///   - context: Identifier for execution context for Xray
   ///   - function: Function from which call was made
   ///   - operation: Block to execute if logging enabled
-  func execute(context: Context = .function(""),
-               function: String = #function,
-               operation: Operation) {
+  func execute(
+    context: Context = .function(""),
+    function: String = #function,
+    operation: Operation
+  ) {
     var executionContext = context
     // Fill in function here because the #function macro doesn't
     // work from inside the enum.
@@ -117,9 +129,20 @@ final class OperationMonitor {
   }
 
   /// Call when library operation produces an error.
-  func executionDidError(_ error: Error) {
+  func executionDidError(
+    _ error: Error,
+    function: String = #function,
+    file: String = #fileID
+  ) {
     guard let context = contextStack.bottom else { return }
-    listeners.forEach { $0.execution(context: context, didError: error) }
+    listeners.forEach {
+      $0.execution(
+        context: context,
+        didError: error,
+        function: function,
+        file: file
+      )
+    }
   }
 
   /// Call when library operation logs a message.

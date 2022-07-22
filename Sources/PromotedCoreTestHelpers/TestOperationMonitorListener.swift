@@ -16,7 +16,12 @@ class TestOperationMonitorListener: OperationMonitorListener {
     ends.append(context.debugDescription)
   }
 
-  func execution(context: Context, didError error: Error) {
+  func execution(
+    context: Context,
+    didError error: Error,
+    function: String,
+    file: String
+  ) {
     errors.append((context.debugDescription, error))
   }
 
