@@ -1,12 +1,13 @@
 #if DEBUG
 import Foundation
 
+/** Provides details for the ErrorHandlerVC. Public for ReactNativeMetrics. */
 public protocol ErrorDetails {
   var details: String { get }
 }
 
 // MARK: - String Constants
-fileprivate extension ErrorDetails {
+public extension ErrorDetails {
 
   static let internalErrorDetails = """
   An internal error occurred in the Promoted SDK. Please email bugs@promoted.ai and provide the error code.
@@ -50,6 +51,8 @@ extension ClientConfigError: ErrorDetails {
     case .missingDevAPIKey:
       return """
       You specified `ClientConfig.devMetricsLoggingURL` but not `ClientConfig.devMetricsLoggingAPIKey`.
+
+      Promoted Delivery may not work in this developer build, but may still work in production. Please check your configuration carefully before merging.
       """
     case .invalidMetricsLoggingWireFormat:
       return """
