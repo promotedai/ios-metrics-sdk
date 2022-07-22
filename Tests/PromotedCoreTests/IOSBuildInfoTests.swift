@@ -16,7 +16,11 @@ final class IOSBuildInfoTests: XCTestCase {
       )
       return
     }
-    XCTAssertEqual(string.startIndex ..< string.endIndex, range)
+    XCTAssertEqual(
+      string.startIndex ..< string.endIndex,
+      range,
+      "'\(string)' does not match regex '\(regex)'"
+    )
   }
 
   func testPlatformAppVersionSwiftPM() {
@@ -26,7 +30,7 @@ final class IOSBuildInfoTests: XCTestCase {
     XCTAssertEqual(3, parts.count)
     // Github Actions sometimes return "Unknown" in tests.
     if parts[0] != "Unknown" {
-      assert(regex: #"\d+\.\d+"#, matches: parts[0])
+      assert(regex: #"\d+\.\d+(\.\d+)?"#, matches: parts[0])
     }
     XCTAssertEqual("build", parts[1])
     if parts[2] != "Unknown" {
