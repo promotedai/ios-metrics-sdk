@@ -54,7 +54,7 @@ extension ModuleConfigError: ErrorDetails {
     switch self {
     case .missingNetworkConnection:
       return """
-      Network connection not specified. You are using  `ModuleConfig.coreConfig()`, which requires a custom network connection. Did you mean to use `ModuleConfig.defaultConfig()`?
+      Network connection not specified. You are using `ModuleConfig.coreConfig()`, which requires a custom network connection. Did you mean to use `ModuleConfig.defaultConfig()`?
       """
     }
   }
@@ -62,22 +62,34 @@ extension ModuleConfigError: ErrorDetails {
 
 // MARK: - MetricsLoggerError
 extension MetricsLoggerError: ErrorDetails {
+
   static let internalErrorDetails = """
   An internal error occurred in the Promoted SDK. Please email bugs@promoted.ai and provide the error code.
   """
+
+  static let revenueWarning = """
+  If this issue is released to production, it WILL impair Promoted Delivery and possibly affect revenue at $partner. Please verify any local changes carefully before merging.
+  """
+
   public var details: String {
     switch self {
     case .missingLogUserIDInUserMessage, .missingLogUserIDInLogRequest:
       return """
       An event was logged with no log user ID. This may be due to a recent change in Promoted initialization. Examples include changes to your AppDelegate class, or calls to the Promoted SDK method startSessionAndLogUser().
+
+      \(Self.revenueWarning)
       """
     case .missingJoinableFieldsInImpression:
       return """
       An impression was logged with no content ID or insertion ID. This may be due to a recent change to a list/collection view, or the data model that powers this view.
+
+      \(Self.revenueWarning)
       """
     case .missingJoinableFieldsInAction:
       return """
       An action was logged with no impression ID, content ID, or insertion ID. This may be due to a recent change to a list/collection view, or the data model that powers this view.
+
+      \(Self.revenueWarning)
       """
     case .propertiesSerializationError(_),
          .calledFromWrongThread,
@@ -89,6 +101,10 @@ extension MetricsLoggerError: ErrorDetails {
 
 // MARK: - ClientConfigFetchError
 extension ClientConfigFetchError: ErrorDetails {
+
+  static let checkRemoteConfigSetup = """
+  Please check your Remote Config setup. In a production build, the Promoted SDK will start up and run normally, but Remote Config will not be available.
+  """
   public var details: String {
     switch self {
     case .networkError(let error):
@@ -97,11 +113,11 @@ extension ClientConfigFetchError: ErrorDetails {
 
       \(error.localizedDescription)
 
-      Please check your Remote Config setup. In a production build, the Promoted SDK will start up and run normally, but Remote Config will not be available.
+      \(Self.checkRemoteConfigSetup)
       """
     case .emptyConfig:
       return """
-      Remote Config returned an empty configuration. Please check your Remote Config setup. In a production build, the Promoted SDK will start up and run normally, but Remote Config will not be available.
+      Remote Config returned an empty configuration. \(Self.checkRemoteConfigSetup)
       """
     case .localCacheEncodeError(let error):
       return """
@@ -109,7 +125,7 @@ extension ClientConfigFetchError: ErrorDetails {
 
       \(error.localizedDescription)
 
-      Please check your Remote Config setup. In a production build, the Promoted SDK will start up and run normally, but Remote Config will not be available.
+      \(Self.checkRemoteConfigSetup)
       """
     }
   }
@@ -117,33 +133,34 @@ extension ClientConfigFetchError: ErrorDetails {
 
 // MARK: - RemoteConfigConnectionError
 extension RemoteConfigConnectionError: ErrorDetails {
+
+  static let checkRemoteConfigSetup = ClientConfigFetchError.checkRemoteConfigSetup
+
   public var details: String {
     switch self {
     case .failed(let maybeError):
-      let messageStart: String
       if let e = maybeError {
-        messageStart = """
+        return """
         Remote Config fetch failed due to the following issue:
 
         \(e.localizedDescription)
+
+        \(Self.checkRemoteConfigSetup)
         """
       } else {
-        messageStart = """
+        return """
         Remote Config fetch failed due to an error in Remote Config execution.
+
+        \(Self.checkRemoteConfigSetup)
         """
       }
-      return """
-      \(messageStart)
-
-      Please verify that your Remote Config setup is working as expected. In a production build, the Promoted SDK will start up and run normally, but Remote Config will not be available.
-      """
-    case .serviceConfigError(let s):
+    case .serviceConfigError(let errorMessage):
       return """
       Remote Config failed to initialize due to the following issue:
 
-      \(s)
+      \(errorMessage)
 
-      Please check your build setup. In a production build, the Promoted SDK will start up and run normally, but Remote Config will not be available.
+      \(Self.checkRemoteConfigSetup)
       """
     }
   }

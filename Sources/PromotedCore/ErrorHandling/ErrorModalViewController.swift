@@ -81,6 +81,7 @@ public class ErrorModalViewController: UIViewController {
     let explanationLabel = UILabel(frame: textLayoutFrame)
     explanationLabel.numberOfLines = 0  // Use as many lines as needed.
     var explanationLabelText = errorDetails
+      .replacingOccurrences(of: "$partner", with: partner)
     if let code = errorCode {
       explanationLabelText += "\n\nError code: \(code)"
     }
@@ -93,8 +94,6 @@ public class ErrorModalViewController: UIViewController {
     helpLabel.font = .systemFont(ofSize: 14)
     helpLabel.numberOfLines = 0  // Use as many lines as needed.
     helpLabel.text = """
-    If this issue is released to production, it WILL impair Promoted Delivery and possibly affect revenue at \(partner). Please verify any local changes carefully before merging.
-
     For more help, contact Promoted:
 
     \(contactInfo.map { "• " + $0 }.joined(separator: "\n"))
