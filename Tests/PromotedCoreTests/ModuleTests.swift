@@ -15,6 +15,7 @@ final class ModuleTests: XCTestCase {
     analyticsConnection = FakeAnalyticsConnection()
     networkConnection = FakeNetworkConnection()
     initialConfig = ClientConfig()
+    initialConfig.metricsLoggingErrorHandling = .none
     initialConfig.metricsLoggingURL = "https://fake.promoted.ai/metrics"
     initialConfig.metricsLoggingAPIKey = "apikey!"
     initialConfig.osLogLevel = .none
@@ -36,6 +37,7 @@ final class ModuleTests: XCTestCase {
     try module.validateModuleConfigDependencies()
     try module.startLoggingServices()
     XCTAssertNil(module.analytics)
+    XCTAssertNil(module.errorHandler)
     XCTAssertNil(module.osLog(category: "ModuleTests"))
     XCTAssertNil(module.xray)
     testAllFields(module: module)
@@ -50,6 +52,7 @@ final class ModuleTests: XCTestCase {
     try module.validateModuleConfigDependencies()
     try module.startLoggingServices()
     XCTAssertNil(module.analytics)
+    XCTAssertNil(module.errorHandler)
     XCTAssertNil(module.osLog(category: "ModuleTests"))
     XCTAssertNotNil(module.xray)
     testAllFields(module: module)
@@ -57,11 +60,14 @@ final class ModuleTests: XCTestCase {
 
   func testModuleWithOSLog() throws {
     initialConfig.osLogLevel = .info
-    let module = Module(initialConfig: initialConfig,
-                        networkConnection: networkConnection)
+    let module = Module(
+      initialConfig: initialConfig,
+      networkConnection: networkConnection
+    )
     try module.validateModuleConfigDependencies()
     try module.startLoggingServices()
     XCTAssertNil(module.analytics)
+    XCTAssertNotNil(module.errorHandler)  // Logging enables ErrorHandler
     XCTAssertNotNil(module.osLog(category: "ModuleTests"))
     XCTAssertNil(module.xray)
     testAllFields(module: module)
@@ -76,6 +82,22 @@ final class ModuleTests: XCTestCase {
     try module.validateModuleConfigDependencies()
     try module.startLoggingServices()
     XCTAssertNotNil(module.analytics)
+    XCTAssertNil(module.errorHandler)
+    XCTAssertNil(module.osLog(category: "ModuleTests"))
+    XCTAssertNil(module.xray)
+    testAllFields(module: module)
+  }
+
+  func testModuleWithErrorHandler() throws {
+    initialConfig.metricsLoggingErrorHandling = .modalDialog
+    let module = Module(
+      initialConfig: initialConfig,
+      networkConnection: networkConnection
+    )
+    try module.validateModuleConfigDependencies()
+    try module.startLoggingServices()
+    XCTAssertNil(module.analytics)
+    XCTAssertNotNil(module.errorHandler)
     XCTAssertNil(module.osLog(category: "ModuleTests"))
     XCTAssertNil(module.xray)
     testAllFields(module: module)
