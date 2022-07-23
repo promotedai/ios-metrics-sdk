@@ -8,26 +8,25 @@ public protocol ErrorDetails {
 
 // MARK: - String Constants
 public extension ErrorDetails {
-
-  static let internalErrorDetails = """
+  static var internalErrorDetails: String { """
   An internal error occurred in the Promoted SDK. Please email bugs@promoted.ai and provide the error code.
-  """
+  """ }
 
-  static let deliveryMayBeImpaired = """
+  static var deliveryMayBeImpaired: String { """
   If this issue is released to production, it WILL impair Promoted Delivery and possibly affect revenue at $partner. Please verify any local changes carefully before merging.
-  """
+  """ }
 
-  static let deliveryWillBeDisabled = """
+  static var deliveryWillBeDisabled: String { """
   If this issue is released to production, it WILL DISABLE Promoted Delivery and possibly affect revenue at $partner. Please verify any local changes carefully before merging.
-  """
+  """ }
 
-  static let checkRemoteConfigSetup = """
+  static var checkRemoteConfigSetup: String { """
   Please check your Remote Config setup. In a production build, the Promoted SDK will start up and run normally, but Remote Config will not be available.
-  """
+  """ }
 
-  static let checkRemoteConfigEnumValues = """
+  static var checkRemoteConfigEnumValues: String { """
   If you are using Remote Config, check that you specified a valid enumeration value.
-  """
+  """ }
 }
 
 // MARK: - ClientConfigError
@@ -56,15 +55,15 @@ extension ClientConfigError: ErrorDetails {
       """
     case .invalidMetricsLoggingWireFormat:
       return """
-      Invalid value for enum `ClientConfig.metricsLoggingWireFormat`. Defaulting to `.binary`. \(checkRemoteConfigEnumValues)
+      Invalid value for enum `ClientConfig.metricsLoggingWireFormat`. Defaulting to `.binary`. \(Self.checkRemoteConfigEnumValues)
       """
     case .invalidXrayLevel:
       return """
-      Invalid value for enum `ClientConfig.xrayLevel`. Xray will be disabled. \(checkRemoteConfigEnumValues)
+      Invalid value for enum `ClientConfig.xrayLevel`. Xray will be disabled. \(Self.checkRemoteConfigEnumValues)
       """
     case .invalidOSLogLevel:
       return """
-      Invalid value for enum `ClientConfig.osLogLevel`. Console logging will be disabled. \(checkRemoteConfigEnumValues)
+      Invalid value for enum `ClientConfig.osLogLevel`. Console logging will be disabled. \(Self.checkRemoteConfigEnumValues)
       """
     case .invalidDiagnosticsSamplingEndDateString(let s):
       return """
@@ -77,7 +76,7 @@ extension ClientConfigError: ErrorDetails {
     case .invalidMetricsLoggingErrorHandling:
       // This will only appear in debug builds, where the default is `.modalDialog`.
       return """
-      Invalid value for enum `ClientConfig.metricsLoggingErrorHandling`. Error handling will be set to `.modalDialog`. \(checkRemoteConfigEnumValues)
+      Invalid value for enum `ClientConfig.metricsLoggingErrorHandling`. Error handling will be set to `.modalDialog`. \(Self.checkRemoteConfigEnumValues)
       """
     }
   }
