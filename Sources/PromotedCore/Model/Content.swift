@@ -1,8 +1,6 @@
 import Foundation
 
-/**
- Represents a unit of trackable content in your marketplace.
- */
+/** Represents a unit of trackable content in your marketplace. */
 @objc(PROContent)
 public class Content: NSObject {
   /// Human-readable identifier. Debug-only.
