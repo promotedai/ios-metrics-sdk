@@ -20,16 +20,131 @@ fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAP
   typealias Version = _2
 }
 
-/// See: https://github.com/promotedai/blender for README
-/// Next ID = 11.
+/// How to rank insertions. This enum is used in `InsertRule`s to specify how
+/// insertions matched under that rule shall be selected. `QUALITY_SCORE` (the
+/// default) selects available insertions in order highest score, while
+/// `REQUEST_ORDER` selects availle insertions in the order they were received.
+public enum Delivery_RankingMethod: SwiftProtobuf.Enum {
+  public typealias RawValue = Int
+  case qualityScore // = 0
+  case requestOrder // = 1
+  case UNRECOGNIZED(Int)
+
+  public init() {
+    self = .qualityScore
+  }
+
+  public init?(rawValue: Int) {
+    switch rawValue {
+    case 0: self = .qualityScore
+    case 1: self = .requestOrder
+    default: self = .UNRECOGNIZED(rawValue)
+    }
+  }
+
+  public var rawValue: Int {
+    switch self {
+    case .qualityScore: return 0
+    case .requestOrder: return 1
+    case .UNRECOGNIZED(let i): return i
+    }
+  }
+
+}
+
+#if swift(>=4.2)
+
+extension Delivery_RankingMethod: CaseIterable {
+  // The compiler won't synthesize support with the UNRECOGNIZED case.
+  public static var allCases: [Delivery_RankingMethod] = [
+    .qualityScore,
+    .requestOrder,
+  ]
+}
+
+#endif  // swift(>=4.2)
+
+/// `BlenderConfig` configures how a set of insertions is blended, i.e. in what
+/// order the insertions are shown to a user. Setting either of these fields
+/// will override the respective optimized and tuned promoted.ai blending
+/// behaviour.
+///
+/// Blender rules act as filters that reject or select insertion subsets (in
+/// the case of negative, positive, and insert rules), or penalize/boost
+/// insertion scores (in the case of diversity rules).
+///
+/// A quality score config is used to construct a relative rank between all insertions
+/// by being applied to each insertion and calculating a quality score. A non-positive
+/// score (i.e negative or zero) means that an insertion cannot be allocated.
+public struct Delivery_BlenderConfig {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// A list of blender rules. See the `BlenderRule` documentation for more information.
+  ///
+  /// Default: empty (blender will use optimized promoted.ai blender rules).
+  public var blenderRule: [Delivery_BlenderRule] = []
+
+  /// A quality score config to rank insertions by calculating their individual
+  /// quality score.
+  ///
+  /// Default: empty (blender will use promoted.ai models to calculate scores)
+  public var qualityScoreConfig: Delivery_QualityScoreConfig {
+    get {return _qualityScoreConfig ?? Delivery_QualityScoreConfig()}
+    set {_qualityScoreConfig = newValue}
+  }
+  /// Returns true if `qualityScoreConfig` has been explicitly set.
+  public var hasQualityScoreConfig: Bool {return self._qualityScoreConfig != nil}
+  /// Clears the value of `qualityScoreConfig`. Subsequent reads from it will return its default value.
+  public mutating func clearQualityScoreConfig() {self._qualityScoreConfig = nil}
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+
+  fileprivate var _qualityScoreConfig: Delivery_QualityScoreConfig? = nil
+}
+
+/// `BlenderRule` defines a blender rule that is sent to blender.
+///
+/// Rules act as filters and are used to a) select a subset of insertions that
+/// match a predicate, and b) to select the insertion with maximum score among that
+/// group to eventually allocate it to a positoin.
+///
+///  There are 4 different kinds of rules:
+///
+/// + Positive rules are the standard filter/selection mechanism. They select a
+///   subset of insertions according to some configurable filters. From that
+///   subset blender then selects the insertion with the highest score to allocate
+///   at a position.
+/// + Negative rules reject insertions that *must not be* selected. While
+///   positive rule act as a positive filter, negative rules are a negative
+///   filter. Negative rules are always run before positive rules and restrict
+///   the pool of insertion that any positive rule can select from.
+/// + Insert rules look and function very similar to positive rules, but ignore
+///   negative rules. They take precedence over positive rules, and always select
+///   from the entire pool of not-yet-allocated insertions. Use these if you require
+///   that insertions with certain properties must be with higher priority.
+/// + Diversity rules are not selection filters. Instead they are used to create more
+///   diversity among allocated insertions by applying a penalty (or a boost) to all
+///   future insertions depending on the insertion that was just allocated.
 public struct Delivery_BlenderRule {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  /// The name of item attribute that this rule applies to. It may be a JSON key path.
+  /// The name of an insertion property that this rule applies to.
+  ///
+  /// Default: empty (if `attribute_name` is not set, then this rule can't be matched to
+  /// any property and will be discarded because the subset of insertions it selects will
+  /// always be empty)
   public var attributeName: String = String()
 
+  /// A type of this blender rule. See their respective entries for more information.
+  ///
+  /// DEFAULT: none (if `rule` is not set, then this blender rule will be discarded,
+  /// because blender will not know what kind of rule this is)
   public var rule: Delivery_BlenderRule.OneOf_Rule? = nil
 
   public var positiveRule: Delivery_PositiveRule {
@@ -64,8 +179,65 @@ public struct Delivery_BlenderRule {
     set {rule = .diversityRule(newValue)}
   }
 
+  /// How to evaluate an insertion to determine if this rule should select it.
+  /// If the result of an evaluation is `true`, the insertion will be selected under
+  /// this rule. If `false`, it will not be selected.
+  ///
+  /// If an insertion lacks a matching attribute, it will always evaluate to `false`.
+  ///
+  /// See the respective eval method entries for more information.
+  ///
+  /// Default: boolean (if `eval_method` is not set, this rule will fall back to
+  /// boolean evaluation and check if a the property with key `attribute_name` is
+  /// `true` or `false)
+  public var evalMethod: Delivery_BlenderRule.OneOf_EvalMethod? = nil
+
+  public var boolean: Delivery_Boolean {
+    get {
+      if case .boolean(let v)? = evalMethod {return v}
+      return Delivery_Boolean()
+    }
+    set {evalMethod = .boolean(newValue)}
+  }
+
+  public var greaterThan: Delivery_GreaterThan {
+    get {
+      if case .greaterThan(let v)? = evalMethod {return v}
+      return Delivery_GreaterThan()
+    }
+    set {evalMethod = .greaterThan(newValue)}
+  }
+
+  public var lessThan: Delivery_LessThan {
+    get {
+      if case .lessThan(let v)? = evalMethod {return v}
+      return Delivery_LessThan()
+    }
+    set {evalMethod = .lessThan(newValue)}
+  }
+
+  public var interval: Delivery_Interval {
+    get {
+      if case .interval(let v)? = evalMethod {return v}
+      return Delivery_Interval()
+    }
+    set {evalMethod = .interval(newValue)}
+  }
+
+  public var equalV2: Delivery_EqualV2 {
+    get {
+      if case .equalV2(let v)? = evalMethod {return v}
+      return Delivery_EqualV2()
+    }
+    set {evalMethod = .equalV2(newValue)}
+  }
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
+  /// A type of this blender rule. See their respective entries for more information.
+  ///
+  /// DEFAULT: none (if `rule` is not set, then this blender rule will be discarded,
+  /// because blender will not know what kind of rule this is)
   public enum OneOf_Rule: Equatable {
     case positiveRule(Delivery_PositiveRule)
     case insertRule(Delivery_InsertRule)
@@ -100,38 +272,310 @@ public struct Delivery_BlenderRule {
   #endif
   }
 
+  /// How to evaluate an insertion to determine if this rule should select it.
+  /// If the result of an evaluation is `true`, the insertion will be selected under
+  /// this rule. If `false`, it will not be selected.
+  ///
+  /// If an insertion lacks a matching attribute, it will always evaluate to `false`.
+  ///
+  /// See the respective eval method entries for more information.
+  ///
+  /// Default: boolean (if `eval_method` is not set, this rule will fall back to
+  /// boolean evaluation and check if a the property with key `attribute_name` is
+  /// `true` or `false)
+  public enum OneOf_EvalMethod: Equatable {
+    case boolean(Delivery_Boolean)
+    case greaterThan(Delivery_GreaterThan)
+    case lessThan(Delivery_LessThan)
+    case interval(Delivery_Interval)
+    case equalV2(Delivery_EqualV2)
+
+  #if !swift(>=4.1)
+    public static func ==(lhs: Delivery_BlenderRule.OneOf_EvalMethod, rhs: Delivery_BlenderRule.OneOf_EvalMethod) -> Bool {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch (lhs, rhs) {
+      case (.boolean, .boolean): return {
+        guard case .boolean(let l) = lhs, case .boolean(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.greaterThan, .greaterThan): return {
+        guard case .greaterThan(let l) = lhs, case .greaterThan(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.lessThan, .lessThan): return {
+        guard case .lessThan(let l) = lhs, case .lessThan(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.interval, .interval): return {
+        guard case .interval(let l) = lhs, case .interval(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.equalV2, .equalV2): return {
+        guard case .equalV2(let l) = lhs, case .equalV2(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      default: return false
+      }
+    }
+  #endif
+  }
+
   public init() {}
 }
 
-/// A positive rule selects insertions by their score if they are associated with the same attribute
-/// that the rule is associated with.
-///
-/// If one seeks to fill a position `p` with an insertion, then one positive rule is selected by
-/// random out of all positive rules. The selection process works in the following way:
-///
-/// 1. positive rules are filtered by whether for a given rule there exist any insertions that could
-///    potentially be selected (meaning there are insertions that are not yet associated with a
-///    different position, that are associated with the same attribute as a given rule, and that
-///    have not been filtered out by negative rules [see the comment on negative rules for that]);
-/// 2. the rules remaining after 1. are filtered for the condition
-///    `rule.min_pos <= p <= rule.max_pos`;
-/// 3. from the rules remaining after 2. one is selected by random based on their weight in
-///    `rule.select_pct`.
-///
-/// After a positive rule has been selected, the insertion of the highest score is associated with
-/// position `p` (if, remembering point 1., that insertion is available to be allocated, has the
-/// same associated attribute as the selected rule, and is not ruled out by application of negative
-/// rules).
-///
-/// Note that there is a chance of no rule (and hence no insertion) being selected if the sum of all
-/// rules selected in step 3. is less than 100.0. The probability of that happening is `100 - sum`.
-///
-/// Positive rules are similar to insert rules, but used in a different context. While items can be
-/// selected just based on insert rules, positive rules are used in tandem with negative rules.
-/// First, negative rules are tested to filter out items. Afterwards, a positive rule is used to
-/// select items just like an insert rule (just without the filtered out items).
-///
-/// Next ID = 4.
+/// Tests if an insertion has a property with key `attribute_name` and if its value is `true`.
+public struct Delivery_Boolean {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// Tests if an insertion's property with key `attribute_name` and value `x`
+/// is equal to some number or string.
+public struct Delivery_EqualV2 {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// The type of this equality, i.e. if it should evaluate numbers or strings.
+  /// 
+  /// Default: none (if `equality_type` is not set, then this equality method can
+  /// not be applied and the rule containing it will be dropped)
+  public var equalityType: Delivery_EqualV2.OneOf_EqualityType? = nil
+
+  public var number: Delivery_Equal {
+    get {
+      if case .number(let v)? = equalityType {return v}
+      return Delivery_Equal()
+    }
+    set {equalityType = .number(newValue)}
+  }
+
+  public var string: Delivery_StringEquality {
+    get {
+      if case .string(let v)? = equalityType {return v}
+      return Delivery_StringEquality()
+    }
+    set {equalityType = .string(newValue)}
+  }
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  /// The type of this equality, i.e. if it should evaluate numbers or strings.
+  /// 
+  /// Default: none (if `equality_type` is not set, then this equality method can
+  /// not be applied and the rule containing it will be dropped)
+  public enum OneOf_EqualityType: Equatable {
+    case number(Delivery_Equal)
+    case string(Delivery_StringEquality)
+
+  #if !swift(>=4.1)
+    public static func ==(lhs: Delivery_EqualV2.OneOf_EqualityType, rhs: Delivery_EqualV2.OneOf_EqualityType) -> Bool {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch (lhs, rhs) {
+      case (.number, .number): return {
+        guard case .number(let l) = lhs, case .number(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.string, .string): return {
+        guard case .string(let l) = lhs, case .string(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      default: return false
+      }
+    }
+  #endif
+  }
+
+  public init() {}
+}
+
+/// Tests if an insertion's property with key `attribute_name` and value `x`
+/// fulfills `x ∈ compared_to ± tolerance`.
+public struct Delivery_Equal {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// The value to compare to.
+  ///
+  /// Default: 0.0
+  public var comparedTo: Float = 0
+
+  /// The tolerance around this value that is acceptable.
+  ///
+  /// Default: 0.0
+  public var tolerance: Float = 0
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// Tests if an insertion's property with key `attribute_name` and value `x`
+/// fulfills `x == raw`.
+public struct Delivery_StringEquality {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// The value to compare the insertion's property against.
+  ///
+  /// Default: none (if no comparison string is set the containing rule will
+  /// be dropped)
+  public var value: Delivery_StringEquality.OneOf_Value? = nil
+
+  public var raw: String {
+    get {
+      if case .raw(let v)? = value {return v}
+      return String()
+    }
+    set {value = .raw(newValue)}
+  }
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  /// The value to compare the insertion's property against.
+  ///
+  /// Default: none (if no comparison string is set the containing rule will
+  /// be dropped)
+  public enum OneOf_Value: Equatable {
+    case raw(String)
+
+  #if !swift(>=4.1)
+    public static func ==(lhs: Delivery_StringEquality.OneOf_Value, rhs: Delivery_StringEquality.OneOf_Value) -> Bool {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch (lhs, rhs) {
+      case (.raw, .raw): return {
+        guard case .raw(let l) = lhs, case .raw(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      }
+    }
+  #endif
+  }
+
+  public init() {}
+}
+
+/// Tests if an an insertion's attribute of name `attribute_name` and value `x`
+/// fulfills `x > compared_to` (if `or_equal = false`) or `x ≥ compared_to` (if
+/// `or_equal = true`).
+public struct Delivery_GreaterThan {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// The value to compare to.
+  ///
+  /// Default: 0.0
+  public var comparedTo: Float = 0
+
+  /// Whether equality can hold (in case of `true`) or if the propery has to
+  /// be stricter greater than `compared_to`.
+  ///
+  /// Default: false
+  public var orEqual: Bool = false
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// Tests if an an insertion's attribute of name `attribute_name` and value `x`
+/// fulfills `x < compared_to` (if `or_equal = false`) or `x ≤ compared_to` (if
+/// `or_equal = true`).
+public struct Delivery_LessThan {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// The value to compare to.
+  ///
+  /// Default: 0.0
+  public var comparedTo: Float = 0
+
+  /// Whether equality can hold (in case of `true`) or if the propery has to
+  /// be stricter less than `compared_to`.
+  ///
+  /// Default: false
+  public var orEqual: Bool = false
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// Tests if an an insertion's attribute of name `attribute_name` and value `x`
+/// fulfills `x ∈ (lower_bound, upper_bound)` (open interval). The interval can
+/// be closed or half-closed by setting either or both of `lower_inclusive` and
+/// `upper_inclusive` to `true`.
+public struct Delivery_Interval {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// The upper bound of the interval
+  ///
+  /// Default: 0.0
+  public var upperBound: Float = 0
+
+  /// The lower bound of the interval
+  ///
+  /// Default: 0.0
+  public var lowerBound: Float = 0
+
+  /// Whether the lower bound is considered closed (if the compared property can
+  /// be equal to the lower bound).
+  ///
+  /// Default: false
+  public var lowerInclusive: Bool = false
+
+  /// Whether the upper bound is considered closed (if the compared property can
+  /// be equal to the upper bound).
+  ///
+  /// Default: false
+  public var upperInclusive: Bool = false
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// A positive rule selects insertions by their score if they are associated with
+/// the same attribute that the rule is associated with. They always work in
+/// conjunction with negative rules and only select among those insertions that
+/// were not rejected by a negative rule.
+/// 
+/// If two or more positive rules are defined and if one seeks to fill a position
+/// `p`, then one positive rule is picked by random out of all positive rules. The
+/// process for picking a positive rule works in the following way:
+/// 
+/// 1. all positive rules are removed that won't ever apply to any still available
+///    insertions (meaning insertions that evaluate to `true` under the evaluation
+///    method of this rule and are not yet allocated); 
+/// 2. then from the remaining rules those are removed that don't fulfill the
+///    condition `rule.min_pos <= p <= rule.max_pos`;
+/// 3. finally, one is picked by random based on their relative weights
+///    `rule.select_pct` using a weighted index.
+/// 
+/// After a positive rule has been chosen, blender will then allocate at position
+/// `p` that insertion with maximum score from those insertions that are selected
+/// under this rule.
+/// 
+/// Note that there is a probability `prob = max(100 - total_sum, 0)` to not select
+/// any rule if the total sum of relative weights for the rules in 3. is less than
+/// `100.0`.
 public struct Delivery_PositiveRule {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -139,19 +583,21 @@ public struct Delivery_PositiveRule {
 
   /// Value between 0 and 100. The weight of this rule to be selected.
   ///
-  /// If the sum `W` of all weights is less than 100, then the chance N of no weight being chosen is
-  /// assigned the weight `N = 100 - W`.
+  /// If the sum `W` of all weights is less than 100, then the chance N of no
+  /// weight being chosen is assigned the weight `N = 100 - W`.
   ///
-  /// Examples (given weights `{a, b, ..., z}`, each entry corresponds to a rule with weight `a`,
-  /// `b`, `c`, etc):
-  /// + `{100, 100}`: 2 rules with equal weight: 50% chance of each being selected
+  /// Examples (given weights `{a, b, ..., z}`, each entry corresponds to a rule
+  /// with weight `a`, `b`, `c`, etc):
+  ///
+  /// + `{100, 100}`: 2 rules with equal weight: 50% chance of each being
+  ///   selected
   /// + `{50, 50}`: as above
-  /// + `{25, 25}`: each rule has a 25% chance of being selected; there is a 50% chance of no rule
-  ///    being selected
-  /// + `{10, 10, 10, 10, 10`}: each of the 5 rules has a 5% chance of being selected; there is a
-  ///   is a 50% chance of no rule being selected.
-  /// + `{50, 100}`: 2/3 chance of selecting the rule with weight 100, 1/3 chance to select that of
-  ///   weight 50.
+  /// + `{25, 25}`: each rule has a 25% chance of being selected; there is a 50%
+  ///   chance of no rule being selected
+  /// + `{10, 10, 10, 10, 10`}: each of the 5 rules has a 5% chance of being
+  ///   selected; there is a is a 50% chance of no rule being selected.
+  /// + `{50, 100}`: 2/3 chance of selecting the rule with weight 100, 1/3
+  ///   chance to select that of weight 50.
   ///
   /// NOTE: a value of 0 means this rule will never be selected.
   ///
@@ -165,8 +611,9 @@ public struct Delivery_PositiveRule {
   /// Clears the value of `selectPct`. Subsequent reads from it will return its default value.
   public mutating func clearSelectPct() {self._selectPct = nil}
 
-  /// The minimum position that this rule applies to. If one seeks to fill a position `p < min_pos`,
-  /// then this rule will not be considered for selection. `min_pos <= max_pos` must hold.
+  /// The minimum position that this rule applies to. If one seeks to fill a
+  /// position `p < min_pos`, then this rule will not be considered for
+  /// selection. `min_pos <= max_pos` must hold.
   ///
   /// Default: `0`
   public var minPos: UInt64 {
@@ -178,8 +625,9 @@ public struct Delivery_PositiveRule {
   /// Clears the value of `minPos`. Subsequent reads from it will return its default value.
   public mutating func clearMinPos() {self._minPos = nil}
 
-  /// The maximum position that this rule applies to. If one seeks to fill a position `p > max_pos`,
-  /// then this rule will not be considered for selection. `max_pos >= min_pos` must hold.
+  /// The maximum position that this rule applies to. If one seeks to fill a
+  /// position `p > max_pos`, then this rule will not be considered for
+  /// selection. `max_pos >= min_pos` must hold.
   ///
   /// Default `uint64::MAX`
   public var maxPos: UInt64 {
@@ -200,28 +648,28 @@ public struct Delivery_PositiveRule {
   fileprivate var _maxPos: UInt64? = nil
 }
 
-/// An insert rule selects insertions by their score if they are associated with the same attribute
-/// that the rule is associated with.
-///
-/// If one seeks to fill a position `p` with an insertion, then one insert rule is selected by
-/// random out of all insert rules. The selection process works in the following way:
-///
-/// 1. insert rules are filtered by whether for a given rule there exist any insertions that could
-///    potentially be selected (meaning there are insertions that are not yet associated with a
-///    different position, and that are associated with the same attribute as a given rule);
-/// 2. the rules remaining after 1. are filtered for the condition
-///    `rule.min_pos <= p <= rule.max_pos`;
-/// 3. from the rules remaining after 2. one is selected by random based on their weight in
-///    `rule.select_pct`.
-///
-/// After an insert rule has been selected, the insertion of the highest score is associated with
-/// position `p` (if, remembering point 1., that insertion is available to be allocated, and has the
-/// same associated attribute as the selected rule).
-///
-/// Note that there is a chance of no rule (and hence no insertion) being selected if the sum of all
-/// rules selected in step 3. is less than 100.0. The probability of that happening is `100 - sum`.
+/// An insert rule selects insertions by their score if they are associated with
+/// the same attribute that the rule is associated with.
 /// 
-/// Next ID = 4.
+/// If two or more insert rules are defined and if one seeks to fill a position
+/// `p`, then one insert rule is picked by random out of all insert rules. The
+/// process for piucking an insert rule works in the following way:
+/// 
+/// 1. all insert rules are removed that won't ever apply to any still available
+///    insertions (meaning insertions that evaluate to `true` under the
+///    evaluation method of this rule and are not yet allocated); 
+/// 2. then from the remaining rules those are removed that don't fulfill the
+///    condition `rule.min_pos <= p <= rule.max_pos`;
+/// 3. finally, one is picked by random based on their relative weights
+///    `rule.select_pct` using a weighted index.
+/// 
+/// After an insert rule has been chosen, blender will then allocate at position
+/// `p` that insertion with maximum score from those insertions that are
+/// selected under this rule.
+/// 
+/// Note that there is a probability `prob = max(100 - total_sum, 0)` to not
+/// select any rule if the total sum of relative weights for the rules in 3. is
+/// less than `100.0`.
 public struct Delivery_InsertRule {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -229,19 +677,21 @@ public struct Delivery_InsertRule {
 
   /// Value between 0 and 100. The weight of this rule to be selected.
   ///
-  /// If the sum `W` of all weights is less than 100, then the chance N of no weight being chosen is
-  /// assigned the weight `N = 100 - W`.
+  /// If the sum `W` of all weights is less than 100, then the chance N of no
+  /// weight being chosen is assigned the weight `N = 100 - W`.
   ///
-  /// Examples (given weights `{a, b, ..., z}`, each entry corresponds to a rule with weight `a`,
-  /// `b`, `c`, etc):
-  /// + `{100, 100}`: 2 rules with equal weight: 50% chance of each being selected
+  /// Examples (given weights `{a, b, ..., z}`, each entry corresponds to a rule
+  /// with weight `a`, `b`, `c`, etc):
+  ///
+  /// + `{100, 100}`: 2 rules with equal weight: 50% chance of each being
+  ///   selected
   /// + `{50, 50}`: as above
-  /// + `{25, 25}`: each rule has a 25% chance of being selected; there is a 50% chance of no rule
-  ///    being selected
-  /// + `{10, 10, 10, 10, 10`}: each of the 5 rules has a 5% chance of being selected; there is a
-  ///   is a 50% chance of no rule being selected.
-  /// + `{50, 100}`: 2/3 chance of selecting the rule with weight 100, 1/3 chance to select that of
-  ///   weight 50.
+  /// + `{25, 25}`: each rule has a 25% chance of being selected; there is a 50%
+  ///   chance of no rule being selected
+  /// + `{10, 10, 10, 10, 10`}: each of the 5 rules has a 5% chance of being
+  ///   selected; there is a is a 50% chance of no rule being selected.
+  /// + `{50, 100}`: 2/3 chance of selecting the rule with weight 100, 1/3
+  ///   chance to select that of weight 50.
   ///
   /// NOTE: a value of 0 means this rule will never be selected.
   ///
@@ -255,8 +705,9 @@ public struct Delivery_InsertRule {
   /// Clears the value of `selectPct`. Subsequent reads from it will return its default value.
   public mutating func clearSelectPct() {self._selectPct = nil}
 
-  /// The minimum position that this rule applies to. If one seeks to fill a position `p < min_pos`,
-  /// then this rule will not be considered for selection. `min_pos <= max_pos` must hold.
+  /// The minimum position that this rule applies to. If one seeks to fill a
+  /// position `p < min_pos`, then this rule will not be considered for
+  /// selection. `min_pos <= max_pos` must hold.
   ///
   /// Default: `0`
   public var minPos: UInt64 {
@@ -268,10 +719,11 @@ public struct Delivery_InsertRule {
   /// Clears the value of `minPos`. Subsequent reads from it will return its default value.
   public mutating func clearMinPos() {self._minPos = nil}
 
-  /// The maximum position that this rule applies to. If one seeks to fill a position `p > max_pos`,
-  /// then this rule will not be considered for selection. `max_pos >= min_pos` must hold.
+  /// The maximum position that this rule applies to. If one seeks to fill a
+  /// position `p > max_pos`, then this rule will not be considered for
+  /// selection. `max_pos >= min_pos` must hold.
   ///
-  /// Default `uint64::MAX`
+  /// Default: `uint64::MAX` (the maximum possible value for an unsigned 64 bit integer)
   public var maxPos: UInt64 {
     get {return _maxPos ?? 0}
     set {_maxPos = newValue}
@@ -280,6 +732,20 @@ public struct Delivery_InsertRule {
   public var hasMaxPos: Bool {return self._maxPos != nil}
   /// Clears the value of `maxPos`. Subsequent reads from it will return its default value.
   public mutating func clearMaxPos() {self._maxPos = nil}
+
+  /// Whether to ignore `attribute_name` (the field set in the `BlenderRule`
+  /// message that contains this `InsertRule`). This causes the present
+  /// `InsertRule` to apply to all insertions that are sent to blender,
+  /// irrespective of their properties.
+  ///
+  /// Default: `false`.
+  public var appliesToAllInsertions: Bool = false
+
+  /// How this rule should select insertions for allocation (see `RankingMethod`
+  /// for more information).
+  ///
+  /// Default: RankingMethod::QUALITY_SCORE (sort by quality score by default)
+  public var rankingMethod: Delivery_RankingMethod = .qualityScore
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -290,26 +756,27 @@ public struct Delivery_InsertRule {
   fileprivate var _maxPos: UInt64? = nil
 }
 
-/// A negative rule tests if a given insertion may not be selected under application of positive
-/// rules (see the description of positive rules to undertand that process).
+/// A negative rule tests if an insertion must not be selected by positive
+/// rules.
 /// 
-/// A negative rule is associated with an attribute and applies to all those insertions that are
-/// associated with the same attribute. The applicable insertions are tested against the conditions
-/// laid out by the negative rule. If they fail one of the conditions, then the item is precluded
-/// from being selected under the subsequent application of positive rules.
-///
-/// Next ID = 6.
+/// A negative rule is associated with an attribute and applies to all those
+/// insertions that are associated with the same attribute. The applicable
+/// insertions are tested against the conditions laid out by the negative rule.
+/// If an insertion is flagged by even one negative rule, it cannot be selected
+/// by positive rules.they fail one of the conditions, then the item is precluded from being
+/// selected under the subsequent application of positive rules.
 public struct Delivery_NegativeRule {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  /// Value between 0 and 100. The probability that an item will be failed ("plucked) even if it
-  /// passes all other conditions.
+  /// Value between 0 and 100. The probability that an item will be failed
+  /// ("plucked) even if it passes all other conditions.
   ///
-  /// NOTE: a value of 0 means that the item has to fail one of the other conditions to be discarded.
-  /// A value of 100 means that an item will always be discarded, no matter the other conditions, as
-  /// as long as it has an attribute matching this rule's.
+  /// NOTE: a value of 0 means that the item has to fail one of the other
+  /// conditions to be discarded. A value of 100 means that an item will always
+  /// be discarded, no matter the other conditions, as as long as it has an
+  /// attribute matching this rule's.
   ///
   /// Default: `100.0`
   public var pluckPct: Double {
@@ -321,9 +788,10 @@ public struct Delivery_NegativeRule {
   /// Clears the value of `pluckPct`. Subsequent reads from it will return its default value.
   public mutating func clearPluckPct() {self._pluckPct = nil}
 
-  /// The minimum position that items with matching associated attribute can be placed in. Items
-  /// with the same associated attribute as the negative rule will not be considered for selection
-  /// if one seeks to fill a position `p < forbid_less_pos`.
+  /// The minimum position that items with matching associated attribute can be
+  /// placed in. Items with the same associated attribute as the negative rule
+  /// will not be considered for selection if one seeks to fill a position `p <
+  /// forbid_less_pos`.
   ///
   /// Default: `0`
   public var forbidLessPos: UInt64 {
@@ -335,11 +803,12 @@ public struct Delivery_NegativeRule {
   /// Clears the value of `forbidLessPos`. Subsequent reads from it will return its default value.
   public mutating func clearForbidLessPos() {self._forbidLessPos = nil}
 
-  /// The minimum number of positions between the current position and its precursor. For example,
-  /// if `min_spacing = 1` and one seeks to fill a position `p`, then an item is discarded if the
-  /// item at position `p-1` and the item under consideration have the same associated attribute as
-  /// the current rule (note that attribute values do not have to match; only the fact that they
-  /// have the same associated attribute matters).
+  /// The minimum number of positions between the current position and its
+  /// precursor. For example, if `min_spacing = 1` and one seeks to fill a
+  /// position `p`, then an item is discarded if the item at position `p-1` and
+  /// the item under consideration have the same associated attribute as the
+  /// current rule (note that attribute values do not have to match; only the
+  /// fact that they have the same associated attribute matters).
   ///
   /// Default: `uint64::MAX`
   public var minSpacing: UInt64 {
@@ -351,9 +820,10 @@ public struct Delivery_NegativeRule {
   /// Clears the value of `minSpacing`. Subsequent reads from it will return its default value.
   public mutating func clearMinSpacing() {self._minSpacing = nil}
 
-  /// The maximum position that items with matching associated attribute can be placed in. Items
-  /// with the same associated attribute as the negative rule will not be considered for selection
-  /// if one seeks to fill a position `p > forbid_greater_pos`.
+  /// The maximum position that items with matching associated attribute can be
+  /// placed in. Items with the same associated attribute as the negative rule
+  /// will not be considered for selection if one seeks to fill a position `p >
+  /// forbid_greater_pos`.
   ///
   /// Default: `uint64::MAX`
   public var forbidGreaterPos: UInt64 {
@@ -365,9 +835,10 @@ public struct Delivery_NegativeRule {
   /// Clears the value of `forbidGreaterPos`. Subsequent reads from it will return its default value.
   public mutating func clearForbidGreaterPos() {self._forbidGreaterPos = nil}
 
-  /// The maximum number of items that are allowed to be allocated with the same attribute name as
-  /// this rule. If `max_count` items have already been allocated in previous positions, then no
-  /// more items with the attribute name can be allocated.
+  /// The maximum number of items that are allowed to be allocated with the same
+  /// attribute name as this rule. If `max_count` items have already been
+  /// allocated in previous positions, then no more items with the attribute
+  /// name can be allocated.
   ///
   /// Default: `uint64::MAX`
   public var maxCount: UInt64 {
@@ -390,31 +861,43 @@ public struct Delivery_NegativeRule {
   fileprivate var _maxCount: UInt64? = nil
 }
 
-/// Diversity rules modify the scores of insertions if equivalent insertions have been previously
-/// allocated.
+/// Diversity rules modify the scores of insertions if equivalent insertions have
+/// been previously allocated.
+/// 
+/// The purpose of diversity rules is to penalize or boost equivalent
+/// insertions. Two insertions `i` and `j` are considered equivalent if they
+/// have the same property. For example, if we have `i[animal] = dog` and
+/// `j[animal] = dog`, and if `i` was just allocated, then the score of `j` will
+/// be modified by `score_j = score_j * multi`.
 ///
-/// The purpose of diversity rules is to penalize equivalent insertions. Two insertions `i` and `j`
-/// are considered equivalent if they are associated with the same attribute as the rule, and if
-/// the value of said attribute is the same, i.e. the condition `i[attr] == j[attr]` and
-/// `i[attr] != nil`.
-/// Next ID = 2.
+/// NOTE: a multiplier `m <= 0.0` means that matched insertions will never be
+/// allocated again in subsequent steps (because non-positive scores
+/// disqualify items outright). Multipliers `m < 1.0` act as a penalty.
+/// Multipliers `m > 1.0` act as a boost, meaning that similar insertions will
+/// be allocated with a higher likelihood, which might lead to grouping of
+/// insertions.
 public struct Delivery_DiversityRule {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  /// A factor modifying items' scores. If an item has been allocated at position `p`, then all the
-  /// allocated item's value of the attribute with matching name is taken. All other items that a)
-  /// have an attribute that the rule applies to, and b) share the same value as the just allocated
-  /// item will have their score multiplied by `multi`.
+  /// A factor modifying items' scores. If an item has been allocated at
+  /// position `p`, then all the allocated item's value of the attribute with
+  /// matching name is taken. All other items that a) have an attribute that the
+  /// rule applies to, and b) share the same value as the just allocated item
+  /// will have their score multiplied by `multi`.
   ///
-  /// Example: if insertion `i` has been allocated at position `p`, then an insertion `j` will have
-  /// its score modified by `p.score *= multi` if and only if
-  /// `a[rule.attribute_name] == b[rule.attribute_name]` and if `a[rule.attribute_name] != nil`.
+  /// Example: if insertion `i` has been allocated at position `p`, then an
+  /// insertion `j` will have its score modified by `p.score *= multi` if and
+  /// only if `a[rule.attribute_name] == b[rule.attribute_name]` and if
+  /// `a[rule.attribute_name] != nil`.
   ///
-  /// NOTE: a multiplier `m <= 0.0` means that modified items will never be allocated again (because
-  /// non-positive scores disqualify items outright). Multipliers of `m > 1.0` act as as a boost.
-  /// To act as a penalty, it should be set `0.0 > m < 1.0`, but this is currently not enforced.
+  /// NOTE (repeating the above): a multiplier `m <= 0.0` means that matched
+  /// insertions will never be allocated again in subsequent steps (because
+  /// non-positive scores disqualify items outright). Multipliers `m < 1.0` act
+  /// as a penalty. Multipliers `m > 1.0` act as a boost, meaning that similar
+  /// insertions will be allocated with a higher likelihood, which might lead to
+  /// grouping of insertions.
   public var multi: Double {
     get {return _multi ?? 0}
     set {_multi = newValue}
@@ -431,38 +914,24 @@ public struct Delivery_DiversityRule {
   fileprivate var _multi: Double? = nil
 }
 
-/// Next ID = 3.
-public struct Delivery_BlenderConfig {
-  // SwiftProtobuf.Message conformance is added in an extension below. See the
-  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-  // methods supported on all messages.
-
-  /// List of blender rules.
-  public var blenderRule: [Delivery_BlenderRule] = []
-
-  public var qualityScoreConfig: Delivery_QualityScoreConfig {
-    get {return _qualityScoreConfig ?? Delivery_QualityScoreConfig()}
-    set {_qualityScoreConfig = newValue}
-  }
-  /// Returns true if `qualityScoreConfig` has been explicitly set.
-  public var hasQualityScoreConfig: Bool {return self._qualityScoreConfig != nil}
-  /// Clears the value of `qualityScoreConfig`. Subsequent reads from it will return its default value.
-  public mutating func clearQualityScoreConfig() {self._qualityScoreConfig = nil}
-
-  public var unknownFields = SwiftProtobuf.UnknownStorage()
-
-  public init() {}
-
-  fileprivate var _qualityScoreConfig: Delivery_QualityScoreConfig? = nil
-}
-
-/// See: https://github.com/promotedai/qualityscore
-/// Next ID = 2.
+/// `QualityScoreConfig` defines how a quality score for each insertion is
+/// calculated, and by that establishes a ranking of all available insertions.
+/// If an insertion's quality score is zero or negative, then that insertion
+/// must not be allocated.
+///
+/// This message allows defining expressions like the one below:
+///
+/// ```
+/// SCORE_i := TERM_1 + (TERM_2 * TERM_3) + TERM_4
 public struct Delivery_QualityScoreConfig {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
+  /// A list of quality score terms. The terms of this list are summed.
+  ///
+  /// Default: empty (if empty, the optimized promoted.ai default quality score
+  /// term will be used)
   public var weightedSumTerm: [Delivery_QualityScoreTerm] = []
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
@@ -470,16 +939,47 @@ public struct Delivery_QualityScoreConfig {
   public init() {}
 }
 
-/// Next ID = 14.
+/// `QualityScoreTerms` is a list of quality score terms defining a product of
+/// terms.
+///
+/// This message exists to work around protobuf not permitting `repeatead`
+/// inside `oneof` fields.
+public struct Delivery_QualityScoreTerms {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// A list of quality score terms. The terms of this list are always
+  /// multiplied.
+  ///
+  /// Default: empty (if empty, the term defined by this list will be dropped)
+  public var qualityScoreTerms: [Delivery_QualityScoreTerm] = []
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// `QualityScoreTerm` defines a term in either the root level
+/// `weighted_sum_term`, or in a product of terms that themselves a quality
+/// score term.
 public struct Delivery_QualityScoreTerm {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   /// How to fetch the base values of this term vector.
+  ///
+  /// If `fetch_method` is `attribute_name`, then this quality score term is
+  /// a terminal leaf and will evaluate to a value. If `fetch_method` is
+  /// `product`, then this defines term a subtree.
+  ///
+  /// If `fetch_method` is null or if an insertion does not have a property with
+  /// key `attribute_name`, then this term will be set to `0.0`.
   public var fetchMethod: Delivery_QualityScoreTerm.OneOf_FetchMethod? = nil
 
-  /// A named vector provided from elsewhere.
+  /// The name of the insertion property that will supply the final value to
+  /// be used to calculate the quality score for an insertion.
   public var attributeName: String {
     get {
       if case .attributeName(let v)? = fetchMethod {return v}
@@ -488,27 +988,20 @@ public struct Delivery_QualityScoreTerm {
     set {fetchMethod = .attributeName(newValue)}
   }
 
-  /// Randomly generated values from a normal distribution.
-  public var randomNormal: Delivery_NormalDistribution {
+  /// Recursively evaluate terms and multiply their evaluations as a product.
+  public var product: Delivery_QualityScoreTerms {
     get {
-      if case .randomNormal(let v)? = fetchMethod {return v}
-      return Delivery_NormalDistribution()
+      if case .product(let v)? = fetchMethod {return v}
+      return Delivery_QualityScoreTerms()
     }
-    set {fetchMethod = .randomNormal(newValue)}
+    set {fetchMethod = .product(newValue)}
   }
 
-  /// A constant value of ones. Set to any constant with offset and/or weight.
-  /// Set to "true" to indicate that this option is set by convention.
-  public var ones: Bool {
-    get {
-      if case .ones(let v)? = fetchMethod {return v}
-      return false
-    }
-    set {fetchMethod = .ones(newValue)}
-  }
-
-  /// Maximum limit of underlying value (before weight and offset).
-  public var fetchHigh: Double {
+  /// The upper bound used to clamp the value supplied by an insertion's
+  /// property (before weight and offset).
+  ///
+  /// Default: float::MAX (The maximum value of a single precision 32 bit float)
+  public var fetchHigh: Float {
     get {return _fetchHigh ?? 0}
     set {_fetchHigh = newValue}
   }
@@ -517,8 +1010,11 @@ public struct Delivery_QualityScoreTerm {
   /// Clears the value of `fetchHigh`. Subsequent reads from it will return its default value.
   public mutating func clearFetchHigh() {self._fetchHigh = nil}
 
-  /// Minimum limit of underlying value (before weight and offset).
-  public var fetchLow: Double {
+  /// The lower bound used to clamp the value supplied by an insertion's
+  /// property (before weight and offset).
+  ///
+  /// Default: float::MIN (The minimum value of a single precision 32 bit float)
+  public var fetchLow: Float {
     get {return _fetchLow ?? 0}
     set {_fetchLow = newValue}
   }
@@ -527,23 +1023,69 @@ public struct Delivery_QualityScoreTerm {
   /// Clears the value of `fetchLow`. Subsequent reads from it will return its default value.
   public mutating func clearFetchLow() {self._fetchLow = nil}
 
-  /// Multiply by this value. default =1 (no multiply).
-  public var weight: Double = 0
+  /// The weight of the value supplied by an insertion's property. This constant
+  /// multiplies the value before it enters into the sum or product of
+  /// terms.
+  ///
+  /// Default: 1.0 (no multiply).
+  public var weight: Float {
+    get {return _weight ?? 0}
+    set {_weight = newValue}
+  }
+  /// Returns true if `weight` has been explicitly set.
+  public var hasWeight: Bool {return self._weight != nil}
+  /// Clears the value of `weight`. Subsequent reads from it will return its default value.
+  public mutating func clearWeight() {self._weight = nil}
 
-  /// Add by this value. default = 0 (no addition)
-  public var offset: Double = 0
+  /// An offset added to the value supplied by an insertion's property. This constant
+  /// is added to the value (after it's modified by the weight) before it enters into
+  /// the sum or product of terms.
+  ///
+  /// Default: 0.0 (no offset)
+  public var offset: Float = 0
+
+  /// The value that this term evaluates to if the provided eval method
+  /// evaluates to false. This field is used to conditionally set or unset
+  /// terms from the sum of terms.
+  ///
+  /// For example, this field allows to construct ternary operators to define
+  /// scores like so ( where `i` is some insertion, and `IMPORTANT`,
+  /// `p_NAVIGATE`, and `p_POST_CLICK_CONVERSION` are terms and insertion
+  /// properties):
+  ///
+  /// ```
+  /// score_i := i[IMPORTANT] + i[IMPORTANT] : 0 ? 1 * i[p_NAVIGATE] * i[p_POST_CLICK_CONVERSION]
+  /// ```
+  ///
+  /// This sets `score_i` to the value of the `IMPORTANT` property or, if it
+  /// evaluates to `false` the product `p_NAVIGATE * p_POST_CLICK_CONVERSION`.
+  ///
+  /// Default: none (ignored)
+  public var termConditionalEvaluation: Delivery_TermConditionalEvaluation {
+    get {return _termConditionalEvaluation ?? Delivery_TermConditionalEvaluation()}
+    set {_termConditionalEvaluation = newValue}
+  }
+  /// Returns true if `termConditionalEvaluation` has been explicitly set.
+  public var hasTermConditionalEvaluation: Bool {return self._termConditionalEvaluation != nil}
+  /// Clears the value of `termConditionalEvaluation`. Subsequent reads from it will return its default value.
+  public mutating func clearTermConditionalEvaluation() {self._termConditionalEvaluation = nil}
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   /// How to fetch the base values of this term vector.
+  ///
+  /// If `fetch_method` is `attribute_name`, then this quality score term is
+  /// a terminal leaf and will evaluate to a value. If `fetch_method` is
+  /// `product`, then this defines term a subtree.
+  ///
+  /// If `fetch_method` is null or if an insertion does not have a property with
+  /// key `attribute_name`, then this term will be set to `0.0`.
   public enum OneOf_FetchMethod: Equatable {
-    /// A named vector provided from elsewhere.
+    /// The name of the insertion property that will supply the final value to
+    /// be used to calculate the quality score for an insertion.
     case attributeName(String)
-    /// Randomly generated values from a normal distribution.
-    case randomNormal(Delivery_NormalDistribution)
-    /// A constant value of ones. Set to any constant with offset and/or weight.
-    /// Set to "true" to indicate that this option is set by convention.
-    case ones(Bool)
+    /// Recursively evaluate terms and multiply their evaluations as a product.
+    case product(Delivery_QualityScoreTerms)
 
   #if !swift(>=4.1)
     public static func ==(lhs: Delivery_QualityScoreTerm.OneOf_FetchMethod, rhs: Delivery_QualityScoreTerm.OneOf_FetchMethod) -> Bool {
@@ -555,12 +1097,8 @@ public struct Delivery_QualityScoreTerm {
         guard case .attributeName(let l) = lhs, case .attributeName(let r) = rhs else { preconditionFailure() }
         return l == r
       }()
-      case (.randomNormal, .randomNormal): return {
-        guard case .randomNormal(let l) = lhs, case .randomNormal(let r) = rhs else { preconditionFailure() }
-        return l == r
-      }()
-      case (.ones, .ones): return {
-        guard case .ones(let l) = lhs, case .ones(let r) = rhs else { preconditionFailure() }
+      case (.product, .product): return {
+        guard case .product(let l) = lhs, case .product(let r) = rhs else { preconditionFailure() }
         return l == r
       }()
       default: return false
@@ -571,21 +1109,142 @@ public struct Delivery_QualityScoreTerm {
 
   public init() {}
 
-  fileprivate var _fetchHigh: Double? = nil
-  fileprivate var _fetchLow: Double? = nil
+  fileprivate var _fetchHigh: Float? = nil
+  fileprivate var _fetchLow: Float? = nil
+  fileprivate var _weight: Float? = nil
+  fileprivate var _termConditionalEvaluation: Delivery_TermConditionalEvaluation? = nil
 }
 
-/// Next ID = 3.
-public struct Delivery_NormalDistribution {
+/// If `TermConditionalEvaluation` is specified, then the `eval_method` applied
+/// to an insertion must evaluate to `true`. If `false`, the quality term that
+/// contains this `TermConditionalEvaluation` will be set/evaluate to
+/// `value_if_false`.
+public struct Delivery_TermConditionalEvaluation {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  public var mean: Double = 0
+  /// The value the contained term will be set to if the evaluation yields `false`.
+  ///
+  /// Default: 0.0
+  public var valueIfFalse: Float = 0
 
-  public var variance: Double = 0
+  /// The property with key `attribute_name` that will be used for `eval_method`.
+  ///
+  /// Default: "" (if the attribute name is not set, then this conditional eval
+  /// will be ignored because it can't be applied to any property).
+  public var attributeName: String = String()
+
+  /// How to evaluate an insertion to determine if this conditional eval changes
+  /// the quality term it is contained in.
+  ///
+  /// If the result of an evaluation is `true`, then the containing quality term
+  /// is not affected. if `false`, the containing quality term is set to
+  /// `value_if_false`.
+  ///
+  /// If an insertion lacks a matching attribute, it will always evaluate to `false`.
+  ///
+  /// See the respective eval method entries for more information.
+  ///
+  /// Default: boolean (if `eval_method` is not set, this rule will fall back to
+  /// boolean evaluation and check if a the property with key `attribute_name` is
+  /// `true` or `false)
+  public var evalMethod: Delivery_TermConditionalEvaluation.OneOf_EvalMethod? = nil
+
+  public var boolean: Delivery_Boolean {
+    get {
+      if case .boolean(let v)? = evalMethod {return v}
+      return Delivery_Boolean()
+    }
+    set {evalMethod = .boolean(newValue)}
+  }
+
+  public var greaterThan: Delivery_GreaterThan {
+    get {
+      if case .greaterThan(let v)? = evalMethod {return v}
+      return Delivery_GreaterThan()
+    }
+    set {evalMethod = .greaterThan(newValue)}
+  }
+
+  public var lessThan: Delivery_LessThan {
+    get {
+      if case .lessThan(let v)? = evalMethod {return v}
+      return Delivery_LessThan()
+    }
+    set {evalMethod = .lessThan(newValue)}
+  }
+
+  public var interval: Delivery_Interval {
+    get {
+      if case .interval(let v)? = evalMethod {return v}
+      return Delivery_Interval()
+    }
+    set {evalMethod = .interval(newValue)}
+  }
+
+  public var equalV2: Delivery_EqualV2 {
+    get {
+      if case .equalV2(let v)? = evalMethod {return v}
+      return Delivery_EqualV2()
+    }
+    set {evalMethod = .equalV2(newValue)}
+  }
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  /// How to evaluate an insertion to determine if this conditional eval changes
+  /// the quality term it is contained in.
+  ///
+  /// If the result of an evaluation is `true`, then the containing quality term
+  /// is not affected. if `false`, the containing quality term is set to
+  /// `value_if_false`.
+  ///
+  /// If an insertion lacks a matching attribute, it will always evaluate to `false`.
+  ///
+  /// See the respective eval method entries for more information.
+  ///
+  /// Default: boolean (if `eval_method` is not set, this rule will fall back to
+  /// boolean evaluation and check if a the property with key `attribute_name` is
+  /// `true` or `false)
+  public enum OneOf_EvalMethod: Equatable {
+    case boolean(Delivery_Boolean)
+    case greaterThan(Delivery_GreaterThan)
+    case lessThan(Delivery_LessThan)
+    case interval(Delivery_Interval)
+    case equalV2(Delivery_EqualV2)
+
+  #if !swift(>=4.1)
+    public static func ==(lhs: Delivery_TermConditionalEvaluation.OneOf_EvalMethod, rhs: Delivery_TermConditionalEvaluation.OneOf_EvalMethod) -> Bool {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch (lhs, rhs) {
+      case (.boolean, .boolean): return {
+        guard case .boolean(let l) = lhs, case .boolean(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.greaterThan, .greaterThan): return {
+        guard case .greaterThan(let l) = lhs, case .greaterThan(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.lessThan, .lessThan): return {
+        guard case .lessThan(let l) = lhs, case .lessThan(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.interval, .interval): return {
+        guard case .interval(let l) = lhs, case .interval(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.equalV2, .equalV2): return {
+        guard case .equalV2(let l) = lhs, case .equalV2(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      default: return false
+      }
+    }
+  #endif
+  }
 
   public init() {}
 }
@@ -593,6 +1252,51 @@ public struct Delivery_NormalDistribution {
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
 fileprivate let _protobuf_package = "delivery"
+
+extension Delivery_RankingMethod: SwiftProtobuf._ProtoNameProviding {
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    0: .same(proto: "QUALITY_SCORE"),
+    1: .same(proto: "REQUEST_ORDER"),
+  ]
+}
+
+extension Delivery_BlenderConfig: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".BlenderConfig"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "blender_rule"),
+    2: .standard(proto: "quality_score_config"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeRepeatedMessageField(value: &self.blenderRule) }()
+      case 2: try { try decoder.decodeSingularMessageField(value: &self._qualityScoreConfig) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.blenderRule.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.blenderRule, fieldNumber: 1)
+    }
+    if let v = self._qualityScoreConfig {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Delivery_BlenderConfig, rhs: Delivery_BlenderConfig) -> Bool {
+    if lhs.blenderRule != rhs.blenderRule {return false}
+    if lhs._qualityScoreConfig != rhs._qualityScoreConfig {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
 
 extension Delivery_BlenderRule: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".BlenderRule"
@@ -602,6 +1306,11 @@ extension Delivery_BlenderRule: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
     7: .standard(proto: "insert_rule"),
     8: .standard(proto: "negative_rule"),
     9: .standard(proto: "diversity_rule"),
+    11: .same(proto: "boolean"),
+    13: .standard(proto: "greater_than"),
+    14: .standard(proto: "less_than"),
+    15: .same(proto: "interval"),
+    16: .standard(proto: "equal_v2"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -663,6 +1372,71 @@ extension Delivery_BlenderRule: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
           self.rule = .diversityRule(v)
         }
       }()
+      case 11: try {
+        var v: Delivery_Boolean?
+        var hadOneofValue = false
+        if let current = self.evalMethod {
+          hadOneofValue = true
+          if case .boolean(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.evalMethod = .boolean(v)
+        }
+      }()
+      case 13: try {
+        var v: Delivery_GreaterThan?
+        var hadOneofValue = false
+        if let current = self.evalMethod {
+          hadOneofValue = true
+          if case .greaterThan(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.evalMethod = .greaterThan(v)
+        }
+      }()
+      case 14: try {
+        var v: Delivery_LessThan?
+        var hadOneofValue = false
+        if let current = self.evalMethod {
+          hadOneofValue = true
+          if case .lessThan(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.evalMethod = .lessThan(v)
+        }
+      }()
+      case 15: try {
+        var v: Delivery_Interval?
+        var hadOneofValue = false
+        if let current = self.evalMethod {
+          hadOneofValue = true
+          if case .interval(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.evalMethod = .interval(v)
+        }
+      }()
+      case 16: try {
+        var v: Delivery_EqualV2?
+        var hadOneofValue = false
+        if let current = self.evalMethod {
+          hadOneofValue = true
+          if case .equalV2(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.evalMethod = .equalV2(v)
+        }
+      }()
       default: break
       }
     }
@@ -694,12 +1468,330 @@ extension Delivery_BlenderRule: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
     }()
     case nil: break
     }
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every case branch when no optimizations are
+    // enabled. https://github.com/apple/swift-protobuf/issues/1034
+    switch self.evalMethod {
+    case .boolean?: try {
+      guard case .boolean(let v)? = self.evalMethod else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 11)
+    }()
+    case .greaterThan?: try {
+      guard case .greaterThan(let v)? = self.evalMethod else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 13)
+    }()
+    case .lessThan?: try {
+      guard case .lessThan(let v)? = self.evalMethod else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 14)
+    }()
+    case .interval?: try {
+      guard case .interval(let v)? = self.evalMethod else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 15)
+    }()
+    case .equalV2?: try {
+      guard case .equalV2(let v)? = self.evalMethod else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 16)
+    }()
+    case nil: break
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   public static func ==(lhs: Delivery_BlenderRule, rhs: Delivery_BlenderRule) -> Bool {
     if lhs.attributeName != rhs.attributeName {return false}
     if lhs.rule != rhs.rule {return false}
+    if lhs.evalMethod != rhs.evalMethod {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Delivery_Boolean: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Boolean"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap()
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let _ = try decoder.nextFieldNumber() {
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Delivery_Boolean, rhs: Delivery_Boolean) -> Bool {
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Delivery_EqualV2: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".EqualV2"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "number"),
+    2: .same(proto: "string"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try {
+        var v: Delivery_Equal?
+        var hadOneofValue = false
+        if let current = self.equalityType {
+          hadOneofValue = true
+          if case .number(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.equalityType = .number(v)
+        }
+      }()
+      case 2: try {
+        var v: Delivery_StringEquality?
+        var hadOneofValue = false
+        if let current = self.equalityType {
+          hadOneofValue = true
+          if case .string(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.equalityType = .string(v)
+        }
+      }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every case branch when no optimizations are
+    // enabled. https://github.com/apple/swift-protobuf/issues/1034
+    switch self.equalityType {
+    case .number?: try {
+      guard case .number(let v)? = self.equalityType else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
+    }()
+    case .string?: try {
+      guard case .string(let v)? = self.equalityType else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
+    }()
+    case nil: break
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Delivery_EqualV2, rhs: Delivery_EqualV2) -> Bool {
+    if lhs.equalityType != rhs.equalityType {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Delivery_Equal: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Equal"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "compared_to"),
+    2: .same(proto: "tolerance"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularFloatField(value: &self.comparedTo) }()
+      case 2: try { try decoder.decodeSingularFloatField(value: &self.tolerance) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.comparedTo != 0 {
+      try visitor.visitSingularFloatField(value: self.comparedTo, fieldNumber: 1)
+    }
+    if self.tolerance != 0 {
+      try visitor.visitSingularFloatField(value: self.tolerance, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Delivery_Equal, rhs: Delivery_Equal) -> Bool {
+    if lhs.comparedTo != rhs.comparedTo {return false}
+    if lhs.tolerance != rhs.tolerance {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Delivery_StringEquality: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".StringEquality"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "raw"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try {
+        var v: String?
+        try decoder.decodeSingularStringField(value: &v)
+        if let v = v {
+          if self.value != nil {try decoder.handleConflictingOneOf()}
+          self.value = .raw(v)
+        }
+      }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if case .raw(let v)? = self.value {
+      try visitor.visitSingularStringField(value: v, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Delivery_StringEquality, rhs: Delivery_StringEquality) -> Bool {
+    if lhs.value != rhs.value {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Delivery_GreaterThan: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".GreaterThan"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "compared_to"),
+    2: .standard(proto: "or_equal"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularFloatField(value: &self.comparedTo) }()
+      case 2: try { try decoder.decodeSingularBoolField(value: &self.orEqual) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.comparedTo != 0 {
+      try visitor.visitSingularFloatField(value: self.comparedTo, fieldNumber: 1)
+    }
+    if self.orEqual != false {
+      try visitor.visitSingularBoolField(value: self.orEqual, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Delivery_GreaterThan, rhs: Delivery_GreaterThan) -> Bool {
+    if lhs.comparedTo != rhs.comparedTo {return false}
+    if lhs.orEqual != rhs.orEqual {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Delivery_LessThan: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".LessThan"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "compared_to"),
+    2: .standard(proto: "or_equal"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularFloatField(value: &self.comparedTo) }()
+      case 2: try { try decoder.decodeSingularBoolField(value: &self.orEqual) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.comparedTo != 0 {
+      try visitor.visitSingularFloatField(value: self.comparedTo, fieldNumber: 1)
+    }
+    if self.orEqual != false {
+      try visitor.visitSingularBoolField(value: self.orEqual, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Delivery_LessThan, rhs: Delivery_LessThan) -> Bool {
+    if lhs.comparedTo != rhs.comparedTo {return false}
+    if lhs.orEqual != rhs.orEqual {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Delivery_Interval: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Interval"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "upper_bound"),
+    2: .standard(proto: "lower_bound"),
+    3: .standard(proto: "lower_inclusive"),
+    4: .standard(proto: "upper_inclusive"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularFloatField(value: &self.upperBound) }()
+      case 2: try { try decoder.decodeSingularFloatField(value: &self.lowerBound) }()
+      case 3: try { try decoder.decodeSingularBoolField(value: &self.lowerInclusive) }()
+      case 4: try { try decoder.decodeSingularBoolField(value: &self.upperInclusive) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.upperBound != 0 {
+      try visitor.visitSingularFloatField(value: self.upperBound, fieldNumber: 1)
+    }
+    if self.lowerBound != 0 {
+      try visitor.visitSingularFloatField(value: self.lowerBound, fieldNumber: 2)
+    }
+    if self.lowerInclusive != false {
+      try visitor.visitSingularBoolField(value: self.lowerInclusive, fieldNumber: 3)
+    }
+    if self.upperInclusive != false {
+      try visitor.visitSingularBoolField(value: self.upperInclusive, fieldNumber: 4)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Delivery_Interval, rhs: Delivery_Interval) -> Bool {
+    if lhs.upperBound != rhs.upperBound {return false}
+    if lhs.lowerBound != rhs.lowerBound {return false}
+    if lhs.lowerInclusive != rhs.lowerInclusive {return false}
+    if lhs.upperInclusive != rhs.upperInclusive {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -755,6 +1847,8 @@ extension Delivery_InsertRule: SwiftProtobuf.Message, SwiftProtobuf._MessageImpl
     1: .standard(proto: "select_pct"),
     2: .standard(proto: "min_pos"),
     3: .standard(proto: "max_pos"),
+    5: .standard(proto: "applies_to_all_insertions"),
+    6: .standard(proto: "ranking_method"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -766,6 +1860,8 @@ extension Delivery_InsertRule: SwiftProtobuf.Message, SwiftProtobuf._MessageImpl
       case 1: try { try decoder.decodeSingularDoubleField(value: &self._selectPct) }()
       case 2: try { try decoder.decodeSingularUInt64Field(value: &self._minPos) }()
       case 3: try { try decoder.decodeSingularUInt64Field(value: &self._maxPos) }()
+      case 5: try { try decoder.decodeSingularBoolField(value: &self.appliesToAllInsertions) }()
+      case 6: try { try decoder.decodeSingularEnumField(value: &self.rankingMethod) }()
       default: break
       }
     }
@@ -781,6 +1877,12 @@ extension Delivery_InsertRule: SwiftProtobuf.Message, SwiftProtobuf._MessageImpl
     if let v = self._maxPos {
       try visitor.visitSingularUInt64Field(value: v, fieldNumber: 3)
     }
+    if self.appliesToAllInsertions != false {
+      try visitor.visitSingularBoolField(value: self.appliesToAllInsertions, fieldNumber: 5)
+    }
+    if self.rankingMethod != .qualityScore {
+      try visitor.visitSingularEnumField(value: self.rankingMethod, fieldNumber: 6)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -788,6 +1890,8 @@ extension Delivery_InsertRule: SwiftProtobuf.Message, SwiftProtobuf._MessageImpl
     if lhs._selectPct != rhs._selectPct {return false}
     if lhs._minPos != rhs._minPos {return false}
     if lhs._maxPos != rhs._maxPos {return false}
+    if lhs.appliesToAllInsertions != rhs.appliesToAllInsertions {return false}
+    if lhs.rankingMethod != rhs.rankingMethod {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -881,44 +1985,6 @@ extension Delivery_DiversityRule: SwiftProtobuf.Message, SwiftProtobuf._MessageI
   }
 }
 
-extension Delivery_BlenderConfig: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  public static let protoMessageName: String = _protobuf_package + ".BlenderConfig"
-  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .standard(proto: "blender_rule"),
-    2: .standard(proto: "quality_score_config"),
-  ]
-
-  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeRepeatedMessageField(value: &self.blenderRule) }()
-      case 2: try { try decoder.decodeSingularMessageField(value: &self._qualityScoreConfig) }()
-      default: break
-      }
-    }
-  }
-
-  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if !self.blenderRule.isEmpty {
-      try visitor.visitRepeatedMessageField(value: self.blenderRule, fieldNumber: 1)
-    }
-    if let v = self._qualityScoreConfig {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
-    }
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  public static func ==(lhs: Delivery_BlenderConfig, rhs: Delivery_BlenderConfig) -> Bool {
-    if lhs.blenderRule != rhs.blenderRule {return false}
-    if lhs._qualityScoreConfig != rhs._qualityScoreConfig {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
 extension Delivery_QualityScoreConfig: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".QualityScoreConfig"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -951,16 +2017,48 @@ extension Delivery_QualityScoreConfig: SwiftProtobuf.Message, SwiftProtobuf._Mes
   }
 }
 
+extension Delivery_QualityScoreTerms: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".QualityScoreTerms"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "quality_score_terms"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeRepeatedMessageField(value: &self.qualityScoreTerms) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.qualityScoreTerms.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.qualityScoreTerms, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Delivery_QualityScoreTerms, rhs: Delivery_QualityScoreTerms) -> Bool {
+    if lhs.qualityScoreTerms != rhs.qualityScoreTerms {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
 extension Delivery_QualityScoreTerm: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".QualityScoreTerm"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .standard(proto: "attribute_name"),
-    2: .standard(proto: "random_normal"),
-    3: .same(proto: "ones"),
+    3: .same(proto: "product"),
     10: .standard(proto: "fetch_high"),
     11: .standard(proto: "fetch_low"),
     12: .same(proto: "weight"),
     13: .same(proto: "offset"),
+    14: .standard(proto: "term_conditional_evaluation"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -977,31 +2075,24 @@ extension Delivery_QualityScoreTerm: SwiftProtobuf.Message, SwiftProtobuf._Messa
           self.fetchMethod = .attributeName(v)
         }
       }()
-      case 2: try {
-        var v: Delivery_NormalDistribution?
+      case 3: try {
+        var v: Delivery_QualityScoreTerms?
         var hadOneofValue = false
         if let current = self.fetchMethod {
           hadOneofValue = true
-          if case .randomNormal(let m) = current {v = m}
+          if case .product(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
         if let v = v {
           if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.fetchMethod = .randomNormal(v)
+          self.fetchMethod = .product(v)
         }
       }()
-      case 3: try {
-        var v: Bool?
-        try decoder.decodeSingularBoolField(value: &v)
-        if let v = v {
-          if self.fetchMethod != nil {try decoder.handleConflictingOneOf()}
-          self.fetchMethod = .ones(v)
-        }
-      }()
-      case 10: try { try decoder.decodeSingularDoubleField(value: &self._fetchHigh) }()
-      case 11: try { try decoder.decodeSingularDoubleField(value: &self._fetchLow) }()
-      case 12: try { try decoder.decodeSingularDoubleField(value: &self.weight) }()
-      case 13: try { try decoder.decodeSingularDoubleField(value: &self.offset) }()
+      case 10: try { try decoder.decodeSingularFloatField(value: &self._fetchHigh) }()
+      case 11: try { try decoder.decodeSingularFloatField(value: &self._fetchLow) }()
+      case 12: try { try decoder.decodeSingularFloatField(value: &self._weight) }()
+      case 13: try { try decoder.decodeSingularFloatField(value: &self.offset) }()
+      case 14: try { try decoder.decodeSingularMessageField(value: &self._termConditionalEvaluation) }()
       default: break
       }
     }
@@ -1016,27 +2107,26 @@ extension Delivery_QualityScoreTerm: SwiftProtobuf.Message, SwiftProtobuf._Messa
       guard case .attributeName(let v)? = self.fetchMethod else { preconditionFailure() }
       try visitor.visitSingularStringField(value: v, fieldNumber: 1)
     }()
-    case .randomNormal?: try {
-      guard case .randomNormal(let v)? = self.fetchMethod else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
-    }()
-    case .ones?: try {
-      guard case .ones(let v)? = self.fetchMethod else { preconditionFailure() }
-      try visitor.visitSingularBoolField(value: v, fieldNumber: 3)
+    case .product?: try {
+      guard case .product(let v)? = self.fetchMethod else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
     }()
     case nil: break
     }
     if let v = self._fetchHigh {
-      try visitor.visitSingularDoubleField(value: v, fieldNumber: 10)
+      try visitor.visitSingularFloatField(value: v, fieldNumber: 10)
     }
     if let v = self._fetchLow {
-      try visitor.visitSingularDoubleField(value: v, fieldNumber: 11)
+      try visitor.visitSingularFloatField(value: v, fieldNumber: 11)
     }
-    if self.weight != 0 {
-      try visitor.visitSingularDoubleField(value: self.weight, fieldNumber: 12)
+    if let v = self._weight {
+      try visitor.visitSingularFloatField(value: v, fieldNumber: 12)
     }
     if self.offset != 0 {
-      try visitor.visitSingularDoubleField(value: self.offset, fieldNumber: 13)
+      try visitor.visitSingularFloatField(value: self.offset, fieldNumber: 13)
+    }
+    if let v = self._termConditionalEvaluation {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 14)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -1045,18 +2135,24 @@ extension Delivery_QualityScoreTerm: SwiftProtobuf.Message, SwiftProtobuf._Messa
     if lhs.fetchMethod != rhs.fetchMethod {return false}
     if lhs._fetchHigh != rhs._fetchHigh {return false}
     if lhs._fetchLow != rhs._fetchLow {return false}
-    if lhs.weight != rhs.weight {return false}
+    if lhs._weight != rhs._weight {return false}
     if lhs.offset != rhs.offset {return false}
+    if lhs._termConditionalEvaluation != rhs._termConditionalEvaluation {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
 }
 
-extension Delivery_NormalDistribution: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  public static let protoMessageName: String = _protobuf_package + ".NormalDistribution"
+extension Delivery_TermConditionalEvaluation: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".TermConditionalEvaluation"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "mean"),
-    2: .same(proto: "variance"),
+    1: .standard(proto: "value_if_false"),
+    2: .standard(proto: "attribute_name"),
+    4: .same(proto: "boolean"),
+    6: .standard(proto: "greater_than"),
+    7: .standard(proto: "less_than"),
+    8: .same(proto: "interval"),
+    10: .standard(proto: "equal_v2"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1065,26 +2161,118 @@ extension Delivery_NormalDistribution: SwiftProtobuf.Message, SwiftProtobuf._Mes
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularDoubleField(value: &self.mean) }()
-      case 2: try { try decoder.decodeSingularDoubleField(value: &self.variance) }()
+      case 1: try { try decoder.decodeSingularFloatField(value: &self.valueIfFalse) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.attributeName) }()
+      case 4: try {
+        var v: Delivery_Boolean?
+        var hadOneofValue = false
+        if let current = self.evalMethod {
+          hadOneofValue = true
+          if case .boolean(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.evalMethod = .boolean(v)
+        }
+      }()
+      case 6: try {
+        var v: Delivery_GreaterThan?
+        var hadOneofValue = false
+        if let current = self.evalMethod {
+          hadOneofValue = true
+          if case .greaterThan(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.evalMethod = .greaterThan(v)
+        }
+      }()
+      case 7: try {
+        var v: Delivery_LessThan?
+        var hadOneofValue = false
+        if let current = self.evalMethod {
+          hadOneofValue = true
+          if case .lessThan(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.evalMethod = .lessThan(v)
+        }
+      }()
+      case 8: try {
+        var v: Delivery_Interval?
+        var hadOneofValue = false
+        if let current = self.evalMethod {
+          hadOneofValue = true
+          if case .interval(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.evalMethod = .interval(v)
+        }
+      }()
+      case 10: try {
+        var v: Delivery_EqualV2?
+        var hadOneofValue = false
+        if let current = self.evalMethod {
+          hadOneofValue = true
+          if case .equalV2(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.evalMethod = .equalV2(v)
+        }
+      }()
       default: break
       }
     }
   }
 
   public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.mean != 0 {
-      try visitor.visitSingularDoubleField(value: self.mean, fieldNumber: 1)
+    if self.valueIfFalse != 0 {
+      try visitor.visitSingularFloatField(value: self.valueIfFalse, fieldNumber: 1)
     }
-    if self.variance != 0 {
-      try visitor.visitSingularDoubleField(value: self.variance, fieldNumber: 2)
+    if !self.attributeName.isEmpty {
+      try visitor.visitSingularStringField(value: self.attributeName, fieldNumber: 2)
+    }
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every case branch when no optimizations are
+    // enabled. https://github.com/apple/swift-protobuf/issues/1034
+    switch self.evalMethod {
+    case .boolean?: try {
+      guard case .boolean(let v)? = self.evalMethod else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 4)
+    }()
+    case .greaterThan?: try {
+      guard case .greaterThan(let v)? = self.evalMethod else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 6)
+    }()
+    case .lessThan?: try {
+      guard case .lessThan(let v)? = self.evalMethod else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 7)
+    }()
+    case .interval?: try {
+      guard case .interval(let v)? = self.evalMethod else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 8)
+    }()
+    case .equalV2?: try {
+      guard case .equalV2(let v)? = self.evalMethod else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 10)
+    }()
+    case nil: break
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  public static func ==(lhs: Delivery_NormalDistribution, rhs: Delivery_NormalDistribution) -> Bool {
-    if lhs.mean != rhs.mean {return false}
-    if lhs.variance != rhs.variance {return false}
+  public static func ==(lhs: Delivery_TermConditionalEvaluation, rhs: Delivery_TermConditionalEvaluation) -> Bool {
+    if lhs.valueIfFalse != rhs.valueIfFalse {return false}
+    if lhs.attributeName != rhs.attributeName {return false}
+    if lhs.evalMethod != rhs.evalMethod {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

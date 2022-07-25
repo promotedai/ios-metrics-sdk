@@ -209,9 +209,27 @@ public struct Common_EntityPath {
   public init() {}
 }
 
+/// Represents a money value.  e.g. $1 USD.
+/// Next ID = 3.
+public struct Common_Money {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var currencyCode: Common_CurrencyCode = .unknownCurrencyCode
+
+  /// 1 million = 1 denomination in the currency.  E.g. 1 USD = 1,000,000 price_micros_per_unit.
+  /// We use micros to avoid double aggregation errors.
+  public var amountMicros: Int64 = 0
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
 /// Common submessage that scopes helps scope a request/log to a user.
 ///
-/// Next ID = 4.
+/// Next ID = 5.
 public struct Common_UserInfo {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -231,6 +249,11 @@ public struct Common_UserInfo {
   /// Optional, defaults to false. Indicates that the user is from the
   /// marketplace or Promoted team.
   public var isInternalUser: Bool = false
+
+  /// Optional, defaults to false.  Can be used to suppress traffic.
+  /// One use case is to use this field when debugging specific customer
+  /// experiences by overriding the log_user_id.
+  public var ignoreUsage: Bool = false
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -575,7 +598,7 @@ public struct Common_ClientHintBrand {
 }
 
 /// A sub-message containing Browser info.
-/// Next ID = 4.
+/// Next ID = 5.
 public struct Common_Browser {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -600,6 +623,8 @@ public struct Common_Browser {
   public var hasClientHints: Bool {return self._clientHints != nil}
   /// Clears the value of `clientHints`. Subsequent reads from it will return its default value.
   public mutating func clearClientHints() {self._clientHints = nil}
+
+  public var referrer: String = String()
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -808,12 +833,51 @@ extension Common_EntityPath: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
   }
 }
 
+extension Common_Money: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Money"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "currency_code"),
+    2: .standard(proto: "amount_micros"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularEnumField(value: &self.currencyCode) }()
+      case 2: try { try decoder.decodeSingularInt64Field(value: &self.amountMicros) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.currencyCode != .unknownCurrencyCode {
+      try visitor.visitSingularEnumField(value: self.currencyCode, fieldNumber: 1)
+    }
+    if self.amountMicros != 0 {
+      try visitor.visitSingularInt64Field(value: self.amountMicros, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Common_Money, rhs: Common_Money) -> Bool {
+    if lhs.currencyCode != rhs.currencyCode {return false}
+    if lhs.amountMicros != rhs.amountMicros {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
 extension Common_UserInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".UserInfo"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .standard(proto: "user_id"),
     2: .standard(proto: "log_user_id"),
     3: .standard(proto: "is_internal_user"),
+    4: .standard(proto: "ignore_usage"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -825,6 +889,7 @@ extension Common_UserInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
       case 1: try { try decoder.decodeSingularStringField(value: &self.userID) }()
       case 2: try { try decoder.decodeSingularStringField(value: &self.logUserID) }()
       case 3: try { try decoder.decodeSingularBoolField(value: &self.isInternalUser) }()
+      case 4: try { try decoder.decodeSingularBoolField(value: &self.ignoreUsage) }()
       default: break
       }
     }
@@ -840,6 +905,9 @@ extension Common_UserInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
     if self.isInternalUser != false {
       try visitor.visitSingularBoolField(value: self.isInternalUser, fieldNumber: 3)
     }
+    if self.ignoreUsage != false {
+      try visitor.visitSingularBoolField(value: self.ignoreUsage, fieldNumber: 4)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -847,6 +915,7 @@ extension Common_UserInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
     if lhs.userID != rhs.userID {return false}
     if lhs.logUserID != rhs.logUserID {return false}
     if lhs.isInternalUser != rhs.isInternalUser {return false}
+    if lhs.ignoreUsage != rhs.ignoreUsage {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1285,6 +1354,7 @@ extension Common_Browser: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
     1: .standard(proto: "user_agent"),
     2: .standard(proto: "viewport_size"),
     3: .standard(proto: "client_hints"),
+    4: .same(proto: "referrer"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1296,6 +1366,7 @@ extension Common_Browser: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
       case 1: try { try decoder.decodeSingularStringField(value: &self.userAgent) }()
       case 2: try { try decoder.decodeSingularMessageField(value: &self._viewportSize) }()
       case 3: try { try decoder.decodeSingularMessageField(value: &self._clientHints) }()
+      case 4: try { try decoder.decodeSingularStringField(value: &self.referrer) }()
       default: break
       }
     }
@@ -1311,6 +1382,9 @@ extension Common_Browser: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
     if let v = self._clientHints {
       try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
     }
+    if !self.referrer.isEmpty {
+      try visitor.visitSingularStringField(value: self.referrer, fieldNumber: 4)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -1318,6 +1392,7 @@ extension Common_Browser: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
     if lhs.userAgent != rhs.userAgent {return false}
     if lhs._viewportSize != rhs._viewportSize {return false}
     if lhs._clientHints != rhs._clientHints {return false}
+    if lhs.referrer != rhs.referrer {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

@@ -115,7 +115,7 @@ public struct Delivery_DeliveryLog {
 }
 
 /// Contains the inner execution details for a Delivery call.
-/// Next ID = 8.
+/// Next ID = 11.
 public struct Delivery_DeliveryExecution {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for

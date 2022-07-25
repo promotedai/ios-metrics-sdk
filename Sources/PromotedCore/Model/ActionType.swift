@@ -1,6 +1,6 @@
 import Foundation
 
-/** Type for user actions. */
+/** Action that user wants to perform. Wraps `Event_ActionType`. */
 @objc(PROActionType)
 public enum ActionType: Int {
   case unknown // = 0
