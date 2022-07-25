@@ -106,13 +106,13 @@ extension MetricsLoggerError: ErrorDetails {
 
       \(Self.deliveryMayBeImpaired)
       """
-    case .missingJoinableFieldsInImpression:
+    case .missingJoinableIDsInImpression:
       return """
       An impression was logged with no content ID or insertion ID. This may be due to a recent change to a list/collection view, or the data model that powers this view.
 
       \(Self.deliveryMayBeImpaired)
       """
-    case .missingJoinableFieldsInAction:
+    case .missingJoinableIDsInAction:
       return """
       An action was logged with no impression ID, content ID, or insertion ID. This may be due to a recent change to a list/collection view, or the data model that powers this view.
 
