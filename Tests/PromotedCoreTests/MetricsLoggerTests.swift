@@ -1507,7 +1507,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     )
     assert(
       list: listener.errors,
-      containsSingletonError: .missingJoinableFieldsInImpression
+      containsSingletonError: .missingJoinableIDsInImpression
     )
   }
 
@@ -1522,7 +1522,7 @@ final class MetricsLoggerTests: ModuleTestCase {
 
     assert(
       list: listener.errors,
-      containsSingletonError: .missingJoinableFieldsInAction
+      containsSingletonError: .missingJoinableIDsInAction
     )
   }
 }

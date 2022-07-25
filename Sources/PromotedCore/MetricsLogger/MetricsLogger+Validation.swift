@@ -29,7 +29,7 @@ extension MetricsLogger {
       impression.insertionID.isEmptyOrWhitespace &&
       impression.contentID.isEmptyOrWhitespace
     ) {
-      handleLoggingError(.missingJoinableFieldsInImpression)
+      handleLoggingError(.missingJoinableIDsInImpression)
     }
   }
 
@@ -41,12 +41,15 @@ extension MetricsLogger {
       action.insertionID.isEmptyOrWhitespace &&
       action.contentID.isEmptyOrWhitespace
     ) {
-      handleLoggingError(.missingJoinableFieldsInAction)
+      handleLoggingError(.missingJoinableIDsInAction)
     }
   }
 
   private func validate(user: Event_User) {
-    if user.userInfo.logUserID.isEmpty {
+    if (
+      user.userInfo.logUserID.isEmptyOrWhitespace &&
+      user.userInfo.userID.isEmptyOrWhitespace
+    ) {
       handleLoggingError(.missingLogUserIDInUserMessage)
     }
   }
