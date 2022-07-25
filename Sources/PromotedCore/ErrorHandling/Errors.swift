@@ -85,21 +85,21 @@ extension ClientConfigError: NSErrorProperties {
   public var code: Int {
     switch self {
     case .invalidURL(_):
-      return 101
+      return 1001
     case .missingAPIKey:
-      return 102
+      return 1002
     case .missingDevAPIKey:
-      return 103
+      return 1003
     case .invalidMetricsLoggingWireFormat:
-      return 104
+      return 1004
     case .invalidXrayLevel:
-      return 105
+      return 1005
     case .invalidOSLogLevel:
-      return 106
+      return 1006
     case .invalidDiagnosticsSamplingEndDateString(_):
-      return 107
+      return 1007
     case .invalidMetricsLoggingErrorHandling:
-      return 108
+      return 1008
     }
   }
 }
@@ -116,7 +116,7 @@ extension ModuleConfigError: NSErrorProperties {
   public var code: Int {
     switch self {
     case .missingNetworkConnection:
-      return 201
+      return 2001
     }
   }
 }
@@ -128,9 +128,9 @@ extension BinaryEncodingError: NSErrorProperties {
   public var code: Int {
     switch self {
     case .missingRequiredFields:
-      return 301
+      return 3001
     case .anyTranscodeFailure:
-      return 302
+      return 3002
     }
   }
 }
@@ -147,19 +147,19 @@ public enum MetricsLoggerError: Error {
   /// An unexpected event type was logged. Non-fatal.
   case unexpectedEvent(_ event: Message)
 
-  /// Tried to log a User message without userID and logUserID. Non-fatal.
+  /// Tried to log a User message without logUserID. Non-fatal.
   case missingLogUserIDInUserMessage
 
-  /// Tried to log a LogRequest batch without userID and logUserID. Non-fatal.
+  /// Tried to log a LogRequest batch without logUserID. Non-fatal.
   case missingLogUserIDInLogRequest
 
   /// Impression without any joinable fields (content ID, insertion ID).
   /// Non-fatal.
-  case missingJoinableFieldsInImpression
+  case missingJoinableIDsInImpression
 
   /// Action without any joinable fields (impression ID, content ID,
   /// insertion ID). Non-fatal.
-  case missingJoinableFieldsInAction
+  case missingJoinableIDsInAction
 }
 
 extension MetricsLoggerError: NSErrorProperties {
@@ -167,19 +167,19 @@ extension MetricsLoggerError: NSErrorProperties {
   public var code: Int {
     switch self {
     case .propertiesSerializationError(_):
-      return 401
+      return 4001
     case .calledFromWrongThread:
-      return 402
+      return 4002
     case .unexpectedEvent(_):
-      return 403
+      return 4003
     case .missingLogUserIDInUserMessage:
-      return 404
+      return 4004
     case .missingLogUserIDInLogRequest:
-      return 405
-    case .missingJoinableFieldsInImpression:
-      return 406
-    case .missingJoinableFieldsInAction:
-      return 407
+      return 4005
+    case .missingJoinableIDsInImpression:
+      return 4006
+    case .missingJoinableIDsInAction:
+      return 4007
     }
   }
 }
@@ -204,11 +204,11 @@ extension ClientConfigFetchError: NSErrorProperties {
   public var code: Int {
     switch self {
     case .networkError(_):
-      return 501
+      return 5001
     case .emptyConfig:
-      return 502
+      return 5002
     case .localCacheEncodeError(_):
-      return 503
+      return 5003
     }
   }
 }
@@ -224,9 +224,9 @@ extension RemoteConfigConnectionError: NSErrorProperties {
   public var code: Int {
     switch self {
     case .failed(_):
-      return 601
+      return 6001
     case .serviceConfigError(_):
-      return 602
+      return 6002
     }
   }
 }
