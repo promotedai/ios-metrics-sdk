@@ -169,11 +169,6 @@ final class Module: AllDeps {
 
   private(set) var analyticsConnection: AnalyticsConnection?
 
-  private(set) lazy var errorHandler: ErrorHandler? = (
-    clientConfig.metricsLoggingErrorHandling > .none ||
-    clientConfig.osLogLevel > .none
-  ) ? ErrorHandler(deps: self) : nil
-
   let buildInfo: BuildInfo = IOSBuildInfo()
 
   var clientConfig: ClientConfig { clientConfigService.config }
@@ -184,6 +179,11 @@ final class Module: AllDeps {
   let clock: Clock = SystemClock()
   
   let deviceInfo: DeviceInfo = IOSDeviceInfo()
+
+  private(set) lazy var errorHandler: ErrorHandler? = (
+    clientConfig.metricsLoggingErrorHandling > .none ||
+    clientConfig.osLogLevel > .none
+  ) ? ErrorHandler(deps: self) : nil
 
   let idMap: IDMap = DefaultIDMap()
   
