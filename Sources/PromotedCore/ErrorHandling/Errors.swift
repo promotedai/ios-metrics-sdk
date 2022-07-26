@@ -24,12 +24,14 @@ public extension Error {
     return description.prefix(1).capitalized + description.dropFirst()
   }
 
-  func asErrorProperties() -> NSErrorProperties {
+  func asErrorProperties() -> NSErrorProperties? {
     switch self {
     case let e as NSErrorProperties:
       return e
     case let e as NSError:
       return NSErrorPropertiesWrapper(error: e)
+    default:
+      return nil
     }
   }
 }
@@ -63,23 +65,19 @@ public enum ClientConfigError: Error {
   /// provide `devMetricsLoggingAPIKey`.
   case missingDevAPIKey
 
-  /// Error when fetching remote config.
-  case remoteConfigFetchError(_ error: Error)
-
-  /// Remote fetch finished, but provided no config.
-  case emptyRemoteConfig
-
   /// Specified wire format doesn't exist.
-  case invalidWireFormat
+  case invalidMetricsLoggingWireFormat
 
-  /// Error when persisting fetched config to local cache.
-  /// This means that the config will not be applied.
-  case localCacheEncodeError(_ error: Error)
+  case invalidXrayLevel
+
+  case invalidOSLogLevel
 
   /// `ClientConfig.diagnosticsSamplingPercentage` was specified,
   /// but a valid date was not given for
   /// `diagnosticsSamplingEndDateString`.
   case invalidDiagnosticsSamplingEndDateString(_ s: String)
+
+  case invalidMetricsLoggingErrorHandling
 }
 
 extension ClientConfigError: NSErrorProperties {
@@ -87,21 +85,21 @@ extension ClientConfigError: NSErrorProperties {
   public var code: Int {
     switch self {
     case .invalidURL(_):
-      return 101
+      return 1001
     case .missingAPIKey:
-      return 102
+      return 1002
     case .missingDevAPIKey:
-      return 103
-    case .remoteConfigFetchError(_):
-      return 104
-    case .emptyRemoteConfig:
-      return 105
-    case .invalidWireFormat:
-      return 106
-    case .localCacheEncodeError(_):
-      return 107
+      return 1003
+    case .invalidMetricsLoggingWireFormat:
+      return 1004
+    case .invalidXrayLevel:
+      return 1005
+    case .invalidOSLogLevel:
+      return 1006
     case .invalidDiagnosticsSamplingEndDateString(_):
-      return 108
+      return 1007
+    case .invalidMetricsLoggingErrorHandling:
+      return 1008
     }
   }
 }
@@ -118,7 +116,7 @@ extension ModuleConfigError: NSErrorProperties {
   public var code: Int {
     switch self {
     case .missingNetworkConnection:
-      return 201
+      return 2001
     }
   }
 }
@@ -130,9 +128,9 @@ extension BinaryEncodingError: NSErrorProperties {
   public var code: Int {
     switch self {
     case .missingRequiredFields:
-      return 301
+      return 3001
     case .anyTranscodeFailure:
-      return 302
+      return 3002
     }
   }
 }
@@ -149,8 +147,19 @@ public enum MetricsLoggerError: Error {
   /// An unexpected event type was logged. Non-fatal.
   case unexpectedEvent(_ event: Message)
 
-  /// Tried to log a User message without userID and logUserID. Non-fatal.
-  case missingUserIDsInUserMessage
+  /// Tried to log a User message without logUserID. Non-fatal.
+  case missingLogUserIDInUserMessage
+
+  /// Tried to log a LogRequest batch without logUserID. Non-fatal.
+  case missingLogUserIDInLogRequest
+
+  /// Impression without any joinable fields (content ID, insertion ID).
+  /// Non-fatal.
+  case missingJoinableIDsInImpression
+
+  /// Action without any joinable fields (impression ID, content ID,
+  /// insertion ID). Non-fatal.
+  case missingJoinableIDsInAction
 }
 
 extension MetricsLoggerError: NSErrorProperties {
@@ -158,13 +167,48 @@ extension MetricsLoggerError: NSErrorProperties {
   public var code: Int {
     switch self {
     case .propertiesSerializationError(_):
-      return 401
+      return 4001
     case .calledFromWrongThread:
-      return 402
+      return 4002
     case .unexpectedEvent(_):
-      return 403
-    case .missingUserIDsInUserMessage:
-      return 404
+      return 4003
+    case .missingLogUserIDInUserMessage:
+      return 4004
+    case .missingLogUserIDInLogRequest:
+      return 4005
+    case .missingJoinableIDsInImpression:
+      return 4006
+    case .missingJoinableIDsInAction:
+      return 4007
+    }
+  }
+}
+
+// MARK: - ClientConfigFetchError
+/** Errors produced by `ClientConfigService` when fetching Remote Config. */
+public enum ClientConfigFetchError: Error {
+
+  /// Network error when fetching remote config.
+  case networkError(_ error: Error)
+
+  /// Remote fetch finished, but provided no config.
+  case emptyConfig
+
+  /// Error when persisting fetched config to local cache.
+  /// This means that the config will not be applied.
+  case localCacheEncodeError(_ error: Error)
+}
+
+extension ClientConfigFetchError: NSErrorProperties {
+
+  public var code: Int {
+    switch self {
+    case .networkError(_):
+      return 5001
+    case .emptyConfig:
+      return 5002
+    case .localCacheEncodeError(_):
+      return 5003
     }
   }
 }
@@ -180,9 +224,9 @@ extension RemoteConfigConnectionError: NSErrorProperties {
   public var code: Int {
     switch self {
     case .failed(_):
-      return 501
+      return 6001
     case .serviceConfigError(_):
-      return 502
+      return 6002
     }
   }
 }

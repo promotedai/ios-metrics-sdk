@@ -62,7 +62,12 @@ protocol AnalyticsSource {
 
 extension Analytics: OperationMonitorListener {
 
-  func execution(context: Context, didError error: Error) {
+  func execution(
+    context: Context,
+    didError error: Error,
+    function: String,
+    file: String
+  ) {
     errors.append(error)
     switch context {
     case .function(_):

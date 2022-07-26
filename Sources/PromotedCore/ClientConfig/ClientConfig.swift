@@ -41,8 +41,8 @@ public struct ClientConfig {
     _ObjCClientConfig.MetricsLoggingWireFormat
   public typealias XrayLevel = _ObjCClientConfig.XrayLevel
   public typealias OSLogLevel = _ObjCClientConfig.OSLogLevel
-  public typealias LoggingAnomalyHandling =
-    _ObjCClientConfig.LoggingAnomalyHandling
+  public typealias MetricsLoggingErrorHandling =
+    _ObjCClientConfig.MetricsLoggingErrorHandling
 
   private var config: _ObjCClientConfig
 

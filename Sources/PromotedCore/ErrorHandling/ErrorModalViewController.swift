@@ -1,10 +1,12 @@
+#if DEBUG
+
 import Foundation
 import UIKit
 
 /** Delegate for interactions with the AnomalyModalVC. */
-protocol AnomalyModalViewControllerDelegate: AnyObject {
-  func anomalyModalVCDidDismiss(
-    _ vc: AnomalyModalViewController,
+protocol ErrorModalViewControllerDelegate: AnyObject {
+  func errorModalVCDidDismiss(
+    _ vc: ErrorModalViewController,
     shouldShowAgain: Bool
   )
 }
@@ -17,25 +19,31 @@ protocol AnomalyModalViewControllerDelegate: AnyObject {
  library, it is declared public so that ReactNativeMetrics can show the modal
  for module initialization issues.
  */
-public class AnomalyModalViewController: UIViewController {
+public class ErrorModalViewController: UIViewController {
 
-  weak var delegate: AnomalyModalViewControllerDelegate?
+  weak var delegate: ErrorModalViewControllerDelegate?
 
   private let partner: String
   private let contactInfo: [String]
-  private let anomalyType: AnomalyType
+  private let errorDetails: String
+  private let errorCode: Int?
 
   private var shouldShowAgain: Bool
 
-  init(
+  required init(
     partner: String,
     contactInfo: [String],
-    anomalyType: AnomalyType,
-    delegate: AnomalyModalViewControllerDelegate?
+    error: Error,
+    delegate: ErrorModalViewControllerDelegate?
   ) {
     self.partner = partner
     self.contactInfo = contactInfo
-    self.anomalyType = anomalyType
+    if let d = error as? ErrorDetails {
+      self.errorDetails = d.details
+    } else {
+      self.errorDetails = error.externalDescription
+    }
+    self.errorCode = error.asErrorProperties()?.code
     self.delegate = delegate
     self.shouldShowAgain = true
     super.init(nibName: nil, bundle: nil)
@@ -72,11 +80,12 @@ public class AnomalyModalViewController: UIViewController {
 
     let explanationLabel = UILabel(frame: textLayoutFrame)
     explanationLabel.numberOfLines = 0  // Use as many lines as needed.
-    explanationLabel.text = """
-    \(anomalyType.debugDescription)
-
-    Error code: \(anomalyType.rawValue)
-    """
+    var explanationLabelText = errorDetails
+      .replacingOccurrences(of: "$partner", with: partner)
+    if let code = errorCode {
+      explanationLabelText += "\n\nError code: \(code)"
+    }
+    explanationLabel.text = explanationLabelText
     explanationLabel.textColor = .white
     explanationLabel.translatesAutoresizingMaskIntoConstraints = false
     backdrop.contentView.addSubview(explanationLabel)
@@ -85,8 +94,6 @@ public class AnomalyModalViewController: UIViewController {
     helpLabel.font = .systemFont(ofSize: 14)
     helpLabel.numberOfLines = 0  // Use as many lines as needed.
     helpLabel.text = """
-    If this issue is released to production, it WILL impair Promoted Delivery and possibly affect revenue at \(partner). Please verify any local changes carefully before merging.
-
     For more help, contact Promoted:
 
     \(contactInfo.map { "• " + $0 }.joined(separator: "\n"))
@@ -148,7 +155,7 @@ public class AnomalyModalViewController: UIViewController {
   public override func viewWillDisappear(_ animated: Bool) {
     super.viewWillDisappear(animated)
     if isBeingDismissed {
-      delegate?.anomalyModalVCDidDismiss(self, shouldShowAgain: shouldShowAgain)
+      delegate?.errorModalVCDidDismiss(self, shouldShowAgain: shouldShowAgain)
     }
   }
 
@@ -162,39 +169,41 @@ public class AnomalyModalViewController: UIViewController {
   }
 }
 
-extension AnomalyModalViewController {
+extension ErrorModalViewController {
   static func present(
     partner: String,
     contactInfo: [String],
-    anomalyType: AnomalyType,
+    error: Error,
     keyWindow: UIWindow?,
-    delegate: AnomalyModalViewControllerDelegate?
+    delegate: ErrorModalViewControllerDelegate?
   ) {
     guard
       let rootVC = keyWindow?.rootViewController,
       rootVC.presentedViewController == nil
     else { return }
-    let vc = AnomalyModalViewController(
+    let vc = Self.init(
       partner: partner,
       contactInfo: contactInfo,
-      anomalyType: anomalyType,
+      error: error,
       delegate: delegate
     )
     rootVC.present(vc, animated: true)
   }
 }
 
-public extension AnomalyModalViewController {
+public extension ErrorModalViewController {
   /// Allows ReactNativeMetrics to show the VC.
-  static func presentForModuleNotInitialized() {
+  static func presentForReactNativeError(error: Error) {
     DispatchQueue.main.async {
-      AnomalyModalViewController.present(
-        partner: "this marketplace",
+      Self.present(
+        partner: "your marketplace",
         contactInfo: ["Email: help@promoted.ai"],
-        anomalyType: .reactNativeMetricsModuleNotInitialized,
+        error: error,
         keyWindow: UIKitState.keyWindow(),
         delegate: nil
       )
     }
   }
 }
+
+#endif

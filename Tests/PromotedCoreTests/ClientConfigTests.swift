@@ -55,8 +55,8 @@ final class ClientConfigTests: XCTestCase {
     config.setValue("invalid", forKey: "osLogLevel")
     XCTAssertEqual(.none, config.osLogLevel)
 
-    config.setValue("invalid", forKey: "loggingAnomalyHandling")
-    XCTAssertEqual(.none, config.loggingAnomalyHandling)
+    config.setValue("invalid", forKey: "metricsLoggingErrorHandling")
+    XCTAssertEqual(.none, config.metricsLoggingErrorHandling)
   }
 
   func testPassByValue() {

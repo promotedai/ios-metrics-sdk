@@ -44,7 +44,7 @@ public final class ModuleConfig: NSObject {
 typealias AllDeps = (
   AnalyticsConnectionSource &
   AnalyticsSource &
-  AnomalyHandlerSource &
+  ErrorHandlerSource &
   BuildInfoSource &
   ClientConfigSource &
   ClientConfigServiceSource &
@@ -169,9 +169,10 @@ final class Module: AllDeps {
 
   private(set) var analyticsConnection: AnalyticsConnection?
 
-  private(set) lazy var anomalyHandler: AnomalyHandler? =
-    clientConfig.loggingAnomalyHandling > .none ?
-    AnomalyHandler(deps: self) : nil
+  private(set) lazy var errorHandler: ErrorHandler? = (
+    clientConfig.metricsLoggingErrorHandling > .none ||
+    clientConfig.osLogLevel > .none
+  ) ? ErrorHandler(deps: self) : nil
 
   let buildInfo: BuildInfo = IOSBuildInfo()
 
@@ -199,8 +200,9 @@ final class Module: AllDeps {
   func osLog(category: String) -> OSLog? {
     osLogSource?.osLog(category: category)
   }
-  private lazy var osLogSource: SystemOSLogSource? =
-    clientConfig.osLogLevel > .none ? SystemOSLogSource(deps: self) : nil
+  private lazy var osLogSource: SystemOSLogSource? = (
+    clientConfig.osLogLevel > .none
+  ) ? SystemOSLogSource(deps: self) : nil
 
   private(set) lazy var persistentStore: PersistentStore =
     persistentStoreSpec ?? UserDefaultsPersistentStore()
@@ -212,9 +214,10 @@ final class Module: AllDeps {
 
   func viewTracker() -> ViewTracker { ViewTracker(deps: self) }
 
-  private(set) lazy var xray: Xray? =
-    (clientConfig.xrayLevel > .none || clientConfig.diagnosticsIncludeBatchSummaries) ?
-    Xray(deps: self) : nil
+  private(set) lazy var xray: Xray? = (
+    clientConfig.xrayLevel > .none ||
+    clientConfig.diagnosticsIncludeBatchSummaries
+  ) ? Xray(deps: self) : nil
 
   convenience init(moduleConfig: ModuleConfig) {
     self.init(
@@ -280,7 +283,7 @@ final class Module: AllDeps {
     // as OperationMonitorListeners.
     _ = analytics
     try analyticsConnection?.startServices()
-    _ = anomalyHandler
+    _ = errorHandler
     _ = xray
   }
 }
