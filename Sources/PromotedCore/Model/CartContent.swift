@@ -51,3 +51,16 @@ public extension CartContent {
     return hasher.finalize()
   }
 }
+
+extension CartContent: MessageRepresentable {
+  public func asMessage() -> Event_CartContent {
+    var result = Event_CartContent()
+    if let c = content.contentID { result.contentID = c }
+    // if let i = content.insertionID { result.insertionID = i }
+    result.quantity = Int64(quantity)
+    if let price = pricePerUnit {
+      result.pricePerUnit = price.asMessage()
+    }
+    return result
+  }
+}

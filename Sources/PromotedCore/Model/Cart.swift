@@ -31,3 +31,11 @@ public extension Cart {
 
   override var hash: Int { contents.hashValue }
 }
+
+extension Cart: MessageRepresentable {
+  public func asMessage() -> Event_Cart {
+    var result = Event_Cart()
+    result.contents = contents.map { $0.asMessage() }
+    return result
+  }
+}

@@ -42,3 +42,12 @@ public extension Money {
     return hasher.finalize()
   }
 }
+
+extension Money: MessageRepresentable {
+  public func asMessage() -> Common_Money {
+    var result = Common_Money()
+    result.currencyCode = currencyCode.protoValue
+    result.amountMicros = amountMicros
+    return result
+  }
+}

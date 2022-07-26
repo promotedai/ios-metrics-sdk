@@ -65,6 +65,26 @@ public extension MetricsLogger {
       insertionID: content?.insertionID
     )
   }
+
+  /// Logs an action with given type and cart.
+  @objc(logActionWithType:cart:)
+  func _objcLogAction(type: ActionType, cart: Cart?) {
+    logAction(
+      type: type,
+      name: type.description,
+      cart: cart
+    )
+  }
+
+  /// Logs an action with given type, cart, and name.
+  @objc(logActionWithType:cart:name:)
+  func _objcLogAction(type: ActionType, cart: Cart?, name: String?) {
+    logAction(
+      type: type,
+      name: name ?? type.description,
+      cart: cart
+    )
+  }
 }
 
 // MARK: - Action Logging Methods (Swift)
@@ -75,7 +95,8 @@ public extension MetricsLogger {
   @discardableResult
   func logAction(
     type: ActionType,
-    content: Content?,
+    content: Content? = nil,
+    cart: Cart? = nil,
     name: String? = nil,
     autoViewState: AutoViewState = .empty,
     collectionInteraction: CollectionInteraction? = nil,
@@ -90,6 +111,7 @@ public extension MetricsLogger {
       contentID: content?.contentID,
       impressionID: impressionID,
       insertionID: content?.insertionID,
+      cart: cart,
       viewID: viewID
     )
   }
@@ -117,6 +139,7 @@ public extension MetricsLogger {
   ///   - impressionID: Impression ID to associate with action as provided
   ///     by mobile SDK
   ///   - insertionID: Insertion ID as provided by Promoted
+  ///   - cart: Cart contents for action
   ///   - requestID: Request ID as provided by Promoted
   ///   - viewID: View ID to set in impression. If not provided, defaults
   ///     to the view ID last logged via `logView`.
@@ -134,6 +157,7 @@ public extension MetricsLogger {
     contentID: String? = nil,
     impressionID: String? = nil,
     insertionID: String? = nil,
+    cart: Cart? = nil,
     requestID: String? = nil,
     viewID: String? = nil,
     properties: Message? = nil
@@ -150,6 +174,7 @@ public extension MetricsLogger {
       if let s = sessionID { action.sessionID = s }
       if let v = viewID ?? self.viewID { action.viewID = v }
       if let a = autoViewState.autoViewID { action.autoViewID = a }
+      if let cart = cart { action.cart = cart.asMessage() }
       action.name = name
       action.actionType = type.protoValue
       action.elementID = elementID ?? name

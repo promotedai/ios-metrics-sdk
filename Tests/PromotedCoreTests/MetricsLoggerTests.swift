@@ -682,7 +682,81 @@ final class MetricsLoggerTests: ModuleTestCase {
       action
     )
   }
-  
+
+  func testLogCheckoutActionWithCart() {
+    let cart = Cart(contents:[
+      CartContent(
+        content: Content(contentID: "foo"),
+        quantity: 1,
+        pricePerUnit: Money(currencyCode: .USD, amountMicros: 1000000)
+      ),
+      CartContent(
+        content: Content(contentID: "bar"),
+        quantity: 2,
+        pricePerUnit: Money(currencyCode: .JPY, amountMicros: 2000000)
+      ),CartContent(
+        content: Content(contentID: "batman"),
+        quantity: 3,
+        pricePerUnit: Money(currencyCode: .CAD, amountMicros: 3000000)
+      ),
+    ])
+    metricsLogger.startSessionForTesting(userID: "foo")
+    metricsLogger.logAction(
+      type: .checkout,
+      cart: cart,
+      autoViewState: .fake
+    )
+    let action = assertSingletonList(
+      metricsLogger.logMessagesForTesting,
+      as: Event_Action.self
+    )
+    let expectedJSON = """
+    {
+      "timing": {
+        "client_log_timestamp": 123000
+      },
+      "action_id": "fake-action-id",
+      "session_id": "fake-session-id",
+      "auto_view_id": "fake-auto-view-id",
+      "name": "checkout",
+      "action_type": "CHECKOUT",
+      "element_id": "checkout",
+      "cart": {
+        "contents": [
+          {
+            "content_id": "foo",
+            "quantity": 1,
+            "price_per_unit": {
+              "currency_code": "USD",
+              "amount_micros": 1000000
+            }
+          },
+          {
+            "content_id": "bar",
+            "quantity": 2,
+            "price_per_unit": {
+              "currency_code": "JPY",
+              "amount_micros": 2000000
+            }
+          },
+          {
+            "content_id": "batman",
+            "quantity": 3,
+            "price_per_unit": {
+              "currency_code": "CAD",
+              "amount_micros": 3000000
+            }
+          }
+        ]
+      }
+    }
+    """
+    XCTAssertEqual(
+      try Event_Action(jsonString: expectedJSON),
+      action
+    )
+  }
+
   func testLogPurchaseAction() {
     metricsLogger.startSessionForTesting(userID: "foo")
     let item = Content(contentID: "foobar")
