@@ -1,5 +1,6 @@
 import Foundation
 
+/** Type of user device. Wraps `Common_DeviceType`. */
 enum DeviceType: Int {
   case unknown = 0
   case desktop = 1

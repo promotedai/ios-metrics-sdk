@@ -470,9 +470,9 @@ public struct Delivery_Insertion {
     set {_uniqueStorage()._contentID = newValue}
   }
 
-  /// Optional. 0-based. Position "in what" depends on insertion context:
-  /// if request_insertion, then position provided by client or retrieval
-  /// if response_insertion, then the position returned by Delivery to the client
+  /// Optional. 0-based.  Position is the global position across pages.
+  /// E.g. the first item on the 4th page where page_size=10 is position=40.
+  /// Do not set this on request insertions.  Instead, set retrieval_rank.
   public var position: UInt64 {
     get {return _storage._position ?? 0}
     set {_uniqueStorage()._position = newValue}

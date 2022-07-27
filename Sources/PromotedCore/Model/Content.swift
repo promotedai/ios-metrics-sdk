@@ -1,11 +1,6 @@
 import Foundation
 
-/**
- Represents a unit of trackable content in your marketplace.
- For better conceptualization in your coed, prefer to use one of
- the subclasses (such as `Item` or `Partner`) instead of `Content`
- if they apply.
- */
+/** Represents a unit of trackable content in your marketplace. */
 @objc(PROContent)
 public class Content: NSObject {
   /// Human-readable identifier. Debug-only.

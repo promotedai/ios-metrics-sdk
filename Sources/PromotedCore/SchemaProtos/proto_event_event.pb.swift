@@ -1140,7 +1140,7 @@ public struct Event_NavigateAction {
 
 /// Actions are user actions.  Example: Click.
 /// Actions are immutable.
-/// Next ID = 26.
+/// Next ID = 29.
 public struct Event_Action {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -1228,8 +1228,13 @@ public struct Event_Action {
     set {_uniqueStorage()._sessionID = newValue}
   }
 
-  /// Optional. content_id is used as a hint when impression_id is not set.
+  /// Optional.  The content ID for this action.
+  /// If this is an action with a shopping cart (CHECKOUT, PURCHASE) with multiple items,
+  /// it is okay to blank and fill in `cart.items.item_id`.
+  ///
+  /// content_id is used as a hint when impression_id is not set.
   /// For more accurate results, set impression_id if available.
+  /// content_id is also useful for debugging.
   public var contentID: String {
     get {return _storage._contentID}
     set {_uniqueStorage()._contentID = newValue}
@@ -1309,6 +1314,27 @@ public struct Event_Action {
   /// Clears the value of `properties`. Subsequent reads from it will return its default value.
   public mutating func clearProperties() {_uniqueStorage()._properties = nil}
 
+  /// Optional.  This is meant for debugging.
+  /// If the client is fully integrated, this does not need to be filled in.
+  public var device: Common_Device {
+    get {return _storage._device ?? Common_Device()}
+    set {_uniqueStorage()._device = newValue}
+  }
+  /// Returns true if `device` has been explicitly set.
+  public var hasDevice: Bool {return _storage._device != nil}
+  /// Clears the value of `device`. Subsequent reads from it will return its default value.
+  public mutating func clearDevice() {_uniqueStorage()._device = nil}
+
+  /// Shopping cart.
+  public var cart: Event_Cart {
+    get {return _storage._cart ?? Event_Cart()}
+    set {_uniqueStorage()._cart = newValue}
+  }
+  /// Returns true if `cart` has been explicitly set.
+  public var hasCart: Bool {return _storage._cart != nil}
+  /// Clears the value of `cart`. Subsequent reads from it will return its default value.
+  public mutating func clearCart() {_uniqueStorage()._cart = nil}
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public enum OneOf_Action: Equatable {
@@ -1332,6 +1358,51 @@ public struct Event_Action {
   public init() {}
 
   fileprivate var _storage = _StorageClass.defaultInstance
+}
+
+/// Shopping cart.
+/// Next ID = 2.
+public struct Event_Cart {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// Some APIs call these `items`.
+  public var contents: [Event_CartContent] = []
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// Item in a shopping cart.
+/// Next ID = 4.
+public struct Event_CartContent {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// Same as other `content_id`s.
+  public var contentID: String = String()
+
+  /// Required.  Quantity, units, etc.  If there's only 1 item, set to 1.
+  public var quantity: Int64 = 0
+
+  /// Price of a single unit of content.  `A unit` defaults to `quantity=1`.
+  public var pricePerUnit: Common_Money {
+    get {return _pricePerUnit ?? Common_Money()}
+    set {_pricePerUnit = newValue}
+  }
+  /// Returns true if `pricePerUnit` has been explicitly set.
+  public var hasPricePerUnit: Bool {return self._pricePerUnit != nil}
+  /// Clears the value of `pricePerUnit`. Subsequent reads from it will return its default value.
+  public mutating func clearPricePerUnit() {self._pricePerUnit = nil}
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+
+  fileprivate var _pricePerUnit: Common_Money? = nil
 }
 
 /// Error from iOS client.
@@ -2903,6 +2974,8 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
     24: .standard(proto: "client_position"),
     25: .standard(proto: "id_provenances"),
     20: .same(proto: "properties"),
+    26: .same(proto: "device"),
+    28: .same(proto: "cart"),
   ]
 
   fileprivate class _StorageClass {
@@ -2927,6 +3000,8 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
     var _clientPosition: Event_IndexPath? = nil
     var _idProvenances: Event_IdentifierProvenances? = nil
     var _properties: Common_Properties? = nil
+    var _device: Common_Device? = nil
+    var _cart: Event_Cart? = nil
 
     static let defaultInstance = _StorageClass()
 
@@ -2954,6 +3029,8 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
       _clientPosition = source._clientPosition
       _idProvenances = source._idProvenances
       _properties = source._properties
+      _device = source._device
+      _cart = source._cart
     }
   }
 
@@ -3005,6 +3082,8 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
         case 23: try { try decoder.decodeSingularStringField(value: &_storage._autoViewID) }()
         case 24: try { try decoder.decodeSingularMessageField(value: &_storage._clientPosition) }()
         case 25: try { try decoder.decodeSingularMessageField(value: &_storage._idProvenances) }()
+        case 26: try { try decoder.decodeSingularMessageField(value: &_storage._device) }()
+        case 28: try { try decoder.decodeSingularMessageField(value: &_storage._cart) }()
         default: break
         }
       }
@@ -3076,6 +3155,12 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
       if let v = _storage._idProvenances {
         try visitor.visitSingularMessageField(value: v, fieldNumber: 25)
       }
+      if let v = _storage._device {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 26)
+      }
+      if let v = _storage._cart {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 28)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -3106,10 +3191,88 @@ extension Event_Action: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
         if _storage._clientPosition != rhs_storage._clientPosition {return false}
         if _storage._idProvenances != rhs_storage._idProvenances {return false}
         if _storage._properties != rhs_storage._properties {return false}
+        if _storage._device != rhs_storage._device {return false}
+        if _storage._cart != rhs_storage._cart {return false}
         return true
       }
       if !storagesAreEqual {return false}
     }
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Event_Cart: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".Cart"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "contents"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeRepeatedMessageField(value: &self.contents) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.contents.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.contents, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Event_Cart, rhs: Event_Cart) -> Bool {
+    if lhs.contents != rhs.contents {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Event_CartContent: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".CartContent"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "content_id"),
+    2: .same(proto: "quantity"),
+    3: .standard(proto: "price_per_unit"),
+  ]
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.contentID) }()
+      case 2: try { try decoder.decodeSingularInt64Field(value: &self.quantity) }()
+      case 3: try { try decoder.decodeSingularMessageField(value: &self._pricePerUnit) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.contentID.isEmpty {
+      try visitor.visitSingularStringField(value: self.contentID, fieldNumber: 1)
+    }
+    if self.quantity != 0 {
+      try visitor.visitSingularInt64Field(value: self.quantity, fieldNumber: 2)
+    }
+    if let v = self._pricePerUnit {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Event_CartContent, rhs: Event_CartContent) -> Bool {
+    if lhs.contentID != rhs.contentID {return false}
+    if lhs.quantity != rhs.quantity {return false}
+    if lhs._pricePerUnit != rhs._pricePerUnit {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
