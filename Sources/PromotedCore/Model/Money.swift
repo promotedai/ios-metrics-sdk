@@ -1,18 +1,18 @@
 import Foundation
 
 /** Money amount for transactions. Wraps `Common_Money`. */
-@objc(PROMoney)
+@objc(PROMoney) @objcMembers
 public class Money: NSObject {
 
-  @objc public var currencyCode: CurrencyCode
+  public var currencyCode: CurrencyCode
 
-  @objc public var amountMicros: Int64
+  public var amountMicros: Int64
 
-  @objc public override convenience init() {
+  public override convenience init() {
     self.init(currencyCode: .unknown, amountMicros: 0)
   }
 
-  @objc public init(currencyCode: CurrencyCode, amountMicros: Int64) {
+  public init(currencyCode: CurrencyCode, amountMicros: Int64) {
     self.currencyCode = currencyCode
     self.amountMicros = amountMicros
   }
@@ -30,7 +30,7 @@ public extension Money {
       return (
         self.currencyCode == other.currencyCode &&
         self.amountMicros == other.amountMicros
-        )
+      )
     }
     return false
   }

@@ -1,20 +1,20 @@
 import Foundation
 
 /** Item of content in a shopping cart. Wraps `Event_CartContent`. */
-@objc(PROCartContent)
+@objc(PROCartContent) @objcMembers
 public class CartContent: NSObject {
 
-  @objc public var content: Content
+  public var content: Content
 
-  @objc public var quantity: Int
+  public var quantity: Int
 
-  @objc public var pricePerUnit: Money?
+  public var pricePerUnit: Money?
 
-  @objc public override convenience init() {
+  public override convenience init() {
     self.init(content: Content(), quantity: 1, pricePerUnit: nil)
   }
 
-  @objc public init(content: Content, quantity: Int, pricePerUnit: Money?) {
+  public init(content: Content, quantity: Int, pricePerUnit: Money?) {
     self.content = content
     self.quantity = quantity
     self.pricePerUnit = pricePerUnit

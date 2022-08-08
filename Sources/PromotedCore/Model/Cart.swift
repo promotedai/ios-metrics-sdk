@@ -1,16 +1,16 @@
 import Foundation
 
 /** Shopping cart for `checkout` or `purchase` actions. Wraps `Event_Cart`. */
-@objc(PROCart)
+@objc(PROCart) @objcMembers
 public class Cart: NSObject {
 
-  @objc public var contents: [CartContent]
+  public var contents: [CartContent]
 
-  @objc public override convenience init() {
+  public override convenience init() {
     self.init(contents: [])
   }
 
-  @objc public init(contents: [CartContent]) {
+  public init(contents: [CartContent]) {
     self.contents = contents
   }
 }
