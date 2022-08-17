@@ -44,7 +44,7 @@ class ErrorHandler: OperationMonitorListener {
     case .none:
       break
     case .modalDialog:
-      #if DEBUG
+      #if DEBUG || PROMOTED_ERROR_HANDLING
       if shouldShowModal {
         DispatchQueue.main.async { [weak self] in
           guard let self = self else { return }
@@ -83,7 +83,7 @@ protocol ErrorHandlerSource {
   var errorHandler: ErrorHandler? { get }
 }
 
-#if DEBUG
+#if DEBUG || PROMOTED_ERROR_HANDLING
 extension ErrorHandler: ErrorModalViewControllerDelegate {
   func errorModalVCDidDismiss(
     _ vc: ErrorModalViewController,
