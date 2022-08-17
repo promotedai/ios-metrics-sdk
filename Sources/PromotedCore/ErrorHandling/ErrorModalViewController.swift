@@ -1,4 +1,4 @@
-#if DEBUG
+#if DEBUG || PROMOTED_ERROR_HANDLING
 
 import Foundation
 import UIKit

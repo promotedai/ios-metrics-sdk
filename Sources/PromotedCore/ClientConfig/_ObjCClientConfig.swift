@@ -317,7 +317,7 @@ public final class _ObjCClientConfig: NSObject {
     /// useful for React Native apps.
     case breakInDebugger = 2
 
-    #if DEBUG
+    #if DEBUG || PROMOTED_ERROR_HANDLING
     static let `default`: MetricsLoggingErrorHandling = .modalDialog
     #else
     static let `default`: MetricsLoggingErrorHandling = .none

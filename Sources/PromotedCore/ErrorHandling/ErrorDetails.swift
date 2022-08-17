@@ -1,4 +1,4 @@
-#if DEBUG
+#if DEBUG || PROMOTED_ERROR_HANDLING
 import Foundation
 
 /** Provides details for the ErrorHandlerVC. Public for ReactNativeMetrics. */
