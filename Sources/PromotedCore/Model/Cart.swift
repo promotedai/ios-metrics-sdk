@@ -19,7 +19,7 @@ public extension Cart {
   override var description: String { debugDescription }
 
   override var debugDescription: String {
-    return "(contents=\(contents)"
+    return "(contents=\(contents))"
   }
 
   override func isEqual(_ object: Any?) -> Bool {
