@@ -1,4 +1,5 @@
 import Foundation
+import SwiftProtobuf
 
 public enum PropertyValue:
   ExpressibleByIntegerLiteral,
@@ -69,10 +70,16 @@ public enum PropertyValue:
 
 public typealias Properties = Dictionary<String, PropertyValue>
 
+extension Properties {
+  func asMessage() -> Common_Properties {
+    
+  }
+}
+
 @objc(PROProperties) @objcMembers
 public class _ObjCProperties: NSObject {
 
-  private var properties: Properties
+  private(set) var properties: Properties
 
   public override init() {
     self.properties = Properties()
