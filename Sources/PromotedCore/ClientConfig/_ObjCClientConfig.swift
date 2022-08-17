@@ -21,7 +21,6 @@ public protocol ConfigEnum:
  1. Add the property in this class.
  2. Ensure the type is `Codable` and can be expressed in
     Objective C.
- 3. Make the property `@objc`.
 
  # Adding new enums
 
@@ -50,7 +49,7 @@ public protocol ConfigEnum:
    case hello = 0
    case goodbye = 1
  }
- @objc public var aloha: AlohaEnum = .hello
+ public var aloha: AlohaEnum = .hello
 
  extension ClientConfig.AlohaEnum {
    public var description: String {
@@ -72,20 +71,20 @@ public protocol ConfigEnum:
  values don't cause unreasonable behavior during runtime. See
  `bound` and `validateEnum`.
  */
-@objc(PROClientConfig)
+@objc(PROClientConfig) @objcMembers
 public final class _ObjCClientConfig: NSObject {
 
   /// Controls whether log messages are sent over the network.
   /// Setting this property to `false` will prevent log messages
   /// from being sent, but these messages may still be collected
   /// at runtime and stored in memory.
-  @objc public var loggingEnabled: Bool = true
+  public var loggingEnabled: Bool = true
 
   /// URL for logging endpoint as used by `NetworkConnection`.
   /// Implementations of `NetworkConnection` from Promoted will
   /// use this field. Custom implementations of `NetworkConnection`
   /// may vary in behavior.
-  @objc public var metricsLoggingURL: String = ""
+  public var metricsLoggingURL: String = ""
 
   /// URL for logging endpoint as used by `NetworkConnection`
   /// for debug/staging purposes. Used when the app is running
@@ -97,13 +96,13 @@ public final class _ObjCClientConfig: NSObject {
   /// Implementations of `NetworkConnection` from Promoted will
   /// use this field. Custom implementations of `NetworkConnection`
   /// may vary in behavior.
-  @objc public var devMetricsLoggingURL: String = ""
+  public var devMetricsLoggingURL: String = ""
 
   /// API key for logging endpoint.
   /// Implementations of `NetworkConnection` from Promoted will
   /// use this field. Custom implementations of `NetworkConnection`
   /// may vary in behavior.
-  @objc public var metricsLoggingAPIKey: String = ""
+  public var metricsLoggingAPIKey: String = ""
 
   /// API key for logging endpoint for debug/staging purposes.
   /// Used when the app is running in debug configuration.
@@ -114,10 +113,10 @@ public final class _ObjCClientConfig: NSObject {
   /// Implementations of `NetworkConnection` from Promoted will
   /// use this field. Custom implementations of `NetworkConnection`
   /// may vary in behavior.
-  @objc public var devMetricsLoggingAPIKey: String = ""
+  public var devMetricsLoggingAPIKey: String = ""
 
   /// HTTP header field for API key.
-  @objc public var apiKeyHTTPHeaderField: String = "x-api-key"
+  public var apiKeyHTTPHeaderField: String = "x-api-key"
 
   /// Format to use when sending protobuf log messages over network.
   @objc(PROMetricsLoggingWireFormat)
@@ -128,38 +127,36 @@ public final class _ObjCClientConfig: NSObject {
     case json = 1
   }
   /// Format to use when sending protobuf log messages over network.
-  @objc public var metricsLoggingWireFormat:
-    MetricsLoggingWireFormat = .binary
-  {
+  public var metricsLoggingWireFormat: MetricsLoggingWireFormat = .binary {
     didSet { validateEnum(&metricsLoggingWireFormat, defaultValue: .binary) }
   }
 
   /// Interval at which log messages are sent over the network.
   /// Setting this to lower values will increase the frequency
   /// at which log messages are sent.
-  @objc public var loggingFlushInterval: TimeInterval = 10.0 {
+  public var loggingFlushInterval: TimeInterval = 10.0 {
     didSet { bound(&loggingFlushInterval, min: 1.0, max: 300.0) }
   }
 
   /// Whether to automatically flush all pending log messages
   /// when the application resigns active.
-  @objc public var flushLoggingOnResignActive: Bool = true
+  public var flushLoggingOnResignActive: Bool = true
 
   /// Ratio of the view that must be visible to log impression
   /// with `ScrollTracker`.
-  @objc public var scrollTrackerVisibilityThreshold: Float = 0.5 {
+  public var scrollTrackerVisibilityThreshold: Float = 0.5 {
     didSet { bound(&scrollTrackerVisibilityThreshold, min: 0.0, max: 1.0) }
   }
 
   /// Time on screen required to log impression with `ScrollTracker`.
-  @objc public var scrollTrackerDurationThreshold: TimeInterval = 1.0 {
+  public var scrollTrackerDurationThreshold: TimeInterval = 1.0 {
     didSet { bound(&scrollTrackerDurationThreshold, min: 0.0) }
   }
 
   /// Frequency at which `ScrollTracker` calculates impressions.
   /// Setting this to lower values will increase the amount of
   /// processing that `ScrollTracker` performs.
-  @objc public var scrollTrackerUpdateFrequency: TimeInterval = 0.5 {
+  public var scrollTrackerUpdateFrequency: TimeInterval = 0.5 {
     didSet { bound(&scrollTrackerUpdateFrequency, min: 0.1, max: 30.0) }
   }
 
@@ -181,7 +178,7 @@ public final class _ObjCClientConfig: NSObject {
   /// Level of Xray profiling for this session.
   /// Setting this to `.none` also forces
   /// `diagnosticsIncludeBatchSummaries` to be false.
-  @objc public var xrayLevel: XrayLevel = .none {
+  public var xrayLevel: XrayLevel = .none {
     didSet {
       validateEnum(&xrayLevel, defaultValue: .none)
       if xrayLevel == .none && diagnosticsIncludeBatchSummaries {
@@ -214,14 +211,14 @@ public final class _ObjCClientConfig: NSObject {
   /// verifying that logging works from the client side.
   /// If `xrayEnabled` is also set, then setting `osLogLevel`
   /// to `info` or higher turns on signposts in Instruments.
-  @objc public var osLogLevel: OSLogLevel = .default {
+  public var osLogLevel: OSLogLevel = .default {
     didSet { validateEnum(&osLogLevel, defaultValue: .default) }
   }
 
   /// Whether mobile diagnostic messages include batch summaries
   /// from Xray. Setting this to `true` also forces `xrayLevel` to
   /// be at least `.batchSummaries`.
-  @objc public var diagnosticsIncludeBatchSummaries: Bool = false {
+  public var diagnosticsIncludeBatchSummaries: Bool = false {
     didSet {
       if diagnosticsIncludeBatchSummaries && xrayLevel == .none {
         xrayLevel = .batchSummaries
@@ -231,14 +228,14 @@ public final class _ObjCClientConfig: NSObject {
 
   /// Whether mobile diagnostic messages include a history of
   /// ancestor IDs being set for the session.
-  @objc public var diagnosticsIncludeAncestorIDHistory: Bool = false
+  public var diagnosticsIncludeAncestorIDHistory: Bool = false
 
   /// Whether event messages include the `IdentifierProvenances`
   /// message.
-  @objc public var eventsIncludeIDProvenances: Bool = false
+  public var eventsIncludeIDProvenances: Bool = false
 
   /// Whether event messages include the `ClientPosition` message.
-  @objc public var eventsIncludeClientPositions: Bool = false
+  public var eventsIncludeClientPositions: Bool = false
 
   /// Percentage of randomly sampled clients that will send all
   /// diagnostics. A value of 0 disables diagnostic sampling for
@@ -293,7 +290,7 @@ public final class _ObjCClientConfig: NSObject {
   /// enable diagnostics sampling, the flags you set will always be
   /// enabled, and the other diagnostics flags will be enabled
   /// according to random sampling.
-  @objc public var diagnosticsSamplingPercentage: Int = 0 {
+  public var diagnosticsSamplingPercentage: Int = 0 {
     didSet { bound(&diagnosticsSamplingPercentage, min: 0, max: 100) }
   }
 
@@ -305,7 +302,7 @@ public final class _ObjCClientConfig: NSObject {
   /// This property is a `String` and not a `Date` because it's
   /// much easier to specify absolute dates using `String`s than
   /// `Date`s in ObjC/Swift.
-  @objc public var diagnosticsSamplingEndDateString: String = ""
+  public var diagnosticsSamplingEndDateString: String = ""
 
   @objc(PROMetricsLoggingErrorHandling)
   public enum MetricsLoggingErrorHandling: Int, Comparable, ConfigEnum {
@@ -324,7 +321,7 @@ public final class _ObjCClientConfig: NSObject {
     #endif
   }
   /// How to handle errors/warnings from logging calls.
-  @objc public var metricsLoggingErrorHandling:
+  public var metricsLoggingErrorHandling:
     MetricsLoggingErrorHandling = .default
   {
     didSet {
@@ -333,14 +330,14 @@ public final class _ObjCClientConfig: NSObject {
   }
 
   /// Partner marketplace name.
-  @objc public var partnerName: String = ""
+  public var partnerName: String = ""
 
   /// Contact info at Promoted for engineering questions.
-  @objc public var promotedContactInfo: [String] = []
+  public var promotedContactInfo: [String] = []
 
-  @objc private var assertInValidation: Bool = true
+  private var assertInValidation: Bool = true
 
-  @objc public override init() {}
+  public override init() {}
 
   convenience init(_ other: _ObjCClientConfig) {
     self.init()
