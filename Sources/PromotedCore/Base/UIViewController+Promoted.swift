@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-/** Convenience methods for view controllers. */
+/** Convenience methods for logging and view controllers. */
 public extension UIViewController {
 
   /// Returns the shared `MetricsLogger`.
@@ -24,6 +24,25 @@ public extension UIViewController {
     self.promotedLogger?.logView(viewController: self, useCase: useCase)
   }
 }
+
+/** Used for presenting Promoted UI. */
+public extension UIViewController {
+
+  func presentAboveRootVC(window: UIWindow?) {
+    DispatchQueue.main.async {
+      guard
+        let rootVC = window?.rootViewController,
+        rootVC.presentedViewController == nil
+      else { return }
+      rootVC.present(self, animated: true)
+    }
+  }
+
+  func presentAboveKeyWindowRootVC() {
+    presentAboveRootVC(window: UIKitState.keyWindow())
+  }
+}
+
 
 extension UIViewController {
   /// Returns name used for logging views.

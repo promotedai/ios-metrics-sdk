@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 /** Delegate for interactions with the AnomalyModalVC. */
-protocol ErrorModalViewControllerDelegate: AnyObject {
+public protocol ErrorModalViewControllerDelegate: AnyObject {
   func errorModalVCDidDismiss(
     _ vc: ErrorModalViewController,
     shouldShowAgain: Bool
@@ -30,7 +30,7 @@ public class ErrorModalViewController: UIViewController {
 
   private var shouldShowAgain: Bool
 
-  required init(
+  public required init(
     partner: String,
     contactInfo: [String],
     error: Error,
@@ -166,43 +166,6 @@ public class ErrorModalViewController: UIViewController {
   @objc private func dismissDontShowAgain() {
     shouldShowAgain = false
     self.presentingViewController?.dismiss(animated: true)
-  }
-}
-
-extension ErrorModalViewController {
-  static func present(
-    partner: String,
-    contactInfo: [String],
-    error: Error,
-    keyWindow: UIWindow?,
-    delegate: ErrorModalViewControllerDelegate?
-  ) {
-    guard
-      let rootVC = keyWindow?.rootViewController,
-      rootVC.presentedViewController == nil
-    else { return }
-    let vc = Self.init(
-      partner: partner,
-      contactInfo: contactInfo,
-      error: error,
-      delegate: delegate
-    )
-    rootVC.present(vc, animated: true)
-  }
-}
-
-public extension ErrorModalViewController {
-  /// Allows ReactNativeMetrics to show the VC.
-  static func presentForReactNativeError(error: Error) {
-    DispatchQueue.main.async {
-      Self.present(
-        partner: "your marketplace",
-        contactInfo: ["Email: help@promoted.ai"],
-        error: error,
-        keyWindow: UIKitState.keyWindow(),
-        delegate: nil
-      )
-    }
   }
 }
 

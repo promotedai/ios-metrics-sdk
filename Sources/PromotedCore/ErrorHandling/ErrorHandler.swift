@@ -48,13 +48,13 @@ class ErrorHandler: OperationMonitorListener {
       if shouldShowModal {
         DispatchQueue.main.async { [weak self] in
           guard let self = self else { return }
-          ErrorModalViewController.present(
+          let errorVC = ErrorModalViewController(
             partner: self.config.partnerName,
             contactInfo: self.config.promotedContactInfo,
             error: error,
-            keyWindow: self.uiState.keyWindow,
             delegate: self
           )
+          errorVC.presentAboveRootVC(window: self.uiState.keyWindow)
         }
       }
       #endif
