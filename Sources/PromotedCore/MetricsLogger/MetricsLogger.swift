@@ -80,7 +80,7 @@ public final class MetricsLogger: NSObject {
   /// User ID for this session. Will be updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
   /// called.
-  private(set) var userID: ID
+  private(set) var internalUserID: ID
   
   private(set) lazy var logUserIDProducer: IDProducer = IDProducer(
     initialValueProducer: { [weak self] in
@@ -136,7 +136,7 @@ public final class MetricsLogger: NSObject {
     viewTracker = deps.viewTracker()
     needsViewStateCheck = false
 
-    userID = .null
+    internalUserID = .null
     history = config.diagnosticsIncludeAncestorIDHistory ?
       AncestorIDHistory(osLog: osLog, xray: xray) : nil
 
@@ -185,6 +185,10 @@ public final class MetricsLogger: NSObject {
 
 // MARK: - Ancestor IDs
 public extension MetricsLogger {
+
+  /// User ID for this session.
+  var userID: String? { internalUserID.stringValue }
+
   /// Log user ID for this session. Updated when
   /// `startSession(userID:)` or `startSessionSignedOut()` is
   /// called.
@@ -303,10 +307,10 @@ public extension MetricsLogger {
     sessionIDProducer.advance()
 
     // New session with same user should not regenerate logUserID.
-    let existingUserID = self.userID.stringValue
+    let existingUserID = self.internalUserID.stringValue
     if (existingUserID != nil) && (existingUserID == userID) { return }
 
-    self.userID = .idForPlatformSpecifiedString(userID)
+    self.internalUserID = .idForPlatformSpecifiedString(userID)
     store.userID = userID
 
     // Reads logUserID from store for initial value, if available.

@@ -68,7 +68,7 @@ extension MetricsLogger {
 
   func userInfoMessage() -> Common_UserInfo {
     var userInfo = Common_UserInfo()
-    if let id = userID.stringValue { userInfo.userID = id }
+    if let id = userID { userInfo.userID = id }
     if let id = logUserID { userInfo.logUserID = id }
     return userInfo
   }
