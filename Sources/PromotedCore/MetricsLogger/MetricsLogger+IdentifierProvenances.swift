@@ -41,7 +41,7 @@ extension MetricsLogger {
   ) -> Event_IdentifierProvenances? {
     guard config.eventsIncludeIDProvenances else { return nil }
     return identifierProvenancesMessage(
-      userID: userID,
+      userID: internalUserID,
       logUserID: logUserIDProducer.currentValue,
       sessionID: sessionIDProducer.currentValue,
       viewID: (
