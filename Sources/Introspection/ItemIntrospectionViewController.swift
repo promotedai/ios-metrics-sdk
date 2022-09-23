@@ -39,19 +39,6 @@ public class ItemIntrospectionViewController: UIViewController {
   struct ListSection {
     let title: String?
     let contents: [ListContent]
-
-    static func imageSection(url: String) -> Self {
-      return Self(
-        title: nil,
-        contents: [
-          ListContent(
-            title: "Image",
-            value: .image(url: url),
-            jsonKey: ""
-          )
-        ]
-      )
-    }
   }
 
   class ImageCell: UITableViewCell {
@@ -182,10 +169,12 @@ public class ItemIntrospectionViewController: UIViewController {
     statsDecimalFormatter.numberStyle = .decimal
     statsDecimalFormatter.minimumFractionDigits = 3
     statsDecimalFormatter.maximumFractionDigits = 3
+
     statsPercentFormatter = NumberFormatter()
     statsPercentFormatter.numberStyle = .percent
     statsPercentFormatter.minimumFractionDigits = 2
     statsPercentFormatter.maximumFractionDigits = 2
+
     super.init(nibName: nil, bundle: nil)
   }
 
@@ -220,23 +209,18 @@ public class ItemIntrospectionViewController: UIViewController {
     tableView.tableFooterView = footerPanel
     view.addSubview(tableView)
 
-    let navBar = UINavigationBar()
-    navBar.translatesAutoresizingMaskIntoConstraints = false
-    view.addSubview(navBar)
-
-    let statsItem = UINavigationItem(title: "Promoted.ai Stats")
-    statsItem.leftBarButtonItem = UIBarButtonItem(
+    navigationItem.title = "Promoted.ai Stats"
+    navigationItem.leftBarButtonItem = UIBarButtonItem(
       title: "Close",
       style: .done,
       target: self,
       action: #selector(close)
     )
-    statsItem.rightBarButtonItem = UIBarButtonItem(
+    navigationItem.rightBarButtonItem = UIBarButtonItem(
       barButtonSystemItem: .action,
       target: self,
       action: #selector(share)
     )
-    navBar.pushItem(statsItem, animated: false)
 
     toastView = ToastView(frame: CGRect(x: 0, y: 0, width: tableWidth, height: 0))
     toastView.isHidden = true
@@ -244,11 +228,7 @@ public class ItemIntrospectionViewController: UIViewController {
     view.addSubview(toastView)
 
     let constraints = [
-      view.topAnchor.constraint(equalTo: navBar.topAnchor),
-      view.centerXAnchor.constraint(equalTo: navBar.centerXAnchor),
-      view.widthAnchor.constraint(equalTo: navBar.widthAnchor),
-
-      navBar.bottomAnchor.constraint(equalTo: tableView.topAnchor),
+      view.topAnchor.constraint(equalTo: tableView.topAnchor),
       view.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
       view.widthAnchor.constraint(equalTo: tableView.widthAnchor),
       view.heightAnchor.constraint(equalTo: tableView.heightAnchor),
@@ -337,30 +317,11 @@ extension ItemIntrospectionViewController {
     let item = placeholderContent(at: indexPath)
     toastView.text = item.value.asString()
     toastView.isHidden = false
-//    let label = UILabel(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 0))
-//    label.attributedText = NSAttributedString(
-//      string: item.value.asString(),
-//      attributes: [
-//        .font: UIFont.systemFont(ofSize: 72)
-//      ]
-//    )
-//    label.isUserInteractionEnabled = true
-//    label.lineBreakMode = .byCharWrapping
-//    label.numberOfLines = 0
-//    label.translatesAutoresizingMaskIntoConstraints = false
-//    label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(hideToast)))
-//    view.addSubview(label)
-//    let constraints = [
-//      view.centerXAnchor.constraint(equalTo: label.centerXAnchor),
-//      view.centerYAnchor.constraint(equalTo: label.centerYAnchor),
-//      view.widthAnchor.constraint(equalTo: label.widthAnchor, constant: 40),
-//    ]
-//    NSLayoutConstraint.activate(constraints)
   }
 
   @objc private func hideToast() {
-    print("hide toast")
     toastView.isHidden = true
+    toastView.text = nil
   }
 }
 
