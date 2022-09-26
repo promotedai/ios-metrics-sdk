@@ -144,6 +144,41 @@ public class ModerationViewController: UIViewController {
 
   private lazy var contents = [
     ListSection(
+      title: "Identifiers",
+      contents: [
+        ListItem(
+          title: "Title",
+          subtitle: params.content.name,
+          style: .value1
+        ),
+        ListItem(
+          title: "Content ID",
+          subtitle: params.content.contentID,
+          style: .value1
+        ),
+        ListItem(
+          title: "User ID",
+          subtitle: params.userID,
+          style: .value1
+        ),
+        ListItem(
+          title: "Log User ID",
+          subtitle: params.logUserID,
+          style: .value1
+        ),
+        ListItem(
+          title: "Insertion ID",
+          subtitle: params.content.insertionID,
+          style: .value1
+        ),
+        ListItem(
+          title: "Request ID",
+          subtitle: UUID().uuidString,
+          style: .value1
+        ),
+      ]
+    ),
+    ListSection(
       title: "Scope",
       contents: [
         ListItem(
@@ -195,6 +230,7 @@ public class ModerationViewController: UIViewController {
   ]
 
   private var tableView: UITableView!
+  private var toastView: ToastView!
 
   public required init(_ params: IntrospectionParams) {
     self.params = params
@@ -224,13 +260,13 @@ public class ModerationViewController: UIViewController {
     tableView.dataSource = self
     tableView.delegate = self
 
-    let headerLabel = UILabel(frame: CGRect(x: 0, y: 0, width: tableWidth, height: 50))
-    headerLabel.text = "Content:\n" +
-      "Name: \(params.content.name ?? "-")\n" +
-      "Content ID: \(params.content.contentID ?? "-")\n" +
-      "Insertion ID: \(params.content.insertionID ?? "-")"
-    headerLabel.numberOfLines = 0
-    tableView.tableHeaderView = headerLabel
+    if let contentHeroImageURL = params.contentHeroImageURL {
+      let headerImage = UIImageView(
+        frame: CGRect(x: 0, y: 0, width: tableWidth, height: 200),
+        asyncImageURLString: contentHeroImageURL
+      )
+      tableView.tableHeaderView = headerImage
+    }
 
     let footerLabel = UILabel(frame: CGRect(x: 0, y: 0, width: tableWidth, height: 50))
     footerLabel.text = "Powered by Promoted.ai Delivery"
@@ -248,6 +284,11 @@ public class ModerationViewController: UIViewController {
       action: #selector(close)
     )
 
+    toastView = ToastView(frame: CGRect(x: 0, y: 0, width: tableWidth, height: 0))
+    toastView.isHidden = true
+    toastView.translatesAutoresizingMaskIntoConstraints = false
+    view.addSubview(toastView)
+
     let constraints = [
       view.topAnchor.constraint(equalTo: tableView.topAnchor),
       view.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
@@ -256,7 +297,12 @@ public class ModerationViewController: UIViewController {
 
       footerLabel.topAnchor.constraint(equalTo: footerPanel.topAnchor),
       footerLabel.centerXAnchor.constraint(equalTo: footerPanel.centerXAnchor),
-      footerPanel.heightAnchor.constraint(equalToConstant: 100)
+      footerPanel.heightAnchor.constraint(equalToConstant: 100),
+
+      toastView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+      toastView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+      toastView.widthAnchor.constraint(equalTo: view.widthAnchor),
+      toastView.heightAnchor.constraint(equalTo: view.heightAnchor),
     ]
     NSLayoutConstraint.activate(constraints)
   }
@@ -271,6 +317,17 @@ extension ModerationViewController {
   @objc private func close() {
     presentingViewController?.dismiss(animated: true)
   }
+
+  @objc private func copy(indexPath: IndexPath) {
+    let item = contents(at: indexPath)
+    UIPasteboard.general.string = item.subtitle
+  }
+
+  @objc private func showInLargeType(indexPath: IndexPath) {
+    let item = contents(at: indexPath)
+    toastView.text = item.subtitle
+    toastView.isHidden = false
+  }
 }
 
 extension ModerationViewController: UITableViewDataSource {
@@ -279,15 +336,24 @@ extension ModerationViewController: UITableViewDataSource {
     contents.count
   }
 
-  public func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+  public func tableView(
+    _ tableView: UITableView,
+    titleForHeaderInSection section: Int
+  ) -> String? {
     contents[section].title
   }
 
-  public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+  public func tableView(
+    _ tableView: UITableView,
+    numberOfRowsInSection section: Int
+  ) -> Int {
     contents[section].contents.count
   }
 
-  public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+  public func tableView(
+    _ tableView: UITableView,
+    cellForRowAt indexPath: IndexPath
+  ) -> UITableViewCell {
     let item = contents(at: indexPath)
 
     if item.title == "${changeRankPercentSlider}" {
@@ -313,10 +379,10 @@ extension ModerationViewController: UITableViewDataSource {
 
     cell.accessoryType = {
       switch indexPath.section {
-      case 0:
+      case 1:
         return (indexPath.item == moderationScope.rawValue) ?
           .checkmark : .none
-      case 1:
+      case 2:
         return (indexPath.item == moderationAction.rawValue) ?
           .checkmark : .none
       default:
@@ -331,7 +397,10 @@ extension ModerationViewController: UITableViewDataSource {
     return cell
   }
 
-  public func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+  public func tableView(
+    _ tableView: UITableView,
+    titleForFooterInSection section: Int
+  ) -> String? {
     let text = contents[section].footerText
     switch text {
     case "${moderationScopeDescription}":
@@ -346,21 +415,24 @@ extension ModerationViewController: UITableViewDataSource {
 
 extension ModerationViewController: UITableViewDelegate {
 
-  public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+  public func tableView(
+    _ tableView: UITableView,
+    didSelectRowAt indexPath: IndexPath
+  ) {
     switch indexPath.section {
-    case 0:
+    case 1:
       guard let newModerationScope = ModerationScope(rawValue: indexPath.item) else { return }
       if moderationScope != newModerationScope {
         moderationScope = newModerationScope
         tableView.reloadSections(IndexSet(integer: 0), with: .automatic)
       }
-    case 1:
+    case 2:
       guard let newModerationAction = ModerationAction(rawValue: indexPath.item) else { return }
       if moderationAction != newModerationAction {
         moderationAction = newModerationAction
         tableView.reloadSections(IndexSet(integersIn: 1 ... 2), with: .automatic)
       }
-    case 2:
+    case 3:
       if indexPath.item == 0 {
         delegate?.moderationVC(
           self,
@@ -372,5 +444,29 @@ extension ModerationViewController: UITableViewDelegate {
     default:
       break
     }
+  }
+
+  @available(iOS 13.0, *)
+  public func tableView(
+    _ tableView: UITableView,
+    contextMenuConfigurationForRowAt indexPath: IndexPath,
+    point: CGPoint
+  ) -> UIContextMenuConfiguration? {
+    if indexPath.section != 0 { return nil }
+    return UIContextMenuConfiguration(actionProvider: { suggestedActions in
+      let copyAction = UIAction(
+        title: "Copy",
+        image: UIImage(systemName: "doc.on.clipboard")
+      ) { [weak self] action in
+        self?.copy(indexPath: indexPath)
+      }
+      let showInLargeTypeAction = UIAction(
+        title: "Show in Large Type",
+        image: UIImage(systemName: "textformat.size")
+      ) { [weak self] action in
+        self?.showInLargeType(indexPath: indexPath)
+      }
+      return UIMenu(children: [copyAction, showInLargeTypeAction])
+    })
   }
 }
