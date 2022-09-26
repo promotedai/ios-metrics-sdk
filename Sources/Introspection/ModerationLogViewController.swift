@@ -29,7 +29,7 @@ public class ModerationLogViewController: UIViewController {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
       contentLabel = UILabel(frame: .zero)
-      contentLabel.font = .boldSystemFont(ofSize: UIFont.systemFontSize)
+      contentLabel.font = .boldSystemFont(ofSize: UIFont.systemFontSize + 2)
       contentLabel.translatesAutoresizingMaskIntoConstraints = false
 
       actionLabel = UILabel(frame: .zero)
@@ -38,6 +38,7 @@ public class ModerationLogViewController: UIViewController {
 
       dateLabel = UILabel(frame: .zero)
       dateLabel.font = .systemFont(ofSize: UIFont.smallSystemFontSize)
+      dateLabel.textAlignment = .right
       dateLabel.textColor = .lightGray
       dateLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -49,30 +50,28 @@ public class ModerationLogViewController: UIViewController {
 
       super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-      addSubview(contentLabel)
-      addSubview(actionLabel)
-      addSubview(dateLabel)
-      addSubview(scopeLabel)
-
-      contentView.translatesAutoresizingMaskIntoConstraints = false
+      contentView.addSubview(contentLabel)
+      contentView.addSubview(actionLabel)
+      contentView.addSubview(dateLabel)
+      contentView.addSubview(scopeLabel)
 
       let constraints = [
         contentLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 20),
-        contentLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+        contentLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
         contentLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.7),
 
-        dateLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-        dateLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 20),
-        dateLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.3),
+        dateLabel.centerXAnchor.constraint(equalTo: contentLabel.centerXAnchor),
+        dateLabel.leftAnchor.constraint(equalTo: contentLabel.rightAnchor, constant: 10),
+        dateLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -20),
 
-        actionLabel.topAnchor.constraint(equalTo: contentLabel.bottomAnchor),
+        actionLabel.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 4),
         actionLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 20),
-        actionLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor),
+        actionLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -20),
 
-        scopeLabel.topAnchor.constraint(equalTo: actionLabel.bottomAnchor),
+        scopeLabel.topAnchor.constraint(equalTo: actionLabel.bottomAnchor, constant: 4),
         scopeLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 20),
-        scopeLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 20),
-        scopeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 20),
+        scopeLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -20),
+        scopeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
       ]
       NSLayoutConstraint.activate(constraints)
     }
@@ -234,14 +233,14 @@ extension ModerationLogViewController: UITableViewDataSource {
     cell.actionLabel.text = { content in
       switch content.action {
       case .shadowban:
-        return "Shadowban"
+        return "Shadowbaned by ayates@promoted.ai"
       case .sendToReview:
-        return "Sent to Review (moderation@hipcamp.com)"
+        return "Sent to review (moderation@hipcamp.com) by ayates@promoted.ai"
       case .changeRank:
         if let rankChangePercent = content.rankChangePercent {
-          return "Change Rank \(rankChangePercent < 0 ? "–" : "+")\(abs(rankChangePercent))%"
+          return "Rank changed \(rankChangePercent < 0 ? "–" : "+")\(abs(rankChangePercent))% by ayates@promoted.ai"
         } else {
-          return "Change Rank"
+          return "Rank changed by ayates@promoted.ai"
         }
       }
     } (content)
