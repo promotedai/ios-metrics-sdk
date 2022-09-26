@@ -11,7 +11,7 @@ public struct IntrospectionParams {
     content: Content,
     contentHeroImageURL: String?,
     userID: String?,
-    logUserID: String?
+    logUserID: String?,
     scopeFilter: String?
   ) {
     self.content = content

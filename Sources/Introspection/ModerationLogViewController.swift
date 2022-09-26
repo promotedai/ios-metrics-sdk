@@ -236,6 +236,11 @@ extension ModerationLogViewController {
   }
 
   @objc private func revertSelection() {
+    guard let selection = tableView.indexPathsForSelectedRows else { return }
+    revert(indexPaths: selection)
+  }
+
+  private func revert(indexPaths: [IndexPath]) {
     let confirmationAlert = UIAlertController(
       title: "Revert",
       message: "Selected moderation entries will be reverted and no longer affect Promoted.ai Delivery.",
@@ -244,21 +249,24 @@ extension ModerationLogViewController {
     confirmationAlert.addAction(UIAlertAction(title: "Revert", style: .destructive) {
       [weak self] _ in
       guard let self = self else { return }
-      if let selection = self.tableView.indexPathsForSelectedRows {
-        for row in selection.map({ $0.item }).sorted().reversed() {
-          self.contents.remove(at: row)
-        }
-        self.tableView.isEditing = false
-        self.tableView.reloadData()
-        self.updateUI()
-        self.delegate?.moderationLogVC(self, didModifyLogEntries: self.contents)
+      for row in indexPaths.map({ $0.item }).sorted().reversed() {
+        self.contents.remove(at: row)
       }
+      self.tableView.isEditing = false
+      self.tableView.reloadSections(IndexSet(integer: 0), with: .fade)
+      self.updateUI()
+      self.delegate?.moderationLogVC(self, didModifyLogEntries: self.contents)
     })
     confirmationAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
     present(confirmationAlert, animated: true)
   }
 
   @objc private func shareSelection() {
+    guard let selection = tableView.indexPathsForSelectedRows else { return }
+    share(indexPaths: selection)
+  }
+
+  private func share(indexPaths: [IndexPath]) {
     let json = """
     {
       "moderation": ""
@@ -295,7 +303,7 @@ extension ModerationLogViewController: UITableViewDataSource {
   ) -> UITableViewCell {
     if contents.count == 0 {
       let c = tableView.dequeueReusableCell(withIdentifier: "Empty", for: indexPath)
-      c.textLabel?.text = "No Moderation Entries"
+      c.textLabel?.text = "No Moderation Actions"
       c.textLabel?.textAlignment = .center
       c.textLabel?.textColor = .gray
       return c
@@ -347,5 +355,30 @@ extension ModerationLogViewController: UITableViewDelegate {
     didDeselectRowAt indexPath: IndexPath
   ) {
     updateUI()
+  }
+
+  @available(iOS 13.0, *)
+  public func tableView(
+    _ tableView: UITableView,
+    contextMenuConfigurationForRowAt indexPath: IndexPath,
+    point: CGPoint
+  ) -> UIContextMenuConfiguration? {
+    if indexPath.section != 0 { return nil }
+    return UIContextMenuConfiguration(actionProvider: { suggestedActions in
+      let shareAction = UIAction(
+        title: "Export",
+        image: UIImage(systemName: "square.and.arrow.up")
+      ) { [weak self] action in
+        self?.share(indexPaths: [indexPath])
+      }
+      let revertAction = UIAction(
+        title: "Revert",
+        image: UIImage(systemName: "trash"),
+        attributes: [.destructive]
+      ) { [weak self] action in
+        self?.revert(indexPaths: [indexPath])
+      }
+      return UIMenu(children: [shareAction, revertAction])
+    })
   }
 }
