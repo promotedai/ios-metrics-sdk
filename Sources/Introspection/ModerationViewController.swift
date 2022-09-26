@@ -268,12 +268,9 @@ public class ModerationViewController: UIViewController {
       tableView.tableHeaderView = headerImage
     }
 
-    let footerLabel = UILabel(frame: CGRect(x: 0, y: 0, width: tableWidth, height: 50))
-    footerLabel.text = "Powered by Promoted.ai Delivery"
-    footerLabel.textAlignment = .center
-    let footerPanel = UIView(frame: CGRect(x: 0, y: 0, width: tableWidth, height: 100))
-    footerPanel.addSubview(footerLabel)
-    tableView.tableFooterView = footerPanel
+    tableView.tableFooterView = PromotedLabelFooterView(
+      frame: CGRect(x: 0, y: 0, width: tableWidth, height: 100)
+    )
     view.addSubview(tableView)
 
     navigationItem.title = "Promoted.ai Moderation"
@@ -294,10 +291,6 @@ public class ModerationViewController: UIViewController {
       view.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
       view.widthAnchor.constraint(equalTo: tableView.widthAnchor),
       view.heightAnchor.constraint(equalTo: tableView.heightAnchor),
-
-      footerLabel.topAnchor.constraint(equalTo: footerPanel.topAnchor),
-      footerLabel.centerXAnchor.constraint(equalTo: footerPanel.centerXAnchor),
-      footerPanel.heightAnchor.constraint(equalToConstant: 100),
 
       toastView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
       toastView.centerYAnchor.constraint(equalTo: view.centerYAnchor),

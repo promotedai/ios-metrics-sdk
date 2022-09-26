@@ -19,53 +19,62 @@ public class ModerationLogViewController: UIViewController {
   }
 
   class LogEntryCell: UITableViewCell {
+
+    static let height: CGFloat = 100
+
+    var contentLabel: UILabel
+    var actionLabel: UILabel
     var dateLabel: UILabel
     var scopeLabel: UILabel
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+      contentLabel = UILabel(frame: .zero)
+      contentLabel.font = .boldSystemFont(ofSize: UIFont.systemFontSize)
+      contentLabel.translatesAutoresizingMaskIntoConstraints = false
+
+      actionLabel = UILabel(frame: .zero)
+      actionLabel.font = .systemFont(ofSize: UIFont.smallSystemFontSize)
+      actionLabel.translatesAutoresizingMaskIntoConstraints = false
+
       dateLabel = UILabel(frame: .zero)
+      dateLabel.font = .systemFont(ofSize: UIFont.smallSystemFontSize)
+      dateLabel.textColor = .lightGray
       dateLabel.translatesAutoresizingMaskIntoConstraints = false
 
       scopeLabel = UILabel(frame: .zero)
+      scopeLabel.font = .systemFont(ofSize: UIFont.smallSystemFontSize)
+      scopeLabel.textColor = .lightGray
       scopeLabel.numberOfLines = 0
       scopeLabel.translatesAutoresizingMaskIntoConstraints = false
 
       super.init(style: style, reuseIdentifier: reuseIdentifier)
 
+      addSubview(contentLabel)
+      addSubview(actionLabel)
       addSubview(dateLabel)
       addSubview(scopeLabel)
-      self.textLabel?.text = ""  // Force creation of labels
-      self.detailTextLabel?.text = ""
 
-      if let textLabel = self.textLabel,
-         let detailTextLabel = self.detailTextLabel {
-        print("hello hello")
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.translatesAutoresizingMaskIntoConstraints = false
-        detailTextLabel.translatesAutoresizingMaskIntoConstraints = false
+      contentView.translatesAutoresizingMaskIntoConstraints = false
 
-        let constraints = [
-          textLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 20),
-          textLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-          textLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.7),
+      let constraints = [
+        contentLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 20),
+        contentLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+        contentLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.7),
 
-          dateLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-          dateLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 20),
-          dateLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.3),
+        dateLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+        dateLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 20),
+        dateLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.3),
 
-          detailTextLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 10),
-          detailTextLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 20),
-          detailTextLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 20),
+        actionLabel.topAnchor.constraint(equalTo: contentLabel.bottomAnchor),
+        actionLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 20),
+        actionLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor),
 
-          scopeLabel.topAnchor.constraint(equalTo: detailTextLabel.bottomAnchor, constant: 10),
-          scopeLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 20),
-          scopeLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 20),
-          scopeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 20),
-        ]
-        NSLayoutConstraint.activate(constraints)
-      } else {
-        print("goodbye forever")
-      }
+        scopeLabel.topAnchor.constraint(equalTo: actionLabel.bottomAnchor),
+        scopeLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 20),
+        scopeLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 20),
+        scopeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 20),
+      ]
+      NSLayoutConstraint.activate(constraints)
     }
     
     required init?(coder: NSCoder) {
@@ -107,6 +116,9 @@ public class ModerationLogViewController: UIViewController {
     tableView.delegate = self
     tableView.register(LogEntryCell.self, forCellReuseIdentifier: "LogEntry")
 
+    tableView.tableFooterView = PromotedLabelFooterView(
+      frame: CGRect(x: 0, y: 0, width: tableWidth, height: 100)
+    )
     view.addSubview(tableView)
 
     navigationItem.title = "Promoted.ai Stats"
@@ -206,13 +218,20 @@ extension ModerationLogViewController: UITableViewDataSource {
 
   public func tableView(
     _ tableView: UITableView,
+    heightForRowAt indexPath: IndexPath
+  ) -> CGFloat {
+    LogEntryCell.height
+  }
+
+  public func tableView(
+    _ tableView: UITableView,
     cellForRowAt indexPath: IndexPath
   ) -> UITableViewCell {
     let content = contents[indexPath.item]
     let c = tableView.dequeueReusableCell(withIdentifier: "LogEntry", for: indexPath)
     guard let cell = c as? LogEntryCell else { return c }
-    cell.textLabel?.text = content.content.name
-    cell.detailTextLabel?.text = { content in
+    cell.contentLabel.text = content.content.name
+    cell.actionLabel.text = { content in
       switch content.action {
       case .shadowban:
         return "Shadowban"
