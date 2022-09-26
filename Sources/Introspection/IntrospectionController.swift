@@ -3,6 +3,9 @@ import UIKit
 
 public class IntrospectionController {
 
+  @available(iOS 13.0, *)
+  typealias LogEntry = ModerationLogViewController.LogEntry
+
   public init() {}
 
   public func showIntrospectionActionSelectorSheet(_ params: IntrospectionParams) {
@@ -15,6 +18,12 @@ public class IntrospectionController {
       [weak self] _ in
       self?.showModeration(params)
     })
+    if #available(iOS 13, *) {
+      alert.addAction(UIAlertAction(title: "Moderation Log", style: .default) {
+        [weak self] _ in
+        self?.showModerationLog()
+      })
+    }
     alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) {
       [weak alert] _ in
       alert?.presentingViewController?.dismiss(animated: true)
@@ -34,6 +43,31 @@ public class IntrospectionController {
     let moderationVC = ModerationViewController(params)
     moderationVC.delegate = self
     let nc = UINavigationController(rootViewController: moderationVC)
+    nc.presentAboveKeyWindowRootVC()
+  }
+
+  @available(iOS 13, *)
+  public func showModerationLog() {
+    let logVC = ModerationLogViewController(contents: [
+      LogEntry(
+        content: Content(name: "Botany Bay", contentID: "16309"),
+        action: .shadowban,
+        scope: .global,
+        scopeFilter: nil,
+        rankChangePercent: nil,
+        date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+      ),
+      LogEntry(
+        content: Content(name: "Bay Area Utopia", contentID: "74656"),
+        action: .sendToReview,
+        scope: .global,
+        scopeFilter: nil,
+        rankChangePercent: nil,
+        date: Calendar.current.date(byAdding: .day, value: -2, to: Date())!
+      ),
+    ])
+    logVC.delegate = self
+    let nc = UINavigationController(rootViewController: logVC)
     nc.presentAboveKeyWindowRootVC()
   }
 }
@@ -70,4 +104,9 @@ extension IntrospectionController: ModerationViewControllerDelegate {
     guard let nc = vc.navigationController else { return }
     nc.presentingViewController?.dismiss(animated: true)
   }
+}
+
+@available(iOS 13, *)
+extension IntrospectionController: ModerationLogViewControllerDelegate {
+
 }

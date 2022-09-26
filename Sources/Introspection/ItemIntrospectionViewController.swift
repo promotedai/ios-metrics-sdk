@@ -2,10 +2,12 @@ import Foundation
 import UIKit
 
 public protocol ItemIntrospectionViewControllerDelegate: AnyObject {
+
   func itemIntrospectionVC(
     _ vc: ItemIntrospectionViewController,
     didSelectItemPropertiesFor params: IntrospectionParams
   )
+
   func itemIntrospectionVC(
     _ vc: ItemIntrospectionViewController,
     didSelectRequestPropertiesFor params: IntrospectionParams
