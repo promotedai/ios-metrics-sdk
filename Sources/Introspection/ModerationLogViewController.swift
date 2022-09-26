@@ -4,23 +4,18 @@ import UIKit
 @available(iOS 13, *)
 public protocol ModerationLogViewControllerDelegate: AnyObject {
 
+  func moderationLogVC(
+    _ vc: ModerationLogViewController,
+    didModifyLogEntries entries: [ModerationLogEntry]
+  )
 }
 
 @available(iOS 13.0, *)
 public class ModerationLogViewController: UIViewController {
 
-  public struct LogEntry {
-    let content: Content
-    let action: ModerationViewController.ModerationAction
-    let scope: ModerationViewController.ModerationScope
-    let scopeFilter: String?
-    let rankChangePercent: Int?
-    let date: Date
-  }
-
   class LogEntryCell: UITableViewCell {
 
-    static let height: CGFloat = 100
+    static let height: CGFloat = 80
 
     var contentLabel: UILabel
     var actionLabel: UILabel
@@ -60,7 +55,7 @@ public class ModerationLogViewController: UIViewController {
         contentLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
         contentLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.7),
 
-        dateLabel.centerXAnchor.constraint(equalTo: contentLabel.centerXAnchor),
+        dateLabel.centerYAnchor.constraint(equalTo: contentLabel.centerYAnchor),
         dateLabel.leftAnchor.constraint(equalTo: contentLabel.rightAnchor, constant: 10),
         dateLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -20),
 
@@ -71,7 +66,7 @@ public class ModerationLogViewController: UIViewController {
         scopeLabel.topAnchor.constraint(equalTo: actionLabel.bottomAnchor, constant: 4),
         scopeLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 20),
         scopeLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -20),
-        scopeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+        scopeLabel.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -10),
       ]
       NSLayoutConstraint.activate(constraints)
     }
@@ -83,12 +78,12 @@ public class ModerationLogViewController: UIViewController {
 
   public weak var delegate: ModerationLogViewControllerDelegate?
 
-  private let contents: [LogEntry]
+  private var contents: [ModerationLogEntry]
   private let dateFormatter: RelativeDateTimeFormatter
 
   private var tableView: UITableView!
 
-  public init(contents: [LogEntry]) {
+  public init(contents: [ModerationLogEntry]) {
     self.contents = contents
     self.dateFormatter = RelativeDateTimeFormatter()
     self.dateFormatter.unitsStyle = .short
@@ -114,14 +109,33 @@ public class ModerationLogViewController: UIViewController {
     tableView.dataSource = self
     tableView.delegate = self
     tableView.register(LogEntryCell.self, forCellReuseIdentifier: "LogEntry")
+    tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Empty")
 
     tableView.tableFooterView = PromotedLabelFooterView(
       frame: CGRect(x: 0, y: 0, width: tableWidth, height: 100)
     )
     view.addSubview(tableView)
 
-    navigationItem.title = "Promoted.ai Stats"
-    setDefaultNavigationItems()
+    navigationItem.title = "Promoted.ai Moderation Log"
+    toolbarItems = [
+      UIBarButtonItem(
+        title: "Revert",
+        style: .plain,
+        target: self,
+        action: #selector(revertSelection)
+      ),
+      UIBarButtonItem(
+        barButtonSystemItem: .flexibleSpace,
+        target: nil,
+        action: nil
+      ),
+      UIBarButtonItem(
+        barButtonSystemItem: .action,
+        target: self,
+        action: #selector(shareSelection)
+      ),
+    ]
+    updateUI()
 
     let constraints = [
       view.topAnchor.constraint(equalTo: tableView.topAnchor),
@@ -138,10 +152,34 @@ extension ModerationLogViewController {
 
   private func setTableViewEditing(_ editing: Bool) {
     tableView.setEditing(editing, animated: true)
-    if editing {
+    updateUI()
+  }
+
+  private func updateUI() {
+    if contents.count == 0 {
+      setDefaultNavigationItems()
+      setToolbarItemsEnabled(false)
+      navigationItem.rightBarButtonItem?.isEnabled = false
+      return
+    }
+    if tableView.isEditing {
       setEditingNavigationItems()
+      navigationController?.setToolbarHidden(false, animated: true)
+      if (tableView.indexPathsForSelectedRows ?? []).count > 0 {
+        setToolbarItemsEnabled(true)
+      } else {
+        setToolbarItemsEnabled(false)
+      }
     } else {
       setDefaultNavigationItems()
+      navigationController?.setToolbarHidden(true, animated: true)
+    }
+  }
+
+  private func setToolbarItemsEnabled(_ enabled: Bool) {
+    guard let items = toolbarItems else { return }
+    for item in items {
+      item.isEnabled = enabled
     }
   }
 
@@ -179,7 +217,48 @@ extension ModerationLogViewController {
     presentingViewController?.dismiss(animated: true)
   }
 
-  @objc private func share() {
+  @objc private func edit() {
+    setTableViewEditing(true)
+  }
+
+  @objc private func cancelEditing() {
+    setTableViewEditing(false)
+  }
+
+  @objc private func selectAllTableRows() {
+    for row in 0 ..< contents.count {
+      tableView.selectRow(
+        at: IndexPath(row: row, section: 0),
+        animated: false,
+        scrollPosition: .none
+      )
+    }
+  }
+
+  @objc private func revertSelection() {
+    let confirmationAlert = UIAlertController(
+      title: "Revert",
+      message: "Selected moderation entries will be reverted and no longer affect Promoted.ai Delivery.",
+      preferredStyle: .actionSheet
+    )
+    confirmationAlert.addAction(UIAlertAction(title: "Revert", style: .destructive) {
+      [weak self] _ in
+      guard let self = self else { return }
+      if let selection = self.tableView.indexPathsForSelectedRows {
+        for row in selection.map({ $0.item }).sorted().reversed() {
+          self.contents.remove(at: row)
+        }
+        self.tableView.isEditing = false
+        self.tableView.reloadData()
+        self.updateUI()
+        self.delegate?.moderationLogVC(self, didModifyLogEntries: self.contents)
+      }
+    })
+    confirmationAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+    present(confirmationAlert, animated: true)
+  }
+
+  @objc private func shareSelection() {
     let json = """
     {
       "moderation": ""
@@ -192,18 +271,6 @@ extension ModerationLogViewController {
     activityVC.popoverPresentationController?.sourceView = view
     present(activityVC, animated: true, completion: nil)
   }
-
-  @objc private func edit() {
-    setTableViewEditing(true)
-  }
-
-  @objc private func cancelEditing() {
-    setTableViewEditing(false)
-  }
-
-  @objc private func selectAllTableRows() {
-    tableView.selectAll(self)
-  }
 }
 
 @available(iOS 13, *)
@@ -212,7 +279,7 @@ extension ModerationLogViewController: UITableViewDataSource {
     _ tableView: UITableView,
     numberOfRowsInSection section: Int
   ) -> Int {
-    contents.count
+    (contents.count == 0) ? 1 : contents.count  // 1 for "No data"
   }
 
   public func tableView(
@@ -226,6 +293,14 @@ extension ModerationLogViewController: UITableViewDataSource {
     _ tableView: UITableView,
     cellForRowAt indexPath: IndexPath
   ) -> UITableViewCell {
+    if contents.count == 0 {
+      let c = tableView.dequeueReusableCell(withIdentifier: "Empty", for: indexPath)
+      c.textLabel?.text = "No Moderation Entries"
+      c.textLabel?.textAlignment = .center
+      c.textLabel?.textColor = .gray
+      return c
+    }
+
     let content = contents[indexPath.item]
     let c = tableView.dequeueReusableCell(withIdentifier: "LogEntry", for: indexPath)
     guard let cell = c as? LogEntryCell else { return c }
@@ -235,7 +310,7 @@ extension ModerationLogViewController: UITableViewDataSource {
       case .shadowban:
         return "Shadowbaned by ayates@promoted.ai"
       case .sendToReview:
-        return "Sent to review (moderation@hipcamp.com) by ayates@promoted.ai"
+        return "Sent to review by ayates@promoted.ai"
       case .changeRank:
         if let rankChangePercent = content.rankChangePercent {
           return "Rank changed \(rankChangePercent < 0 ? "–" : "+")\(abs(rankChangePercent))% by ayates@promoted.ai"
@@ -264,6 +339,13 @@ extension ModerationLogViewController: UITableViewDelegate {
     _ tableView: UITableView,
     didSelectRowAt indexPath: IndexPath
   ) {
-    //
+    updateUI()
+  }
+
+  public func tableView(
+    _ tableView: UITableView,
+    didDeselectRowAt indexPath: IndexPath
+  ) {
+    updateUI()
   }
 }

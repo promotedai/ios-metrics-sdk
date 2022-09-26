@@ -10,6 +10,7 @@ extension UIImageView {
     activityIndicator.color = .darkGray
     activityIndicator.translatesAutoresizingMaskIntoConstraints = false
     addSubview(activityIndicator)
+    activityIndicator.startAnimating()
     if let url = URL(string: asyncImageURLString) {
       URLSession.shared.dataTask(with: url) { data, response, error in
         guard error == nil else { return }

@@ -3,10 +3,36 @@ import UIKit
 
 public class IntrospectionController {
 
-  @available(iOS 13.0, *)
-  typealias LogEntry = ModerationLogViewController.LogEntry
+  private var logEntries: [ModerationLogEntry]
 
-  public init() {}
+  public init() {
+    logEntries = [
+      ModerationLogEntry(
+        content: Content(name: "Botany Bay", contentID: "16309"),
+        action: .shadowban,
+        scope: .global,
+        scopeFilter: nil,
+        rankChangePercent: nil,
+        date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+      ),
+      ModerationLogEntry(
+        content: Content(name: "Sacramento Utopia", contentID: "74656"),
+        action: .sendToReview,
+        scope: .global,
+        scopeFilter: nil,
+        rankChangePercent: nil,
+        date: Calendar.current.date(byAdding: .day, value: -2, to: Date())!
+      ),
+      ModerationLogEntry(
+        content: Content(name: "Wild Wild West Coast", contentID: "74208"),
+        action: .sendToReview,
+        scope: .global,
+        scopeFilter: nil,
+        rankChangePercent: nil,
+        date: Calendar.current.date(byAdding: .day, value: -2, to: Date())!
+      ),
+    ]
+  }
 
   public func showIntrospectionActionSelectorSheet(_ params: IntrospectionParams) {
     let alert = UIAlertController(title: "Promoted.ai Introspection", message: nil, preferredStyle: .actionSheet)
@@ -48,24 +74,7 @@ public class IntrospectionController {
 
   @available(iOS 13, *)
   public func showModerationLog() {
-    let logVC = ModerationLogViewController(contents: [
-      LogEntry(
-        content: Content(name: "Botany Bay", contentID: "16309"),
-        action: .shadowban,
-        scope: .global,
-        scopeFilter: nil,
-        rankChangePercent: nil,
-        date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!
-      ),
-      LogEntry(
-        content: Content(name: "Bay Area Utopia", contentID: "74656"),
-        action: .sendToReview,
-        scope: .global,
-        scopeFilter: nil,
-        rankChangePercent: nil,
-        date: Calendar.current.date(byAdding: .day, value: -2, to: Date())!
-      ),
-    ])
+    let logVC = ModerationLogViewController(contents: logEntries)
     logVC.delegate = self
     let nc = UINavigationController(rootViewController: logVC)
     nc.presentAboveKeyWindowRootVC()
@@ -97,16 +106,21 @@ extension IntrospectionController: ModerationViewControllerDelegate {
 
   public func moderationVC(
     _ vc: ModerationViewController,
-    didApplyAction action: ModerationViewController.ModerationAction,
-    scope: ModerationViewController.ModerationScope,
-    changeRankPercent: Int
+    didApplyActionWithLogEntry entry: ModerationLogEntry
   ) {
     guard let nc = vc.navigationController else { return }
     nc.presentingViewController?.dismiss(animated: true)
+    logEntries.append(entry)
   }
 }
 
 @available(iOS 13, *)
 extension IntrospectionController: ModerationLogViewControllerDelegate {
 
+  public func moderationLogVC(
+    _ vc: ModerationLogViewController,
+    didModifyLogEntries entries: [ModerationLogEntry]
+  ) {
+    logEntries = entries
+  }
 }

@@ -5,9 +5,7 @@ public protocol ModerationViewControllerDelegate: AnyObject {
 
   func moderationVC(
     _ vc: ModerationViewController,
-    didApplyAction action: ModerationViewController.ModerationAction,
-    scope: ModerationViewController.ModerationScope,
-    changeRankPercent: Int
+    didApplyActionWithLogEntry entry: ModerationLogEntry
   )
 }
 
@@ -140,7 +138,7 @@ public class ModerationViewController: UIViewController {
 
   private var moderationScope: ModerationScope
   private var moderationAction: ModerationAction
-  private var changeRankPercent: Int
+  private var rankChangePercent: Int
 
   private lazy var contents = [
     ListSection(
@@ -156,26 +154,26 @@ public class ModerationViewController: UIViewController {
           subtitle: params.content.contentID,
           style: .value1
         ),
-        ListItem(
-          title: "User ID",
-          subtitle: params.userID,
-          style: .value1
-        ),
-        ListItem(
-          title: "Log User ID",
-          subtitle: params.logUserID,
-          style: .value1
-        ),
-        ListItem(
-          title: "Insertion ID",
-          subtitle: params.content.insertionID,
-          style: .value1
-        ),
-        ListItem(
-          title: "Request ID",
-          subtitle: UUID().uuidString,
-          style: .value1
-        ),
+//        ListItem(
+//          title: "User ID",
+//          subtitle: params.userID,
+//          style: .value1
+//        ),
+//        ListItem(
+//          title: "Log User ID",
+//          subtitle: params.logUserID,
+//          style: .value1
+//        ),
+//        ListItem(
+//          title: "Insertion ID",
+//          subtitle: params.content.insertionID,
+//          style: .value1
+//        ),
+//        ListItem(
+//          title: "Request ID",
+//          subtitle: UUID().uuidString,
+//          style: .value1
+//        ),
       ]
     ),
     ListSection(
@@ -204,7 +202,7 @@ public class ModerationViewController: UIViewController {
         ),
         ListItem(
           title: "Change Rank",
-          subtitle: "${changeRankPercent}",
+          subtitle: "${rankChangePercent}",
           style: .value1
         ),
       ],
@@ -214,7 +212,7 @@ public class ModerationViewController: UIViewController {
       title: "Change Rank",
       contents: [
         ListItem(
-          title: "${changeRankPercentSlider}"
+          title: "${rankChangePercentSlider}"
         ),
       ]
     ),
@@ -236,7 +234,7 @@ public class ModerationViewController: UIViewController {
     self.params = params
     self.moderationScope = .global
     self.moderationAction = .shadowban
-    self.changeRankPercent = 0
+    self.rankChangePercent = 0
     super.init(nibName: nil, bundle: nil)
   }
 
@@ -349,9 +347,9 @@ extension ModerationViewController: UITableViewDataSource {
   ) -> UITableViewCell {
     let item = contents(at: indexPath)
 
-    if item.title == "${changeRankPercentSlider}" {
+    if item.title == "${rankChangePercentSlider}" {
       let cell = SliderCell()
-      cell.slider.value = Float(changeRankPercent)
+      cell.slider.value = Float(rankChangePercent)
       cell.isEnabled = (moderationAction == .changeRank)
       return cell
     }
@@ -362,9 +360,9 @@ extension ModerationViewController: UITableViewDataSource {
 
     cell.detailTextLabel?.text = {
       switch item.subtitle {
-      case "${changeRankPercent}":
-        return (changeRankPercent >= 0 ? "+" : "–") +
-          "\(abs(changeRankPercent))%"
+      case "${rankChangePercent}":
+        return (rankChangePercent >= 0 ? "+" : "–") +
+          "\(abs(rankChangePercent))%"
       default:
         return item.subtitle
       }
@@ -429,9 +427,14 @@ extension ModerationViewController: UITableViewDelegate {
       if indexPath.item == 0 {
         delegate?.moderationVC(
           self,
-          didApplyAction: moderationAction,
-          scope: moderationScope,
-          changeRankPercent: changeRankPercent
+          didApplyActionWithLogEntry: ModerationLogEntry(
+            content: params.content,
+            action: moderationAction,
+            scope: moderationScope,
+            scopeFilter: params.scopeFilter,
+            rankChangePercent: rankChangePercent,
+            date: Date()
+          )
         )
       }
     default:
