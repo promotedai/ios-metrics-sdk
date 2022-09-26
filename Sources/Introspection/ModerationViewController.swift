@@ -432,7 +432,7 @@ extension ModerationViewController: UITableViewDelegate {
         moderationAction = newModerationAction
         tableView.reloadSections(IndexSet(integersIn: 1 ... 2), with: .automatic)
       }
-    case 3:
+    case 4:
       if indexPath.item == 0 {
         delegate?.moderationVC(
           self,
