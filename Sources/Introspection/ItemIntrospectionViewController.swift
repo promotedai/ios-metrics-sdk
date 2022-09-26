@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-public protocol ItemIntrospectionViewControllerDelegate {
+public protocol ItemIntrospectionViewControllerDelegate: AnyObject {
   func itemIntrospectionVC(
     _ vc: ItemIntrospectionViewController,
     didSelectItemPropertiesFor params: IntrospectionParams
@@ -114,10 +114,10 @@ public class ItemIntrospectionViewController: UIViewController {
 
   private static let imageCellIdentifier = "IIImage"
 
-  public var delegate: ItemIntrospectionViewControllerDelegate?
+  public weak var delegate: ItemIntrospectionViewControllerDelegate?
   private let params: IntrospectionParams
 
-  private lazy var placeholderContent = [
+  private lazy var contents = [
     ListSection(
       title: "Identifiers",
       contents: [
@@ -185,8 +185,15 @@ public class ItemIntrospectionViewController: UIViewController {
   public override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     guard let view = self.view else { return }
+
     let tableWidth = view.bounds.width
-    tableView = UITableView(frame: CGRect(x: 0, y: 0, width: tableWidth, height: 0), style: .grouped)
+    let style: UITableView.Style
+    if #available(iOS 13.0, *) {
+      style = .insetGrouped
+    } else {
+      style = .grouped
+    }
+    tableView = UITableView(frame: CGRect(x: 0, y: 0, width: tableWidth, height: 0), style: style)
     tableView.translatesAutoresizingMaskIntoConstraints = false
     tableView.dataSource = self
     tableView.delegate = self
@@ -245,8 +252,8 @@ public class ItemIntrospectionViewController: UIViewController {
     NSLayoutConstraint.activate(constraints)
   }
 
-  private func placeholderContent(at indexPath: IndexPath) -> ListContent {
-    placeholderContent[indexPath.section].contents[indexPath.item]
+  private func contents(at indexPath: IndexPath) -> ListContent {
+    contents[indexPath.section].contents[indexPath.item]
   }
 }
 
@@ -294,13 +301,13 @@ extension ItemIntrospectionViewController.ListSection {
 extension ItemIntrospectionViewController {
 
   @objc private func close() {
-    self.presentingViewController?.dismiss(animated: true)
+    presentingViewController?.dismiss(animated: true)
   }
 
   @objc private func share() {
     let json = """
     {
-      \(placeholderContent.compactMap { $0.asJSONMap() }.joined(separator: ",\n  "))
+      \(contents.compactMap { $0.asJSONMap() }.joined(separator: ",\n  "))
     }
     """
     let activityVC = UIActivityViewController(activityItems: [json], applicationActivities: nil)
@@ -309,12 +316,12 @@ extension ItemIntrospectionViewController {
   }
 
   @objc private func copy(indexPath: IndexPath) {
-    let item = placeholderContent(at: indexPath)
+    let item = contents(at: indexPath)
     UIPasteboard.general.string = item.value.asString()
   }
 
   @objc private func showInLargeType(indexPath: IndexPath) {
-    let item = placeholderContent(at: indexPath)
+    let item = contents(at: indexPath)
     toastView.text = item.value.asString()
     toastView.isHidden = false
   }
@@ -328,19 +335,19 @@ extension ItemIntrospectionViewController {
 extension ItemIntrospectionViewController: UITableViewDataSource {
 
   public func numberOfSections(in tableView: UITableView) -> Int {
-    placeholderContent.count
+    contents.count
   }
 
   public func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-    placeholderContent[section].title
+    contents[section].title
   }
 
   public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    placeholderContent[section].contents.count
+    contents[section].contents.count
   }
 
   public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-    let item = placeholderContent(at: indexPath)
+    let item = contents(at: indexPath)
     if case .image(_) = item.value {
       return 200
     }
@@ -348,7 +355,7 @@ extension ItemIntrospectionViewController: UITableViewDataSource {
   }
 
   public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let item = placeholderContent(at: indexPath)
+    let item = contents(at: indexPath)
     if case .image(let url) = item.value {
       let cell = tableView.dequeueReusableCell(withIdentifier: Self.imageCellIdentifier, for: indexPath)
       guard
@@ -408,7 +415,7 @@ extension ItemIntrospectionViewController: UITableViewDataSource {
 extension ItemIntrospectionViewController: UITableViewDelegate {
 
   public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    let item = placeholderContent(at: indexPath)
+    let item = contents(at: indexPath)
     switch item.value {
     case .itemProperties:
       print("Item Properties")

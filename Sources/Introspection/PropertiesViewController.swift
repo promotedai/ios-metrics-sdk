@@ -3,6 +3,11 @@ import UIKit
 
 public class PropertiesViewController: UIViewController {
 
+  public enum PropertiesType {
+    case item
+    case request
+  }
+
   class HeaderCell: Cell {
     let label = UILabel()
     let sortArrow = UILabel()
@@ -66,7 +71,7 @@ public class PropertiesViewController: UIViewController {
     }
   }
 
-  let placeholderContent: [[Any]] = [
+  static let itemContents: [[Any]] = [
     ["ID", "Name", "A", "B", "9/22", "9/21", "9/20", "9/19", "9/18"],
     [101, "Feature Hipcamp Haversine Distance Miles", 5, 0.0036, 53.0, 0.0055, 0.0032, 0.0044, 0.0056],
     [102, "Feature Response Insertion Position", 4, 0.0079, 24.0, 0.0146, 0.0101, 0.0172, 0.0131],
@@ -98,10 +103,43 @@ public class PropertiesViewController: UIViewController {
     [128, "Item Rate Raw Checkout Navigate 7DAY", 2, 0.0296, 65.0, 0.0296, 0.0221, 0.0491, 0.0310]
   ]
 
+  static let requestContents: [[Any]] = [
+    ["ID", "Name", "Value"],
+    [101, "Location", "Sacramento CA"],
+    [102, "Preferred Number of Guests", 4],
+    [103, "Price Range", 8],
+    [104, "Fuzzy Match Location 1", 0],
+    [105, "Fuzzy Match Location 2", 0],
+    [106, "Search Area NW", "91.33240, -147.223411"],
+    [106, "Search Area SE", "91.11249, -144.000001"],
+    [107, "Pets Allowed", 2],
+    [108, "Water View", 0],
+    [109, "Mountain View", 0],
+    [110, "Forest View", 0],
+    [111, "Amenities Camper Plugin", 1],
+    [112, "Amenities Shower", 0],
+    [113, "Amenities Sink and Toilet", 0],
+    [114, "Has Cell Service", 0],
+    [115, "Activities Fishing", 0],
+    [116, "Activities Hiking", 0],
+    [117, "Activities Mtn Bike", 1],
+    [118, "Activities Swimming", 1],
+    [119, "Activities Motor Boat", 1],
+    [120, "Activities ATV", 0],
+  ]
+
+  private let propertiesType: PropertiesType
+  private let contents: [[Any]]
+
   private let params: IntrospectionParams
   private var spreadsheetView: SpreadsheetView!
 
-  public required init(_ params: IntrospectionParams) {
+  public required init(
+    _ params: IntrospectionParams,
+    propertiesType: PropertiesType
+  ) {
+    self.propertiesType = propertiesType
+    self.contents = propertiesType == .item ? Self.itemContents : Self.requestContents
     self.params = params
     super.init(nibName: nil, bundle: nil)
   }
@@ -139,23 +177,28 @@ public class PropertiesViewController: UIViewController {
     NSLayoutConstraint.activate(constraints)
   }
 
-  private func placeholderContent(at indexPath: IndexPath) -> Any {
-    placeholderContent[indexPath.row][indexPath.column]
+  private func contents(at indexPath: IndexPath) -> Any {
+    contents[indexPath.row][indexPath.column]
   }
 }
 
 extension PropertiesViewController: SpreadsheetViewDataSource {
 
   public func numberOfRows(in spreadsheetView: SpreadsheetView) -> Int {
-    return placeholderContent.count
+    return contents.count
   }
 
   public func numberOfColumns(in spreadsheetView: SpreadsheetView) -> Int {
-    return placeholderContent[0].count
+    return contents[0].count
   }
 
   public func spreadsheetView(_ spreadsheetView: SpreadsheetView, widthForColumn column: Int) -> CGFloat {
-    return column == 1 ? 200 : 70
+    switch propertiesType {
+    case .item:
+      return column == 1 ? 200 : 70
+    case .request:
+      return 200
+    }
   }
 
   public func spreadsheetView(_ spreadsheetView: SpreadsheetView, heightForRow row: Int) -> CGFloat {
@@ -163,7 +206,7 @@ extension PropertiesViewController: SpreadsheetViewDataSource {
   }
 
   public func spreadsheetView(_ spreadsheetView: SpreadsheetView, cellForItemAt indexPath: IndexPath) -> Cell? {
-    let value = placeholderContent(at: indexPath)
+    let value = contents(at: indexPath)
     if indexPath.row == 0 {
       if let cell = spreadsheetView.dequeueReusableCell(withReuseIdentifier: "Header", for: indexPath) as? HeaderCell,
          let title = value as? String {
