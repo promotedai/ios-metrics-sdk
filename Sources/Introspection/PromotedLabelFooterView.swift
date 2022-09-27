@@ -2,6 +2,7 @@ import Foundation
 import UIKit
 
 class PromotedLabelFooterView: UIView {
+
   override init(frame: CGRect) {
     super.init(frame: CGRect(x: frame.minX, y: frame.minY, width: frame.width, height: 100))
     let footerLabel = UILabel(frame: CGRect(x: 0, y: 0, width: frame.width, height: 50))

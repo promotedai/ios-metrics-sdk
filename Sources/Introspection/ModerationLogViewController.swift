@@ -313,28 +313,8 @@ extension ModerationLogViewController: UITableViewDataSource {
     let c = tableView.dequeueReusableCell(withIdentifier: "LogEntry", for: indexPath)
     guard let cell = c as? LogEntryCell else { return c }
     cell.contentLabel.text = content.content.name
-    cell.actionLabel.text = { content in
-      switch content.action {
-      case .shadowban:
-        return "Shadowbaned by ayates@promoted.ai"
-      case .sendToReview:
-        return "Sent to review by ayates@promoted.ai"
-      case .changeRank:
-        if let rankChangePercent = content.rankChangePercent {
-          return "Rank changed \(rankChangePercent < 0 ? "–" : "+")\(abs(rankChangePercent))% by ayates@promoted.ai"
-        } else {
-          return "Rank changed by ayates@promoted.ai"
-        }
-      }
-    } (content)
-    cell.scopeLabel.text = { content in
-      switch content.scope {
-      case .global:
-        return "Global (All Queries)"
-      case .currentSearch:
-        return "Scope: \(content.scopeFilter ?? "<unavailable>")"
-      }
-    } (content)
+    cell.actionLabel.text = content.action.description(rankChangePercent: content.rankChangePercent)
+    cell.scopeLabel.text = content.scope.description(scopeFilter: content.scopeFilter)
     cell.dateLabel.text = dateFormatter.localizedString(for: content.date, relativeTo: Date())
     return cell
   }

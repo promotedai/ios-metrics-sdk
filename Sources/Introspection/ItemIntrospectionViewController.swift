@@ -153,7 +153,10 @@ public class ItemIntrospectionViewController: UIViewController {
       action: #selector(share)
     )
 
-    toastView = ToastView(frame: CGRect(x: 0, y: 0, width: tableWidth, height: 0))
+    toastView = ToastView(
+      frame: CGRect(x: 0, y: 0, width: tableWidth, height: 0),
+      fontSize: 72
+    )
     toastView.isHidden = true
     toastView.translatesAutoresizingMaskIntoConstraints = false
     view.addSubview(toastView)

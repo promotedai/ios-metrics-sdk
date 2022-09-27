@@ -101,37 +101,6 @@ public class ModerationViewController: UIViewController {
     }
   }
 
-  public enum ModerationScope: Int {
-    case global = 0
-    case currentSearch = 1
-
-    var description: String {
-      switch self {
-      case .global:
-        return "Applies to all Promoted Delivery requests that involve this item."
-      case .currentSearch:
-        return "Applies to Promoted Delivery requests matching the current request scope that involve this item."
-      }
-    }
-  }
-
-  public enum ModerationAction: Int {
-    case shadowban = 0
-    case sendToReview = 1
-    case changeRank = 2
-
-    var description: String {
-      switch self {
-      case .shadowban:
-        return "Prevents this item from showing up in listings. Takes effect immediately."
-      case .sendToReview:
-        return "Flags this item for manual review. Does not immediately change Delivery behavior."
-      case .changeRank:
-        return "Changes the rank for this item. Takes effect immediately."
-      }
-    }
-  }
-
   public weak var delegate: ModerationViewControllerDelegate?
 
   private let params: IntrospectionParams
@@ -279,7 +248,10 @@ public class ModerationViewController: UIViewController {
       action: #selector(close)
     )
 
-    toastView = ToastView(frame: CGRect(x: 0, y: 0, width: tableWidth, height: 0))
+    toastView = ToastView(
+      frame: CGRect(x: 0, y: 0, width: tableWidth, height: 0),
+      fontSize: 72
+    )
     toastView.isHidden = true
     toastView.translatesAutoresizingMaskIntoConstraints = false
     view.addSubview(toastView)
@@ -395,9 +367,9 @@ extension ModerationViewController: UITableViewDataSource {
     let text = contents[section].footerText
     switch text {
     case "${moderationScopeDescription}":
-      return moderationScope.description
+      return moderationScope.detailedDescription
     case "${moderationActionDescription}":
-      return moderationAction.description
+      return moderationAction.detailedDescription
     default:
       return text
     }
@@ -433,7 +405,8 @@ extension ModerationViewController: UITableViewDelegate {
             scope: moderationScope,
             scopeFilter: params.scopeFilter,
             rankChangePercent: rankChangePercent,
-            date: Date()
+            date: Date(),
+            image: (tableView.tableHeaderView as? UIImageView)?.image
           )
         )
       }

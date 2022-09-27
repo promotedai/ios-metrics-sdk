@@ -1,9 +1,19 @@
 import Foundation
 import UIKit
 
+public protocol IntrospectionControllerDelegate: AnyObject {
+
+  func introspectionController(
+    _ ic: IntrospectionController,
+    didModifyModeration logEntries: [ModerationLogEntry]
+  )
+}
+
 public class IntrospectionController {
 
-  private var logEntries: [ModerationLogEntry]
+  public weak var delegate: IntrospectionControllerDelegate?
+
+  public private(set) var logEntries: [ModerationLogEntry]
 
   public init() {
     logEntries = [
@@ -13,7 +23,8 @@ public class IntrospectionController {
         scope: .global,
         scopeFilter: nil,
         rankChangePercent: nil,
-        date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+        date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!,
+        image: nil
       ),
       ModerationLogEntry(
         content: Content(name: "Sacramento Utopia", contentID: "74656"),
@@ -21,7 +32,8 @@ public class IntrospectionController {
         scope: .global,
         scopeFilter: nil,
         rankChangePercent: nil,
-        date: Calendar.current.date(byAdding: .day, value: -2, to: Date())!
+        date: Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
+        image: nil
       ),
       ModerationLogEntry(
         content: Content(name: "Wild Wild West Coast", contentID: "74208"),
@@ -29,7 +41,8 @@ public class IntrospectionController {
         scope: .global,
         scopeFilter: nil,
         rankChangePercent: nil,
-        date: Calendar.current.date(byAdding: .day, value: -2, to: Date())!
+        date: Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
+        image: nil
       ),
     ]
   }
@@ -109,8 +122,26 @@ extension IntrospectionController: ModerationViewControllerDelegate {
     didApplyActionWithLogEntry entry: ModerationLogEntry
   ) {
     guard let nc = vc.navigationController else { return }
-    nc.presentingViewController?.dismiss(animated: true)
-    logEntries.append(entry)
+    if let presentingVC = nc.presentingViewController {
+      presentingVC.dismiss(animated: true)
+      showConfirmationToast(viewController: presentingVC, entry: entry)
+    }
+    logEntries.insert(entry, at: 0)
+    delegate?.introspectionController(self, didModifyModeration: logEntries)
+  }
+
+  private func showConfirmationToast(
+    viewController: UIViewController,
+    entry: ModerationLogEntry
+  ) {
+    let toastView = ToastView(
+      frame: CGRect(x: 0, y: 0, width: 400, height: 400),
+      fontSize: 18
+    )
+    toastView.text = entry.action.description
+    toastView.image = entry.image
+    viewController.view.addSubview(toastView)
+    toastView.autoHide = true
   }
 }
 
@@ -122,5 +153,6 @@ extension IntrospectionController: ModerationLogViewControllerDelegate {
     didModifyLogEntries entries: [ModerationLogEntry]
   ) {
     logEntries = entries
+    delegate?.introspectionController(self, didModifyModeration: logEntries)
   }
 }

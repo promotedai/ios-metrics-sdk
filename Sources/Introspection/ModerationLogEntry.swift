@@ -1,10 +1,11 @@
 import Foundation
 
 public struct ModerationLogEntry {
-  let content: Content
-  let action: ModerationViewController.ModerationAction
-  let scope: ModerationViewController.ModerationScope
-  let scopeFilter: String?
-  let rankChangePercent: Int?
-  let date: Date
+  public let content: Content
+  public let action: ModerationAction
+  public let scope: ModerationScope
+  public let scopeFilter: String?
+  public let rankChangePercent: Int?
+  public let date: Date
+  public let image: UIImage?
 }
