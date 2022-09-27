@@ -387,13 +387,13 @@ extension ModerationViewController: UITableViewDelegate {
       guard let newModerationScope = ModerationScope(rawValue: indexPath.item) else { return }
       if moderationScope != newModerationScope {
         moderationScope = newModerationScope
-        tableView.reloadSections(IndexSet(integer: 0), with: .automatic)
+        tableView.reloadSections(IndexSet(integer: 1), with: .automatic)
       }
     case 2:
       guard let newModerationAction = ModerationAction(rawValue: indexPath.item) else { return }
       if moderationAction != newModerationAction {
         moderationAction = newModerationAction
-        tableView.reloadSections(IndexSet(integersIn: 1 ... 2), with: .automatic)
+        tableView.reloadSections(IndexSet(integersIn: 2 ... 3), with: .automatic)
       }
     case 4:
       if indexPath.item == 0 {

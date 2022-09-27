@@ -197,7 +197,7 @@ extension PropertiesViewController: SpreadsheetViewDataSource {
     case .item:
       return column == 1 ? 200 : 70
     case .request:
-      return 200
+      return column == 0 ? 70 : 200
     }
   }
 
@@ -236,5 +236,17 @@ extension PropertiesViewController: SpreadsheetViewDataSource {
 
 extension PropertiesViewController {
 
-  @objc private func share() {}
+  @objc private func share() {
+    let json = """
+    {
+      "properties": ""
+    }
+    """
+    let activityVC = UIActivityViewController(
+      activityItems: [json],
+      applicationActivities: nil
+    )
+    activityVC.popoverPresentationController?.sourceView = view
+    present(activityVC, animated: true, completion: nil)
+  }
 }
