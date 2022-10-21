@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         macos: [macos-latest]
-        xcode: ['12.4']
+        xcode: [latest]
     runs-on: ${{ matrix.macos }}
     steps:
     - uses: actions/checkout@v2
