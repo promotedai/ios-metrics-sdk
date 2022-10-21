@@ -15,6 +15,6 @@ jobs:
       with:
         xcode-version: latest
     - name: Build
-      run: xcodebuild -scheme PromotedAIMetricsSDK-Package build -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11'
+      run: xcodebuild -scheme PromotedAIMetricsSDK-Package build -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 14'
     - name: Test
-      run: xcodebuild -scheme PromotedAIMetricsSDK-Package test -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11'
+      run: xcodebuild -scheme PromotedAIMetricsSDK-Package test -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 14'
