@@ -30,6 +30,7 @@ Pod::Spec.new do |s|
     core.resource_bundles = {
       "PromotedCore" => ['Sources/PromotedCore/Resources/*']
     }
+    core.preserve_path = 'promoted_features.rb'
   end
 
   s.subspec 'Fetcher' do |fetcher|
