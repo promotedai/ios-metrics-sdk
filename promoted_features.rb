@@ -18,6 +18,19 @@ def _use_promoted_build_flag(installer, build_configurations: [], build_flag: ''
   end
 end
 
+# Call this in your Podfile to enable Promoted error handling in the
+# specified build configurations. For example:
+# ```
+# target 'myapp' do
+#   post_install do |installer|
+#     # Enables error handling in build config 'InternalBuild'
+#     use_promoted_error_handling(
+#       installer,
+#       build_configurations: ['InternalBuild']
+#     )
+#   end
+# end
+# ```
 def use_promoted_error_handling(installer, build_configurations: [])
   _use_promoted_build_flag(
     installer,
