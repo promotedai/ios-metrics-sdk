@@ -32,7 +32,10 @@ import os.log
  
  ## Example (using instance):
  ```swift
- let service = try MetricsLoggerService(initialConfig: ...)
+ var config = ClientConfig()
+ config.metricsLoggingURL = "https://yourdomain.ext.promoted.ai"
+ config.metricsLoggingAPIKey = "..."
+ let service = try MetricsLoggerService(initialConfig: config)
  try service.startLoggingServices()
  let logger = service.metricsLogger
  let impressionTracker = service.impressionTracker(sourceType: .delivery)
@@ -42,10 +45,26 @@ import os.log
  ## Example (using shared service):
  ```swift
  // Call this first before accessing the instance.
- try MetricsLoggerService.startServices(initialConfig: ...)
+ var config = ClientConfig()
+ config.metricsLoggingURL = "https://yourdomain.ext.promoted.ai"
+ config.metricsLoggingAPIKey = "..."
+ try MetricsLoggerService.startServices(initialConfig: config)
  let service = MetricsLoggerService.shared
  let logger = service.metricsLogger
  let impressionTracker = service.impressionTracker(sourceType: .delivery)
+ ```
+
+ ## Proxy servers
+ You can use a proxy server URL in `ClientConfig.metricsLoggingURL`.
+ If you do this, you can specify any non-empty string for
+ `metricsLoggingAPIKey`, since your proxy would presumably forward the
+ real API key to the Promoted Metrics service.
+
+ ```swift
+ var config = ClientConfig()
+ config.metricsLoggingURL = "https://proxy.yourdomain.com"
+ config.metricsLoggingAPIKey = "unused"
+ let service = try MetricsLoggerService(initialConfig: config)
  ```
  
  # PromotedCore vs PromotedMetrics
