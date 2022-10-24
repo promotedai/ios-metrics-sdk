@@ -47,11 +47,13 @@ extension ClientConfigError: ErrorDetails {
 
       \(Self.deliveryWillBeDisabled)
       """
-    case .missingDevAPIKey:
+    case .headersContainReservedField(let field):
       return """
-      You specified `ClientConfig.devMetricsLoggingURL` but not `ClientConfig.devMetricsLoggingAPIKey`.
+      When connecting to a Promoted metrics backend, do not specify an HTTP header with field:
 
-      Promoted Delivery may not work in this developer build, but may still work in production. Please check your configuration carefully before merging.
+      \(field)
+
+      \(Self.deliveryWillBeDisabled)
       """
     case .invalidMetricsLoggingWireFormat:
       return """
@@ -140,7 +142,15 @@ extension ClientConfigFetchError: ErrorDetails {
       """
     case .emptyConfig:
       return """
-      Remote Config returned an empty configuration. \(Self.checkRemoteConfigSetup)
+      Remote Config returned an empty configuration. The remote config will be ignored. \(Self.checkRemoteConfigSetup)
+      """
+    case .invalidConfig(let error):
+      return """
+      Remote Config returned an invalid configuration. The remote config will be ignored.
+
+      \(error.localizedDescription)
+
+      \(Self.checkRemoteConfigSetup)
       """
     case .localCacheEncodeError(let error):
       return """

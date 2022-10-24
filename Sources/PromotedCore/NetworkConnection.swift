@@ -24,9 +24,11 @@ public protocol NetworkConnection: AnyObject {
   /// - Returns: Data sent over network connection.
   /// - Throws: Propagate any errors thrown by underlying network
   ///    connection or by the methods in `NetworkConnection` extension.
-  func sendMessage(_ message: Message,
-                   clientConfig: ClientConfig,
-                   callback: Callback?) throws -> Data
+  func sendMessage(
+    _ message: Message,
+    clientConfig: ClientConfig,
+    callback: Callback?
+  ) throws -> Data
 }
 
 protocol NetworkConnectionSource {
@@ -39,13 +41,7 @@ public extension NetworkConnection {
   /// Optional convenience method.
   /// Implementations should propagate `ClientConfigError`s.
   func metricsLoggingURL(clientConfig: ClientConfig) throws -> URL {
-    var urlString = clientConfig.metricsLoggingURL
-    #if DEBUG
-    if !clientConfig.devMetricsLoggingURL.isEmpty {
-      urlString = clientConfig.devMetricsLoggingURL
-    }
-    #endif
-
+    let urlString = clientConfig.metricsLoggingURL
     guard let url = URL(string: urlString) else {
       throw ClientConfigError.invalidURL(urlString: urlString)
     }
@@ -67,23 +63,29 @@ public extension NetworkConnection {
   /// Creates a `URLRequest` for use with the given request. Will set
   /// the API key on the resulting request. Optional convenience method.
   /// Implementations should propagate `ClientConfigError`s.
-  func urlRequest(url: URL, data: Data, clientConfig: ClientConfig) throws -> URLRequest {
+  func urlRequest(
+    url: URL,
+    data: Data,
+    clientConfig: ClientConfig
+  ) throws -> URLRequest {
     var request = URLRequest(url: url)
-    var apiKey = clientConfig.metricsLoggingAPIKey
-    #if DEBUG
-    if !clientConfig.devMetricsLoggingAPIKey.isEmpty {
-      apiKey = clientConfig.devMetricsLoggingAPIKey
+    for (key, value) in clientConfig.metricsLoggingRequestHeaders {
+      request.addValue(value, forHTTPHeaderField: key)
     }
-    #endif
-
-    guard !apiKey.isEmpty else {
-      throw ClientConfigError.missingAPIKey
+    if url.absoluteString.contains(".promoted.ai") {
+      let apiKey = clientConfig.metricsLoggingAPIKey
+      guard !apiKey.isEmpty else {
+        throw ClientConfigError.missingAPIKey
+      }
+      request.addValue(apiKey, forHTTPHeaderField: "x-api-key")
     }
-    let field = clientConfig.apiKeyHTTPHeaderField
-    request.addValue(apiKey, forHTTPHeaderField: field)
     if clientConfig.metricsLoggingWireFormat == .binary {
-      request.addValue("application/protobuf", forHTTPHeaderField: "content-type")
+      request.addValue(
+        "application/protobuf",
+        forHTTPHeaderField: "content-type"
+      )
     }
+
     return request
   }
 }
@@ -91,7 +93,9 @@ public extension NetworkConnection {
 // MARK: - NoOpNetworkConnection
 /** Used to avoid runtime error if no `NetworkConnection` is provided. */
 final class NoOpNetworkConnection: NetworkConnection {
-  func sendMessage(_ message: Message,
-                   clientConfig: ClientConfig,
-                   callback: Callback?) throws -> Data { Data() }
+  func sendMessage(
+    _ message: Message,
+    clientConfig: ClientConfig,
+    callback: Callback?
+  ) throws -> Data { Data() }
 }

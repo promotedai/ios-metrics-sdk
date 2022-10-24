@@ -61,9 +61,9 @@ public enum ClientConfigError: Error {
   /// `ClientConfig` is missing the API key.
   case missingAPIKey
 
-  /// `ClientConfig` specified a `devMetricsLoggingURL` but did not
-  /// provide `devMetricsLoggingAPIKey`.
-  case missingDevAPIKey
+  /// Request headers contain a field that has been reserved for
+  /// use in Promoted servers.
+  case headersContainReservedField(field: String)
 
   /// Specified wire format doesn't exist.
   case invalidMetricsLoggingWireFormat
@@ -88,7 +88,7 @@ extension ClientConfigError: NSErrorProperties {
       return 1001
     case .missingAPIKey:
       return 1002
-    case .missingDevAPIKey:
+    case .headersContainReservedField(_):
       return 1003
     case .invalidMetricsLoggingWireFormat:
       return 1004
@@ -194,6 +194,10 @@ public enum ClientConfigFetchError: Error {
   /// Remote fetch finished, but provided no config.
   case emptyConfig
 
+  /// Remote fetch finished, but resulting config was invalid.
+  /// The remote config will be ignored.
+  case invalidConfig(_ error: Error)
+
   /// Error when persisting fetched config to local cache.
   /// This means that the config will not be applied.
   case localCacheEncodeError(_ error: Error)
@@ -207,8 +211,10 @@ extension ClientConfigFetchError: NSErrorProperties {
       return 5001
     case .emptyConfig:
       return 5002
-    case .localCacheEncodeError(_):
+    case .invalidConfig(_):
       return 5003
+    case .localCacheEncodeError(_):
+      return 5004
     }
   }
 }
