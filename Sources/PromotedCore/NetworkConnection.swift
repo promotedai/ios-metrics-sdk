@@ -69,14 +69,9 @@ public extension NetworkConnection {
     clientConfig: ClientConfig
   ) throws -> URLRequest {
     var request = URLRequest(url: url)
-    for (key, value) in clientConfig.metricsLoggingRequestHeaders {
-      request.addValue(value, forHTTPHeaderField: key)
-    }
-    if url.absoluteString.contains(".promoted.ai") {
-      let apiKey = clientConfig.metricsLoggingAPIKey
-      guard !apiKey.isEmpty else {
-        throw ClientConfigError.missingAPIKey
-      }
+    request.allHTTPHeaderFields = clientConfig.metricsLoggingRequestHeaders
+    let apiKey = clientConfig.metricsLoggingAPIKey
+    if !apiKey.isEmpty {
       request.addValue(apiKey, forHTTPHeaderField: "x-api-key")
     }
     if clientConfig.metricsLoggingWireFormat == .binary {
@@ -85,7 +80,6 @@ public extension NetworkConnection {
         forHTTPHeaderField: "content-type"
       )
     }
-
     return request
   }
 }
