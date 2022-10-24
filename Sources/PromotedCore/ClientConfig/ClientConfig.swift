@@ -37,6 +37,7 @@ import Foundation
 @dynamicMemberLookup
 public struct ClientConfig {
 
+  public typealias RequestHeaders = _ObjCClientConfig.RequestHeaders
   public typealias MetricsLoggingWireFormat =
     _ObjCClientConfig.MetricsLoggingWireFormat
   public typealias XrayLevel = _ObjCClientConfig.XrayLevel
