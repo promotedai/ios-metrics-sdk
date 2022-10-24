@@ -73,4 +73,98 @@ final class ClientConfigTests: XCTestCase {
       config2.metricsLoggingURL
     )
   }
+
+  func testValidateConfigPromoted() {
+    var config = ClientConfig()
+    config.disableAssertInValidationForTesting()
+
+    config.metricsLoggingURL = "https://fake.promoted.ai/hippo/potamus"
+    config.metricsLoggingAPIKey = "apikey!"
+    config.metricsLoggingRequestHeaders = ["hello": "world"]
+
+    do {
+      try config.validateConfig()
+    } catch {
+      XCTFail("Unexpected error: \(error)")
+    }
+  }
+
+  func testValidateConfigMissingAPIKeyPromoted() {
+    var config = ClientConfig()
+    config.disableAssertInValidationForTesting()
+
+    config.metricsLoggingURL = "https://fake.promoted.ai/hippo/potamus"
+    config.metricsLoggingRequestHeaders = ["hello": "world"]
+
+    do {
+      try config.validateConfig()
+      XCTFail("Should have thrown validation error")
+      return
+    } catch {
+      switch error {
+      case ClientConfigError.missingAPIKey:
+        break
+      default:
+        XCTFail("Unexpected error: \(error)")
+      }
+    }
+  }
+
+  func testValidateConfigReservedHeaderPromoted() {
+    var config = ClientConfig()
+    config.disableAssertInValidationForTesting()
+
+    config.metricsLoggingURL = "https://fake.promoted.ai/hippo/potamus"
+    config.metricsLoggingAPIKey = "apikey!"
+    config.metricsLoggingRequestHeaders = ["x-api-key": "helloworld"]
+
+    do {
+      try config.validateConfig()
+      XCTFail("Should have thrown validation error")
+      return
+    } catch {
+      switch error {
+      case ClientConfigError.headersContainReservedField(let field):
+        XCTAssertEqual("x-api-key", field)
+      default:
+        XCTFail("Unexpected error: \(error)")
+      }
+    }
+  }
+
+  func testValidateConfigProxy() {
+    var config = ClientConfig()
+    config.disableAssertInValidationForTesting()
+
+    config.metricsLoggingURL = "https://partner.proxy.fake/hippo/potamus"
+    // Proxy should allow `x-api-key` in headers.
+    config.metricsLoggingRequestHeaders = ["x-api-key": "helloworld"]
+
+    do {
+      try config.validateConfig()
+    } catch {
+      XCTFail("Unexpected error: \(error)")
+    }
+  }
+
+  func testValidateConfigReservedHeadersProxy() {
+    var config = ClientConfig()
+    config.disableAssertInValidationForTesting()
+
+    config.metricsLoggingURL = "https://partner.proxy.fake/hippo/potamus"
+    config.metricsLoggingRequestHeaders = ["Content-Type": "foobar"]
+
+    do {
+      try config.validateConfig()
+      XCTFail("Should have thrown validation error")
+      return
+    } catch {
+      switch error {
+      case ClientConfigError.headersContainReservedField(let field):
+        XCTAssertEqual("content-type", field)
+      default:
+        XCTFail("Unexpected error: \(error)")
+      }
+    }
+  }
 }

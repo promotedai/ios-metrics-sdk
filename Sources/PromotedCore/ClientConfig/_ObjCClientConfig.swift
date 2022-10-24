@@ -457,19 +457,21 @@ extension _ObjCClientConfig {
     if URL(string: metricsLoggingURL) == nil {
       throw ClientConfigError.invalidURL(urlString: metricsLoggingURL)
     }
+    func checkForReservedHeaderField(_ field: String) throws {
+      if metricsLoggingRequestHeaders.contains(where: {
+        $0.key.caseInsensitiveCompare(field) == .orderedSame
+      }) {
+        throw ClientConfigError.headersContainReservedField(field: field)
+      }
+    }
     // Validate API key if connecting directly to a Promoted server.
     if metricsLoggingURL.contains(".promoted.ai") {
       if metricsLoggingAPIKey.isEmpty {
         throw ClientConfigError.missingAPIKey
       }
-      func checkForReservedHeaderField(_ field: String) throws {
-        if metricsLoggingRequestHeaders[field] != nil {
-          throw ClientConfigError.headersContainReservedField(field: field)
-        }
-      }
       try checkForReservedHeaderField("x-api-key")
-      try checkForReservedHeaderField("Content-Type")
     }
+    try checkForReservedHeaderField("content-type")
     if diagnosticsSamplingPercentage > 0 {
       if diagnosticsSamplingEndDate == nil {
         throw ClientConfigError.invalidDiagnosticsSamplingEndDateString(
