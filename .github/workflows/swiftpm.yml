@@ -8,17 +8,10 @@ on:
 
 jobs:
   build-and-test:
-    strategy:
-      matrix:
-        macos: [macos-latest]
-        xcode: ['12.4']
-    runs-on: ${{ matrix.macos }}
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: sinoru/actions-setup-xcode@v1.1.2
-      with:
-        xcode-version: ${{ matrix.xcode }}
     - name: Build
-      run: xcodebuild -scheme PromotedAIMetricsSDK-Package build -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11'
+      run: xcodebuild -scheme PromotedAIMetricsSDK-Package build -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 13'
     - name: Test
-      run: xcodebuild -scheme PromotedAIMetricsSDK-Package test -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11'
+      run: xcodebuild -scheme PromotedAIMetricsSDK-Package test -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 13'
