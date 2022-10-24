@@ -161,7 +161,7 @@ class MyViewController: UIViewController {
     self.collectionView.reloadData()
     let visibleContent = collectionView.indexPathsForVisibleItems.map {
       path in content(atIndexPath: path)
-    };
+    }
     impressionTracker.collectionViewDidChangeVisibleContent(visibleContent)
   }
 }
