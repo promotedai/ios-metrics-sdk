@@ -27,8 +27,8 @@ final class NetworkConnectionTests: ModuleTestCase {
       config.metricsLoggingWireFormat = .json
       let jsonData = try connection.bodyData(
         message: message,
-
-        clientConfig: config)
+        clientConfig: config
+      )
       let jsonString = String(data: jsonData, encoding: .utf8)!
       XCTAssertEqual("{\"actionId\":\"foo\"}", jsonString)
     } catch {
