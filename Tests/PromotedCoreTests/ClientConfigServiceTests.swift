@@ -63,7 +63,6 @@ final class ClientConfigServiceTests: ModuleTestCase {
     var remoteConfig = ClientConfig()
     remoteConfig.metricsLoggingURL = url
     remoteConfig.metricsLoggingAPIKey = "apikey!!"
-    remoteConfig.xrayLevel = .callDetails
     remoteConfigConnection.config = remoteConfig
 
     var callbackCalled = false
@@ -82,6 +81,41 @@ final class ClientConfigServiceTests: ModuleTestCase {
           return
         }
         XCTAssertEqual("invalid url", urlString)
+      default:
+        XCTFail("Unexpected error in result")
+        return
+      }
+    }
+    clock.advance(to: 10)
+    XCTAssertTrue(callbackCalled)
+  }
+
+  func testRemoteConfigInvalidHeadersContainReservedField() {
+    let url = "https://fake2.promoted.ai"
+    var remoteConfig = ClientConfig()
+    remoteConfig.metricsLoggingURL = url
+    remoteConfig.metricsLoggingAPIKey = "apikey!!"
+    remoteConfig.metricsLoggingRequestHeaders = [
+      "x-api-key": "someotherkey!!"
+    ]
+    remoteConfigConnection.config = remoteConfig
+
+    var callbackCalled = false
+    module.clientConfigService.fetchClientConfig { result in
+      callbackCalled = true
+      XCTAssertNil(result.config)
+      XCTAssertNotNil(result.error)
+      if self.store.clientConfig != nil {
+        XCTFail("ClientConfig should not have not written to PersistentStore")
+        return
+      }
+      switch result.error! {
+      case .invalidConfig(let e):
+        guard case ClientConfigError.headersContainReservedField(let field) = e else {
+          XCTFail("Unexpected error in result")
+          return
+        }
+        XCTAssertEqual("x-api-key", field)
       default:
         XCTFail("Unexpected error in result")
         return
