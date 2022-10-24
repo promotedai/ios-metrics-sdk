@@ -106,6 +106,9 @@ extension ClientConfig {
       return Bool(remoteValue)
     case is String:
       return remoteValue
+    case is [String: String]:
+      guard let data = remoteValue.data(using: .utf8) else { return nil }
+      return try? JSONSerialization.jsonObject(with: data, options: [])
     case is ClientConfig.MetricsLoggingWireFormat:
       return ClientConfig.MetricsLoggingWireFormat(remoteValue.toCamelCase())
     case is ClientConfig.XrayLevel:

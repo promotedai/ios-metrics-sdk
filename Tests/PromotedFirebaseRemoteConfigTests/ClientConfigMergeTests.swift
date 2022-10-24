@@ -33,6 +33,12 @@ final class ClientConfigMergeTests: XCTestCase {
     let dictionary = [
       "ai_promoted_metrics_logging_url": url,
       "ai_promoted_metrics_logging_api_key": "hello-world",
+      "ai_promoted_metrics_logging_request_headers": """
+      {
+        "foo": "bar",
+        "batman": "robin"
+      }
+      """,
       "ai_promoted_logging_flush_interval": "30.0",
       "ai_promoted_flush_logging_on_resign_active": "false",
       "ai_promoted_xray_level": "batchSummaries",
@@ -54,11 +60,20 @@ final class ClientConfigMergeTests: XCTestCase {
         "ai_promoted_xray_level = batchSummaries"),
       (.info, "Read from remote config: " +
         "ai_promoted_os_log_level = debug"),
+      (.info, "Read from remote config: " +
+        "ai_promoted_metrics_logging_request_headers = {\n" +
+        "    batman = robin;\n" +
+        "    foo = bar;\n}"
+      ),
     ], messages)
 
     // Changed values.
     XCTAssertEqual(url, config.metricsLoggingURL)
     XCTAssertEqual("hello-world", config.metricsLoggingAPIKey)
+    XCTAssertEqual(
+      ["foo": "bar", "batman": "robin"],
+      config.metricsLoggingRequestHeaders
+    )
     XCTAssertEqual(30.0, config.loggingFlushInterval, accuracy: 0.001)
     XCTAssertFalse(config.flushLoggingOnResignActive)
     XCTAssertEqual(.batchSummaries, config.xrayLevel)
@@ -109,6 +124,7 @@ final class ClientConfigMergeTests: XCTestCase {
     let url = "https://fake2.promoted.ai/hippo/potamus"
     let dictionary = [
       "ai_promoted_metrics_logging_url": url,
+      "ai_promoted_metrics_logging_request_headers": "not a json object!!",
       "ai_promoted_logging_flush_interval": "hello-world",
       "ai_promoted_logging_enabled": "super-mario-world",
       "ai_promoted_xray_level": "oh-what-a-wonderful-world",
@@ -117,6 +133,8 @@ final class ClientConfigMergeTests: XCTestCase {
     config.merge(from: dictionary, messages: &messages)
 
     assertLoggedMessagesEqualNoOrder([
+      (.warning, "No viable conversion for remote config value: " +
+        "ai_promoted_metrics_logging_request_headers = not a json object!! (ignoring)"),
       (.warning, "No viable conversion for remote config value: " +
         "ai_promoted_logging_flush_interval = hello-world (ignoring)"),
       (.warning, "No viable conversion for remote config value: " +
