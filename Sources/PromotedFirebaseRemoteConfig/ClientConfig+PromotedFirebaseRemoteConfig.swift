@@ -200,13 +200,10 @@ extension String {
   }
 
   func toCamelCase() -> String {
-    var first = true
     return split(separator: "_")
-      .map { value in
-        let result = first ? value :
-          value.prefix(1).uppercased() + value.dropFirst()
-        first = false
-        return String(result)
+      .enumerated()
+      .map { (index, str) in
+        (index == 0) ? str : (str.prefix(1).uppercased() + str.dropFirst())
       }
       .joined()
   }

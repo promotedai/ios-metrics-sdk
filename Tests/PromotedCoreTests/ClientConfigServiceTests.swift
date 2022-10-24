@@ -34,7 +34,9 @@ final class ClientConfigServiceTests: ModuleTestCase {
     remoteConfig.xrayLevel = .callDetails
     remoteConfigConnection.config = remoteConfig
 
+    var callbackCalled = false
     module.clientConfigService.fetchClientConfig { result in
+      callbackCalled = true
       XCTAssertNotNil(result.config)
       XCTAssertNil(result.error)
       guard let configData = self.store.clientConfig else {
@@ -52,6 +54,41 @@ final class ClientConfigServiceTests: ModuleTestCase {
         XCTFail(String(describing: error))
       }
     }
+    clock.advance(to: 10)
+    XCTAssertTrue(callbackCalled)
+  }
+
+  func testRemoteConfigInvalid() {
+    let url = "invalid url"
+    var remoteConfig = ClientConfig()
+    remoteConfig.metricsLoggingURL = url
+    remoteConfig.metricsLoggingAPIKey = "apikey!!"
+    remoteConfig.xrayLevel = .callDetails
+    remoteConfigConnection.config = remoteConfig
+
+    var callbackCalled = false
+    module.clientConfigService.fetchClientConfig { result in
+      callbackCalled = true
+      XCTAssertNil(result.config)
+      XCTAssertNotNil(result.error)
+      if self.store.clientConfig != nil {
+        XCTFail("ClientConfig should not have not written to PersistentStore")
+        return
+      }
+      switch result.error! {
+      case .invalidConfig(let e):
+        guard case ClientConfigError.invalidURL(let urlString) = e else {
+          XCTFail("Unexpected error in result")
+          return
+        }
+        XCTAssertEqual("invalid url", urlString)
+      default:
+        XCTFail("Unexpected error in result")
+        return
+      }
+    }
+    clock.advance(to: 10)
+    XCTAssertTrue(callbackCalled)
   }
 
   func testDiagnosticsSamplingEndDateExpired() {

@@ -75,6 +75,9 @@ public protocol ConfigEnum:
 @objc(PROClientConfig)
 public final class _ObjCClientConfig: NSObject {
 
+  /// Headers for logging HTTP request.
+  public typealias RequestHeaders = [String: String]
+
   /// Controls whether log messages are sent over the network.
   /// Setting this property to `false` will prevent log messages
   /// from being sent, but these messages may still be collected
@@ -82,42 +85,33 @@ public final class _ObjCClientConfig: NSObject {
   @objc public var loggingEnabled: Bool = true
 
   /// URL for logging endpoint as used by `NetworkConnection`.
+  /// This could be either a Promoted server or a proxy that you run.
+  ///
   /// Implementations of `NetworkConnection` from Promoted will
   /// use this field. Custom implementations of `NetworkConnection`
   /// may vary in behavior.
   @objc public var metricsLoggingURL: String = ""
 
-  /// URL for logging endpoint as used by `NetworkConnection`
-  /// for debug/staging purposes. Used when the app is running
-  /// in debug configuration.
+  /// API key for logging endpoint. Required when connecting to a
+  /// Promoted server (see `metricsLoggingURL`).
   ///
-  /// If this property is not set, then debug builds will use
-  /// `metricsLoggingURL` for logging endpoint URL.
+  /// Not needed when connecting to a proxy. If you specify this
+  /// field when connecting to a proxy, it will be ignored.
   ///
-  /// Implementations of `NetworkConnection` from Promoted will
-  /// use this field. Custom implementations of `NetworkConnection`
-  /// may vary in behavior.
-  @objc public var devMetricsLoggingURL: String = ""
-
-  /// API key for logging endpoint.
   /// Implementations of `NetworkConnection` from Promoted will
   /// use this field. Custom implementations of `NetworkConnection`
   /// may vary in behavior.
   @objc public var metricsLoggingAPIKey: String = ""
 
-  /// API key for logging endpoint for debug/staging purposes.
-  /// Used when the app is running in debug configuration.
-  ///
-  /// If this property is not set, then debug builds will use
-  /// `metricsLoggingAPIKey` for logging endpoint API key.
-  ///
+  /// Headers for logging requests.
   /// Implementations of `NetworkConnection` from Promoted will
   /// use this field. Custom implementations of `NetworkConnection`
   /// may vary in behavior.
-  @objc public var devMetricsLoggingAPIKey: String = ""
-
-  /// HTTP header field for API key.
-  @objc public var apiKeyHTTPHeaderField: String = "x-api-key"
+  ///
+  /// If connecting to a Promoted backend, do not specify a header
+  /// with the keys `Content-Type` or `x-api-key`. These keys are reserved.
+  /// To specify an API key, use `metricsLoggingAPIKey`.
+  @objc public var metricsLoggingRequestHeaders: RequestHeaders = [:]
 
   /// Format to use when sending protobuf log messages over network.
   @objc(PROMetricsLoggingWireFormat)
@@ -463,16 +457,18 @@ extension _ObjCClientConfig {
     if URL(string: metricsLoggingURL) == nil {
       throw ClientConfigError.invalidURL(urlString: metricsLoggingURL)
     }
-    if metricsLoggingAPIKey.isEmpty {
-      throw ClientConfigError.missingAPIKey
-    }
-    if !devMetricsLoggingURL.isEmpty {
-      if URL(string: devMetricsLoggingURL) == nil {
-        throw ClientConfigError.invalidURL(urlString: devMetricsLoggingURL)
+    // Validate API key if connecting directly to a Promoted server.
+    if metricsLoggingURL.contains(".promoted.ai") {
+      if metricsLoggingAPIKey.isEmpty {
+        throw ClientConfigError.missingAPIKey
       }
-      if devMetricsLoggingAPIKey.isEmpty {
-        throw ClientConfigError.missingDevAPIKey
+      func checkForReservedHeaderField(_ field: String) throws {
+        if metricsLoggingRequestHeaders[field] != nil {
+          throw ClientConfigError.headersContainReservedField(field: field)
+        }
       }
+      try checkForReservedHeaderField("x-api-key")
+      try checkForReservedHeaderField("Content-Type")
     }
     if diagnosticsSamplingPercentage > 0 {
       if diagnosticsSamplingEndDate == nil {

@@ -66,8 +66,6 @@ final class ClientConfigMergeTests: XCTestCase {
 
     // Unchanged values (should be default).
     XCTAssertTrue(config.loggingEnabled)
-    XCTAssertEqual("", config.devMetricsLoggingURL)
-    XCTAssertEqual("", config.devMetricsLoggingAPIKey)
     XCTAssertEqual(.binary, config.metricsLoggingWireFormat)
     XCTAssertEqual(
       0.5, config.scrollTrackerVisibilityThreshold, accuracy: 0.001

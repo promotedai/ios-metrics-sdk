@@ -276,6 +276,14 @@ extension ClientConfigService {
       return
     }
 
+    do {
+      // Ensure that the resulting config is valid.
+      try remoteConfig.validateConfig()
+    } catch {
+      resultError = .invalidConfig(error)
+      return
+    }
+
     // Successfully loaded config. Save for next session.
     do {
       let encoder = JSONEncoder()

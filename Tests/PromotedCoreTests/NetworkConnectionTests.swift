@@ -16,15 +16,6 @@ final class NetworkConnectionTests: ModuleTestCase {
     } catch {
       XCTFail("URL generation threw an error: \(error)")
     }
-    #if DEBUG
-    config.devMetricsLoggingURL = "http://fake.promoted.ai/dev"
-    do {
-      let url = try connection.metricsLoggingURL(clientConfig: config)
-      XCTAssertEqual(config.devMetricsLoggingURL, url.absoluteString)
-    } catch {
-      XCTFail("URL generation threw an error: \(error)")
-    }
-    #endif
   }
 
   func testBodyDataJSON() {
@@ -34,7 +25,10 @@ final class NetworkConnectionTests: ModuleTestCase {
     do {
       var config = ClientConfig()
       config.metricsLoggingWireFormat = .json
-      let jsonData = try connection.bodyData(message: message, clientConfig: config)
+      let jsonData = try connection.bodyData(
+        message: message,
+
+        clientConfig: config)
       let jsonString = String(data: jsonData, encoding: .utf8)!
       XCTAssertEqual("{\"actionId\":\"foo\"}", jsonString)
     } catch {
@@ -49,7 +43,10 @@ final class NetworkConnectionTests: ModuleTestCase {
     do {
       var config = ClientConfig()
       config.metricsLoggingWireFormat = .binary
-      let binaryData = try connection.bodyData(message: message, clientConfig: config)
+      let binaryData = try connection.bodyData(
+        message: message,
+        clientConfig: config
+      )
       XCTAssertGreaterThan(binaryData.count, 0)
     } catch {
       XCTFail("Binary serialization threw an error: \(error)")
@@ -59,23 +56,56 @@ final class NetworkConnectionTests: ModuleTestCase {
   func testURLRequestAPIKey() {
     var config = ClientConfig()
     config.metricsLoggingAPIKey = "key!"
-    config.apiKeyHTTPHeaderField = "API_KEY"
-    let url = URL(string: "http://promoted.ai")!
+    let url = URL(string: "http://metrics.fake.promoted.ai")!
     let data = "foobar".data(using: .utf8)!
     do {
-      let request = try connection.urlRequest(url: url, data: data, clientConfig: config)
-      XCTAssertEqual("key!", request.allHTTPHeaderFields!["API_KEY"]!)
+      let request = try connection.urlRequest(
+        url: url,
+        data: data,
+        clientConfig: config
+      )
+      guard let apiKey = request.allHTTPHeaderFields?["x-api-key"] else {
+        XCTFail("API key not found")
+        return
+      }
+      XCTAssertEqual("key!", apiKey)
     } catch {
       XCTFail("URL request threw an error: \(error)")
     }
-    #if DEBUG
-    config.devMetricsLoggingAPIKey = "devkey!"
+  }
+
+  func testURLRequestHeaders() {
+    var config = ClientConfig()
+    config.metricsLoggingAPIKey = "key!"
+    config.metricsLoggingRequestHeaders = [
+      "batman": "robin",
+      "foo": "bar",
+      "promoted": "ai"
+    ]
+    let url = URL(string: "http://metrics.fake.promoted.ai")!
+    let data = "foobar".data(using: .utf8)!
     do {
-      let request = try connection.urlRequest(url: url, data: data, clientConfig: config)
-      XCTAssertEqual("devkey!", request.allHTTPHeaderFields!["API_KEY"]!)
+      let request = try connection.urlRequest(
+        url: url,
+        data: data,
+        clientConfig: config
+      )
+      guard let headers = request.allHTTPHeaderFields else {
+        XCTFail("Headers were nil in request")
+        return
+      }
+      XCTAssertEqual(
+        [
+          "batman": "robin",
+          "foo": "bar",
+          "promoted": "ai",
+          "x-api-key": "key!",
+          "Content-Type": "application/protobuf"
+        ],
+        headers
+      )
     } catch {
       XCTFail("URL request threw an error: \(error)")
     }
-    #endif
   }
 }

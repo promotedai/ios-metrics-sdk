@@ -22,4 +22,8 @@ final class StringCaseConversionTests: XCTestCase {
       "call_details_and_stack_traces".toCamelCase()
     )
   }
+
+  func testCamelCaseEmptyParts() {
+    XCTAssertEqual("aBetaCamel", "__a__beta__camel__".toCamelCase())
+  }
 }
