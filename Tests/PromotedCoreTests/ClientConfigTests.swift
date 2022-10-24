@@ -111,25 +111,29 @@ final class ClientConfigTests: XCTestCase {
   }
 
   func testValidateConfigReservedHeaderPromoted() {
-    var config = ClientConfig()
-    config.disableAssertInValidationForTesting()
+    func runTest(reservedField: String) {
+      var config = ClientConfig()
+      config.disableAssertInValidationForTesting()
 
-    config.metricsLoggingURL = "https://fake.promoted.ai/hippo/potamus"
-    config.metricsLoggingAPIKey = "apikey!"
-    config.metricsLoggingRequestHeaders = ["x-api-key": "helloworld"]
+      config.metricsLoggingURL = "https://fake.promoted.ai/hippo/potamus"
+      config.metricsLoggingAPIKey = "apikey!"
+      config.metricsLoggingRequestHeaders = [reservedField: "helloworld"]
 
-    do {
-      try config.validateConfig()
-      XCTFail("Should have thrown validation error")
-      return
-    } catch {
-      switch error {
-      case ClientConfigError.headersContainReservedField(let field):
-        XCTAssertEqual("x-api-key", field)
-      default:
-        XCTFail("Unexpected error: \(error)")
+      do {
+        try config.validateConfig()
+        XCTFail("Should have thrown validation error")
+        return
+      } catch {
+        switch error {
+        case ClientConfigError.headersContainReservedField(let field):
+          XCTAssertEqual(reservedField, field)
+        default:
+          XCTFail("Unexpected error: \(error)")
+        }
       }
     }
+    runTest(reservedField: "x-api-key")
+    runTest(reservedField: "content-type")
   }
 
   func testValidateConfigProxy() {
@@ -137,6 +141,7 @@ final class ClientConfigTests: XCTestCase {
     config.disableAssertInValidationForTesting()
 
     config.metricsLoggingURL = "https://partner.proxy.fake/hippo/potamus"
+    // Proxy should allow missing API key.
     // Proxy should allow `x-api-key` in headers.
     config.metricsLoggingRequestHeaders = ["x-api-key": "helloworld"]
 
