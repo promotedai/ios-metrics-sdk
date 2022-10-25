@@ -5,7 +5,16 @@ extension UUID {
   /// of the process. (In general, hash values in Swift aren't
   /// stable across different runs of the process.)
   ///
+  /// # Machine-dependent results
   /// Casts the UUID struct (128 bits) into a pair of UInt64s.
+  ///
+  /// As an implementation detail, the results of this cast could
+  /// vary depending on whether the CPU is big- or little-endian.
+  /// Although Apple's iOS devices run in little-endian as of
+  /// 2021Q4, software should not rely on this behavior.
+  ///
+  /// The even distribution of hash values across buckets has been 
+  /// verified on both big- and little-endian environments.
   private var stableHashValue: (UInt64, UInt64) {
     withUnsafePointer(to: uuid) { p in
       p.withMemoryRebound(
