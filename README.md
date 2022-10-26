@@ -68,10 +68,10 @@ let scrollTracker = service.scrollTracker(collectionView: ...)
 
 ### Example usage (singleton)
 ```swift
-// Call this first before accessing the instance.
 var config = ClientConfig()
 config.metricsLoggingURL = "https://yourdomain.ext.promoted.ai"
 config.metricsLoggingAPIKey = "..."
+// Call `startServices` first before accessing the instance.
 try MetricsLoggerService.startServices(initialConfig: config)
 let service = MetricsLoggerService.shared
 // Create and use objects from the service
