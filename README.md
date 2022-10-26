@@ -80,17 +80,19 @@ let impressionTracker = service.impressionTracker(sourceType: .delivery)
 let scrollTracker = service.scrollTracker(collectionView: ...)
 ```
 
-### Proxy servers
-You can use a proxy server URL in `ClientConfig.metricsLoggingURL`. If you do this, you can specify any non-empty string for `metricsLoggingAPIKey`, since your proxy would presumably forward the real API key to the Promoted Metrics service.
+### Promoted vs proxy servers
+When using `ClientConfig`, if you connect directly to a Promoted server in `metricsLoggingURL`, you need to provide an API key for `metricsLoggingAPIKey`. However, if you use a proxy server, you do not need to specify a value for `metricsLoggingAPIKey`, since your proxy would presumably forward the real API key to the Promoted Metrics service. Furthermore, you can use `metricsLoggingRequestHeaders` to customize your request headers.
 
 ```swift
+// Using a proxy server
 var config = ClientConfig()
 config.metricsLoggingURL = "https://proxy.yourdomain.com"
-config.metricsLoggingAPIKey = "unused"
+config.metricsLoggingRequestHeaders = [
+  "x-custom-header-1": "value1",
+  "x-custom-header-2": "value2"
+]
 let service = try MetricsLoggerService(initialConfig: config)
 ```
-
-See `MetricsLoggerService.swift` class docs for full explanation.
 
 ## MetricsLogger
 Promoted event logging interface. Use instances of `MetricsLogger` to log events to Promoted’s servers. Events are accumulated and sent in batches on a timer.
