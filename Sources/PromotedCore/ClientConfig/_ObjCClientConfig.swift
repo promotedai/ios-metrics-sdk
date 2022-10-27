@@ -470,8 +470,10 @@ extension _ObjCClientConfig {
         throw ClientConfigError.missingAPIKey
       }
       try checkForReservedHeaderField("x-api-key")
+      if metricsLoggingWireFormat == .binary {
+        try checkForReservedHeaderField("content-type")
+      }
     }
-    try checkForReservedHeaderField("content-type")
     if diagnosticsSamplingPercentage > 0 {
       if diagnosticsSamplingEndDate == nil {
         throw ClientConfigError.invalidDiagnosticsSamplingEndDateString(

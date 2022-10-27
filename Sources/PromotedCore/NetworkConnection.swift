@@ -74,7 +74,11 @@ public extension NetworkConnection {
     if !apiKey.isEmpty {
       request.addValue(apiKey, forHTTPHeaderField: "x-api-key")
     }
-    if clientConfig.metricsLoggingWireFormat == .binary {
+    if (
+      clientConfig.metricsLoggingWireFormat == .binary &&
+      clientConfig.metricsLoggingURL.contains(".promoted.ai") &&
+      request.value(forHTTPHeaderField: "content-type") == nil
+    ) {
       request.addValue(
         "application/protobuf",
         forHTTPHeaderField: "content-type"
