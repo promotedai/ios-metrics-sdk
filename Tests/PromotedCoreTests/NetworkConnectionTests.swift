@@ -35,6 +35,29 @@ final class NetworkConnectionTests: ModuleTestCase {
       XCTFail("JSON serialization threw an error: \(error)")
     }
   }
+
+  func testBodyDataJSONFormatted() {
+    var message = Event_Action()
+    message.actionID = "foo"
+
+    do {
+      var config = ClientConfig()
+      config.metricsLoggingWireFormat = .json
+      config.metricsLoggingJSONFormatString = """
+      { "batman": "robin", "event": ${event} }
+      """
+      let jsonData = try connection.bodyData(
+        message: message,
+        clientConfig: config
+      )
+      let jsonString = String(data: jsonData, encoding: .utf8)!
+      XCTAssertEqual("""
+      { "batman": "robin", "event": {"actionId":"foo"} }
+      """, jsonString)
+    } catch {
+      XCTFail("JSON serialization threw an error: \(error)")
+    }
+  }
   
   func testBodyDataBinary() {
     var message = Event_Action()
@@ -76,15 +99,16 @@ final class NetworkConnectionTests: ModuleTestCase {
 
   func testURLRequestHeaders() {
     var config = ClientConfig()
+    config.metricsLoggingURL = "http://metrics.fake.promoted.ai"
     config.metricsLoggingAPIKey = "key!"
     config.metricsLoggingRequestHeaders = [
       "batman": "robin",
       "foo": "bar",
       "promoted": "ai"
     ]
-    let url = URL(string: "http://metrics.fake.promoted.ai")!
-    let data = "foobar".data(using: .utf8)!
     do {
+      let url = try connection.metricsLoggingURL(clientConfig: config)
+      let data = "foobar".data(using: .utf8)!
       let request = try connection.urlRequest(
         url: url,
         data: data,

@@ -132,7 +132,7 @@ public final class _ObjCClientConfig: NSObject {
   /// object for the event inside another JSON object. Use `${event}`
   /// as a placeholder for the JSON event. For example, a value of the
   /// following string:
-  /// ```json
+  /// ```swift
   /// { "foo": "bar", "event": ${event} }
   /// ```
   /// Will log the JSON string:
