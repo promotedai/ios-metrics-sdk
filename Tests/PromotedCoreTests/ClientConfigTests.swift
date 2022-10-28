@@ -152,7 +152,7 @@ final class ClientConfigTests: XCTestCase {
     }
   }
 
-  func testValidateConfigReservedHeadersProxy() {
+  func testValidateConfigContentTypeAllowedInProxy() {
     var config = ClientConfig()
     config.disableAssertInValidationForTesting()
 
@@ -161,15 +161,8 @@ final class ClientConfigTests: XCTestCase {
 
     do {
       try config.validateConfig()
-      XCTFail("Should have thrown validation error")
-      return
     } catch {
-      switch error {
-      case ClientConfigError.headersContainReservedField(let field):
-        XCTAssertEqual("content-type", field)
-      default:
-        XCTFail("Unexpected error: \(error)")
-      }
+      XCTFail("Unexpected error: \(error)")
     }
   }
 }

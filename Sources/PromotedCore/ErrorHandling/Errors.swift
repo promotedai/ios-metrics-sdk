@@ -135,6 +135,21 @@ extension BinaryEncodingError: NSErrorProperties {
   }
 }
 
+// MARK: JSONEncodingError
+public enum JSONEncodingError: Error {
+  case utf8ConversionError(message: Message)
+}
+
+extension JSONEncodingError: NSErrorProperties {
+
+  public var code: Int {
+    switch self {
+    case .utf8ConversionError(_):
+      return 7001
+    }
+  }
+}
+
 // MARK: - MetricsLoggerError
 /** Errors produced by `MetricsLogger`. */
 public enum MetricsLoggerError: Error {

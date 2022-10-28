@@ -98,6 +98,22 @@ extension ModuleConfigError: ErrorDetails {
   }
 }
 
+// MARK: JSONEncodingError
+extension JSONEncodingError: ErrorDetails {
+  public var details: String {
+    switch self {
+    case .utf8ConversionError(let message):
+      return """
+      Conversion to/from UTF-8 failed for message:
+
+      \(message.debugDescription)
+
+      \(Self.deliveryMayBeImpaired)
+      """
+    }
+  }
+}
+
 // MARK: - MetricsLoggerError
 extension MetricsLoggerError: ErrorDetails {
   public var details: String {

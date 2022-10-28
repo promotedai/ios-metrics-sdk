@@ -56,7 +56,18 @@ public extension NetworkConnection {
     case .binary:
       return try message.serializedData()
     case .json:
-      return try message.jsonUTF8Data()
+      guard
+        let eventJSON = String(
+          data: try message.jsonUTF8Data(),
+          encoding: .utf8
+        ),
+        let wrappedJSON = clientConfig.metricsLoggingJSONFormatString
+          .replacingOccurrences(of: "${event}", with: eventJSON)
+          .data(using: .utf8)
+      else {
+        throw JSONEncodingError.utf8ConversionError(message: message)
+      }
+      return wrappedJSON
     }
   }
 
@@ -74,7 +85,11 @@ public extension NetworkConnection {
     if !apiKey.isEmpty {
       request.addValue(apiKey, forHTTPHeaderField: "x-api-key")
     }
-    if clientConfig.metricsLoggingWireFormat == .binary {
+    if (
+      clientConfig.metricsLoggingWireFormat == .binary &&
+      clientConfig.metricsLoggingURL.contains(".promoted.ai") &&
+      request.value(forHTTPHeaderField: "content-type") == nil
+    ) {
       request.addValue(
         "application/protobuf",
         forHTTPHeaderField: "content-type"

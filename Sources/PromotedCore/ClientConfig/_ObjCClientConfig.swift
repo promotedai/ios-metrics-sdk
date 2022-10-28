@@ -128,6 +128,19 @@ public final class _ObjCClientConfig: NSObject {
     didSet { validateEnum(&metricsLoggingWireFormat, defaultValue: .binary) }
   }
 
+  /// How to format the JSON message. You can use this to put the JSON
+  /// object for the event inside another JSON object. Use `${event}`
+  /// as a placeholder for the JSON event. For example, a value of the
+  /// following string:
+  /// ```swift
+  /// { "foo": "bar", "event": ${event} }
+  /// ```
+  /// Will log the JSON string:
+  /// ```json
+  /// { "foo": "bar", "event": { "action": "NAVIGATE", "content_id": ... } }
+  /// ```
+  @objc public var metricsLoggingJSONFormatString: String = "${event}"
+
   /// Interval at which log messages are sent over the network.
   /// Setting this to lower values will increase the frequency
   /// at which log messages are sent.
@@ -470,8 +483,10 @@ extension _ObjCClientConfig {
         throw ClientConfigError.missingAPIKey
       }
       try checkForReservedHeaderField("x-api-key")
+      if metricsLoggingWireFormat == .binary {
+        try checkForReservedHeaderField("content-type")
+      }
     }
-    try checkForReservedHeaderField("content-type")
     if diagnosticsSamplingPercentage > 0 {
       if diagnosticsSamplingEndDate == nil {
         throw ClientConfigError.invalidDiagnosticsSamplingEndDateString(
