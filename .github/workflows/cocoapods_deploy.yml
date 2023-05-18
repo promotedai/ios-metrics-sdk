@@ -2,6 +2,7 @@ name: cocoapods_deploy
 
 on:
   push:
+    branches: [ main ]
     tags:
       - '*'
 
