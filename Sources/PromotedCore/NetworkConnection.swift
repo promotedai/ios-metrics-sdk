@@ -86,8 +86,12 @@ public extension NetworkConnection {
       request.addValue(apiKey, forHTTPHeaderField: "x-api-key")
     }
     if (request.value(forHTTPHeaderField: "content-type") == nil) {
+      guard let contentTypeValue = try contentType(clientConfig: clientConfig)
+      else {
+        throw ClientConfigError.invalidMetricsLoggingWireFormat()
+      }
       request.addValue(
-        contentType(clientConfig: clientConfig),
+        contentTypeValue,
         forHTTPHeaderField: "content-type"
       )
     }
