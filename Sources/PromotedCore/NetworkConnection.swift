@@ -86,11 +86,7 @@ public extension NetworkConnection {
       request.addValue(apiKey, forHTTPHeaderField: "x-api-key")
     }
     if (request.value(forHTTPHeaderField: "content-type") == nil) {
-      guard
-        let contentTypeValue = contentType(clientConfig: clientConfig)
-      else {
-        throw ClientConfigError.invalidMetricsLoggingWireFormat
-      }
+      let contentTypeValue = contentType(clientConfig: clientConfig)
       request.addValue(
         contentTypeValue,
         forHTTPHeaderField: "content-type"
@@ -100,14 +96,14 @@ public extension NetworkConnection {
   }
 
   func contentType(
-      clientConfig: ClientConfig
-    ) throws -> String {
-      switch clientConfig.metricsLoggingWireFormat {
-      case .binary:
-        return "application/protobuf"
-      case .json:
-        return "application/json"
-      }
+    clientConfig: ClientConfig
+  ) -> String {
+    switch clientConfig.metricsLoggingWireFormat {
+    case .binary:
+      return "application/protobuf"
+    case .json:
+      return "application/json"
+    }
   }
 }
 
