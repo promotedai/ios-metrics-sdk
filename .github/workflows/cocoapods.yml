@@ -6,7 +6,7 @@ on:
 
 jobs:
   pod-lib-lint:
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Lint
