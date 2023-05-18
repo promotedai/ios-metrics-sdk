@@ -87,7 +87,7 @@ public extension NetworkConnection {
     }
     if (request.value(forHTTPHeaderField: "content-type") == nil) {
       request.addValue(
-        contentType(clientConfig),
+        contentType(clientConfig: clientConfig),
         forHTTPHeaderField: "content-type"
       )
     }
