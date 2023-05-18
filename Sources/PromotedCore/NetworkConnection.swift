@@ -85,17 +85,24 @@ public extension NetworkConnection {
     if !apiKey.isEmpty {
       request.addValue(apiKey, forHTTPHeaderField: "x-api-key")
     }
-    if (
-      clientConfig.metricsLoggingWireFormat == .binary &&
-      clientConfig.metricsLoggingURL.contains(".promoted.ai") &&
-      request.value(forHTTPHeaderField: "content-type") == nil
-    ) {
+    if (request.value(forHTTPHeaderField: "content-type") == nil) {
       request.addValue(
-        "application/protobuf",
+        contentType(clientConfig),
         forHTTPHeaderField: "content-type"
       )
     }
     return request
+  }
+
+  func contentType(
+      clientConfig: ClientConfig
+    ) throws -> String {
+      switch clientConfig.metricsLoggingWireFormat {
+      case .binary:
+        return "application/protobuf"
+      case .json:
+        return "application/json"
+      }
   }
 }
 
