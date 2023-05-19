@@ -2,9 +2,6 @@ name: cocoapods
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   pod-lib-lint:
