@@ -5,10 +5,8 @@ on:
 
 jobs:
   pod-lib-lint:
-    runs-on: macos-11
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Select Xcode version
-      run: sudo xcode-select -s '/Applications/Xcode_13.2.app/Contents/Developer'
     - name: Lint
       run: pod lib lint --verbose
