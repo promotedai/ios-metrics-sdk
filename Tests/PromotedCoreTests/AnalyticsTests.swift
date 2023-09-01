@@ -14,7 +14,7 @@ final class AnalyticsTests: ModuleTestCase {
     module.clientConfig.metricsLoggingURL = "http://fake.promoted.ai/metrics"
     clock.advance(to: 123)
     store.userID = "foobar"
-    store.logUserID = "fake-log-user-id"
+    store.anonUserID = "fake-anon-user-id"
     metricsLogger = MetricsLogger(deps: module)
     analytics = Analytics(deps: module)
   }

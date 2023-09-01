@@ -441,13 +441,13 @@ fileprivate extension Xray {
     )
     formatter.addField(name: "Type", width: 10)
     formatter.addField(name: "Name", width: 25)
-    formatter.addField(name: "LogUserID", width: 36)
+    formatter.addField(name: "AnonUserID", width: 36)
     formatter.addField(name: "ViewID", width: 36)
     formatter.addField(name: "AutoViewID", width: 36)
     formatter.addField(name: "ImpressionID", width: 36)
     formatter.addField(name: "ActionID", width: 36)
     let logRequest = batch.message as? Event_LogRequest
-    let logUserID = logRequest?.userInfo.logUserID ?? "-"
+    let anonUserID = logRequest?.userInfo.anonUserID ?? "-"
     for message in batch.calls.flatMap(\.messages) {
       let type = message.loggingName
       switch message {
@@ -455,7 +455,7 @@ fileprivate extension Xray {
         formatter.addRow(
           type,
           view.name,
-          logUserID,
+          anonUserID,
           view.viewID,
           "-",
           "-",
@@ -465,7 +465,7 @@ fileprivate extension Xray {
         formatter.addRow(
           type,
           "-",
-          logUserID,
+          anonUserID,
           "-",
           autoView.autoViewID,
           "-",
@@ -474,7 +474,7 @@ fileprivate extension Xray {
       case let impression as Event_Impression:
         formatter.addRow(
           type, "-",
-          logUserID,
+          anonUserID,
           impression.viewID,
           impression.autoViewID,
           impression.impressionID,
@@ -484,7 +484,7 @@ fileprivate extension Xray {
         formatter.addRow(
           type,
           action.name,
-          logUserID,
+          anonUserID,
           action.viewID,
           action.autoViewID,
           action.impressionID,

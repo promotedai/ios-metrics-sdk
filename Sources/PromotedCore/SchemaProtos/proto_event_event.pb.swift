@@ -338,7 +338,7 @@ public struct Event_JoinedIdentifiers {
 
   public var userID: String = String()
 
-  public var logUserID: String = String()
+  public var anonUserID: String = String()
 
   public var sessionID: String = String()
 
@@ -367,7 +367,7 @@ public struct Event_IdentifierProvenances {
 
   public var userIDProvenance: Event_IdentifierProvenance = .unknown
 
-  public var logUserIDProvenance: Event_IdentifierProvenance = .unknown
+  public var anonUserIDProvenance: Event_IdentifierProvenance = .unknown
 
   public var sessionIDProvenance: Event_IdentifierProvenance = .unknown
 
@@ -1545,10 +1545,10 @@ public struct Event_AncestorIdHistory {
   // methods supported on all messages.
 
   /// Window of latest log user ids.
-  public var logUserIDHistory: [Event_AncestorIdHistoryItem] = []
+  public var anonUserIDHistory: [Event_AncestorIdHistoryItem] = []
 
   /// Total number of log user ids logged this session.
-  public var totalLogUserIdsLogged: Int32 = 0
+  public var totalAnonUserIdsLogged: Int32 = 0
 
   /// Window of latest session ids.
   public var sessionIDHistory: [Event_AncestorIdHistoryItem] = []
@@ -1882,13 +1882,13 @@ extension Event_JoinedIdentifiers: SwiftProtobuf.Message, SwiftProtobuf._Message
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .standard(proto: "platform_id"),
     2: .standard(proto: "user_id"),
-    3: .standard(proto: "log_user_id"),
     4: .standard(proto: "session_id"),
     5: .standard(proto: "view_id"),
     9: .standard(proto: "auto_view_id"),
     6: .standard(proto: "request_id"),
     7: .standard(proto: "insertion_id"),
     8: .standard(proto: "impression_id"),
+    10: .standard(proto: "anon_user_id"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1899,13 +1899,13 @@ extension Event_JoinedIdentifiers: SwiftProtobuf.Message, SwiftProtobuf._Message
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularUInt64Field(value: &self.platformID) }()
       case 2: try { try decoder.decodeSingularStringField(value: &self.userID) }()
-      case 3: try { try decoder.decodeSingularStringField(value: &self.logUserID) }()
       case 4: try { try decoder.decodeSingularStringField(value: &self.sessionID) }()
       case 5: try { try decoder.decodeSingularStringField(value: &self.viewID) }()
       case 6: try { try decoder.decodeSingularStringField(value: &self.requestID) }()
       case 7: try { try decoder.decodeSingularStringField(value: &self.insertionID) }()
       case 8: try { try decoder.decodeSingularStringField(value: &self.impressionID) }()
       case 9: try { try decoder.decodeSingularStringField(value: &self.autoViewID) }()
+      case 10: try { try decoder.decodeSingularStringField(value: &self.anonUserID) }()
       default: break
       }
     }
@@ -1917,9 +1917,6 @@ extension Event_JoinedIdentifiers: SwiftProtobuf.Message, SwiftProtobuf._Message
     }
     if !self.userID.isEmpty {
       try visitor.visitSingularStringField(value: self.userID, fieldNumber: 2)
-    }
-    if !self.logUserID.isEmpty {
-      try visitor.visitSingularStringField(value: self.logUserID, fieldNumber: 3)
     }
     if !self.sessionID.isEmpty {
       try visitor.visitSingularStringField(value: self.sessionID, fieldNumber: 4)
@@ -1939,19 +1936,22 @@ extension Event_JoinedIdentifiers: SwiftProtobuf.Message, SwiftProtobuf._Message
     if !self.autoViewID.isEmpty {
       try visitor.visitSingularStringField(value: self.autoViewID, fieldNumber: 9)
     }
+    if !self.anonUserID.isEmpty {
+      try visitor.visitSingularStringField(value: self.anonUserID, fieldNumber: 10)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   public static func ==(lhs: Event_JoinedIdentifiers, rhs: Event_JoinedIdentifiers) -> Bool {
     if lhs.platformID != rhs.platformID {return false}
     if lhs.userID != rhs.userID {return false}
-    if lhs.logUserID != rhs.logUserID {return false}
     if lhs.sessionID != rhs.sessionID {return false}
     if lhs.viewID != rhs.viewID {return false}
     if lhs.autoViewID != rhs.autoViewID {return false}
     if lhs.requestID != rhs.requestID {return false}
     if lhs.insertionID != rhs.insertionID {return false}
     if lhs.impressionID != rhs.impressionID {return false}
+    if lhs.anonUserID != rhs.anonUserID {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1961,7 +1961,7 @@ extension Event_IdentifierProvenances: SwiftProtobuf.Message, SwiftProtobuf._Mes
   public static let protoMessageName: String = _protobuf_package + ".IdentifierProvenances"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .standard(proto: "user_id_provenance"),
-    9: .standard(proto: "log_user_id_provenance"),
+    9: .standard(proto: "anon_user_id_provenance"),
     2: .standard(proto: "session_id_provenance"),
     3: .standard(proto: "view_id_provenance"),
     8: .standard(proto: "auto_view_id_provenance"),
@@ -1986,7 +1986,7 @@ extension Event_IdentifierProvenances: SwiftProtobuf.Message, SwiftProtobuf._Mes
       case 6: try { try decoder.decodeSingularEnumField(value: &self.contentIDProvenance) }()
       case 7: try { try decoder.decodeSingularEnumField(value: &self.requestIDProvenance) }()
       case 8: try { try decoder.decodeSingularEnumField(value: &self.autoViewIDProvenance) }()
-      case 9: try { try decoder.decodeSingularEnumField(value: &self.logUserIDProvenance) }()
+      case 9: try { try decoder.decodeSingularEnumField(value: &self.anonUserIDProvenance) }()
       case 10: try { try decoder.decodeSingularEnumField(value: &self.insertionIDProvenance) }()
       default: break
       }
@@ -2018,8 +2018,8 @@ extension Event_IdentifierProvenances: SwiftProtobuf.Message, SwiftProtobuf._Mes
     if self.autoViewIDProvenance != .unknown {
       try visitor.visitSingularEnumField(value: self.autoViewIDProvenance, fieldNumber: 8)
     }
-    if self.logUserIDProvenance != .unknown {
-      try visitor.visitSingularEnumField(value: self.logUserIDProvenance, fieldNumber: 9)
+    if self.anonUserIDProvenance != .unknown {
+      try visitor.visitSingularEnumField(value: self.anonUserIDProvenance, fieldNumber: 9)
     }
     if self.insertionIDProvenance != .unknown {
       try visitor.visitSingularEnumField(value: self.insertionIDProvenance, fieldNumber: 10)
@@ -2029,7 +2029,7 @@ extension Event_IdentifierProvenances: SwiftProtobuf.Message, SwiftProtobuf._Mes
 
   public static func ==(lhs: Event_IdentifierProvenances, rhs: Event_IdentifierProvenances) -> Bool {
     if lhs.userIDProvenance != rhs.userIDProvenance {return false}
-    if lhs.logUserIDProvenance != rhs.logUserIDProvenance {return false}
+    if lhs.anonUserIDProvenance != rhs.anonUserIDProvenance {return false}
     if lhs.sessionIDProvenance != rhs.sessionIDProvenance {return false}
     if lhs.viewIDProvenance != rhs.viewIDProvenance {return false}
     if lhs.autoViewIDProvenance != rhs.autoViewIDProvenance {return false}

@@ -18,8 +18,8 @@ extension MetricsLogger {
   }
 
   private func validate(logRequest: Event_LogRequest) {
-    if logRequest.userInfo.logUserID.isEmptyOrWhitespace {
-      handleLoggingError(.missingLogUserIDInLogRequest)
+    if logRequest.userInfo.anonUserID.isEmptyOrWhitespace {
+      handleLoggingError(.missingAnonUserIDInLogRequest)
     }
   }
 
@@ -47,10 +47,10 @@ extension MetricsLogger {
 
   private func validate(user: Event_User) {
     if (
-      user.userInfo.logUserID.isEmptyOrWhitespace &&
+      user.userInfo.anonUserID.isEmptyOrWhitespace &&
       user.userInfo.userID.isEmptyOrWhitespace
     ) {
-      handleLoggingError(.missingLogUserIDInUserMessage)
+      handleLoggingError(.missingAnonUserIDInUserMessage)
     }
   }
 }

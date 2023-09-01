@@ -8,7 +8,7 @@ extension MetricsLogger {
   struct AncestorIDHistory {
     fileprivate typealias IDHistoryDeque = Deque<Event_AncestorIdHistoryItem>
 
-    fileprivate var logUserIDs: IDHistoryDeque
+    fileprivate var anonUserIDs: IDHistoryDeque
     fileprivate var sessionIDs: IDHistoryDeque
     fileprivate var viewIDs: IDHistoryDeque
     fileprivate var autoViewIDs: IDHistoryDeque
@@ -71,7 +71,7 @@ extension MetricsLogger {
   ) {
     guard let history = history else { return }
     var historyMessage = Event_AncestorIdHistory()
-    historyMessage.logUserIDHistory = history.logUserIDs.values
+    historyMessage.anonUserIDHistory = history.anonUserIDs.values
     historyMessage.sessionIDHistory = history.sessionIDs.values
     historyMessage.viewIDHistory = history.viewIDs.values
     historyMessage.autoViewIDHistory = history.autoViewIDs.values
@@ -85,14 +85,14 @@ extension MetricsLogger.AncestorIDHistory {
     self.osLog = osLog
     self.xray = xray
     let size = 10
-    logUserIDs = IDHistoryDeque(maximumSize: size)
+    anonUserIDs = IDHistoryDeque(maximumSize: size)
     sessionIDs = IDHistoryDeque(maximumSize: size)
     viewIDs = IDHistoryDeque(maximumSize: size)
     autoViewIDs = IDHistoryDeque(maximumSize: size)
   }
 
-  mutating func logUserIDDidChange(value: String?, event: Message? = nil) {
-    logUserIDs.ancestorIDDidChange(
+  mutating func anonUserIDDidChange(value: String?, event: Message? = nil) {
+    anonUserIDs.ancestorIDDidChange(
       value: value,
       event: event,
       osLog: osLog,

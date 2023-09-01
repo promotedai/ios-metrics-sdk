@@ -95,7 +95,7 @@ final class ImpressionTrackerTests: ModuleTestCase {
       },
       "user_info": {
         "user_id": "foo",
-        "log_user_id": "fake-log-user-id"
+        "anon_user_id": "fake-anon-user-id"
       },
       \(FakeDeviceInfo.json),
       "impression": [

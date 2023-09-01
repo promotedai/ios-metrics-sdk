@@ -16,13 +16,13 @@ final class MetricsLoggerTests: ModuleTestCase {
     module.clientConfig.metricsLoggingURL = "http://fake.promoted.ai/metrics"
     clock.advance(to: 123)
     store.userID = "foobar"
-    store.logUserID = "fake-log-user-id"
+    store.anonUserID = "fake-anon-user-id"
     metricsLogger = MetricsLogger(deps: module)
   }
 
   private func assertLoggerAndStoreInSync() {
     XCTAssertEqual(store.userID, metricsLogger.userID.stringValue)
-    XCTAssertEqual(store.logUserID, metricsLogger.logUserID)
+    XCTAssertEqual(store.anonUserID, metricsLogger.anonUserID)
   }
 
   private func assertEmptyList<T>(_ list: [T]) {
@@ -44,151 +44,151 @@ final class MetricsLoggerTests: ModuleTestCase {
 
   func testStartSession() {
     store.userID = nil
-    store.logUserID = nil
+    store.anonUserID = nil
     idMap.incrementCounts = true
     metricsLogger.startSessionForTesting(userID: "foobar")
     XCTAssertEqual("foobar", store.userID)
-    XCTAssertNotNil(store.logUserID)
+    XCTAssertNotNil(store.anonUserID)
     assertLoggerAndStoreInSync()
   }
 
   func testStartSessionMultiple() {
     store.userID = nil
-    store.logUserID = nil
+    store.anonUserID = nil
     idMap.incrementCounts = true
     metricsLogger.startSessionForTesting(userID: "foobar")
     XCTAssertEqual("foobar", store.userID)
-    XCTAssertNotNil(store.logUserID)
+    XCTAssertNotNil(store.anonUserID)
     assertLoggerAndStoreInSync()
     
-    let previousLogUserID = store.logUserID
+    let previousAnonUserID = store.anonUserID
     metricsLogger.startSessionForTesting(userID: "foobar")
     XCTAssertEqual("foobar", store.userID)
-    XCTAssertEqual(previousLogUserID, store.logUserID)
+    XCTAssertEqual(previousAnonUserID, store.anonUserID)
     assertLoggerAndStoreInSync()
     
     metricsLogger.startSessionForTesting(userID: "foobarbaz")
     XCTAssertEqual("foobarbaz", store.userID)
-    XCTAssertNotNil(store.logUserID)
-    XCTAssertNotEqual(previousLogUserID, store.logUserID)
+    XCTAssertNotNil(store.anonUserID)
+    XCTAssertNotEqual(previousAnonUserID, store.anonUserID)
     assertLoggerAndStoreInSync()
   }
 
   func testStartSessionSignedOut() {
     store.userID = nil
-    store.logUserID = nil
+    store.anonUserID = nil
     idMap.incrementCounts = true
     metricsLogger.startSessionSignedOutForTesting()
     XCTAssertNil(store.userID)
-    XCTAssertNotNil(store.logUserID)
+    XCTAssertNotNil(store.anonUserID)
     assertLoggerAndStoreInSync()
   }
 
   func testStartSessionSignInThenSignOut() {
     store.userID = nil
-    store.logUserID = nil
+    store.anonUserID = nil
     idMap.incrementCounts = true
     metricsLogger.startSessionForTesting(userID: "foobar")
     XCTAssertEqual("foobar", store.userID)
-    XCTAssertNotNil(store.logUserID)
+    XCTAssertNotNil(store.anonUserID)
     assertLoggerAndStoreInSync()
 
-    let previousLogUserID = store.logUserID
+    let previousAnonUserID = store.anonUserID
     metricsLogger.startSessionSignedOutForTesting()
     XCTAssertNil(store.userID)
-    XCTAssertNotNil(store.logUserID)
-    XCTAssertNotEqual(previousLogUserID, store.logUserID)
+    XCTAssertNotNil(store.anonUserID)
+    XCTAssertNotEqual(previousAnonUserID, store.anonUserID)
     assertLoggerAndStoreInSync()
   }
 
   func testStartSessionSignOutThenSignIn() {
     store.userID = nil
-    store.logUserID = nil
+    store.anonUserID = nil
     idMap.incrementCounts = true
     metricsLogger.startSessionSignedOutForTesting()
     XCTAssertNil(store.userID)
-    XCTAssertNotNil(store.logUserID)
+    XCTAssertNotNil(store.anonUserID)
     assertLoggerAndStoreInSync()
 
-    let previousLogUserID = store.logUserID
+    let previousAnonUserID = store.anonUserID
     metricsLogger.startSessionForTesting(userID: "foobar")
     XCTAssertEqual("foobar", store.userID)
-    XCTAssertNotNil(store.logUserID)
-    XCTAssertNotEqual(previousLogUserID, store.logUserID)
+    XCTAssertNotNil(store.anonUserID)
+    XCTAssertNotEqual(previousAnonUserID, store.anonUserID)
     assertLoggerAndStoreInSync()
   }
 
   func testReadIDsBeforeStartSessionWithUserID() {
     store.userID = "foobar"
-    store.logUserID = "fake-initial-id"
+    store.anonUserID = "fake-initial-id"
     idMap.incrementCounts = true
-    let initialLogUserID = metricsLogger.currentOrPendingLogUserID
-    XCTAssertEqual("fake-initial-id", initialLogUserID)
+    let initialAnonUserID = metricsLogger.currentOrPendingAnonUserID
+    XCTAssertEqual("fake-initial-id", initialAnonUserID)
     let initialSessionID = metricsLogger.currentOrPendingSessionID
     XCTAssertEqual("fake-session-id-1", initialSessionID)
 
     metricsLogger.startSessionForTesting(userID: "foobar")
-    XCTAssertEqual(initialLogUserID, metricsLogger.logUserID)
+    XCTAssertEqual(initialAnonUserID, metricsLogger.anonUserID)
     XCTAssertEqual(initialSessionID, metricsLogger.sessionID)
 
     metricsLogger.startSessionForTesting(userID: "batman")
-    XCTAssertNotEqual(initialLogUserID, metricsLogger.logUserID)
+    XCTAssertNotEqual(initialAnonUserID, metricsLogger.anonUserID)
     XCTAssertNotEqual(initialSessionID, metricsLogger.sessionID)
   }
 
   func testReadIDsBeforeStartSessionSignedOut() {
     store.userID = "foobar"
-    store.logUserID = "fake-initial-id"
+    store.anonUserID = "fake-initial-id"
     idMap.incrementCounts = true
-    let initialLogUserID = metricsLogger.currentOrPendingLogUserID
-    XCTAssertEqual("fake-initial-id", initialLogUserID)
+    let initialAnonUserID = metricsLogger.currentOrPendingAnonUserID
+    XCTAssertEqual("fake-initial-id", initialAnonUserID)
     let initialSessionID = metricsLogger.currentOrPendingSessionID
     XCTAssertEqual("fake-session-id-1", initialSessionID)
 
     metricsLogger.startSessionSignedOutForTesting()
-    XCTAssertEqual(initialLogUserID, metricsLogger.logUserID)
+    XCTAssertEqual(initialAnonUserID, metricsLogger.anonUserID)
     XCTAssertEqual(initialSessionID, metricsLogger.sessionID)
 
     metricsLogger.startSessionForTesting(userID: "batman")
-    XCTAssertNotEqual(initialLogUserID, metricsLogger.logUserID)
+    XCTAssertNotEqual(initialAnonUserID, metricsLogger.anonUserID)
     XCTAssertNotEqual(initialSessionID, metricsLogger.sessionID)
   }
   
-  func testReadIDsBeforeStartSessionSignedOutNoPreviousLogUserID() {
+  func testReadIDsBeforeStartSessionSignedOutNoPreviousAnonUserID() {
     store.userID = nil
-    store.logUserID = nil
+    store.anonUserID = nil
     idMap.incrementCounts = true
-    // This should generate a new, non-nil logUserID.
-    let initialLogUserID = metricsLogger.currentOrPendingLogUserID
-    XCTAssertEqual("fake-log-user-id-1", initialLogUserID)
+    // This should generate a new, non-nil anonUserID.
+    let initialAnonUserID = metricsLogger.currentOrPendingAnonUserID
+    XCTAssertEqual("fake-anon-user-id-1", initialAnonUserID)
     let initialSessionID = metricsLogger.currentOrPendingSessionID
     XCTAssertEqual("fake-session-id-1", initialSessionID)
 
     metricsLogger.startSessionSignedOutForTesting()
-    XCTAssertEqual(initialLogUserID, metricsLogger.logUserID)
+    XCTAssertEqual(initialAnonUserID, metricsLogger.anonUserID)
     XCTAssertEqual(initialSessionID, metricsLogger.sessionID)
 
     metricsLogger.startSessionForTesting(userID: "batman")
-    XCTAssertNotEqual(initialLogUserID, metricsLogger.logUserID)
+    XCTAssertNotEqual(initialAnonUserID, metricsLogger.anonUserID)
     XCTAssertNotEqual(initialSessionID, metricsLogger.sessionID)
   }
   
   func testReadIDsBeforeStartSessionSignedOutStaySignedOut() {
     store.userID = nil
-    store.logUserID = nil
+    store.anonUserID = nil
     idMap.incrementCounts = true
-    // This should generate a new, non-nil logUserID.
-    let initialLogUserID = metricsLogger.currentOrPendingLogUserID
-    XCTAssertEqual("fake-log-user-id-1", initialLogUserID)
+    // This should generate a new, non-nil anonUserID.
+    let initialAnonUserID = metricsLogger.currentOrPendingAnonUserID
+    XCTAssertEqual("fake-anon-user-id-1", initialAnonUserID)
     let initialSessionID = metricsLogger.currentOrPendingSessionID
     XCTAssertEqual("fake-session-id-1", initialSessionID)
 
     metricsLogger.startSessionSignedOutForTesting()
-    XCTAssertEqual(initialLogUserID, metricsLogger.logUserID)
+    XCTAssertEqual(initialAnonUserID, metricsLogger.anonUserID)
     XCTAssertEqual(initialSessionID, metricsLogger.sessionID)
 
     metricsLogger.startSessionSignedOutForTesting()
-    XCTAssertNotEqual(initialLogUserID, metricsLogger.logUserID)
+    XCTAssertNotEqual(initialAnonUserID, metricsLogger.anonUserID)
     XCTAssertNotEqual(initialSessionID, metricsLogger.sessionID)
   }
 
@@ -219,7 +219,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       XCTFail("Message sent to connection was not a LogRequest")
       return
     }
-    XCTAssertNotEqual("", logRequest.userInfo.logUserID)
+    XCTAssertNotEqual("", logRequest.userInfo.anonUserID)
 
     connection.messages.removeAll()
     metricsLogger.log(message: e)
@@ -229,7 +229,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     assertEmptyList(connection.messages)
   }
 
-  func testFlushNoLogUserIDs() {
+  func testFlushNoAnonUserIDs() {
     metricsLogger = MetricsLogger(deps: module)
 
     let flushInterval = config.loggingFlushInterval
@@ -244,7 +244,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       XCTFail("Message sent to connection was not a LogRequest")
       return
     }
-    XCTAssertEqual("", logRequest.userInfo.logUserID)
+    XCTAssertEqual("", logRequest.userInfo.anonUserID)
   }
 
   func testProperties() {
@@ -278,7 +278,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     {
       "user_info": {
         "user_id": "foo",
-        "log_user_id": "fake-log-user-id"
+        "anon_user_id": "fake-anon-user-id"
       },
       "timing": {
         "client_log_timestamp": 123000
@@ -291,7 +291,7 @@ final class MetricsLoggerTests: ModuleTestCase {
     )
   }
 
-  func testLogUserIDProvenances() {
+  func testAnonUserIDProvenances() {
     module.clientConfig.eventsIncludeIDProvenances = true
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
@@ -304,14 +304,14 @@ final class MetricsLoggerTests: ModuleTestCase {
     {
       "user_info": {
         "user_id": "foo",
-        "log_user_id": "fake-log-user-id"
+        "anon_user_id": "fake-anon-user-id"
       },
       "timing": {
         "client_log_timestamp": 123000
       },
       "id_provenances": {
         "user_id_provenance": "PLATFORM_SPECIFIED",
-        "log_user_id_provenance": "AUTOGENERATED",
+        "anon_user_id_provenance": "AUTOGENERATED",
         "session_id_provenance": "AUTOGENERATED",
         "view_id_provenance": "NULL",
         "impression_id_provenance": "NULL",
@@ -403,9 +403,9 @@ final class MetricsLoggerTests: ModuleTestCase {
     )
   }
 
-  func testLogImpressionExternalLogUserID() {
+  func testLogImpressionExternalAnonUserID() {
     let item = Content(contentID: "foobar", insertionID: "insertion!")
-    metricsLogger.logUserID = "batman"
+    metricsLogger.anonUserID = "batman"
     metricsLogger.logImpression(content: item)
     metricsLogger.flush()
     let message = assertSingletonList(connection.messages).message
@@ -417,7 +417,7 @@ final class MetricsLoggerTests: ModuleTestCase {
         "traffic_type": 1
       },
       "user_info": {
-        "log_user_id": "batman"
+        "anon_user_id": "batman"
       },
       \(FakeDeviceInfo.json),
       "impression": [
@@ -440,7 +440,7 @@ final class MetricsLoggerTests: ModuleTestCase {
 
   func testLogImpressionMultipleExternalIDs() {
     let item = Content(contentID: "foobar", insertionID: "insertion!")
-    metricsLogger.logUserID = "batman"
+    metricsLogger.anonUserID = "batman"
     metricsLogger.sessionID = "gotham"
     metricsLogger.viewID = "joker"
     metricsLogger.logImpression(content: item, autoViewState: .fake)
@@ -454,7 +454,7 @@ final class MetricsLoggerTests: ModuleTestCase {
         "traffic_type": 1
       },
       "user_info": {
-        "log_user_id": "batman"
+        "anon_user_id": "batman"
       },
       \(FakeDeviceInfo.json),
       "impression": [
@@ -500,7 +500,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       "auto_view_id": "fake-auto-view-id",
       "id_provenances": {
         "user_id_provenance": "PLATFORM_SPECIFIED",
-        "log_user_id_provenance": "AUTOGENERATED",
+        "anon_user_id_provenance": "AUTOGENERATED",
         "session_id_provenance": "AUTOGENERATED",
         "view_id_provenance": "NULL",
         "impression_id_provenance": "AUTOGENERATED",
@@ -1139,7 +1139,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       },
       "id_provenances": {
         "user_id_provenance": "PLATFORM_SPECIFIED",
-        "log_user_id_provenance": "AUTOGENERATED",
+        "anon_user_id_provenance": "AUTOGENERATED",
         "session_id_provenance": "AUTOGENERATED",
         "view_id_provenance": "NULL",
         "impression_id_provenance": "AUTOGENERATED",
@@ -1352,7 +1352,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       },
       "id_provenances": {
         "user_id_provenance": "PLATFORM_SPECIFIED",
-        "log_user_id_provenance": "AUTOGENERATED",
+        "anon_user_id_provenance": "AUTOGENERATED",
         "session_id_provenance": "AUTOGENERATED",
         "view_id_provenance": "AUTOGENERATED",
         "impression_id_provenance": "NULL",
@@ -1371,7 +1371,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   }
 
   func testLogAutoView() {
-    metricsLogger.logUserID = "batman"
+    metricsLogger.anonUserID = "batman"
     metricsLogger.logAutoView(
       routeName: "fake-route-name",
       routeKey: "fake-route-key",
@@ -1387,7 +1387,7 @@ final class MetricsLoggerTests: ModuleTestCase {
         "traffic_type": 1
       },
       "user_info": {
-        "log_user_id": "batman"
+        "anon_user_id": "batman"
       },
       \(FakeDeviceInfo.json),
       "auto_view": [
@@ -1416,7 +1416,7 @@ final class MetricsLoggerTests: ModuleTestCase {
   func testLogAutoViewIDProvenances() {
     module.clientConfig.eventsIncludeIDProvenances = true
     metricsLogger = MetricsLogger(deps: module)
-    metricsLogger.logUserID = "fake-log-user-id"
+    metricsLogger.anonUserID = "fake-anon-user-id"
     metricsLogger.logAutoView(
       routeName: "fake-route-name",
       routeKey: "fake-route-key",
@@ -1439,7 +1439,7 @@ final class MetricsLoggerTests: ModuleTestCase {
       },
       "id_provenances": {
         "user_id_provenance": "NULL",
-        "log_user_id_provenance": "PLATFORM_SPECIFIED",
+        "anon_user_id_provenance": "PLATFORM_SPECIFIED",
         "session_id_provenance": "NULL",
         "view_id_provenance": "NULL",
         "impression_id_provenance": "NULL",
@@ -1483,8 +1483,8 @@ final class MetricsLoggerTests: ModuleTestCase {
     let diagnostics = assertSingletonList(logRequest.diagnostics)
     let history = diagnostics.mobileDiagnostics.ancestorIDHistory
 
-    let userHistory = assertSingletonList(history.logUserIDHistory)
-    XCTAssertEqual("fake-log-user-id", userHistory.ancestorID)
+    let userHistory = assertSingletonList(history.anonUserIDHistory)
+    XCTAssertEqual("fake-anon-user-id", userHistory.ancestorID)
 
     let sessionHistory = assertSingletonList(history.sessionIDHistory)
     XCTAssertEqual("fake-session-id", sessionHistory.ancestorID)
@@ -1506,31 +1506,31 @@ final class MetricsLoggerTests: ModuleTestCase {
     )
   }
 
-  func testErrorMissingLogUserIDOnUser() {
+  func testErrorMissingAnonUserIDOnUser() {
     let listener = TestOperationMonitorListener()
     module.operationMonitor.addOperationMonitorListener(listener)
 
-    metricsLogger.logUserID = nil
+    metricsLogger.anonUserID = nil
     metricsLogger.logUserForTesting(properties: nil)
     assert(
       list: listener.errors,
-      containsSingletonError: .missingLogUserIDInUserMessage
+      containsSingletonError: .missingAnonUserIDInUserMessage
     )
   }
 
-  func testValidLogUserIDOnUser() {
+  func testValidAnonUserIDOnUser() {
     let listener = TestOperationMonitorListener()
     module.operationMonitor.addOperationMonitorListener(listener)
 
-    metricsLogger.logUserID = "foo"
+    metricsLogger.anonUserID = "foo"
     metricsLogger.logUserForTesting(properties: nil)
     assertEmptyList(listener.errors)
   }
 
-  func testErrorMissingLogUserIDOnLogRequest() {
+  func testErrorMissingAnonUserIDOnLogRequest() {
     let listener = TestOperationMonitorListener()
     module.operationMonitor.addOperationMonitorListener(listener)
-    metricsLogger.logUserID = nil
+    metricsLogger.anonUserID = nil
 
     metricsLogger.logImpression(
       content: Content(contentID: "foo", insertionID: "bar")
@@ -1541,14 +1541,14 @@ final class MetricsLoggerTests: ModuleTestCase {
 
     assert(
       list: listener.errors,
-      containsSingletonError: .missingLogUserIDInLogRequest
+      containsSingletonError: .missingAnonUserIDInLogRequest
     )
   }
 
-  func testValidLogUserIDOnLogRequest() {
+  func testValidAnonUserIDOnLogRequest() {
     let listener = TestOperationMonitorListener()
     module.operationMonitor.addOperationMonitorListener(listener)
-    metricsLogger.logUserID = "foo"
+    metricsLogger.anonUserID = "foo"
 
     metricsLogger.logImpression(
       content: Content(contentID: "foo", insertionID: "bar")
