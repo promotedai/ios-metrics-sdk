@@ -118,7 +118,7 @@ extension JSONEncodingError: ErrorDetails {
 extension MetricsLoggerError: ErrorDetails {
   public var details: String {
     switch self {
-    case .missingLogUserIDInUserMessage, .missingLogUserIDInLogRequest:
+    case .missingAnonUserIDInUserMessage, .missingAnonUserIDInLogRequest:
       return """
       An event was logged with no log user ID. This may be due to a recent change in Promoted initialization. Examples include changes to your AppDelegate class, or calls to the Promoted SDK method startSessionAndLogUser().
 

@@ -8,7 +8,7 @@ public protocol PersistentStore: AnyObject {
   var userID: String? { get set }
   
   /// Log user ID of last signed-in or signed-out user.
-  var logUserID: String? { get set }
+  var anonUserID: String? { get set }
 
   /// Locally cached client config.
   var clientConfig: Data? { get set }
@@ -27,7 +27,7 @@ final class UserDefaultsPersistentStore: PersistentStore {
     set(value) { setValue(value, forKey: #function) }
   }
 
-  var logUserID: String? {
+  var anonUserID: String? {
     get { stringValue(forKey: #function) }
     set(value) { setValue(value, forKey: #function) }
   }

@@ -122,7 +122,7 @@ public extension MetricsLogger {
   /// - `timing` from `clock.nowMillis`
   /// - `actionID` as a UUID
   /// - `impressionID` from a combination of `insertionID`,
-  ///    `contentID`, and `logUserID`
+  ///    `contentID`, and `anonUserID`
   /// - `sessionID` from state in this logger
   /// - `viewID` from state in this logger
   /// - `name` from `actionName`

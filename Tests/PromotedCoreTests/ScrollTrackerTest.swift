@@ -13,7 +13,7 @@ final class ScrollTrackerTests: ModuleTestCase {
     super.setUp()
     idMap.incrementCounts = true
     store.userID = "foobar"
-    store.logUserID = "fake-log-user-id"
+    store.anonUserID = "fake-anon-user-id"
     metricsLogger = MetricsLogger(deps: module)
     metricsLogger.startSessionForTesting(userID: "foo")
     scrollTracker = ScrollTracker(
