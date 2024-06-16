@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
     :tag => s.version.to_s
   }
 
-  s.ios.deployment_target = '10.0'
+  s.ios.deployment_target = '16.0'
   s.swift_version = '5.3'
 
   # By default we bring in GTMSessionFetcher for networking.
@@ -35,7 +35,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Fetcher' do |fetcher|
     fetcher.source_files = ['Sources/PromotedFetcher/**/*.{h,m,swift}']
-    fetcher.dependency 'GTMSessionFetcher/Core', '~> 1.5.0'
+    fetcher.dependency 'GTMSessionFetcher/Core', '~> 3.0.0'
     fetcher.dependency 'PromotedAIMetricsSDK/Core'
   end
 
@@ -57,7 +57,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'FirebaseAnalytics' do |a|
     a.source_files = ['Sources/PromotedFirebaseAnalytics/**/*.{h,m,swift}']
-    a.dependency 'Firebase/Analytics', '~> 7.9.0'
+    a.dependency 'Firebase/Analytics', '~> 10.0.0'
     a.dependency 'PromotedAIMetricsSDK/Core'
 
     a.pod_target_xcconfig = {
@@ -68,7 +68,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'FirebaseAnalyticsWithoutAdIdSupport' do |a|
     a.source_files = ['Sources/PromotedFirebaseAnalytics/**/*.{h,m,swift}']
-    a.dependency 'Firebase/AnalyticsWithoutAdIdSupport', '~> 7.11.0'
+    a.dependency 'Firebase/AnalyticsWithoutAdIdSupport', '~> 10.0.0'
     a.dependency 'PromotedAIMetricsSDK/Core'
 
     # Linker flags are needed when the host app has no other
@@ -83,7 +83,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'FirebaseRemoteConfig' do |rc|
     rc.source_files = ['Sources/PromotedFirebaseRemoteConfig/**/*.{h,m,swift}']
-    rc.dependency 'Firebase/RemoteConfig', '~> 7.9.0'
+    rc.dependency 'Firebase/RemoteConfig', '~> 10.0.0'
     rc.dependency 'PromotedAIMetricsSDK/Core'
 
     # Linker flags are needed when the host app has no other
