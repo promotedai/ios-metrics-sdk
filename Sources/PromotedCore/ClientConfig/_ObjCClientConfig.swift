@@ -467,7 +467,10 @@ extension _ObjCClientConfig {
   }
 
   func validateConfig() throws {
-    if URL(string: metricsLoggingURL) == nil {
+    guard 
+      let url = URL(string: metricsLoggingURL),
+      url.scheme == "http" || url.scheme == "https"
+    else {
       throw ClientConfigError.invalidURL(urlString: metricsLoggingURL)
     }
     func checkForReservedHeaderField(_ field: String) throws {
