@@ -36,6 +36,8 @@ import Foundation
  */
 final class ClientConfigService {
 
+  private(set) static var fetchLogMessages = PendingLogMessages()
+
   /// The current config for the session.
   var config: ClientConfig {
     assert(
@@ -46,6 +48,7 @@ final class ClientConfigService {
   }
   private var cachedConfig: ClientConfig
   private var wasConfigFetched: Bool
+  private var fetchLogMessages: PendingLogMessages
 
   private unowned let clock: Clock
   private let initialConfig: ClientConfig
@@ -66,9 +69,10 @@ final class ClientConfigService {
     RemoteConfigConnectionSource
   )
 
-  init(deps: Deps) {
+  init(deps: Deps, fetchLogMessages: PendingLogMessages? = nil) {
     self.cachedConfig = deps.initialConfig
     self.wasConfigFetched = false
+    self.fetchLogMessages = fetchLogMessages ?? Self.fetchLogMessages
     self.clock = deps.clock
     self.initialConfig = deps.initialConfig
     self.deviceInfo = deps.deviceInfo
@@ -83,69 +87,78 @@ protocol ClientConfigServiceSource {
 
 extension ClientConfigService {
 
-  struct Result {
-    let config: ClientConfig?
-    let error: ClientConfigFetchError?
-    let messages: PendingLogMessages
-  }
-
-  typealias Callback = (Result) -> Void
-
   /// Loads cached config synchronously and initiates asynchronous
   /// load of remote config (for use in next startup).
-  func fetchClientConfig(callback: @escaping Callback) {
-
+  func fetchClientConfig() async throws -> ClientConfig {
     // This loads the cached config synchronously.
-    var fetchMessages = PendingLogMessages()
-    loadLocalCachedConfig(fetchMessages: &fetchMessages)
+    loadLocalCachedConfig()
     wasConfigFetched = true
 
     guard let connection = remoteConfigConnection else {
-      handleRemoteConfigUnavailable(
-        callback: callback,
-        fetchMessages: &fetchMessages
+      fetchLogMessages.info(
+        "Remote config not configured. Skipping.",
+        visibility: .public
       )
-      return
+      return applyDiagnosticsSamplingIfNeeded(cachedConfig)
     }
 
-    fetchMessages.info(
+    fetchLogMessages.info(
       "Scheduling remote config fetch in 5 seconds.",
       visibility: .public
     )
 
-    clock.schedule(timeInterval: 5.0) { [weak self] _ in
-      guard let self = self else { return }
-      do {
-        fetchMessages.info(
-          "Remote config fetch starting.",
-          visibility: .public
-        )
-        // Use initialConfig as the basis of the fetch so that
-        // incremental changes are applied to this baseline.
-        try connection.fetchClientConfig(
-          initialConfig: self.initialConfig
-        ) { remoteResult in
-          self.handleRemoteConfigFetchComplete(
-            remoteResult: remoteResult,
-            callback: callback,
-            fetchMessages: fetchMessages
-          )
-        }
-      } catch {
-        self.handleRemoteConfigFetchError(
-          error,
-          callback: callback,
-          fetchMessages: fetchMessages
-        )
-      }
+    do {
+      try await clock.sleep(duration: .seconds(5))
+    } catch is CancellationError {
+      fetchLogMessages.warning(
+        "Interrupted. Using local cached config.",
+        visibility: .public
+      )
+      return cachedConfig
     }
+
+    fetchLogMessages.info(
+      "Remote config fetch starting.",
+      visibility: .public
+    )
+
+    let remoteConfig: ClientConfig
+    do {
+      // Use initialConfig as the basis of the fetch so that
+      // incremental changes are applied to this baseline.
+      remoteConfig = try await connection.fetchClientConfig(
+        initialConfig: self.initialConfig
+      )
+      try remoteConfig.validateConfig()
+    } catch is ClientConfigError {
+      fetchLogMessages.warning(
+        "Remote config validation failed. Using local cached config.",
+        visibility: .public
+      )
+      return cachedConfig
+    } catch {
+      fetchLogMessages.warning(
+        "Remote config fetch failed. Using local cached config.",
+        visibility: .public
+      )
+      return cachedConfig
+    }
+
+    do {
+      try cacheRemoteConfig(remoteConfig)
+    } catch {
+      fetchLogMessages.warning(
+        "Remote config cache failed. Using local cached config.",
+        visibility: .public
+      )
+    }
+
+    return remoteConfig
   }
 
-  private func loadLocalCachedConfig(
-    fetchMessages: inout PendingLogMessages
-  ) {
+  private func loadLocalCachedConfig() {
     guard let clientConfigData = store.clientConfig else {
-      fetchMessages.info(
+      fetchLogMessages.info(
         "Local cached config not found. Skipping.",
         visibility: .public
       )
@@ -157,14 +170,14 @@ extension ClientConfigService {
         ClientConfig.self,
         from: clientConfigData
       )
-      fetchMessages.info(
+      fetchLogMessages.info(
         "Local cached config successfully applied.",
         visibility: .public
       )
     } catch {
       // Prevent error from happening again next startup.
       store.clientConfig = nil
-      fetchMessages.error(
+      fetchLogMessages.error(
         "Local cached config failed to apply: " +
           "\(String(describing: error)). " +
           "Falling back to initial config.",
@@ -173,34 +186,24 @@ extension ClientConfigService {
     }
   }
 
-  private func handleRemoteConfigUnavailable(
-    callback: Callback,
-    fetchMessages: inout PendingLogMessages
-  ) {
-    fetchMessages.info(
+  private func configForRemoteConfigUnavailable() -> ClientConfig{
+    fetchLogMessages.info(
       "Remote config not configured. Skipping.",
       visibility: .public
     )
     cachedConfig = applyDiagnosticsSamplingIfNeeded(
-      cachedConfig,
-      messages: &fetchMessages
+      cachedConfig
     )
-    let result = Result(
-      config: cachedConfig,
-      error: nil,
-      messages: fetchMessages
-    )
-    callback(result)
+    return cachedConfig
   }
 
   private func applyDiagnosticsSamplingIfNeeded(
-    _ config: ClientConfig,
-    messages: inout PendingLogMessages
+    _ config: ClientConfig
   ) -> ClientConfig {
     let percentage = config.diagnosticsSamplingPercentage
     guard percentage > 0 else { return config }
     guard let endDate = config.diagnosticsSamplingEndDate else {
-      messages.warning(
+      fetchLogMessages.warning(
         "Config specifies diagnosticsSamplingPercentage=\(percentage)% " +
         "but no end date. Ignoring.",
         visibility: .public
@@ -210,7 +213,7 @@ extension ClientConfigService {
     let now = clock.now
     let endTime = endDate.timeIntervalSince1970
     guard clock.now < endTime else {
-      messages.info(
+      fetchLogMessages.info(
         "Config specifies diagnosticsSamplingPercentage=\(percentage)% " +
         "and end date (\(endTime.asFormattedDateStringSince1970())) " +
         "earlier than or equal to current date " +
@@ -220,7 +223,7 @@ extension ClientConfigService {
       return config
     }
     guard shouldSampleDiagnostics(percentage: percentage) else {
-      messages.info(
+      fetchLogMessages.info(
         "Config specifies diagnosticsSamplingPercentage=\(percentage)% " +
         "and end date (\(endTime.asFormattedDateStringSince1970())) " +
         "but random sample skipped.",
@@ -228,7 +231,7 @@ extension ClientConfigService {
       )
       return config
     }
-    messages.info(
+    fetchLogMessages.info(
       "Config specifies diagnosticsSamplingPercentage=\(percentage)% " +
       "and end date (\(endTime.asFormattedDateStringSince1970())). " +
       "Enabling all diagnostics.",
@@ -248,71 +251,17 @@ extension ClientConfigService {
     return uuid.stableHashValue(mod: 100) < percentage
   }
 
-  private func handleRemoteConfigFetchComplete(
-    remoteResult: RemoteConfigConnection.Result,
-    callback: Callback,
-    fetchMessages: PendingLogMessages
-  ) {
-    var resultConfig: ClientConfig? = nil
-    var resultError: ClientConfigFetchError? = nil
-    var resultMessages = fetchMessages + remoteResult.messages
-    defer {
-      let result = Result(
-        config: resultConfig,
-        error: resultError,
-        messages: resultMessages
-      )
-      callback(result)
-    }
-
-    guard remoteResult.error == nil else {
-      resultError = .networkError(remoteResult.error!)
-      return
-    }
-
-    guard let remoteConfig = remoteResult.config else {
-      // Somehow failed to get error or config.
-      resultError = .emptyConfig
-      return
-    }
-
-    do {
-      // Ensure that the resulting config is valid.
-      try remoteConfig.validateConfig()
-    } catch {
-      resultError = .invalidConfig(error)
-      return
-    }
-
+  private func cacheRemoteConfig(_ remoteConfig: ClientConfig) throws {
     // Successfully loaded config. Save for next session.
     do {
       let encoder = JSONEncoder()
       self.store.clientConfig = try encoder.encode(remoteConfig)
-      resultConfig = remoteConfig
-      resultMessages.info(
+      fetchLogMessages.info(
         "Remote config successfully cached.",
         visibility: .public
       )
     } catch {
-      resultError = .localCacheEncodeError(error)
+      throw ClientConfigFetchError.localCacheEncodeError(error)
     }
-  }
-
-  private func handleRemoteConfigFetchError(
-    _ error: Error,
-    callback: Callback,
-    fetchMessages: PendingLogMessages
-  ) {
-    var resultMessages = fetchMessages
-    resultMessages.warning(
-      "Remote config fetch failed. Using local cached config.",
-      visibility: .public
-    )
-    let result = Result(
-      config: cachedConfig,
-      error: .networkError(error),
-      messages: resultMessages
-    )
-    callback(result)
   }
 }
