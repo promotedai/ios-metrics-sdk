@@ -408,7 +408,7 @@ public extension MetricsLogger {
   private func maybeSchedulePendingBatchLoggingFlush() {
     if batchLoggingTimer != nil { return }
     let interval = config.loggingFlushInterval
-    batchLoggingTimer = clock.schedule(timeInterval: interval) {
+    batchLoggingTimer = clock.schedule(duration: .seconds(interval)) {
       [weak self] clock in
       guard let self = self else { return }
       self.batchLoggingTimer = nil
