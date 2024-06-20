@@ -73,7 +73,7 @@ Pod::Spec.new do |s|
 
     # Linker flags are needed when the host app has no other
     # Firebase dependencies.
-    analytics_noadid_ldflags = analytics_ldflags + ' -framework "GoogleAppMeasurementWithoutAdIdSupport"'
+    analytics_noadid_ldflags = analytics_ldflags + ' -framework "GoogleAppMeasurement"'
 
     a.pod_target_xcconfig = {
       'USER_HEADER_SEARCH_PATHS' => firebase_header_search_paths,
