@@ -104,12 +104,12 @@ Use `log(message:)` to enqueue an event for logging. When the batching timer fir
 ### Example
 ```swift
 let logger = MetricsLogger(...)
-// Sets userID and logUserID for subsequent log() calls.
+// Sets userID and anonUserID for subsequent log() calls.
 logger.startSession(userID: myUserID)
 // Log clicks, purchases, or other relevant events
 logger.logAction(type: .navigate, content: clickedContent)
 logger.logAction(type: .purchase, content: purchasedContent)
-// Resets userID and logUserID.
+// Resets userID and anonUserID.
 logger.startSession(userID: secondUserID)
 ```
 

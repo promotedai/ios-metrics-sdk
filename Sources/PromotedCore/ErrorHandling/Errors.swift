@@ -162,11 +162,11 @@ public enum MetricsLoggerError: Error {
   /// An unexpected event type was logged. Non-fatal.
   case unexpectedEvent(_ event: Message)
 
-  /// Tried to log a User message without logUserID. Non-fatal.
-  case missingLogUserIDInUserMessage
+  /// Tried to log a User message without anonUserID. Non-fatal.
+  case missingAnonUserIDInUserMessage
 
-  /// Tried to log a LogRequest batch without logUserID. Non-fatal.
-  case missingLogUserIDInLogRequest
+  /// Tried to log a LogRequest batch without anonUserID. Non-fatal.
+  case missingAnonUserIDInLogRequest
 
   /// Impression without any joinable fields (content ID, insertion ID).
   /// Non-fatal.
@@ -187,9 +187,9 @@ extension MetricsLoggerError: NSErrorProperties {
       return 4002
     case .unexpectedEvent(_):
       return 4003
-    case .missingLogUserIDInUserMessage:
+    case .missingAnonUserIDInUserMessage:
       return 4004
-    case .missingLogUserIDInLogRequest:
+    case .missingAnonUserIDInLogRequest:
       return 4005
     case .missingJoinableIDsInImpression:
       return 4006

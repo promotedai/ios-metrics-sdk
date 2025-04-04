@@ -278,7 +278,7 @@ public final class _ObjCClientConfig: NSObject {
   /// Attempts to create a consistent cohort for the set of users
   /// with sampling enabled. To this end, sampling is done using
   /// the following:
-  /// 1. A hash of the persisted `logUserID`. This should persist
+  /// 1. A hash of the persisted `anonUserID`. This should persist
   ///    while the same account is logged in. This also applies to
   ///    signed-out users until they log in.
   /// 2. If 1 is not available, uses

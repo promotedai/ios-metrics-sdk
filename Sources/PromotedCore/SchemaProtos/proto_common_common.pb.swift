@@ -244,7 +244,7 @@ public struct Common_UserInfo {
   /// 1. in case the user wants to be forgotten.
   /// 2. logging unauthenticated users.
   /// The user UUID is in a different ID space than user_id.
-  public var logUserID: String = String()
+  public var anonUserID: String = String()
 
   /// Optional, defaults to false. Indicates that the user is from the
   /// marketplace or Promoted team.
@@ -252,7 +252,7 @@ public struct Common_UserInfo {
 
   /// Optional, defaults to false.  Can be used to suppress traffic.
   /// One use case is to use this field when debugging specific customer
-  /// experiences by overriding the log_user_id.
+  /// experiences by overriding the anon_user_id.
   public var ignoreUsage: Bool = false
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
@@ -875,9 +875,9 @@ extension Common_UserInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
   public static let protoMessageName: String = _protobuf_package + ".UserInfo"
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .standard(proto: "user_id"),
-    2: .standard(proto: "log_user_id"),
     3: .standard(proto: "is_internal_user"),
     4: .standard(proto: "ignore_usage"),
+    5: .standard(proto: "anon_user_id"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -887,9 +887,9 @@ extension Common_UserInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularStringField(value: &self.userID) }()
-      case 2: try { try decoder.decodeSingularStringField(value: &self.logUserID) }()
       case 3: try { try decoder.decodeSingularBoolField(value: &self.isInternalUser) }()
       case 4: try { try decoder.decodeSingularBoolField(value: &self.ignoreUsage) }()
+      case 5: try { try decoder.decodeSingularStringField(value: &self.anonUserID) }()
       default: break
       }
     }
@@ -899,23 +899,23 @@ extension Common_UserInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
     if !self.userID.isEmpty {
       try visitor.visitSingularStringField(value: self.userID, fieldNumber: 1)
     }
-    if !self.logUserID.isEmpty {
-      try visitor.visitSingularStringField(value: self.logUserID, fieldNumber: 2)
-    }
     if self.isInternalUser != false {
       try visitor.visitSingularBoolField(value: self.isInternalUser, fieldNumber: 3)
     }
     if self.ignoreUsage != false {
       try visitor.visitSingularBoolField(value: self.ignoreUsage, fieldNumber: 4)
     }
+    if !self.anonUserID.isEmpty {
+      try visitor.visitSingularStringField(value: self.anonUserID, fieldNumber: 5)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   public static func ==(lhs: Common_UserInfo, rhs: Common_UserInfo) -> Bool {
     if lhs.userID != rhs.userID {return false}
-    if lhs.logUserID != rhs.logUserID {return false}
     if lhs.isInternalUser != rhs.isInternalUser {return false}
     if lhs.ignoreUsage != rhs.ignoreUsage {return false}
+    if lhs.anonUserID != rhs.anonUserID {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
