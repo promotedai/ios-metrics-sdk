@@ -216,6 +216,9 @@ public enum ClientConfigFetchError: Error {
   /// Error when persisting fetched config to local cache.
   /// This means that the config will not be applied.
   case localCacheEncodeError(_ error: Error)
+
+  /// Unanticipated error.
+  case unknownError(_ error: Error)
 }
 
 extension ClientConfigFetchError: NSErrorProperties {
@@ -230,6 +233,8 @@ extension ClientConfigFetchError: NSErrorProperties {
       return 5003
     case .localCacheEncodeError(_):
       return 5004
+    case .unknownError(_):
+      return 5005
     }
   }
 }

@@ -4,6 +4,7 @@ import Foundation
 /** Opaque type returned by `Clock.schedule()` to use when canceling. */
 protocol ScheduledTimer {}
 
+/** Used to represent millis since 1970. */
 typealias TimeIntervalMillis = Int64
 
 extension TimeIntervalMillis {
@@ -51,6 +52,12 @@ extension Date {
   }
 }
 
+extension Duration {
+  var millis: Int64 {
+    components.seconds * 1000 + components.attoseconds / 1_000_000_000
+  }
+}
+
 // MARK: -
 /** Represents a way to get time and perform scheduling of tasks. */
 protocol Clock: AnyObject {
@@ -65,12 +72,15 @@ protocol Clock: AnyObject {
   /// Callers can capture the return value to cancel the callback.
   @discardableResult
   func schedule(
-    timeInterval: TimeInterval,
+    duration: Duration,
     callback: @escaping Callback
   ) -> ScheduledTimer?
   
   /// Cancels the given callback.
   func cancel(scheduledTimer: ScheduledTimer)
+
+  /// Asynchronously sleeps.
+  func sleep(duration: Duration) async throws
 }
 
 protocol ClockSource {
@@ -84,17 +94,6 @@ extension Clock {
   /// This loses sub-millisecond resolution, which makes it unsuitable
   /// for interval measurement.
   var nowMillis: TimeIntervalMillis { TimeIntervalMillis(seconds: now) }
-
-  @discardableResult
-  func schedule(
-      timeIntervalMillis: TimeIntervalMillis,
-      callback: @escaping Callback
-  ) -> ScheduledTimer? {
-    schedule(
-      timeInterval: TimeInterval(millis: timeIntervalMillis),
-      callback: callback
-    )
-  }
 }
 
 // MARK: -
@@ -108,12 +107,12 @@ final class SystemClock: Clock {
   var now: TimeInterval { Date().timeIntervalSince1970 }
 
   func schedule(
-    timeInterval: TimeInterval,
+    duration: Duration,
     callback: @escaping Callback
   ) -> ScheduledTimer? {
     guard #available(iOS 10.0, macOS 10.12, *) else { return nil }
     let timer = Timer.scheduledTimer(
-      withTimeInterval: timeInterval,
+      withTimeInterval: TimeInterval(millis: duration.millis),
       repeats: false
     ) { _ in
       callback(self)
@@ -124,5 +123,9 @@ final class SystemClock: Clock {
   func cancel(scheduledTimer: ScheduledTimer) {
     guard let systemTimer = scheduledTimer as? SystemTimer else { return }
     systemTimer.timer.invalidate()
+  }
+
+  func sleep(duration: Duration) async throws {
+    try await Task.sleep(for: duration)
   }
 }
