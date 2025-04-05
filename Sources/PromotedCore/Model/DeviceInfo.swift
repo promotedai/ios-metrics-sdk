@@ -69,7 +69,11 @@ final class IOSDeviceInfo: DeviceInfo {
     return (UInt32(bounds.width), UInt32(bounds.height))
   }
   
-  var languageCode: String { Locale.current.languageCode ?? "unknown" }
-  
-  var regionCode: String { Locale.current.regionCode ?? "unknown" }
+  var languageCode: String {
+    Locale.current.language.languageCode?.identifier ?? "unknown"
+  }
+
+  var regionCode: String {
+    Locale.current.region?.identifier ?? "unknown"
+  }
 }
